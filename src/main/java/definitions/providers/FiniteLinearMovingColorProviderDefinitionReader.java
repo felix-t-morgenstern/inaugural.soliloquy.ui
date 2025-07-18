@@ -8,7 +8,7 @@ import soliloquy.specs.ui.definitions.providers.FiniteLinearMovingColorProviderD
 import java.util.Arrays;
 import java.util.UUID;
 
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 
 public class FiniteLinearMovingColorProviderDefinitionReader {
@@ -29,6 +29,6 @@ public class FiniteLinearMovingColorProviderDefinitionReader {
                         "val within definition.VALUES_AT_TIMESTAMP_OFFSETS").FIRST +
                         contentRenderTimestamp, val.SECOND)));
         return FACTORY.make(UUID.randomUUID(), valsAtTimestamps,
-                definition.HUE_MOVEMENT_IS_CLOCKWISE, null, null);
+                listOf(definition.HUE_MOVEMENT_IS_CLOCKWISE), null, null);
     }
 }

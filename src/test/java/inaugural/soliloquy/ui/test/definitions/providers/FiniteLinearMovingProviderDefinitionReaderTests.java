@@ -22,14 +22,14 @@ import static soliloquy.specs.ui.definitions.providers.FiniteLinearMovingProvide
 
 @ExtendWith(MockitoExtension.class)
 public class FiniteLinearMovingProviderDefinitionReaderTests {
-    @SuppressWarnings("rawtypes") @Mock private FiniteLinearMovingProvider mockLinearProvider;
-    @Mock private FiniteLinearMovingProviderFactory mockLinearFactory;
+    @SuppressWarnings("rawtypes") @Mock private FiniteLinearMovingProvider mockProvider;
+    @Mock private FiniteLinearMovingProviderFactory mockFactory;
 
     private FiniteLinearMovingProviderDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
-        reader = new FiniteLinearMovingProviderDefinitionReader(mockLinearFactory);
+        reader = new FiniteLinearMovingProviderDefinitionReader(mockFactory);
     }
 
     @Test
@@ -41,16 +41,25 @@ public class FiniteLinearMovingProviderDefinitionReaderTests {
     @Test
     public void testRead() {
         //noinspection unchecked
-        when(mockLinearFactory.make(any(), any(), any(), any())).thenReturn(mockLinearProvider);
+        when(mockFactory.make(any(), any(), any(), any())).thenReturn(mockProvider);
         var vals = pairOf(randomInt(), randomFloat());
         var contentRenderTimestamp = randomLong();
         var definition = finiteLinearMoving(vals);
 
         var provider = reader.read(definition, contentRenderTimestamp);
 
-        assertSame(mockLinearProvider, provider);
+        assertSame(mockProvider, provider);
         var expectedRenderTimestamp = contentRenderTimestamp + vals.FIRST;
-        verify(mockLinearFactory, once()).make(any(),
+        verify(mockFactory, once()).make(any(),
                 eq(mapOf(pairOf(expectedRenderTimestamp, vals.SECOND))), isNull(), isNull());
+    }
+
+    @Test
+    public void testReadWithInvalidArgs() {
+        assertThrows(IllegalArgumentException.class, () -> reader.read(null, randomLong()));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(finiteLinearMoving(
+                (soliloquy.specs.common.valueobjects.Pair<Integer, Object>) null), randomLong()));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(finiteLinearMoving(
+                (soliloquy.specs.common.valueobjects.Pair<Integer, Object>[]) null), randomLong()));
     }
 }

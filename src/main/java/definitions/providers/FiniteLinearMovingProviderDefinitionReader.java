@@ -21,11 +21,12 @@ public class FiniteLinearMovingProviderDefinitionReader {
     public <T> ProviderAtTime<T> read(FiniteLinearMovingProviderDefinition<T> definition,
                                       long contentRenderTimestamp) {
         Check.ifNull(definition, "definition");
-        Check.ifNull(definition.VALUES_AT_TIMESTAMPS, "definition.VALUES_AT_TIMESTAMPS");
-        var valsAtTimestamps = mapOf(Arrays.stream(definition.VALUES_AT_TIMESTAMPS)
-                .map(val -> pairOf(
-                        Check.ifNull(val, "val within definition.VALUES_AT_TIMESTAMPS")
-                                .FIRST + contentRenderTimestamp, val.SECOND)));
+        Check.ifNull(definition.VALUES_AT_TIMESTAMP_OFFSETS,
+                "definition.VALUES_AT_TIMESTAMP_OFFSETS");
+        var valsAtTimestamps = mapOf(Arrays.stream(definition.VALUES_AT_TIMESTAMP_OFFSETS)
+                .map(val -> pairOf(Check.ifNull(val,
+                        "val within definition.VALUES_AT_TIMESTAMP_OFFSETS").FIRST +
+                        contentRenderTimestamp, val.SECOND)));
         return FACTORY.make(UUID.randomUUID(), valsAtTimestamps, null, null);
     }
 }

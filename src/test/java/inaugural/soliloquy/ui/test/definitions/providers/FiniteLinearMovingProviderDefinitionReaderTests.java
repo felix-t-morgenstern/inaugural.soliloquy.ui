@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.test.definitions.providers;
 
-import definitions.providers.FiniteLinearMovingProviderDefinitionReader;
+import inaugural.soliloquy.ui.definitions.providers.FiniteLinearMovingProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

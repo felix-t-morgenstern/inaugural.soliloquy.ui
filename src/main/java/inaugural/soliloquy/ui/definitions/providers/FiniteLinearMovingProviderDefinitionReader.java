@@ -1,4 +1,4 @@
-package definitions.providers;
+package inaugural.soliloquy.ui.definitions.providers;
 
 import inaugural.soliloquy.tools.Check;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;

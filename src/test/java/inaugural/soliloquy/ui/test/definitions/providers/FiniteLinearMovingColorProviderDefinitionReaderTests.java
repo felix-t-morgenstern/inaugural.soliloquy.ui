@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.test.definitions.providers;
 
-import definitions.providers.FiniteLinearMovingColorProviderDefinitionReader;
+import inaugural.soliloquy.ui.definitions.providers.FiniteLinearMovingColorProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.providers.FiniteLinearMovingColorProviderDefinition.finiteLinearMovingColor;
-import static soliloquy.specs.ui.definitions.providers.FiniteLinearMovingProviderDefinition.finiteLinearMoving;
 
 @ExtendWith(MockitoExtension.class)
 public class FiniteLinearMovingColorProviderDefinitionReaderTests {

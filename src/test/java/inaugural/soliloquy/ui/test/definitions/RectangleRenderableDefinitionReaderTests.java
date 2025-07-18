@@ -7,18 +7,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
+import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
 import static inaugural.soliloquy.tools.random.Random.randomInt;
 import static inaugural.soliloquy.tools.random.Random.randomString;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
+import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -27,6 +31,25 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 
 @ExtendWith(MockitoExtension.class)
 public class RectangleRenderableDefinitionReaderTests {
+    private final String ON_PRESS_ID = randomString();
+    private final String ON_RELEASE_ID = randomString();
+    private final String ON_MOUSE_OVER_ID = randomString();
+    private final String ON_MOUSE_LEAVE_ID = randomString();
+    @SuppressWarnings("rawtypes") private final LookupAndEntitiesWithId<Action>
+            MOCK_ACTIONS_AND_LOOKUP =
+            generateMockLookupFunctionWithId(Action.class, ON_PRESS_ID, ON_RELEASE_ID,
+                    ON_MOUSE_OVER_ID, ON_MOUSE_LEAVE_ID);
+    @SuppressWarnings("rawtypes") private final Action MOCK_ON_PRESS =
+            MOCK_ACTIONS_AND_LOOKUP.entities.getFirst();
+    @SuppressWarnings("rawtypes") private final Action MOCK_ON_RELEASE =
+            MOCK_ACTIONS_AND_LOOKUP.entities.get(1);
+    @SuppressWarnings("rawtypes") private final Action MOCK_ON_MOUSE_OVER =
+            MOCK_ACTIONS_AND_LOOKUP.entities.get(2);
+    @SuppressWarnings("rawtypes") private final Action MOCK_ON_MOUSE_LEAVE =
+            MOCK_ACTIONS_AND_LOOKUP.entities.get(3);
+    private final int ON_PRESS_BUTTON = randomInt();
+    private final int ON_RELEASE_BUTTON = randomInt();
+
     @Mock private RectangleRenderable mockRenderable;
     @Mock private RectangleRenderableFactory mockFactory;
     @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
@@ -35,15 +58,17 @@ public class RectangleRenderableDefinitionReaderTests {
 
     @BeforeEach
     public void setUp() {
-        reader = new RectangleRenderableDefinitionReader(mockFactory, mockProviderDefinitionReader);
+        reader = new RectangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(mockFactory, null));
+                () -> new RectangleRenderableDefinitionReader(null, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader));
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(null, mockProviderDefinitionReader));
+                () -> new RectangleRenderableDefinitionReader(mockFactory, null, mockProviderDefinitionReader));
+        assertThrows(IllegalArgumentException.class,
+                () -> new RectangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, null));
     }
 
     @Test
@@ -81,10 +106,7 @@ public class RectangleRenderableDefinitionReaderTests {
                 (ProviderAtTime<Float>) mock(ProviderAtTime.class);
         @SuppressWarnings("unchecked") var textureHeightProvider =
                 (ProviderAtTime<Float>) mock(ProviderAtTime.class);
-        var onPress = mapOf(pairOf(randomInt(), randomString()));
-        var onRelease = mapOf(pairOf(randomInt(), randomString()));
-        var onMouseOver = randomString();
-        var onMouseLeave = randomString();
+        var mockStack = mock(RenderableStack.class);
 
         when(mockProviderDefinitionReader.read(mockAreaProviderDefinition)).thenReturn(
                 mockAreaProvider);
@@ -101,25 +123,25 @@ public class RectangleRenderableDefinitionReaderTests {
         when(mockProviderDefinitionReader.read(textureHeightProviderDefinition)).thenReturn(
                 textureHeightProvider);
 
-        when(mockFactory.make(any(), any(), any(), any(), any(), anyFloat(), anyFloat(), any(),
+        when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
         var definition = rectangle(mockAreaProviderDefinition, z)
                 .withColors(
-                        bottomRightColorDefinition,
-                        bottomRightColorDefinition,
-                        bottomRightColorDefinition,
+                        topLeftColorDefinition,
+                        topRightColorDefinition,
+                        bottomLeftColorDefinition,
                         bottomRightColorDefinition)
                 .withTexture(
                         textureIdProviderDefinition,
                         textureWidthProviderDefinition,
                         textureHeightProviderDefinition)
-                .onPress(onPress)
-                .onRelease(onRelease)
-                .onMouseOver(onMouseOver)
-                .onMouseLeave(onMouseLeave);
+                .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
+                .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
+                .onMouseOver(ON_MOUSE_OVER_ID)
+                .onMouseLeave(ON_MOUSE_LEAVE_ID);
 
-        var renderable = reader.read(definition);
+        var renderable = reader.read(mockStack, definition);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
@@ -131,6 +153,55 @@ public class RectangleRenderableDefinitionReaderTests {
         verify(mockProviderDefinitionReader, once()).read(textureIdProviderDefinition);
         verify(mockProviderDefinitionReader, once()).read(textureWidthProviderDefinition);
         verify(mockProviderDefinitionReader, once()).read(textureHeightProviderDefinition);
-        verify(mockFactory, once()).make(topLeftColor, topRightColor, bottomLeftColor, bottomRightColor, textureIdProvider, )
+        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_PRESS_ID);
+        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_RELEASE_ID);
+        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_MOUSE_OVER_ID);
+        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_MOUSE_LEAVE_ID);
+        //noinspection unchecked
+        verify(mockFactory, once()).make(
+                same(topLeftColor), same(topRightColor),
+                same(bottomLeftColor), same(bottomRightColor),
+                same(textureIdProvider), same(textureWidthProvider), same(textureHeightProvider),
+                eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
+                eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
+                same(MOCK_ON_MOUSE_OVER),
+                same(MOCK_ON_MOUSE_LEAVE),
+                same(mockAreaProvider),
+                eq(z),
+                isNotNull(),
+                same(mockStack));
+    }
+
+    @Test
+    public void testReadWithMinimalArgs() {
+        @SuppressWarnings("unchecked") var mockAreaProviderDefinition =
+                (AbstractProviderDefinition<FloatBox>) mock(AbstractProviderDefinition.class);
+        var z = randomInt();
+        @SuppressWarnings("unchecked") var mockAreaProvider =
+                (ProviderAtTime<FloatBox>) mock(ProviderAtTime.class);
+        var mockStack = mock(RenderableStack.class);
+
+        when(mockProviderDefinitionReader.read(mockAreaProviderDefinition)).thenReturn(
+                mockAreaProvider);
+
+        when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
+
+        var definition = rectangle(mockAreaProviderDefinition, z);
+
+        var renderable = reader.read(mockStack, definition);
+
+        assertNotNull(renderable);
+        assertSame(mockRenderable, renderable);
+        verify(mockProviderDefinitionReader, once()).read(mockAreaProviderDefinition);
+        //noinspection unchecked
+        verify(mockFactory, once()).make(
+                isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
+                eq(mapOf()), eq(mapOf()),
+                isNull(), isNull(),
+                same(mockAreaProvider),
+                eq(z),
+                isNotNull(),
+                same(mockStack));
     }
 }

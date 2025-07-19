@@ -1,7 +1,6 @@
 package inaugural.soliloquy.ui.test.definitions.content;
 
 import inaugural.soliloquy.ui.definitions.content.AntialiasedLineSegmentRenderableDefinitionReader;
-import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +10,6 @@ import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.AntialiasedLineSegmentRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.AntialiasedLineSegmentRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
@@ -25,11 +23,9 @@ import static org.mockito.Mockito.*;
 import static soliloquy.specs.ui.definitions.content.AntialiasedLineSegmentRenderableDefinition.antialiasedLine;
 
 @ExtendWith(MockitoExtension.class)
-public class AntialiasedLineSegmentRenderableDefinitionReaderTests {
+public class AntialiasedLineSegmentRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     @Mock private AntialiasedLineSegmentRenderable mockRenderable;
     @Mock private AntialiasedLineSegmentRenderableFactory mockFactory;
-    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
-    @Mock private RenderableStack mockStack;
 
     private AntialiasedLineSegmentRenderableDefinitionReader reader;
 

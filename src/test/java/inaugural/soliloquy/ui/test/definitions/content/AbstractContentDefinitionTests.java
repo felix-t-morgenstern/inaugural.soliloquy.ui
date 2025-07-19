@@ -1,6 +1,8 @@
 package inaugural.soliloquy.ui.test.definitions.content;
 
 import inaugural.soliloquy.tools.testing.Mock;
+import inaugural.soliloquy.ui.definitions.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.io.graphics.rendering.RenderableStack;
 
@@ -34,5 +36,7 @@ public abstract class AbstractContentDefinitionTests {
 
     protected final int Z = randomInt();
 
+    @org.mockito.Mock protected ProviderDefinitionReader mockProviderDefinitionReader;
+    @org.mockito.Mock protected ShiftDefinitionReader mockShiftDefinitionReader;
     @org.mockito.Mock protected RenderableStack mockStack;
 }

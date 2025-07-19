@@ -1,7 +1,6 @@
 package inaugural.soliloquy.ui.test.definitions.content;
 
 import inaugural.soliloquy.ui.definitions.content.RectangleRenderableDefinitionReader;
-import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +31,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
     @SuppressWarnings("rawtypes") @Mock private StaticProvider mockNullProvider;
 
     @Mock private AbstractProviderDefinition<FloatBox> mockAreaProviderDefinition;
-    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
     @Mock private ProviderAtTime<FloatBox> mockAreaProvider;
 
     private RectangleRenderableDefinitionReader reader;

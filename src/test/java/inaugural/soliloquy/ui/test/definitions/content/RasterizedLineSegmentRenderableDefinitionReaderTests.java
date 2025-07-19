@@ -1,7 +1,6 @@
 package inaugural.soliloquy.ui.test.definitions.content;
 
 import inaugural.soliloquy.ui.definitions.content.RasterizedLineSegmentRenderableDefinitionReader;
-import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +15,6 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
 
-import static inaugural.soliloquy.tools.random.Random.randomInt;
 import static inaugural.soliloquy.tools.random.Random.randomShort;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,12 +22,12 @@ import static org.mockito.Mockito.*;
 import static soliloquy.specs.ui.definitions.content.RasterizedLineSegmentRenderableDefinition.rasterizedLineSegment;
 
 @ExtendWith(MockitoExtension.class)
-public class RasterizedLineSegmentRenderableDefinitionReaderTests {
+public class RasterizedLineSegmentRenderableDefinitionReaderTests
+        extends AbstractContentDefinitionTests {
     private final short STIPPLE_PATTERN = randomShort();
     private final short STIPPLE_FACTOR = randomShort();
     private final short DEFAULT_STIPPLE_PATTERN = randomShort();
     private final short DEFAULT_STIPPLE_FACTOR = randomShort();
-    private final int Z = randomInt();
 
     @Mock private RasterizedLineSegmentRenderable mockRenderable;
     @Mock private RasterizedLineSegmentRenderableFactory mockFactory;
@@ -39,7 +37,6 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests {
     @Mock private AbstractProviderDefinition<Vertex> vertex2Definition;
     @Mock private AbstractProviderDefinition<Float> thicknessDefinition;
     @Mock private AbstractProviderDefinition<Color> colorDefinition;
-    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
     @Mock private ProviderAtTime<Vertex> vertex1;
     @Mock private ProviderAtTime<Vertex> vertex2;
     @Mock private ProviderAtTime<Float> thickness;

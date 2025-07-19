@@ -35,7 +35,6 @@ import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinitio
 public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     @Mock private TriangleRenderable mockRenderable;
     @Mock private TriangleRenderableFactory mockFactory;
-    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
     @SuppressWarnings("rawtypes") @Mock private StaticProvider mockNullProvider;
 
     @Mock private AbstractProviderDefinition<Vertex> mockVector1Definition;

@@ -2,10 +2,8 @@ package inaugural.soliloquy.ui.definitions;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
-import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.RasterizedLineSegmentRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RasterizedLineSegmentRenderableFactory;
-import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.content.RasterizedLineSegmentRenderableDefinition;
 

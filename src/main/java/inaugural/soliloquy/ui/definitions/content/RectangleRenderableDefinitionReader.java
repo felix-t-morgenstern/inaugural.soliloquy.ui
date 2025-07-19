@@ -37,7 +37,11 @@ public class RectangleRenderableDefinitionReader {
 
     public RectangleRenderable read(RenderableStack stack,
                                     RectangleRenderableDefinition definition) {
-        var area = PROVIDER_READER.read(definition.AREA_PROVIDER);
+        Check.ifNull(stack, "stack");
+        Check.ifNull(definition, "definition");
+
+        var area = PROVIDER_READER.read(
+                Check.ifNull(definition.AREA_PROVIDER, "definition.AREA_PROVIDER"));
 
         @SuppressWarnings("unchecked") ProviderAtTime<Color> topLeft =
                 definition.topLeftColorProvider == null ? NULL_PROVIDER :

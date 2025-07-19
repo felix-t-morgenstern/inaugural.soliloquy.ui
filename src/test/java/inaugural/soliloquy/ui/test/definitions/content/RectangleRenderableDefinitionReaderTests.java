@@ -12,12 +12,12 @@ import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
-import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.random.Random.randomInt;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -29,38 +29,45 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 public class RectangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     @Mock private RectangleRenderable mockRenderable;
     @Mock private RectangleRenderableFactory mockFactory;
-    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
     @SuppressWarnings("rawtypes") @Mock private StaticProvider mockNullProvider;
+
+    @Mock private AbstractProviderDefinition<FloatBox> mockAreaProviderDefinition;
+    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
+    @Mock private ProviderAtTime<FloatBox> mockAreaProvider;
 
     private RectangleRenderableDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
+        lenient().when(mockProviderDefinitionReader.read(mockAreaProviderDefinition)).thenReturn(
+                mockAreaProvider);
+
+        lenient().when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
+
         reader =
-                new RectangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup,
+                new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(null, MOCK_ACTIONS_AND_LOOKUP.lookup,
+                () -> new RectangleRenderableDefinitionReader(null, MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(mockFactory, null,
                         mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(mockFactory,
-                        MOCK_ACTIONS_AND_LOOKUP.lookup, null, mockNullProvider));
+                        MOCK_GET_ACTION, null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(mockFactory,
-                        MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, null));
+                        MOCK_GET_ACTION, mockProviderDefinitionReader, null));
     }
 
     @Test
     public void testRead() {
-        @SuppressWarnings("unchecked") var mockAreaProviderDefinition =
-                (AbstractProviderDefinition<FloatBox>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var topLeftColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var topRightColorDefinition =
@@ -75,8 +82,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var textureHeightProviderDefinition =
                 (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var mockAreaProvider =
-                (ProviderAtTime<FloatBox>) mock(ProviderAtTime.class);
         @SuppressWarnings("unchecked") var topLeftColor =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
         @SuppressWarnings("unchecked") var topRightColor =
@@ -91,10 +96,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 (ProviderAtTime<Float>) mock(ProviderAtTime.class);
         @SuppressWarnings("unchecked") var textureHeightProvider =
                 (ProviderAtTime<Float>) mock(ProviderAtTime.class);
-        var mockStack = mock(RenderableStack.class);
 
-        when(mockProviderDefinitionReader.read(mockAreaProviderDefinition)).thenReturn(
-                mockAreaProvider);
         when(mockProviderDefinitionReader.read(topLeftColorDefinition)).thenReturn(topLeftColor);
         when(mockProviderDefinitionReader.read(topRightColorDefinition)).thenReturn(topRightColor);
         when(mockProviderDefinitionReader.read(bottomLeftColorDefinition)).thenReturn(
@@ -107,9 +109,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 textureWidthProvider);
         when(mockProviderDefinitionReader.read(textureHeightProviderDefinition)).thenReturn(
                 textureHeightProvider);
-
-        when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
-                any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
         var definition = rectangle(mockAreaProviderDefinition, Z)
                 .withColors(
@@ -138,10 +137,10 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(mockProviderDefinitionReader, once()).read(textureIdProviderDefinition);
         verify(mockProviderDefinitionReader, once()).read(textureWidthProviderDefinition);
         verify(mockProviderDefinitionReader, once()).read(textureHeightProviderDefinition);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_PRESS_ID);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_RELEASE_ID);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_MOUSE_OVER_ID);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_MOUSE_LEAVE_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_LEAVE_ID);
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(topLeftColor), same(topRightColor),
@@ -159,18 +158,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
 
     @Test
     public void testReadWithMinimalArgs() {
-        @SuppressWarnings("unchecked") var mockAreaProviderDefinition =
-                (AbstractProviderDefinition<FloatBox>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var mockAreaProvider =
-                (ProviderAtTime<FloatBox>) mock(ProviderAtTime.class);
-        var mockStack = mock(RenderableStack.class);
-
-        when(mockProviderDefinitionReader.read(mockAreaProviderDefinition)).thenReturn(
-                mockAreaProvider);
-
-        when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
-                any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
-
         var definition = rectangle(mockAreaProviderDefinition, Z);
 
         var renderable = reader.read(mockStack, definition);
@@ -189,5 +176,14 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 eq(Z),
                 isNotNull(),
                 same(mockStack));
+    }
+
+    @Test
+    public void testReadWithInvalidArgs() {
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(null, rectangle(mockAreaProviderDefinition, randomInt())));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(mockStack, rectangle(null, randomInt())));
     }
 }

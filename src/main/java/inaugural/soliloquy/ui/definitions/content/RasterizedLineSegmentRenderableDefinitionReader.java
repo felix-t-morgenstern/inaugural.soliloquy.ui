@@ -28,14 +28,21 @@ public class RasterizedLineSegmentRenderableDefinitionReader {
 
     public RasterizedLineSegmentRenderable read(RenderableStack stack,
                                                 RasterizedLineSegmentRenderableDefinition definition) {
-        var vertex1 = PROVIDER_READER.read(definition.VERTEX_1_PROVIDER);
-        var vertex2 = PROVIDER_READER.read(definition.VERTEX_2_PROVIDER);
-        var thickness = PROVIDER_READER.read(definition.THICKNESS_PROVIDER);
+        Check.ifNull(stack, "stack");
+        Check.ifNull(definition, "definition");
+
+        var vertex1 = PROVIDER_READER.read(
+                Check.ifNull(definition.VERTEX_1_PROVIDER, "definition.VERTEX_1_PROVIDER"));
+        var vertex2 = PROVIDER_READER.read(
+                Check.ifNull(definition.VERTEX_2_PROVIDER, "definition.VERTEX_2_PROVIDER"));
+        var thickness = PROVIDER_READER.read(
+                Check.ifNull(definition.THICKNESS_PROVIDER, "definition.THICKNESS_PROVIDER"));
         short stipplePattern = definition.stipplePattern == null ? DEFAULT_STIPPLE_PATTERN :
                 definition.stipplePattern;
         short stippleFactor = definition.stippleFactor == null ? DEFAULT_STIPPLE_FACTOR :
                 definition.stippleFactor;
-        var color = PROVIDER_READER.read(definition.COLOR_PROVIDER);
+        var color = PROVIDER_READER.read(
+                Check.ifNull(definition.COLOR_PROVIDER, "definition.COLOR_PROVIDER"));
 
         return FACTORY.make(vertex1, vertex2, thickness, stipplePattern, stippleFactor, color,
                 definition.Z, UUID.randomUUID(), stack);

@@ -33,13 +33,32 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests {
 
     @Mock private RasterizedLineSegmentRenderable mockRenderable;
     @Mock private RasterizedLineSegmentRenderableFactory mockFactory;
-    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
     @Mock private RenderableStack mockStack;
+
+    @Mock private AbstractProviderDefinition<Vertex> vertex1Definition;
+    @Mock private AbstractProviderDefinition<Vertex> vertex2Definition;
+    @Mock private AbstractProviderDefinition<Float> thicknessDefinition;
+    @Mock private AbstractProviderDefinition<Color> colorDefinition;
+    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
+    @Mock private ProviderAtTime<Vertex> vertex1;
+    @Mock private ProviderAtTime<Vertex> vertex2;
+    @Mock private ProviderAtTime<Float> thickness;
+    @Mock private ProviderAtTime<Color> color;
 
     private RasterizedLineSegmentRenderableDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
+        lenient().when(mockProviderDefinitionReader.read(vertex1Definition)).thenReturn(vertex1);
+        lenient().when(mockProviderDefinitionReader.read(vertex2Definition)).thenReturn(vertex2);
+        lenient().when(mockProviderDefinitionReader.read(thicknessDefinition))
+                .thenReturn(thickness);
+        lenient().when(mockProviderDefinitionReader.read(colorDefinition)).thenReturn(color);
+
+        lenient().when(
+                mockFactory.make(any(), any(), any(), anyShort(), anyShort(), any(), anyInt(),
+                        any(), any())).thenReturn(mockRenderable);
+
         reader = new RasterizedLineSegmentRenderableDefinitionReader(mockFactory,
                 mockProviderDefinitionReader, DEFAULT_STIPPLE_PATTERN, DEFAULT_STIPPLE_FACTOR);
     }
@@ -57,32 +76,6 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        @SuppressWarnings("unchecked") var vertex1Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var vertex2Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var thicknessDefinition =
-                (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var colorDefinition =
-                (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-
-        @SuppressWarnings("unchecked") var vertex1 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var vertex2 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var thickness =
-                (ProviderAtTime<Float>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var color =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-
-        when(mockProviderDefinitionReader.read(vertex1Definition)).thenReturn(vertex1);
-        when(mockProviderDefinitionReader.read(vertex2Definition)).thenReturn(vertex2);
-        when(mockProviderDefinitionReader.read(thicknessDefinition)).thenReturn(thickness);
-        when(mockProviderDefinitionReader.read(colorDefinition)).thenReturn(color);
-
-        when(mockFactory.make(any(), any(), any(), anyShort(), anyShort(), any(), anyInt(), any(),
-                any())).thenReturn(mockRenderable);
-
         var definition =
                 rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
                         colorDefinition, Z)
@@ -108,32 +101,6 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests {
 
     @Test
     public void testReadWithMinimalArgs() {
-        @SuppressWarnings("unchecked") var vertex1Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var vertex2Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var thicknessDefinition =
-                (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var colorDefinition =
-                (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-
-        @SuppressWarnings("unchecked") var vertex1 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var vertex2 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var thickness =
-                (ProviderAtTime<Float>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var color =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-
-        when(mockProviderDefinitionReader.read(vertex1Definition)).thenReturn(vertex1);
-        when(mockProviderDefinitionReader.read(vertex2Definition)).thenReturn(vertex2);
-        when(mockProviderDefinitionReader.read(thicknessDefinition)).thenReturn(thickness);
-        when(mockProviderDefinitionReader.read(colorDefinition)).thenReturn(color);
-
-        when(mockFactory.make(any(), any(), any(), anyShort(), anyShort(), any(), anyInt(), any(),
-                any())).thenReturn(mockRenderable);
-
         var definition =
                 rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
                         colorDefinition, Z);
@@ -154,5 +121,25 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests {
                 isNotNull(),
                 same(mockStack)
         );
+    }
+
+    @Test
+    public void testReadWithInvalidArgs() {
+        assertThrows(IllegalArgumentException.class, () -> reader.read(null,
+                rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
+                        colorDefinition, Z)));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack, null));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack,
+                rasterizedLineSegment(null, vertex2Definition, thicknessDefinition, colorDefinition,
+                        Z)));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack,
+                rasterizedLineSegment(vertex1Definition, null, thicknessDefinition, colorDefinition,
+                        Z)));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack,
+                rasterizedLineSegment(vertex1Definition, vertex2Definition, null, colorDefinition,
+                        Z)));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack,
+                rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
+                        null, Z)));
     }
 }

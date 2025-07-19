@@ -35,9 +35,14 @@ public class TriangleRenderableDefinitionReader {
     }
 
     public TriangleRenderable read(RenderableStack stack, TriangleRenderableDefinition definition) {
-        var vector1 = PROVIDER_READER.read(definition.VERTEX_1_PROVIDER);
-        var vector2 = PROVIDER_READER.read(definition.VERTEX_2_PROVIDER);
-        var vector3 = PROVIDER_READER.read(definition.VERTEX_3_PROVIDER);
+        Check.ifNull(stack, "stack");
+        Check.ifNull(definition, "definition");
+        var vector1 = PROVIDER_READER.read(
+                Check.ifNull(definition.VERTEX_1_PROVIDER, "definition.VERTEX_1_PROVIDER"));
+        var vector2 = PROVIDER_READER.read(
+                Check.ifNull(definition.VERTEX_2_PROVIDER, "definition.VERTEX_2_PROVIDER"));
+        var vector3 = PROVIDER_READER.read(
+                Check.ifNull(definition.VERTEX_3_PROVIDER, "definition.VERTEX_3_PROVIDER"));
 
         @SuppressWarnings("unchecked") ProviderAtTime<Color> vector1Color =
                 definition.vertex1ColorProvider == null ? NULL_PROVIDER :

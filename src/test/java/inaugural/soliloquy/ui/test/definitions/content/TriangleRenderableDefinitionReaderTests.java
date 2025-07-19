@@ -5,6 +5,7 @@ import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
@@ -32,42 +33,60 @@ import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinitio
 
 @ExtendWith(MockitoExtension.class)
 public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
-    @org.mockito.Mock private TriangleRenderable mockRenderable;
-    @org.mockito.Mock private TriangleRenderableFactory mockFactory;
-    @org.mockito.Mock private ProviderDefinitionReader mockProviderDefinitionReader;
-    @SuppressWarnings("rawtypes") @org.mockito.Mock private StaticProvider mockNullProvider;
+    @Mock private TriangleRenderable mockRenderable;
+    @Mock private TriangleRenderableFactory mockFactory;
+    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
+    @SuppressWarnings("rawtypes") @Mock private StaticProvider mockNullProvider;
+
+    @Mock private AbstractProviderDefinition<Vertex> mockVector1Definition;
+    @Mock private AbstractProviderDefinition<Vertex> mockVector2Definition;
+    @Mock private AbstractProviderDefinition<Vertex> mockVector3Definition;
+    @Mock private ProviderAtTime<Vertex> mockVector1;
+    @Mock private ProviderAtTime<Vertex> mockVector2;
+    @Mock private ProviderAtTime<Vertex> mockVector3;
 
     private TriangleRenderableDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
-        reader = new TriangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, mockNullProvider);
+        lenient().when(mockProviderDefinitionReader.read(mockVector1Definition)).thenReturn(
+                mockVector1);
+        lenient().when(mockProviderDefinitionReader.read(mockVector2Definition)).thenReturn(
+                mockVector2);
+        lenient().when(mockProviderDefinitionReader.read(mockVector3Definition)).thenReturn(
+                mockVector3);
+
+        lenient().when(
+                        mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
+                                any(), any(), any(), any(), any(), anyInt(), any(), any()))
+                .thenReturn(mockRenderable);
+
+        reader = new TriangleRenderableDefinitionReader(mockFactory, MOCK_GET_ACTION,
+                mockProviderDefinitionReader, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new TriangleRenderableDefinitionReader(null, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, mockNullProvider));
+                () -> new TriangleRenderableDefinitionReader(null, MOCK_GET_ACTION,
+                        mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new TriangleRenderableDefinitionReader(mockFactory, null, mockProviderDefinitionReader, mockNullProvider));
+                () -> new TriangleRenderableDefinitionReader(mockFactory, null,
+                        mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new TriangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, null, mockNullProvider));
+                () -> new TriangleRenderableDefinitionReader(mockFactory, MOCK_GET_ACTION, null,
+                        mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new TriangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, null));
+                () -> new TriangleRenderableDefinitionReader(mockFactory, MOCK_GET_ACTION,
+                        mockProviderDefinitionReader, null));
     }
 
     @Test
     public void testRead() {
-        @SuppressWarnings({"unchecked"}) var vector1Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector1ColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings({"unchecked"}) var vector2Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector2ColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings({"unchecked"}) var vector3Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector3ColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var textureIdProviderDefinition =
@@ -76,16 +95,10 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var textureHeightProviderDefinition =
                 (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings({"unchecked"}) var vector1 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
         @SuppressWarnings({"unchecked"}) var vector1Color =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings({"unchecked"}) var vector2 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
         @SuppressWarnings({"unchecked"}) var vector2Color =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings({"unchecked"}) var vector3 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
         @SuppressWarnings({"unchecked"}) var vector3Color =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
         @SuppressWarnings("unchecked") var textureIdProvider =
@@ -96,11 +109,11 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 (ProviderAtTime<Float>) mock(ProviderAtTime.class);
         var mockStack = mock(RenderableStack.class);
 
-        when(mockProviderDefinitionReader.read(vector1Definition)).thenReturn(vector1);
+        when(mockProviderDefinitionReader.read(mockVector1Definition)).thenReturn(mockVector1);
         when(mockProviderDefinitionReader.read(vector1ColorDefinition)).thenReturn(vector1Color);
-        when(mockProviderDefinitionReader.read(vector2Definition)).thenReturn(vector2);
+        when(mockProviderDefinitionReader.read(mockVector2Definition)).thenReturn(mockVector2);
         when(mockProviderDefinitionReader.read(vector2ColorDefinition)).thenReturn(vector2Color);
-        when(mockProviderDefinitionReader.read(vector3Definition)).thenReturn(vector3);
+        when(mockProviderDefinitionReader.read(mockVector3Definition)).thenReturn(mockVector3);
         when(mockProviderDefinitionReader.read(vector3ColorDefinition)).thenReturn(vector3Color);
         when(mockProviderDefinitionReader.read(textureIdProviderDefinition)).thenReturn(
                 textureIdProvider);
@@ -112,7 +125,8 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
         when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
-        var definition = triangle(vector1Definition, vector2Definition, vector3Definition, Z)
+        var definition = triangle(mockVector1Definition, mockVector2Definition,
+                mockVector3Definition, Z)
                 .withColors(
                         vector1ColorDefinition,
                         vector2ColorDefinition,
@@ -130,24 +144,24 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockProviderDefinitionReader, once()).read(vector1Definition);
+        verify(mockProviderDefinitionReader, once()).read(mockVector1Definition);
         verify(mockProviderDefinitionReader, once()).read(vector1ColorDefinition);
-        verify(mockProviderDefinitionReader, once()).read(vector2Definition);
+        verify(mockProviderDefinitionReader, once()).read(mockVector2Definition);
         verify(mockProviderDefinitionReader, once()).read(vector2ColorDefinition);
-        verify(mockProviderDefinitionReader, once()).read(vector3Definition);
+        verify(mockProviderDefinitionReader, once()).read(mockVector3Definition);
         verify(mockProviderDefinitionReader, once()).read(vector3ColorDefinition);
         verify(mockProviderDefinitionReader, once()).read(textureIdProviderDefinition);
         verify(mockProviderDefinitionReader, once()).read(textureWidthProviderDefinition);
         verify(mockProviderDefinitionReader, once()).read(textureHeightProviderDefinition);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_PRESS_ID);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_RELEASE_ID);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_MOUSE_OVER_ID);
-        verify(MOCK_ACTIONS_AND_LOOKUP.lookup, once()).apply(ON_MOUSE_LEAVE_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_LEAVE_ID);
         //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(vector1), same(vector1Color),
-                same(vector2), same(vector2Color),
-                same(vector3), same(vector3Color),
+                same(mockVector1), same(vector1Color),
+                same(mockVector2), same(vector2Color),
+                same(mockVector3), same(vector3Color),
                 same(textureIdProvider), same(textureWidthProvider), same(textureHeightProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
@@ -160,41 +174,21 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
     @Test
     public void testReadWithMinimalArgs() {
-        @SuppressWarnings({"unchecked"}) var vector1Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings({"unchecked"}) var vector2Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings({"unchecked"}) var vector3Definition =
-                (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings({"unchecked"}) var vector1 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
-        @SuppressWarnings({"unchecked"}) var vector2 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
-        @SuppressWarnings({"unchecked"}) var vector3 =
-                (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
-        var mockStack = mock(RenderableStack.class);
-
-        when(mockProviderDefinitionReader.read(vector1Definition)).thenReturn(vector1);
-        when(mockProviderDefinitionReader.read(vector2Definition)).thenReturn(vector2);
-        when(mockProviderDefinitionReader.read(vector3Definition)).thenReturn(vector3);
-
-        when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(), any(),
-                any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
-
-        var definition = triangle(vector1Definition, vector2Definition, vector3Definition, Z);
+        var definition = triangle(mockVector1Definition, mockVector2Definition,
+                mockVector3Definition, Z);
 
         var renderable = reader.read(mockStack, definition);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockProviderDefinitionReader, once()).read(vector1Definition);
-        verify(mockProviderDefinitionReader, once()).read(vector2Definition);
-        verify(mockProviderDefinitionReader, once()).read(vector3Definition);
+        verify(mockProviderDefinitionReader, once()).read(mockVector1Definition);
+        verify(mockProviderDefinitionReader, once()).read(mockVector2Definition);
+        verify(mockProviderDefinitionReader, once()).read(mockVector3Definition);
         //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(vector1), same(mockNullProvider),
-                same(vector2), same(mockNullProvider),
-                same(vector3), same(mockNullProvider),
+                same(mockVector1), same(mockNullProvider),
+                same(mockVector2), same(mockNullProvider),
+                same(mockVector3), same(mockNullProvider),
                 same(mockNullProvider), same(mockNullProvider), same(mockNullProvider),
                 eq(mapOf()),
                 eq(mapOf()),
@@ -203,5 +197,18 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 eq(Z),
                 isNotNull(),
                 same(mockStack));
+    }
+
+    @Test
+    public void testReadWithInvalidArgs() {
+        assertThrows(IllegalArgumentException.class, () -> reader.read(null,
+                triangle(mockVector1Definition, mockVector2Definition, mockVector3Definition, Z)));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack, null));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack,
+                triangle(null, mockVector2Definition, mockVector3Definition, Z)));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack,
+                triangle(mockVector1Definition, null, mockVector3Definition, Z)));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockStack,
+                triangle(mockVector1Definition, mockVector2Definition, null, Z)));
     }
 }

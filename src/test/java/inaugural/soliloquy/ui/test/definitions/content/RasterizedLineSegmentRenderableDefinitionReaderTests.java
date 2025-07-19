@@ -1,6 +1,6 @@
-package inaugural.soliloquy.ui.test.definitions;
+package inaugural.soliloquy.ui.test.definitions.content;
 
-import inaugural.soliloquy.ui.definitions.RasterizedLineSegmentRenderableDefinitionReader;
+import inaugural.soliloquy.ui.definitions.content.RasterizedLineSegmentRenderableDefinitionReader;
 import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

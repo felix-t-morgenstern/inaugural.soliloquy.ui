@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.definitions;
+package inaugural.soliloquy.ui.definitions.content;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;

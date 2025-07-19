@@ -7,6 +7,7 @@ import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
+import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
 import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 
@@ -20,36 +21,45 @@ public class RectangleRenderableDefinitionReader {
     private final RectangleRenderableFactory FACTORY;
     @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
     private final ProviderDefinitionReader PROVIDER_READER;
+    @SuppressWarnings("rawtypes") private final StaticProvider NULL_PROVIDER;
 
     public RectangleRenderableDefinitionReader(RectangleRenderableFactory factory,
                                                @SuppressWarnings("rawtypes")
                                                Function<String, Action> getAction,
-                                               ProviderDefinitionReader providerReader) {
+                                               ProviderDefinitionReader providerReader,
+                                               @SuppressWarnings("rawtypes")
+                                               StaticProvider nullProvider) {
         FACTORY = Check.ifNull(factory, "factory");
         GET_ACTION = Check.ifNull(getAction, "getAction");
         PROVIDER_READER = Check.ifNull(providerReader, "providerReader");
+        NULL_PROVIDER = Check.ifNull(nullProvider, "nullProvider");
     }
 
     public RectangleRenderable read(RenderableStack stack,
                                     RectangleRenderableDefinition definition) {
         var area = PROVIDER_READER.read(definition.AREA_PROVIDER);
 
-        ProviderAtTime<Color> topLeft = definition.topLeftColorProvider == null ? null :
-                PROVIDER_READER.read(definition.topLeftColorProvider);
-        ProviderAtTime<Color> topRight = definition.topRightColorProvider == null ? null :
-                PROVIDER_READER.read(definition.topRightColorProvider);
-        ProviderAtTime<Color> bottomLeft = definition.bottomLeftColorProvider == null ? null :
-                PROVIDER_READER.read(definition.bottomLeftColorProvider);
-        ProviderAtTime<Color> bottomRight = definition.bottomRightColorProvider == null ? null :
-                PROVIDER_READER.read(definition.bottomRightColorProvider);
+        @SuppressWarnings("unchecked") ProviderAtTime<Color> topLeft =
+                definition.topLeftColorProvider == null ? NULL_PROVIDER :
+                        PROVIDER_READER.read(definition.topLeftColorProvider);
+        @SuppressWarnings("unchecked") ProviderAtTime<Color> topRight =
+                definition.topRightColorProvider == null ? NULL_PROVIDER :
+                        PROVIDER_READER.read(definition.topRightColorProvider);
+        @SuppressWarnings("unchecked") ProviderAtTime<Color> bottomLeft =
+                definition.bottomLeftColorProvider == null ? NULL_PROVIDER :
+                        PROVIDER_READER.read(definition.bottomLeftColorProvider);
+        @SuppressWarnings("unchecked") ProviderAtTime<Color> bottomRight =
+                definition.bottomRightColorProvider == null ? NULL_PROVIDER :
+                        PROVIDER_READER.read(definition.bottomRightColorProvider);
 
-        ProviderAtTime<Integer> textureId = definition.textureIdProvider == null ? null :
-                PROVIDER_READER.read(definition.textureIdProvider);
-        ProviderAtTime<Float> textureTileWidth =
-                definition.textureTileWidthProvider == null ? null :
+        @SuppressWarnings("unchecked") ProviderAtTime<Integer> textureId =
+                definition.textureIdProvider == null ? NULL_PROVIDER :
+                        PROVIDER_READER.read(definition.textureIdProvider);
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> textureTileWidth =
+                definition.textureTileWidthProvider == null ? NULL_PROVIDER :
                         PROVIDER_READER.read(definition.textureTileWidthProvider);
-        ProviderAtTime<Float> textureTileHeight =
-                definition.textureTileHeightProvider == null ? null :
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> textureTileHeight =
+                definition.textureTileHeightProvider == null ? NULL_PROVIDER :
                         PROVIDER_READER.read(definition.textureTileHeightProvider);
 
         var onPress = Collections.<Integer, Action<MouseEventInputs>>mapOf();

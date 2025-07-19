@@ -43,7 +43,6 @@ dependencies {
     implementation "disorg.soliloquy:inaugural.soliloquy.common:0.0.21"
     implementation "disorg.soliloquy:inaugural.soliloquy.io:0.0.1"
 
-    implementation 'com.google.inject:guice:5.1.0'
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation("com.google.code.gson:gson:2.13.1")
     // https://mvnrepository.com/artifact/org.javatuples/javatuples

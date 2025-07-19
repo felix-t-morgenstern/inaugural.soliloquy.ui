@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFactory;
@@ -19,11 +18,7 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
-import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
-import static inaugural.soliloquy.tools.random.Random.randomInt;
-import static inaugural.soliloquy.tools.random.Random.randomString;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -31,26 +26,7 @@ import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 
 @ExtendWith(MockitoExtension.class)
-public class RectangleRenderableDefinitionReaderTests {
-    private final String ON_PRESS_ID = randomString();
-    private final String ON_RELEASE_ID = randomString();
-    private final String ON_MOUSE_OVER_ID = randomString();
-    private final String ON_MOUSE_LEAVE_ID = randomString();
-    @SuppressWarnings("rawtypes") private final LookupAndEntitiesWithId<Action>
-            MOCK_ACTIONS_AND_LOOKUP =
-            generateMockLookupFunctionWithId(Action.class, ON_PRESS_ID, ON_RELEASE_ID,
-                    ON_MOUSE_OVER_ID, ON_MOUSE_LEAVE_ID);
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_PRESS =
-            MOCK_ACTIONS_AND_LOOKUP.entities.getFirst();
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_RELEASE =
-            MOCK_ACTIONS_AND_LOOKUP.entities.get(1);
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_MOUSE_OVER =
-            MOCK_ACTIONS_AND_LOOKUP.entities.get(2);
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_MOUSE_LEAVE =
-            MOCK_ACTIONS_AND_LOOKUP.entities.get(3);
-    private final int ON_PRESS_BUTTON = randomInt();
-    private final int ON_RELEASE_BUTTON = randomInt();
-
+public class RectangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     @Mock private RectangleRenderable mockRenderable;
     @Mock private RectangleRenderableFactory mockFactory;
     @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
@@ -60,26 +36,31 @@ public class RectangleRenderableDefinitionReaderTests {
 
     @BeforeEach
     public void setUp() {
-        reader = new RectangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, mockNullProvider);
+        reader =
+                new RectangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup,
+                        mockProviderDefinitionReader, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(null, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, mockNullProvider));
+                () -> new RectangleRenderableDefinitionReader(null, MOCK_ACTIONS_AND_LOOKUP.lookup,
+                        mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(mockFactory, null, mockProviderDefinitionReader, mockNullProvider));
+                () -> new RectangleRenderableDefinitionReader(mockFactory, null,
+                        mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, null, mockNullProvider));
+                () -> new RectangleRenderableDefinitionReader(mockFactory,
+                        MOCK_ACTIONS_AND_LOOKUP.lookup, null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(mockFactory, MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, null));
+                () -> new RectangleRenderableDefinitionReader(mockFactory,
+                        MOCK_ACTIONS_AND_LOOKUP.lookup, mockProviderDefinitionReader, null));
     }
 
     @Test
     public void testRead() {
         @SuppressWarnings("unchecked") var mockAreaProviderDefinition =
                 (AbstractProviderDefinition<FloatBox>) mock(AbstractProviderDefinition.class);
-        var z = randomInt();
         @SuppressWarnings("unchecked") var topLeftColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var topRightColorDefinition =
@@ -130,7 +111,7 @@ public class RectangleRenderableDefinitionReaderTests {
         when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
-        var definition = rectangle(mockAreaProviderDefinition, z)
+        var definition = rectangle(mockAreaProviderDefinition, Z)
                 .withColors(
                         topLeftColorDefinition,
                         topRightColorDefinition,
@@ -171,7 +152,7 @@ public class RectangleRenderableDefinitionReaderTests {
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 same(mockAreaProvider),
-                eq(z),
+                eq(Z),
                 isNotNull(),
                 same(mockStack));
     }
@@ -180,7 +161,6 @@ public class RectangleRenderableDefinitionReaderTests {
     public void testReadWithMinimalArgs() {
         @SuppressWarnings("unchecked") var mockAreaProviderDefinition =
                 (AbstractProviderDefinition<FloatBox>) mock(AbstractProviderDefinition.class);
-        var z = randomInt();
         @SuppressWarnings("unchecked") var mockAreaProvider =
                 (ProviderAtTime<FloatBox>) mock(ProviderAtTime.class);
         var mockStack = mock(RenderableStack.class);
@@ -191,7 +171,7 @@ public class RectangleRenderableDefinitionReaderTests {
         when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
-        var definition = rectangle(mockAreaProviderDefinition, z);
+        var definition = rectangle(mockAreaProviderDefinition, Z);
 
         var renderable = reader.read(mockStack, definition);
 
@@ -206,7 +186,7 @@ public class RectangleRenderableDefinitionReaderTests {
                 eq(mapOf()), eq(mapOf()),
                 isNull(), isNull(),
                 same(mockAreaProvider),
-                eq(z),
+                eq(Z),
                 isNotNull(),
                 same(mockStack));
     }

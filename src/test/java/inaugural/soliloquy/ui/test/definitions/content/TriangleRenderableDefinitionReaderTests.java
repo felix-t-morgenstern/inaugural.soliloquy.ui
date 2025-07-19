@@ -1,14 +1,11 @@
 package inaugural.soliloquy.ui.test.definitions.content;
 
-import inaugural.soliloquy.tools.testing.Mock;
 import inaugural.soliloquy.ui.definitions.content.TriangleRenderableDefinitionReader;
 import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import soliloquy.specs.common.entities.Action;
-import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TriangleRenderableFactory;
@@ -20,10 +17,7 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
-import static inaugural.soliloquy.tools.random.Random.randomInt;
-import static inaugural.soliloquy.tools.random.Random.randomString;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -37,26 +31,7 @@ import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
 
 @ExtendWith(MockitoExtension.class)
-public class TriangleRenderableDefinitionReaderTests {
-    private final String ON_PRESS_ID = randomString();
-    private final String ON_RELEASE_ID = randomString();
-    private final String ON_MOUSE_OVER_ID = randomString();
-    private final String ON_MOUSE_LEAVE_ID = randomString();
-    @SuppressWarnings("rawtypes") private final Mock.LookupAndEntitiesWithId<Action>
-            MOCK_ACTIONS_AND_LOOKUP =
-            generateMockLookupFunctionWithId(Action.class, ON_PRESS_ID, ON_RELEASE_ID,
-                    ON_MOUSE_OVER_ID, ON_MOUSE_LEAVE_ID);
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_PRESS =
-            MOCK_ACTIONS_AND_LOOKUP.entities.getFirst();
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_RELEASE =
-            MOCK_ACTIONS_AND_LOOKUP.entities.get(1);
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_MOUSE_OVER =
-            MOCK_ACTIONS_AND_LOOKUP.entities.get(2);
-    @SuppressWarnings("rawtypes") private final Action MOCK_ON_MOUSE_LEAVE =
-            MOCK_ACTIONS_AND_LOOKUP.entities.get(3);
-    private final int ON_PRESS_BUTTON = randomInt();
-    private final int ON_RELEASE_BUTTON = randomInt();
-
+public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     @org.mockito.Mock private TriangleRenderable mockRenderable;
     @org.mockito.Mock private TriangleRenderableFactory mockFactory;
     @org.mockito.Mock private ProviderDefinitionReader mockProviderDefinitionReader;
@@ -83,7 +58,6 @@ public class TriangleRenderableDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        var z = randomInt();
         @SuppressWarnings({"unchecked"}) var vector1Definition =
                 (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector1ColorDefinition =
@@ -102,8 +76,6 @@ public class TriangleRenderableDefinitionReaderTests {
                 (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var textureHeightProviderDefinition =
                 (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var mockAreaProvider =
-                (ProviderAtTime<FloatBox>) mock(ProviderAtTime.class);
         @SuppressWarnings({"unchecked"}) var vector1 =
                 (ProviderAtTime<Vertex>) mock(ProviderAtTime.class);
         @SuppressWarnings({"unchecked"}) var vector1Color =
@@ -140,7 +112,7 @@ public class TriangleRenderableDefinitionReaderTests {
         when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
-        var definition = triangle(vector1Definition, vector2Definition, vector3Definition, z)
+        var definition = triangle(vector1Definition, vector2Definition, vector3Definition, Z)
                 .withColors(
                         vector1ColorDefinition,
                         vector2ColorDefinition,
@@ -181,14 +153,13 @@ public class TriangleRenderableDefinitionReaderTests {
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
-                eq(z),
+                eq(Z),
                 isNotNull(),
                 same(mockStack));
     }
 
     @Test
     public void testReadWithMinimalArgs() {
-        var z = randomInt();
         @SuppressWarnings({"unchecked"}) var vector1Definition =
                 (AbstractProviderDefinition<Vertex>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector2Definition =
@@ -210,7 +181,7 @@ public class TriangleRenderableDefinitionReaderTests {
         when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(), any(),
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
-        var definition = triangle(vector1Definition, vector2Definition, vector3Definition, z);
+        var definition = triangle(vector1Definition, vector2Definition, vector3Definition, Z);
 
         var renderable = reader.read(mockStack, definition);
 
@@ -229,7 +200,7 @@ public class TriangleRenderableDefinitionReaderTests {
                 eq(mapOf()),
                 isNull(),
                 isNull(),
-                eq(z),
+                eq(Z),
                 isNotNull(),
                 same(mockStack));
     }

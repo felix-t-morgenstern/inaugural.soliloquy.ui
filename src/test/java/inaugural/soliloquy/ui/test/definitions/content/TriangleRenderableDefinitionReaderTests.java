@@ -1,7 +1,6 @@
 package inaugural.soliloquy.ui.test.definitions.content;
 
 import inaugural.soliloquy.ui.definitions.content.TriangleRenderableDefinitionReader;
-import inaugural.soliloquy.ui.definitions.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +10,6 @@ import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TriangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
 import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
@@ -35,7 +33,6 @@ import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinitio
 public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     @Mock private TriangleRenderable mockRenderable;
     @Mock private TriangleRenderableFactory mockFactory;
-    @SuppressWarnings("rawtypes") @Mock private StaticProvider mockNullProvider;
 
     @Mock private AbstractProviderDefinition<Vertex> mockVector1Definition;
     @Mock private AbstractProviderDefinition<Vertex> mockVector2Definition;
@@ -48,6 +45,8 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
     @BeforeEach
     public void setUp() {
+        super.setUp();
+
         lenient().when(mockProviderDefinitionReader.read(mockVector1Definition)).thenReturn(
                 mockVector1);
         lenient().when(mockProviderDefinitionReader.read(mockVector2Definition)).thenReturn(
@@ -88,41 +87,16 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector3ColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var textureIdProviderDefinition =
-                (AbstractProviderDefinition<Integer>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var textureWidthProviderDefinition =
-                (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var textureHeightProviderDefinition =
-                (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector1Color =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
         @SuppressWarnings({"unchecked"}) var vector2Color =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
         @SuppressWarnings({"unchecked"}) var vector3Color =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var textureIdProvider =
-                (ProviderAtTime<Integer>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var textureWidthProvider =
-                (ProviderAtTime<Float>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var textureHeightProvider =
-                (ProviderAtTime<Float>) mock(ProviderAtTime.class);
-        var mockStack = mock(RenderableStack.class);
 
-        when(mockProviderDefinitionReader.read(mockVector1Definition)).thenReturn(mockVector1);
         when(mockProviderDefinitionReader.read(vector1ColorDefinition)).thenReturn(vector1Color);
-        when(mockProviderDefinitionReader.read(mockVector2Definition)).thenReturn(mockVector2);
         when(mockProviderDefinitionReader.read(vector2ColorDefinition)).thenReturn(vector2Color);
-        when(mockProviderDefinitionReader.read(mockVector3Definition)).thenReturn(mockVector3);
         when(mockProviderDefinitionReader.read(vector3ColorDefinition)).thenReturn(vector3Color);
-        when(mockProviderDefinitionReader.read(textureIdProviderDefinition)).thenReturn(
-                textureIdProvider);
-        when(mockProviderDefinitionReader.read(textureWidthProviderDefinition)).thenReturn(
-                textureWidthProvider);
-        when(mockProviderDefinitionReader.read(textureHeightProviderDefinition)).thenReturn(
-                textureHeightProvider);
-
-        when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(), any(),
-                any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
         var definition = triangle(mockVector1Definition, mockVector2Definition,
                 mockVector3Definition, Z)
@@ -131,9 +105,9 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                         vector2ColorDefinition,
                         vector3ColorDefinition)
                 .withTexture(
-                        textureIdProviderDefinition,
-                        textureWidthProviderDefinition,
-                        textureHeightProviderDefinition)
+                        mockTextureIdProviderDefinition,
+                        mockTextureWidthProviderDefinition,
+                        mockTextureHeightProviderDefinition)
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
                 .onMouseOver(ON_MOUSE_OVER_ID)
@@ -149,9 +123,9 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
         verify(mockProviderDefinitionReader, once()).read(vector2ColorDefinition);
         verify(mockProviderDefinitionReader, once()).read(mockVector3Definition);
         verify(mockProviderDefinitionReader, once()).read(vector3ColorDefinition);
-        verify(mockProviderDefinitionReader, once()).read(textureIdProviderDefinition);
-        verify(mockProviderDefinitionReader, once()).read(textureWidthProviderDefinition);
-        verify(mockProviderDefinitionReader, once()).read(textureHeightProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(mockTextureIdProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(mockTextureWidthProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(mockTextureHeightProviderDefinition);
         verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
@@ -161,7 +135,8 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockVector1), same(vector1Color),
                 same(mockVector2), same(vector2Color),
                 same(mockVector3), same(vector3Color),
-                same(textureIdProvider), same(textureWidthProvider), same(textureHeightProvider),
+                same(mockTextureIdProvider), same(mockTextureWidthProvider), same(
+                        mockTextureHeightProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
                 same(MOCK_ON_MOUSE_OVER),

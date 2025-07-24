@@ -10,7 +10,6 @@ import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.RasterizedLineSegmentRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RasterizedLineSegmentRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
@@ -31,7 +30,6 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
 
     @Mock private RasterizedLineSegmentRenderable mockRenderable;
     @Mock private RasterizedLineSegmentRenderableFactory mockFactory;
-    @Mock private RenderableStack mockStack;
 
     @Mock private AbstractProviderDefinition<Vertex> vertex1Definition;
     @Mock private AbstractProviderDefinition<Vertex> vertex2Definition;

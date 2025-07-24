@@ -6,11 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
@@ -28,17 +26,12 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 public class RectangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     @Mock private RectangleRenderable mockRenderable;
     @Mock private RectangleRenderableFactory mockFactory;
-    @SuppressWarnings("rawtypes") @Mock private StaticProvider mockNullProvider;
-
-    @Mock private AbstractProviderDefinition<FloatBox> mockAreaProviderDefinition;
-    @Mock private ProviderAtTime<FloatBox> mockAreaProvider;
 
     private RectangleRenderableDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
-        lenient().when(mockProviderDefinitionReader.read(mockAreaProviderDefinition)).thenReturn(
-                mockAreaProvider);
+        super.setUp();
 
         lenient().when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
@@ -74,12 +67,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var bottomRightColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var textureIdProviderDefinition =
-                (AbstractProviderDefinition<Integer>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var textureWidthProviderDefinition =
-                (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var textureHeightProviderDefinition =
-                (AbstractProviderDefinition<Float>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var topLeftColor =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
         @SuppressWarnings("unchecked") var topRightColor =
@@ -88,12 +75,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
         @SuppressWarnings("unchecked") var bottomRightColor =
                 (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var textureIdProvider =
-                (ProviderAtTime<Integer>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var textureWidthProvider =
-                (ProviderAtTime<Float>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var textureHeightProvider =
-                (ProviderAtTime<Float>) mock(ProviderAtTime.class);
 
         when(mockProviderDefinitionReader.read(topLeftColorDefinition)).thenReturn(topLeftColor);
         when(mockProviderDefinitionReader.read(topRightColorDefinition)).thenReturn(topRightColor);
@@ -101,12 +82,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 bottomLeftColor);
         when(mockProviderDefinitionReader.read(bottomRightColorDefinition)).thenReturn(
                 bottomRightColor);
-        when(mockProviderDefinitionReader.read(textureIdProviderDefinition)).thenReturn(
-                textureIdProvider);
-        when(mockProviderDefinitionReader.read(textureWidthProviderDefinition)).thenReturn(
-                textureWidthProvider);
-        when(mockProviderDefinitionReader.read(textureHeightProviderDefinition)).thenReturn(
-                textureHeightProvider);
 
         var definition = rectangle(mockAreaProviderDefinition, Z)
                 .withColors(
@@ -115,9 +90,9 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                         bottomLeftColorDefinition,
                         bottomRightColorDefinition)
                 .withTexture(
-                        textureIdProviderDefinition,
-                        textureWidthProviderDefinition,
-                        textureHeightProviderDefinition)
+                        mockTextureIdProviderDefinition,
+                        mockTextureWidthProviderDefinition,
+                        mockTextureHeightProviderDefinition)
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
                 .onMouseOver(ON_MOUSE_OVER_ID)
@@ -132,9 +107,9 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(mockProviderDefinitionReader, once()).read(topRightColorDefinition);
         verify(mockProviderDefinitionReader, once()).read(bottomLeftColorDefinition);
         verify(mockProviderDefinitionReader, once()).read(bottomRightColorDefinition);
-        verify(mockProviderDefinitionReader, once()).read(textureIdProviderDefinition);
-        verify(mockProviderDefinitionReader, once()).read(textureWidthProviderDefinition);
-        verify(mockProviderDefinitionReader, once()).read(textureHeightProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(mockTextureIdProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(mockTextureWidthProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(mockTextureHeightProviderDefinition);
         verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
@@ -143,7 +118,8 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(mockFactory, once()).make(
                 same(topLeftColor), same(topRightColor),
                 same(bottomLeftColor), same(bottomRightColor),
-                same(textureIdProvider), same(textureWidthProvider), same(textureHeightProvider),
+                same(mockTextureIdProvider), same(mockTextureWidthProvider), same(
+                        mockTextureHeightProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
                 same(MOCK_ON_MOUSE_OVER),

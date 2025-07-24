@@ -10,7 +10,6 @@ import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TriangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.io.graphics.rendering.RenderableStack;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;

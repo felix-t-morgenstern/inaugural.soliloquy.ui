@@ -17,11 +17,8 @@ import java.util.function.Function;
 
 import static soliloquy.specs.io.graphics.renderables.RenderableWithMouseEvents.MouseEventInputs;
 
-public class RectangleRenderableDefinitionReader {
+public class RectangleRenderableDefinitionReader extends AbstractMouseEventsComponentDefinitionReader {
     private final RectangleRenderableFactory FACTORY;
-    @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
-    private final ProviderDefinitionReader PROVIDER_READER;
-    @SuppressWarnings("rawtypes") private final StaticProvider NULL_PROVIDER;
 
     public RectangleRenderableDefinitionReader(RectangleRenderableFactory factory,
                                                @SuppressWarnings("rawtypes")
@@ -29,10 +26,8 @@ public class RectangleRenderableDefinitionReader {
                                                ProviderDefinitionReader providerReader,
                                                @SuppressWarnings("rawtypes")
                                                StaticProvider nullProvider) {
+        super(providerReader, nullProvider, getAction);
         FACTORY = Check.ifNull(factory, "factory");
-        GET_ACTION = Check.ifNull(getAction, "getAction");
-        PROVIDER_READER = Check.ifNull(providerReader, "providerReader");
-        NULL_PROVIDER = Check.ifNull(nullProvider, "nullProvider");
     }
 
     public RectangleRenderable read(RenderableStack stack,
@@ -43,47 +38,19 @@ public class RectangleRenderableDefinitionReader {
         var area = PROVIDER_READER.read(
                 Check.ifNull(definition.AREA_PROVIDER, "definition.AREA_PROVIDER"));
 
-        @SuppressWarnings("unchecked") ProviderAtTime<Color> topLeft =
-                definition.topLeftColorProvider == null ? NULL_PROVIDER :
-                        PROVIDER_READER.read(definition.topLeftColorProvider);
-        @SuppressWarnings("unchecked") ProviderAtTime<Color> topRight =
-                definition.topRightColorProvider == null ? NULL_PROVIDER :
-                        PROVIDER_READER.read(definition.topRightColorProvider);
-        @SuppressWarnings("unchecked") ProviderAtTime<Color> bottomLeft =
-                definition.bottomLeftColorProvider == null ? NULL_PROVIDER :
-                        PROVIDER_READER.read(definition.bottomLeftColorProvider);
-        @SuppressWarnings("unchecked") ProviderAtTime<Color> bottomRight =
-                definition.bottomRightColorProvider == null ? NULL_PROVIDER :
-                        PROVIDER_READER.read(definition.bottomRightColorProvider);
+        var topLeft = provider(definition.topLeftColorProvider);
+        var topRight = provider(definition.topRightColorProvider);
+        var bottomLeft = provider(definition.bottomLeftColorProvider);
+        var bottomRight = provider(definition.bottomRightColorProvider);
 
-        @SuppressWarnings("unchecked") ProviderAtTime<Integer> textureId =
-                definition.textureIdProvider == null ? NULL_PROVIDER :
-                        PROVIDER_READER.read(definition.textureIdProvider);
-        @SuppressWarnings("unchecked") ProviderAtTime<Float> textureTileWidth =
-                definition.textureTileWidthProvider == null ? NULL_PROVIDER :
-                        PROVIDER_READER.read(definition.textureTileWidthProvider);
-        @SuppressWarnings("unchecked") ProviderAtTime<Float> textureTileHeight =
-                definition.textureTileHeightProvider == null ? NULL_PROVIDER :
-                        PROVIDER_READER.read(definition.textureTileHeightProvider);
+        var textureId = provider(definition.textureIdProvider);
+        var textureTileWidth = provider(definition.textureTileWidthProvider);
+        var textureTileHeight = provider(definition.textureTileHeightProvider);
 
-        var onPress = Collections.<Integer, Action<MouseEventInputs>>mapOf();
-        if (definition.onPressIds != null) {
-            //noinspection unchecked
-            definition.onPressIds.forEach(
-                    (button, id) -> onPress.put(button, GET_ACTION.apply(id)));
-        }
-        var onRelease = Collections.<Integer, Action<MouseEventInputs>>mapOf();
-        if (definition.onReleaseIds != null) {
-            //noinspection unchecked
-            definition.onReleaseIds.forEach(
-                    (button, id) -> onRelease.put(button, GET_ACTION.apply(id)));
-        }
-        @SuppressWarnings("unchecked") Action<MouseEventInputs> onMouseOver =
-                definition.onMouseOverId == null ? null :
-                        GET_ACTION.apply(definition.onMouseOverId);
-        @SuppressWarnings("unchecked") Action<MouseEventInputs> onMouseLeave =
-                definition.onMouseLeaveId == null ? null :
-                        GET_ACTION.apply(definition.onMouseLeaveId);
+        var onPress = getActionPerButton(definition.onPressIds);
+        var onRelease = getActionPerButton(definition.onReleaseIds);
+        var onMouseOver = getAction(definition.onMouseOverId);
+        var onMouseLeave = getAction(definition.onMouseLeaveId);
 
         return FACTORY.make(topLeft, topRight, bottomLeft, bottomRight, textureId, textureTileWidth,
                 textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave, area,

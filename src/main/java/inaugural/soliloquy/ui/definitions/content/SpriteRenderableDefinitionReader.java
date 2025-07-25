@@ -44,8 +44,8 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
         var borderThickness = provider(definition.borderThicknessProvider);
         var borderColor = provider(definition.borderColorProvider);
 
-        List<ColorShift> colorShifts = definition.colorShiftProviders == null ? listOf() :
-                Arrays.stream(definition.colorShiftProviders).map(SHIFT_READER::read).toList();
+        List<ColorShift> colorShifts = definition.colorShifts == null ? listOf() :
+                Arrays.stream(definition.colorShifts).map(SHIFT_READER::read).toList();
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

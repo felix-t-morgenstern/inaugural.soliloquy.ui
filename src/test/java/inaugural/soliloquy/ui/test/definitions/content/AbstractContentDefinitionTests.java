@@ -15,8 +15,7 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import java.awt.*;
 import java.util.function.Function;
 
-import static inaugural.soliloquy.tools.random.Random.randomInt;
-import static inaugural.soliloquy.tools.random.Random.randomString;
+import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
 import static org.mockito.Mockito.*;
 
@@ -43,6 +42,8 @@ public abstract class AbstractContentDefinitionTests {
     protected final int ON_RELEASE_BUTTON = randomInt();
 
     protected final int Z = randomInt();
+
+    protected final long TIMESTAMP = randomLong();
 
     @org.mockito.Mock protected ProviderDefinitionReader mockProviderDefinitionReader;
     @org.mockito.Mock protected ShiftDefinitionReader mockShiftDefinitionReader;

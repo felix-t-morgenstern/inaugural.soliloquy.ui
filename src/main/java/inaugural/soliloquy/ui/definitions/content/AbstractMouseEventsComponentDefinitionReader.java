@@ -13,17 +13,14 @@ import static soliloquy.specs.io.graphics.renderables.RenderableWithMouseEvents.
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class AbstractMouseEventsComponentDefinitionReader {
-    protected final ProviderDefinitionReader PROVIDER_READER;
-    @SuppressWarnings("rawtypes") private final StaticProvider NULL_PROVIDER;
+public abstract class AbstractMouseEventsComponentDefinitionReader extends AbstractContentDefinitionReader {
     @SuppressWarnings("rawtypes") protected final Function<String, Action> GET_ACTION;
 
     protected AbstractMouseEventsComponentDefinitionReader(
             ProviderDefinitionReader providerReader,
             @SuppressWarnings("rawtypes") StaticProvider nullProvider,
             @SuppressWarnings("rawtypes") Function<String, Action> getAction) {
-        PROVIDER_READER = Check.ifNull(providerReader, "providerReader");
-        NULL_PROVIDER = Check.ifNull(nullProvider, "nullProvider");
+        super(providerReader, nullProvider);
         GET_ACTION = Check.ifNull(getAction, "getAction");
     }
 
@@ -39,10 +36,5 @@ public abstract class AbstractMouseEventsComponentDefinitionReader {
             ids.forEach((button, id) -> actionPerButton.put(button, GET_ACTION.apply(id)));
         }
         return actionPerButton;
-    }
-
-    protected <T> ProviderAtTime<T> provider(AbstractProviderDefinition<T> definition) {
-        //noinspection unchecked
-        return definition == null ? NULL_PROVIDER : PROVIDER_READER.read(definition);
     }
 }

@@ -9,9 +9,8 @@ import soliloquy.specs.ui.definitions.content.RasterizedLineSegmentRenderableDef
 
 import java.util.UUID;
 
-public class RasterizedLineSegmentRenderableDefinitionReader {
+public class RasterizedLineSegmentRenderableDefinitionReader extends AbstractContentDefinitionReader {
     private final RasterizedLineSegmentRenderableFactory FACTORY;
-    private final ProviderDefinitionReader PROVIDER_READER;
     private final short DEFAULT_STIPPLE_PATTERN;
     private final short DEFAULT_STIPPLE_FACTOR;
 
@@ -20,8 +19,8 @@ public class RasterizedLineSegmentRenderableDefinitionReader {
             ProviderDefinitionReader providerReader,
             short defaultStipplePattern,
             short defaultStippleFactor) {
+        super(providerReader);
         FACTORY = Check.ifNull(factory, "factory");
-        PROVIDER_READER = Check.ifNull(providerReader, "providerReader");
         DEFAULT_STIPPLE_PATTERN = defaultStipplePattern;
         DEFAULT_STIPPLE_FACTOR = defaultStippleFactor;
     }

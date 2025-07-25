@@ -19,10 +19,9 @@ import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 
-public class SpriteRenderableDefinitionReader extends AbstractMouseEventsComponentDefinitionReader {
+public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefinitionReader {
     private final SpriteRenderableFactory FACTORY;
     private final Function<String, Sprite> GET_SPRITE;
-    private final ShiftDefinitionReader SHIFT_READER;
 
     public SpriteRenderableDefinitionReader(SpriteRenderableFactory factory,
                                             Function<String, Sprite> getSprite,
@@ -32,10 +31,9 @@ public class SpriteRenderableDefinitionReader extends AbstractMouseEventsCompone
                                             ShiftDefinitionReader shiftReader,
                                             @SuppressWarnings("rawtypes")
                                             StaticProvider nullProvider) {
-        super(providerReader, nullProvider, getAction);
+        super(providerReader, nullProvider, getAction, shiftReader);
         FACTORY = Check.ifNull(factory, "factory");
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");
-        SHIFT_READER = Check.ifNull(shiftReader, "shiftReader");
     }
 
     public SpriteRenderable read(RenderableStack stack, SpriteRenderableDefinition definition) {

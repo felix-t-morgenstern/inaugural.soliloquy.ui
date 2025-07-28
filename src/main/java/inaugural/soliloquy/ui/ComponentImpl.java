@@ -3,93 +3,96 @@ package inaugural.soliloquy.ui;
 import inaugural.soliloquy.tools.Check;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.Renderable;
+import soliloquy.specs.io.graphics.renderables.RenderableWithMouseEvents;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.Component;
 import soliloquy.specs.ui.keyboard.KeyBindingContext;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import static inaugural.soliloquy.io.api.Constants.WHOLE_SCREEN_PROVIDER;
-import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.setOf;
 
 public class ComponentImpl implements Component {
     private final UUID UUID;
     private final Component CONTAINING_COMPONENT;
-    private final Map<Integer, List<Renderable>> RENDERABLES;
-    private final Map<Renderable, Integer> Z_INDICES_OF_INTEGERS;
+    private final KeyBindingContext BINDING_CONTEXT;
+    private final Set<Renderable> RENDERABLES;
+    private final Consumer<RenderableWithMouseEvents> ADD_TO_CAPTURING;
+    private final Consumer<RenderableWithMouseEvents> REMOVE_FROM_CAPTURING;
 
     private int z;
+    private int tier;
     private boolean isDeleted;
     private ProviderAtTime<FloatBox> renderingBoundariesProvider;
 
-    public ComponentImpl() {
-        UUID = null;
-        z = 0;
-        renderingBoundariesProvider = WHOLE_SCREEN_PROVIDER;
-        CONTAINING_COMPONENT = null;
-        RENDERABLES = mapOf();
-        Z_INDICES_OF_INTEGERS = mapOf();
-    }
-
     @SuppressWarnings("ConstantConditions")
-    public ComponentImpl(UUID uuid, int z,
+    public ComponentImpl(UUID uuid,
+                         int z,
+                         KeyBindingContext bindingContext,
+                         Component containingComponent,
                          ProviderAtTime<FloatBox> renderingBoundariesProvider,
-                         Component containingStack) {
+                         Consumer<RenderableWithMouseEvents> addToCapturing,
+                         Consumer<RenderableWithMouseEvents> removeFromCapturing) {
         UUID = Check.ifNull(uuid, "uuid");
         this.z = z;
+        tier = containingComponent == null ? 0 : (containingComponent.tier() + 1);
         this.renderingBoundariesProvider =
                 Check.ifNull(renderingBoundariesProvider, "renderingBoundariesProvider");
-        CONTAINING_COMPONENT = Check.ifNull(containingStack, "containingStack");
-        CONTAINING_COMPONENT.add(this);
-        RENDERABLES = mapOf();
-        Z_INDICES_OF_INTEGERS = mapOf();
+        CONTAINING_COMPONENT = containingComponent;
+        if (CONTAINING_COMPONENT != null) {
+            CONTAINING_COMPONENT.add(this);
+        }
+        BINDING_CONTEXT = Check.ifNull(bindingContext, "bindingContext");
+        RENDERABLES = setOf();
+        ADD_TO_CAPTURING = Check.ifNull(addToCapturing, "addToCapturing");
+        REMOVE_FROM_CAPTURING = Check.ifNull(removeFromCapturing, "removeFromCapturing");
     }
 
     @Override
     public KeyBindingContext keyBindingContext() {
-        return null;
+        return BINDING_CONTEXT;
     }
 
     @Override
     public void add(Renderable renderable) throws IllegalArgumentException {
+        Check.ifNull(renderable, "renderable");
         if (renderable.component() != null && renderable.component() != this) {
             throw new IllegalArgumentException(
                     "ComponentImpl.add: renderable already in another Component");
         }
-        if (Z_INDICES_OF_INTEGERS.containsKey(renderable)) {
-            var previousZIndex = Z_INDICES_OF_INTEGERS.get(renderable);
-            if (previousZIndex == renderable.getZ()) {
-                return;
-            }
-            RENDERABLES.get(previousZIndex).remove(renderable);
-            if (RENDERABLES.get(previousZIndex).isEmpty()) {
-                RENDERABLES.remove(previousZIndex);
+        if (renderable instanceof Component) {
+            var newComponentTier = ((Component) renderable).tier();
+            if (newComponentTier != tier + 1) {
+                throw new IllegalArgumentException(
+                        "ComponentImpl.add: renderable is Component whose tier (" +
+                                newComponentTier +
+                                ") is not one greater than this Component's tier (" + tier + ")");
             }
         }
-        Z_INDICES_OF_INTEGERS.put(renderable, renderable.getZ());
-        if (!RENDERABLES.containsKey(renderable.getZ())) {
-            RENDERABLES.put(renderable.getZ(), listOf(renderable));
-        }
-        else {
-            RENDERABLES.get(renderable.getZ()).add(renderable);
+        RENDERABLES.add(renderable);
+        if (renderable instanceof RenderableWithMouseEvents) {
+            ADD_TO_CAPTURING.accept((RenderableWithMouseEvents) renderable);
         }
     }
 
     @Override
-    public Set<Renderable> content() {
-        return Set.of();
+    public void remove(Renderable renderable) throws IllegalArgumentException {
+        Check.ifNull(renderable, "renderable");
+        if (renderable.component() != this) {
+            throw new IllegalArgumentException(
+                    "ComponentImpl.remove: renderable not in this Component");
+        }
+        RENDERABLES.remove(renderable);
+        if (renderable instanceof RenderableWithMouseEvents) {
+            REMOVE_FROM_CAPTURING.accept((RenderableWithMouseEvents) renderable);
+        }
     }
 
-    public void remove(Renderable renderable) throws IllegalArgumentException {
-        var z = renderable.getZ();
-        RENDERABLES.get(z).remove(renderable);
-        if (RENDERABLES.get(z).isEmpty()) {
-            RENDERABLES.remove(z);
-        }
+    @Override
+    public Set<Renderable> contents() {
+        return setOf(RENDERABLES);
     }
 
     @Override
@@ -106,6 +109,11 @@ public class ComponentImpl implements Component {
                             "rendering boundaries for top-level Component");
         }
         renderingBoundariesProvider = Check.ifNull(providerAtTime, "providerAtTime");
+    }
+
+    @Override
+    public int tier() {
+        return tier;
     }
 
     @Override
@@ -130,7 +138,7 @@ public class ComponentImpl implements Component {
 
     @Override
     public void delete() {
-        RENDERABLES.values().forEach(renderables -> renderables.forEach(Renderable::delete));
+        RENDERABLES.forEach(Renderable::delete);
         isDeleted = true;
     }
 

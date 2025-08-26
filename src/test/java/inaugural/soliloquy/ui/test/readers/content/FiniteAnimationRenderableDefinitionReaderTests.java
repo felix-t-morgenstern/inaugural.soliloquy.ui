@@ -52,7 +52,8 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 anyInt(),
                 any(),
                 any(),
-                anyLong(), any(), any())).thenReturn(mockRenderable);
+                anyLong(), any())
+        ).thenReturn(mockRenderable);
 
         reader = new FiniteAnimationRenderableDefinitionReader(mockFactory, MOCK_GET_ANIMATION, MOCK_GET_ACTION,
                 mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider);
@@ -121,7 +122,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 eq(Z),
                 isNotNull(),
                 same(mockComponent),
-                eq(startTimestamp), any(), any()
+                eq(startTimestamp), any()
         );
     }
 
@@ -148,7 +149,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 eq(Z),
                 isNotNull(),
                 same(mockComponent),
-                eq(TIMESTAMP), any(), any()
+                eq(TIMESTAMP), any()
         );
     }
 }

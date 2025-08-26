@@ -23,7 +23,12 @@ public class LoopingLinearMovingProviderDefinitionReader {
         var periodModuloOffset = definition.PERIOD_DURATION -
                 (int) (contentRenderTimestamp % (definition.PERIOD_DURATION));
 
-        return FACTORY.make(UUID.randomUUID(), definition.PERIOD_DURATION, periodModuloOffset,
-                mapOf(definition.VALUES_WITHIN_PERIOD), null, null);
+        return FACTORY.make(
+                UUID.randomUUID(),
+                definition.PERIOD_DURATION,
+                periodModuloOffset,
+                mapOf(definition.VALUES_WITHIN_PERIOD),
+                null
+        );
     }
 }

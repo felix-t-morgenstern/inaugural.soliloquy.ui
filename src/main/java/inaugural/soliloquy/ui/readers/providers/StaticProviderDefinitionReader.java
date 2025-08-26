@@ -15,6 +15,9 @@ public class StaticProviderDefinitionReader {
     }
 
     public <T> StaticProvider<T> read(StaticProviderDefinition<T> definition) {
-        return FACTORY.make(UUID.randomUUID(), Check.ifNull(definition, "definition").VALUE, null);
+        return FACTORY.make(
+                UUID.randomUUID(),
+                Check.ifNull(definition, "definition").VALUE
+        );
     }
 }

@@ -56,14 +56,21 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
 
         var startTimestamp = timestamp + definition.startTimestampOffset;
 
-        return FACTORY.make(animation,
-                borderThickness, borderColor,
-                onPress, onRelease, onMouseOver, onMouseLeave,
+        return FACTORY.make(
+                animation,
+                borderThickness,
+                borderColor,
+                onPress,
+                onRelease,
+                onMouseOver,
+                onMouseLeave,
                 colorShifts,
                 dimensions,
                 definition.Z,
                 UUID.randomUUID(),
                 component,
-                startTimestamp, null, null);
+                startTimestamp,
+                null
+        );
     }
 }

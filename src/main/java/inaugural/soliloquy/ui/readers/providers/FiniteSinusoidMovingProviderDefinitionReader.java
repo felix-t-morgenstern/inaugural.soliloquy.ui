@@ -28,7 +28,11 @@ public class FiniteSinusoidMovingProviderDefinitionReader {
                 .map(val -> pairOf(Check.ifNull(val,
                         "val within definition.VALUES_AT_TIMESTAMP_OFFSETS").FIRST +
                         contentRenderTimestamp, val.SECOND)));
-        return FACTORY.make(UUID.randomUUID(), valsAtTimestamps, definition.TRANSITION_SHARPNESSES,
-                null, null);
+        return FACTORY.make(
+                UUID.randomUUID(),
+                valsAtTimestamps,
+                definition.TRANSITION_SHARPNESSES,
+                null
+        );
     }
 }

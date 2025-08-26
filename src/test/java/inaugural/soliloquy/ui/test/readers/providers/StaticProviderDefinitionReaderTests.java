@@ -39,14 +39,14 @@ public class StaticProviderDefinitionReaderTests {
     @Test
     public void testRead() {
         //noinspection unchecked
-        when(mockFactory.make(any(), any(), any())).thenReturn(mockStaticProvider);
+        when(mockFactory.make(any(), any())).thenReturn(mockStaticProvider);
         var val = randomInt();
         var definition = staticVal(val);
 
         var output = reader.read(definition);
 
         assertSame(mockStaticProvider, output);
-        verify(mockFactory, once()).make(any(), eq(val), isNull());
+        verify(mockFactory, once()).make(any(), eq(val));
     }
 
     @Test

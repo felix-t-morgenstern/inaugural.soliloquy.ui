@@ -42,8 +42,7 @@ public class LoopingLinearMovingProviderDefinitionReaderTests {
     @Test
     public void testRead() {
         //noinspection unchecked
-        when(mockFactory.make(any(), anyInt(), anyInt(), any(), any(), any())).thenReturn(
-                mockProvider);
+        when(mockFactory.make(any(), anyInt(), anyInt(), any(), any())).thenReturn(mockProvider);
         var periodDuration = randomInt();
         var renderTimestampOffset = randomInt();
         var vals = pairOf(randomInt(), randomFloat());
@@ -56,7 +55,7 @@ public class LoopingLinearMovingProviderDefinitionReaderTests {
                 periodDuration - (int) (contentRenderTimestamp % (periodDuration));
         assertSame(mockProvider, provider);
         verify(mockFactory, once()).make(any(), eq(periodDuration), eq(expectedPeriodModuloOffset),
-                eq(mapOf(vals)), any(), any());
+                eq(mapOf(vals)), any());
     }
 
     @Test

@@ -41,7 +41,7 @@ public class FiniteLinearMovingProviderDefinitionReaderTests {
     @Test
     public void testRead() {
         //noinspection unchecked
-        when(mockFactory.make(any(), any(), any(), any())).thenReturn(mockProvider);
+        when(mockFactory.make(any(), any(), any())).thenReturn(mockProvider);
         var vals = pairOf(randomInt(), randomFloat());
         var contentRenderTimestamp = randomLong();
         var definition = finiteLinearMoving(vals);
@@ -51,7 +51,7 @@ public class FiniteLinearMovingProviderDefinitionReaderTests {
         assertSame(mockProvider, provider);
         var expectedRenderTimestamp = contentRenderTimestamp + vals.FIRST;
         verify(mockFactory, once()).make(any(),
-                eq(mapOf(pairOf(expectedRenderTimestamp, vals.SECOND))), isNull(), isNull());
+                eq(mapOf(pairOf(expectedRenderTimestamp, vals.SECOND))), isNull());
     }
 
     @Test

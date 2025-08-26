@@ -25,8 +25,13 @@ public class LoopingLinearMovingColorProviderDefinitionReader {
         var periodModuloOffset = definition.PERIOD_DURATION -
                 (int) (contentRenderTimestamp % (definition.PERIOD_DURATION));
 
-        return FACTORY.make(UUID.randomUUID(), mapOf(definition.VALUES_WITHIN_PERIOD),
-                definition.HUE_MOVEMENT_IS_CLOCKWISE, definition.PERIOD_DURATION,
-                periodModuloOffset, null, null);
+        return FACTORY.make(
+                UUID.randomUUID(),
+                mapOf(definition.VALUES_WITHIN_PERIOD),
+                definition.HUE_MOVEMENT_IS_CLOCKWISE,
+                definition.PERIOD_DURATION,
+                periodModuloOffset,
+                null
+        );
     }
 }

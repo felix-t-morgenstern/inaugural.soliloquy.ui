@@ -26,7 +26,7 @@ import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingColorP
 
 @ExtendWith(MockitoExtension.class)
 public class LoopingLinearMovingColorProviderDefinitionReaderTests {
-    @SuppressWarnings("rawtypes") @Mock private LoopingLinearMovingColorProvider mockProvider;
+    @Mock private LoopingLinearMovingColorProvider mockProvider;
     @Mock private LoopingLinearMovingColorProviderFactory mockFactory;
 
     private LoopingLinearMovingColorProviderDefinitionReader reader;
@@ -44,8 +44,8 @@ public class LoopingLinearMovingColorProviderDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        when(mockFactory.make(any(), any(), any(), anyInt(), anyInt(), any(), any())).thenReturn(
-                mockProvider);
+        when(mockFactory.make(any(), any(), any(), anyInt(), anyInt(), any()))
+                .thenReturn(mockProvider);
         var periodDuration = randomInt();
         var renderTimestampOffset = randomInt();
         var isClockwise = randomBoolean();
@@ -60,7 +60,7 @@ public class LoopingLinearMovingColorProviderDefinitionReaderTests {
                 periodDuration - (int) (contentRenderTimestamp % (periodDuration));
         assertSame(mockProvider, provider);
         verify(mockFactory, once()).make(any(), eq(mapOf(vals)), eq(listOf(isClockwise)),
-                eq(periodDuration), eq(expectedPeriodModuloOffset), isNull(), isNull());
+                eq(periodDuration), eq(expectedPeriodModuloOffset), isNull());
     }
 
     @Test

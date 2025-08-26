@@ -28,7 +28,11 @@ public class FiniteLinearMovingColorProviderDefinitionReader {
                 .map(val -> pairOf(Check.ifNull(val,
                         "val within definition.VALUES_AT_TIMESTAMP_OFFSETS").FIRST +
                         contentRenderTimestamp, val.SECOND)));
-        return FACTORY.make(UUID.randomUUID(), valsAtTimestamps,
-                listOf(definition.HUE_MOVEMENT_IS_CLOCKWISE), null, null);
+        return FACTORY.make(
+                UUID.randomUUID(),
+                valsAtTimestamps,
+                listOf(definition.HUE_MOVEMENT_IS_CLOCKWISE),
+                null
+        );
     }
 }

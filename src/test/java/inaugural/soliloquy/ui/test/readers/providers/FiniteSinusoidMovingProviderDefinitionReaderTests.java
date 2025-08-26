@@ -44,7 +44,7 @@ public class FiniteSinusoidMovingProviderDefinitionReaderTests {
     @Test
     public void testRead() {
         //noinspection unchecked
-        when(mockFactory.make(any(), any(), any(), any(), any())).thenReturn(mockProvider);
+        when(mockFactory.make(any(), any(), any(), any())).thenReturn(mockProvider);
         var sharpness = randomFloat();
         var vals = pairOf(randomInt(), randomFloat());
         var contentRenderTimestamp = randomLong();
@@ -56,7 +56,7 @@ public class FiniteSinusoidMovingProviderDefinitionReaderTests {
         var expectedRenderTimestamp = contentRenderTimestamp + vals.FIRST;
         verify(mockFactory, once()).make(any(),
                 eq(mapOf(pairOf(expectedRenderTimestamp, vals.SECOND))), eq(listOf(sharpness)),
-                isNull(), isNull());
+                isNull());
     }
 
     @Test

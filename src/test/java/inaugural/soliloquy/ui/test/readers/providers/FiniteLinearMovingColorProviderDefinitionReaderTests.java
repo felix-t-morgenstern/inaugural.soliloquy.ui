@@ -42,7 +42,7 @@ public class FiniteLinearMovingColorProviderDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        when(mockFactory.make(any(), any(), any(), any(), any())).thenReturn(mockProvider);
+        when(mockFactory.make(any(), any(), any(), any())).thenReturn(mockProvider);
         var vals = pairOf(randomInt(), randomColor());
         var isClockwise = randomBoolean();
         var contentRenderTimestamp = randomLong();
@@ -54,7 +54,7 @@ public class FiniteLinearMovingColorProviderDefinitionReaderTests {
         var expectedRenderTimestamp = contentRenderTimestamp + vals.FIRST;
         verify(mockFactory, once()).make(any(),
                 eq(mapOf(pairOf(expectedRenderTimestamp, vals.SECOND))), eq(listOf(isClockwise)),
-                isNull(), isNull());
+                isNull());
     }
 
     @Test

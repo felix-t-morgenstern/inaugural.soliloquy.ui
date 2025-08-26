@@ -27,6 +27,10 @@ public class FiniteLinearMovingProviderDefinitionReader {
                 .map(val -> pairOf(Check.ifNull(val,
                         "val within definition.VALUES_AT_TIMESTAMP_OFFSETS").FIRST +
                         contentRenderTimestamp, val.SECOND)));
-        return FACTORY.make(UUID.randomUUID(), valsAtTimestamps, null, null);
+        return FACTORY.make(
+                UUID.randomUUID(),
+                valsAtTimestamps,
+                null
+        );
     }
 }

@@ -21,9 +21,9 @@ public class ComponentImpl implements Component {
     private final Set<Renderable> RENDERABLES;
     private final Consumer<RenderableWithMouseEvents> ADD_TO_CAPTURING;
     private final Consumer<RenderableWithMouseEvents> REMOVE_FROM_CAPTURING;
+    private final int TIER;
 
     private int z;
-    private int tier;
     private boolean isDeleted;
     private ProviderAtTime<FloatBox> renderingBoundariesProvider;
 
@@ -37,7 +37,7 @@ public class ComponentImpl implements Component {
                          Consumer<RenderableWithMouseEvents> removeFromCapturing) {
         UUID = Check.ifNull(uuid, "uuid");
         this.z = z;
-        tier = containingComponent == null ? 0 : (containingComponent.tier() + 1);
+        TIER = containingComponent == null ? 0 : (containingComponent.tier() + 1);
         this.renderingBoundariesProvider =
                 Check.ifNull(renderingBoundariesProvider, "renderingBoundariesProvider");
         CONTAINING_COMPONENT = containingComponent;
@@ -64,11 +64,11 @@ public class ComponentImpl implements Component {
         }
         if (renderable instanceof Component) {
             var newComponentTier = ((Component) renderable).tier();
-            if (newComponentTier != tier + 1) {
+            if (newComponentTier != TIER + 1) {
                 throw new IllegalArgumentException(
                         "ComponentImpl.add: renderable is Component whose tier (" +
                                 newComponentTier +
-                                ") is not one greater than this Component's tier (" + tier + ")");
+                                ") is not one greater than this Component's tier (" + TIER + ")");
             }
         }
         RENDERABLES.add(renderable);
@@ -113,7 +113,7 @@ public class ComponentImpl implements Component {
 
     @Override
     public int tier() {
-        return tier;
+        return TIER;
     }
 
     @Override

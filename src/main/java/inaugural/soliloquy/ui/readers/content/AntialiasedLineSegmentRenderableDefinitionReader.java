@@ -31,8 +31,7 @@ public class AntialiasedLineSegmentRenderableDefinitionReader {
         var lengthGradientPercent =
                 PROVIDER_READER.read(definition.LENGTH_GRADIENT_PERCENT_PROVIDER);
 
-        return FACTORY.make(vertex1, vertex2, thickness, color,
-                thicknessGradientPercent, lengthGradientPercent, definition.Z, UUID.randomUUID(),
-                component);
+        return FACTORY.make(vertex1, vertex2, color, thickness, thicknessGradientPercent,
+                lengthGradientPercent, definition.Z, UUID.randomUUID(), component);
     }
 }

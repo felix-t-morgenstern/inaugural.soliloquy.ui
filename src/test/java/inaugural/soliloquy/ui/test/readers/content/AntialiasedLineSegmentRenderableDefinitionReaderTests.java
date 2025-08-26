@@ -100,8 +100,16 @@ public class AntialiasedLineSegmentRenderableDefinitionReaderTests extends Abstr
         verify(mockProviderDefinitionReader, once()).read(colorDefinition);
         verify(mockProviderDefinitionReader, once()).read(thicknessGradientPercentDefinition);
         verify(mockProviderDefinitionReader, once()).read(lengthGradientPercentDefinition);
-        verify(mockFactory, once()).make(same(vertex1), same(vertex2), same(thickness), same(color),
-                same(thicknessGradientPercent), same(lengthGradientPercent), eq(z), isNotNull(),
-                same(mockComponent));
+        verify(mockFactory, once()).make(
+                same(vertex1),
+                same(vertex2),
+                same(color),
+                same(thickness),
+                same(thicknessGradientPercent),
+                same(lengthGradientPercent),
+                eq(z),
+                isNotNull(),
+                same(mockComponent)
+        );
     }
 }

@@ -5,11 +5,11 @@ import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.io.graphics.assets.Animation;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.FiniteAnimationRenderable;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.factories.FiniteAnimationRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
-import soliloquy.specs.ui.Component;
 import soliloquy.specs.ui.definitions.content.FiniteAnimationRenderableDefinition;
 
 import java.util.Arrays;

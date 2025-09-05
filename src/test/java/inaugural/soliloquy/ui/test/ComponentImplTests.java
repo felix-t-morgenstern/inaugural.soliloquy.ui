@@ -8,12 +8,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.valueobjects.FloatBox;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.Renderable;
 import soliloquy.specs.io.graphics.renderables.RenderableWithMouseEvents;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.ui.Component;
+import soliloquy.specs.io.input.keyboard.entities.KeyBindingContext;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
-import soliloquy.specs.ui.keyboard.KeyBindingContext;
 
 import java.util.UUID;
 import java.util.function.Consumer;

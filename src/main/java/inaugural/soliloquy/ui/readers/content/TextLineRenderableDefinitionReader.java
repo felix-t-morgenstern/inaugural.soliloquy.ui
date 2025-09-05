@@ -4,11 +4,11 @@ import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.io.graphics.assets.Font;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TextLineRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
-import soliloquy.specs.ui.Component;
 import soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition;
 
 import java.awt.*;

@@ -3,10 +3,10 @@ package inaugural.soliloquy.ui.readers.content;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TriangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
-import soliloquy.specs.ui.Component;
 import soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition;
 
 import java.util.UUID;

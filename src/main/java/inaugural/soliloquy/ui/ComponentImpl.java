@@ -2,11 +2,11 @@ package inaugural.soliloquy.ui;
 
 import inaugural.soliloquy.tools.Check;
 import soliloquy.specs.common.valueobjects.FloatBox;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.Renderable;
 import soliloquy.specs.io.graphics.renderables.RenderableWithMouseEvents;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.ui.Component;
-import soliloquy.specs.ui.keyboard.KeyBindingContext;
+import soliloquy.specs.io.input.keyboard.entities.KeyBindingContext;
 
 import java.util.Set;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.readers.content;
 
-import soliloquy.specs.ui.Component;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.ui.definitions.content.ComponentDefinition;
 
 public class ComponentDefinitionReader {

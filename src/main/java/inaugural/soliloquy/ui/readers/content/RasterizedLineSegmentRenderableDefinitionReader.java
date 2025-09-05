@@ -2,9 +2,9 @@ package inaugural.soliloquy.ui.readers.content;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.RasterizedLineSegmentRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RasterizedLineSegmentRenderableFactory;
-import soliloquy.specs.ui.Component;
 import soliloquy.specs.ui.definitions.content.RasterizedLineSegmentRenderableDefinition;
 
 import java.util.UUID;
@@ -25,8 +25,10 @@ public class RasterizedLineSegmentRenderableDefinitionReader extends AbstractCon
         DEFAULT_STIPPLE_FACTOR = defaultStippleFactor;
     }
 
-    public RasterizedLineSegmentRenderable read(Component component,
-                                                RasterizedLineSegmentRenderableDefinition definition) {
+    public RasterizedLineSegmentRenderable read(
+            Component component,
+            RasterizedLineSegmentRenderableDefinition definition
+    ) {
         Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 

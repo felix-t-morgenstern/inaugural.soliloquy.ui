@@ -52,8 +52,8 @@ public class ShiftDefinitionReaderTests {
 
         assertNotNull(shift);
         assertInstanceOf(BrightnessShift.class, shift);
-        assertSame(mockProvider, shift.shiftAmountProvider());
-        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.overridesPriorShiftsOfSameType());
+        assertSame(mockProvider, shift.AMOUNT_PROVIDER);
+        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
         verify(mockProviderDefinitionReader, once()).read(mockProviderDefinition);
     }
 
@@ -65,9 +65,9 @@ public class ShiftDefinitionReaderTests {
 
         assertNotNull(shift);
         assertInstanceOf(ColorComponentIntensityShift.class, shift);
-        assertSame(mockProvider, shift.shiftAmountProvider());
-        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.overridesPriorShiftsOfSameType());
-        assertSame(RED, ((ColorComponentIntensityShift)shift).colorComponent());
+        assertSame(mockProvider, shift.AMOUNT_PROVIDER);
+        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
+        assertSame(RED, ((ColorComponentIntensityShift)shift).COLOR_COMPONENT);
         verify(mockProviderDefinitionReader, once()).read(mockProviderDefinition);
     }
 
@@ -79,8 +79,8 @@ public class ShiftDefinitionReaderTests {
 
         assertNotNull(shift);
         assertInstanceOf(ColorRotationShift.class, shift);
-        assertSame(mockProvider, shift.shiftAmountProvider());
-        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.overridesPriorShiftsOfSameType());
+        assertSame(mockProvider, shift.AMOUNT_PROVIDER);
+        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
         verify(mockProviderDefinitionReader, once()).read(mockProviderDefinition);
     }
 

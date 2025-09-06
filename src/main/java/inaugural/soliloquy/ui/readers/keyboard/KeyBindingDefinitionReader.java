@@ -27,7 +27,6 @@ public class KeyBindingDefinitionReader {
                 definition.RELEASE_ACTION_ID == null ? null :
                         GET_ACTION.apply(definition.RELEASE_ACTION_ID);
 
-        //noinspection DataFlowIssue
         return keyBinding(definition.CHARS, onPress, onRelease);
     }
 }

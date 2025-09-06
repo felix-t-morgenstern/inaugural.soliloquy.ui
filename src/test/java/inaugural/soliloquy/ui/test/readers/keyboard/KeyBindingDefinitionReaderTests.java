@@ -5,19 +5,16 @@ import inaugural.soliloquy.ui.test.readers.content.AbstractContentDefinitionTest
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import soliloquy.specs.io.input.keyboard.entities.KeyBinding;
 
+import static inaugural.soliloquy.tools.collections.Collections.arrayChars;
 import static inaugural.soliloquy.tools.random.Random.randomChar;
 import static org.junit.jupiter.api.Assertions.*;
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
 
 @ExtendWith(MockitoExtension.class)
 public class KeyBindingDefinitionReaderTests extends AbstractContentDefinitionTests {
-    private final char CHAR = randomChar();
-
-    @Mock KeyBinding mockBinding;
+    private final char KEY = randomChar();
 
     private KeyBindingDefinitionReader reader;
 
@@ -35,12 +32,13 @@ public class KeyBindingDefinitionReaderTests extends AbstractContentDefinitionTe
 
     @Test
     public void testRead() {
-        var definition = binding(ON_PRESS_ID, ON_RELEASE_ID, CHAR);
+        var definition = binding(ON_PRESS_ID, ON_RELEASE_ID, KEY);
 
         var binding = reader.read(definition);
 
         assertNotNull(binding);
-
-        fail("FINISH THIS SUITE");
+        assertArrayEquals(arrayChars(KEY), binding.BOUND_KEYS);
+        assertSame(MOCK_ON_PRESS, binding.ON_PRESS);
+        assertSame(MOCK_ON_RELEASE, binding.ON_RELEASE);
     }
 }

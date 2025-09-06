@@ -1,12 +1,15 @@
 package inaugural.soliloquy.ui.readers.content;
 
 import inaugural.soliloquy.tools.Check;
-import org.apache.commons.lang3.function.TriFunction;
+import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.Renderable;
+import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
 import soliloquy.specs.ui.definitions.content.*;
 
-public class ContentDefinitionReader {
+import static java.util.UUID.randomUUID;
+
+public class RenderableDefinitionReader {
     private final RasterizedLineSegmentRenderableDefinitionReader RASTERIZED_LINE_READER;
     private final AntialiasedLineSegmentRenderableDefinitionReader ANTIALIASED_LINE_READER;
     private final RectangleRenderableDefinitionReader RECTANGLE_READER;
@@ -16,9 +19,11 @@ public class ContentDefinitionReader {
     private final FiniteAnimationRenderableDefinitionReader FINITE_ANIMATION_READER;
     private final TextLineRenderableDefinitionReader TEXT_LINE_READER;
 
-    private final TriFunction<ComponentDefinition, Component, Long, Component> READ_COMPONENT;
+    private final ComponentFactory COMPONENT_FACTORY;
 
-    public ContentDefinitionReader(
+    private final ProviderDefinitionReader PROVIDER_READER;
+
+    public RenderableDefinitionReader(
             RasterizedLineSegmentRenderableDefinitionReader rasterizedLineReader,
             AntialiasedLineSegmentRenderableDefinitionReader antialiasedLineReader,
             RectangleRenderableDefinitionReader rectangleReader,
@@ -27,7 +32,8 @@ public class ContentDefinitionReader {
             ImageAssetSetRenderableDefinitionReader imageAssetSetReader,
             FiniteAnimationRenderableDefinitionReader finiteAnimationReader,
             TextLineRenderableDefinitionReader textLineReader,
-            TriFunction<ComponentDefinition, Component, Long, Component> readComponent) {
+            ComponentFactory componentFactory,
+            ProviderDefinitionReader providerReader) {
         RASTERIZED_LINE_READER = Check.ifNull(rasterizedLineReader, "rasterizedLineReader");
         ANTIALIASED_LINE_READER = Check.ifNull(antialiasedLineReader, "antialiasedLineReader");
         RECTANGLE_READER = Check.ifNull(rectangleReader, "rectangleReader");
@@ -36,7 +42,8 @@ public class ContentDefinitionReader {
         IMAGE_ASSET_SET_READER = Check.ifNull(imageAssetSetReader, "imageAssetSetReader");
         FINITE_ANIMATION_READER = Check.ifNull(finiteAnimationReader, "finiteAnimationReader");
         TEXT_LINE_READER = Check.ifNull(textLineReader, "textLineReader");
-        READ_COMPONENT = Check.ifNull(readComponent, "readComponent");
+        COMPONENT_FACTORY = Check.ifNull(componentFactory, "componentFactory");
+        PROVIDER_READER = Check.ifNull(providerReader, "providerReader");
     }
 
     public <TDef extends AbstractContentDefinition, TRend extends Renderable> TRend read(
@@ -71,9 +78,19 @@ public class ContentDefinitionReader {
             case TextLineRenderableDefinition d ->
                 //noinspection unchecked
                     (TRend) TEXT_LINE_READER.read(containingComponent, d);
-            case ComponentDefinition d ->
+            case ComponentDefinition d -> {
+                var readComponent = COMPONENT_FACTORY.make(
+                        randomUUID(),
+                        d.Z,
+                        PROVIDER_READER.read(d.DIMENSIONS_PROVIDER),
+                        containingComponent
+                );
+                for (var contentDef : d.CONTENT) {
+                    read(readComponent, contentDef, timestamp);
+                }
                 //noinspection unchecked
-                    (TRend) READ_COMPONENT.apply(d, containingComponent, timestamp);
+                yield (TRend) readComponent;
+            }
             default -> throw new IllegalArgumentException(
                     "ContentDefinitionReader.read: Unexpected definition type (" +
                             definition.getClass().getCanonicalName() + ")");

@@ -1,6 +1,6 @@
-package inaugural.soliloquy.ui.test.readers.content;
+package inaugural.soliloquy.ui.test.unit.readers.content;
 
-import inaugural.soliloquy.ui.readers.content.ImageAssetRenderableDefinitionReader;
+import inaugural.soliloquy.ui.readers.content.ImageAssetSetRenderableDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.content.ImageAssetSetRenderableDefinition.imageAssetSet;
 
 @ExtendWith(MockitoExtension.class)
-public class ImageAssetRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
+public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     private final String IMAGE_ASSET_SET_ID = randomString();
     private final String DATA_KEY = randomString();
     private final String DATA_VAL = randomString();
@@ -39,7 +39,7 @@ public class ImageAssetRenderableDefinitionReaderTests extends AbstractContentDe
     @Mock private ImageAssetSetRenderable mockRenderable;
     @Mock private ImageAssetSetRenderableFactory mockFactory;
 
-    private ImageAssetRenderableDefinitionReader reader;
+    private ImageAssetSetRenderableDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
@@ -56,28 +56,28 @@ public class ImageAssetRenderableDefinitionReaderTests extends AbstractContentDe
                 any(),
                 any())).thenReturn(mockRenderable);
 
-        reader = new ImageAssetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider);
+        reader = new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetRenderableDefinitionReader(null, MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION,
+                () -> new ImageAssetSetRenderableDefinitionReader(null, MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetRenderableDefinitionReader(mockFactory, null, MOCK_GET_ACTION,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, null, MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET, null,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET, null,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
                         MOCK_GET_ACTION, null, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
                         MOCK_GET_ACTION, mockProviderDefinitionReader, null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
                         MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader,
                         null));
     }

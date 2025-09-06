@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.readers.content;
+package inaugural.soliloquy.ui.test.unit.readers.content;
 
 import inaugural.soliloquy.ui.readers.content.TriangleRenderableDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;

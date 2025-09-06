@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.readers.providers;
+package inaugural.soliloquy.ui.test.unit.readers.providers;
 
 import inaugural.soliloquy.ui.readers.providers.FiniteLinearMovingColorProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;

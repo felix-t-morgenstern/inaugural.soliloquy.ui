@@ -20,17 +20,17 @@ import java.util.function.Function;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 
-public class ImageAssetRenderableDefinitionReader extends AbstractImageAssetDefinitionReader {
+public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetDefinitionReader {
     private final ImageAssetSetRenderableFactory FACTORY;
     private final Function<String, ImageAssetSet> GET_IMAGE_ASSET_SET;
 
-    public ImageAssetRenderableDefinitionReader(ImageAssetSetRenderableFactory factory,
-                                                Function<String, ImageAssetSet> getImageAssetSet,
-                                                @SuppressWarnings("rawtypes")
+    public ImageAssetSetRenderableDefinitionReader(ImageAssetSetRenderableFactory factory,
+                                                   Function<String, ImageAssetSet> getImageAssetSet,
+                                                   @SuppressWarnings("rawtypes")
                                                 Function<String, Action> getAction,
-                                                ProviderDefinitionReader providerReader,
-                                                ShiftDefinitionReader shiftReader,
-                                                @SuppressWarnings("rawtypes")
+                                                   ProviderDefinitionReader providerReader,
+                                                   ShiftDefinitionReader shiftReader,
+                                                   @SuppressWarnings("rawtypes")
                                                 StaticProvider nullProvider) {
         super(providerReader, nullProvider, getAction, shiftReader);
         FACTORY = Check.ifNull(factory, "factory");

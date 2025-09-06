@@ -1,7 +1,7 @@
-package inaugural.soliloquy.ui.test.readers.keyboard;
+package inaugural.soliloquy.ui.test.unit.readers.keyboard;
 
 import inaugural.soliloquy.ui.readers.keyboard.KeyBindingDefinitionReader;
-import inaugural.soliloquy.ui.test.readers.content.AbstractContentDefinitionTests;
+import inaugural.soliloquy.ui.test.unit.readers.content.AbstractContentDefinitionTests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

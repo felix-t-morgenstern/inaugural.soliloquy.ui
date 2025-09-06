@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.readers.colorshifting;
+package inaugural.soliloquy.ui.test.unit.readers.colorshifting;
 
 import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;

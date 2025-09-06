@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.readers.providers;
+package inaugural.soliloquy.ui.test.unit.readers.providers;
 
 import inaugural.soliloquy.ui.readers.providers.FiniteSinusoidMovingProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,8 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.io.graphics.renderables.providers.FiniteSinusoidMovingProvider;
 import soliloquy.specs.io.graphics.renderables.providers.factories.FiniteSinusoidMovingProviderFactory;
 
-import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.random.Random.randomLong;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
@@ -48,14 +47,14 @@ public class FiniteSinusoidMovingProviderDefinitionReaderTests {
         var sharpness = randomFloat();
         var vals = pairOf(randomInt(), randomFloat());
         var contentRenderTimestamp = randomLong();
-        var definition = finiteSinusoidMoving(listOf(sharpness), vals);
+        var definition = finiteSinusoidMoving(arrayFloats(sharpness), vals);
 
         var provider = reader.read(definition, contentRenderTimestamp);
 
         assertSame(mockProvider, provider);
         var expectedRenderTimestamp = contentRenderTimestamp + vals.FIRST;
         verify(mockFactory, once()).make(any(),
-                eq(mapOf(pairOf(expectedRenderTimestamp, vals.SECOND))), eq(listOf(sharpness)),
+                eq(mapOf(pairOf(expectedRenderTimestamp, vals.SECOND))), eq(arrayFloats(sharpness)),
                 isNull());
     }
 
@@ -63,11 +62,11 @@ public class FiniteSinusoidMovingProviderDefinitionReaderTests {
     public void testReadWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class, () -> reader.read(null, randomLong()));
         assertThrows(IllegalArgumentException.class, () -> reader.read(
-                finiteSinusoidMoving(listOf(),
+                finiteSinusoidMoving(arrayFloats(),
                         (soliloquy.specs.common.valueobjects.Pair<Integer, Object>) null),
                 randomLong()));
         assertThrows(IllegalArgumentException.class, () -> reader.read(
-                finiteSinusoidMoving(listOf(),
+                finiteSinusoidMoving(arrayFloats(),
                         (soliloquy.specs.common.valueobjects.Pair<Integer, Object>[]) null),
                 randomLong()));
     }

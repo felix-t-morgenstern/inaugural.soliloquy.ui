@@ -1,24 +1,30 @@
 package inaugural.soliloquy.ui.test.unit.readers.content;
 
 import inaugural.soliloquy.ui.readers.content.*;
-import org.apache.commons.lang3.function.TriFunction;
+import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.*;
+import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.*;
+import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
+import static inaugural.soliloquy.tools.random.Random.randomInt;
 import static inaugural.soliloquy.tools.random.Random.randomLong;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 
 @ExtendWith(MockitoExtension.class)
-public class ContentDefinitionReaderTests {
+public class RenderableDefinitionReaderTests {
     private final long TIMESTAMP = randomLong();
 
     @Mock private RasterizedLineSegmentRenderableDefinition mockRasterizedLineDefinition;
@@ -29,7 +35,6 @@ public class ContentDefinitionReaderTests {
     @Mock private ImageAssetSetRenderableDefinition mockImageAssetSetDefinition;
     @Mock private FiniteAnimationRenderableDefinition mockFiniteAnimationDefinition;
     @Mock private TextLineRenderableDefinition mockTextLineDefinition;
-    @Mock private ComponentDefinition mockComponentDefinition;
 
     @Mock private RasterizedLineSegmentRenderableDefinitionReader mockRasterizedLineReader;
     @Mock private AntialiasedLineSegmentRenderableDefinitionReader mockAntialiasedLineReader;
@@ -39,7 +44,7 @@ public class ContentDefinitionReaderTests {
     @Mock private ImageAssetSetRenderableDefinitionReader mockImageAssetSetReader;
     @Mock private FiniteAnimationRenderableDefinitionReader mockFiniteAnimationReader;
     @Mock private TextLineRenderableDefinitionReader mockTextLineReader;
-    @Mock private TriFunction<ComponentDefinition, Component, Long, Component> mockComponentReader;
+    @Mock private ComponentFactory mockComponentFactory;
 
     @Mock private RasterizedLineSegmentRenderable mockRasterizedLineRenderable;
     @Mock private AntialiasedLineSegmentRenderable mockAntialiasedLineRenderable;
@@ -51,23 +56,36 @@ public class ContentDefinitionReaderTests {
     @Mock private TextLineRenderable mockTextLineRenderable;
     @Mock private Component mockComponent;
 
+    @Mock private AbstractProviderDefinition<FloatBox> mockComponentDimensDefinition;
+    @Mock private ProviderDefinitionReader mockProviderReader;
+    @Mock private ProviderAtTime<FloatBox> mockComponentDimens;
+
     @Mock private Component mockContainingComponent;
 
-    private ContentDefinitionReader reader;
+    private RenderableDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
-        lenient().when(mockRasterizedLineReader.read(any(), any())).thenReturn(mockRasterizedLineRenderable);
-        lenient().when(mockAntialiasedLineReader.read(any(), any())).thenReturn(mockAntialiasedLineRenderable);
+        lenient().when(mockRasterizedLineReader.read(any(), any()))
+                .thenReturn(mockRasterizedLineRenderable);
+        lenient().when(mockAntialiasedLineReader.read(any(), any()))
+                .thenReturn(mockAntialiasedLineRenderable);
         lenient().when(mockRectangleReader.read(any(), any())).thenReturn(mockRectangleRenderable);
         lenient().when(mockTriangleReader.read(any(), any())).thenReturn(mockTriangleRenderable);
         lenient().when(mockSpriteReader.read(any(), any())).thenReturn(mockSpriteRenderable);
-        lenient().when(mockImageAssetSetReader.read(any(), any())).thenReturn(mockImageAssetSetRenderable);
-        lenient().when(mockFiniteAnimationReader.read(any(), any(), anyLong())).thenReturn(mockFiniteAnimationRenderable);
+        lenient().when(mockImageAssetSetReader.read(any(), any()))
+                .thenReturn(mockImageAssetSetRenderable);
+        lenient().when(mockFiniteAnimationReader.read(any(), any(), anyLong()))
+                .thenReturn(mockFiniteAnimationRenderable);
         lenient().when(mockTextLineReader.read(any(), any())).thenReturn(mockTextLineRenderable);
-        lenient().when(mockComponentReader.apply(any(), any(), anyLong())).thenReturn(mockComponent);
 
-        reader = new ContentDefinitionReader(
+        lenient().when(mockComponentFactory.make(any(), anyInt(), any(), any()))
+                .thenReturn(mockComponent);
+
+        lenient().when(mockProviderReader.read(mockComponentDimensDefinition))
+                .thenReturn(mockComponentDimens);
+
+        reader = new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -76,13 +94,14 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         );
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 null,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -91,9 +110,10 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 null,
                 mockRectangleReader,
@@ -102,9 +122,10 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 null,
@@ -113,9 +134,10 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -124,9 +146,10 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -135,9 +158,10 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -146,9 +170,10 @@ public class ContentDefinitionReaderTests {
                 null,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -157,9 +182,10 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 null,
                 mockTextLineReader,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -168,9 +194,10 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 null,
-                mockComponentReader
+                mockComponentFactory,
+                mockProviderReader
         ));
-        assertThrows(IllegalArgumentException.class, () -> new ContentDefinitionReader(
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
                 mockAntialiasedLineReader,
                 mockRectangleReader,
@@ -179,6 +206,19 @@ public class ContentDefinitionReaderTests {
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
+                null,
+                mockProviderReader
+        ));
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
+                mockRasterizedLineReader,
+                mockAntialiasedLineReader,
+                mockRectangleReader,
+                mockTriangleReader,
+                mockSpriteReader,
+                mockImageAssetSetReader,
+                mockFiniteAnimationReader,
+                mockTextLineReader,
+                mockComponentFactory,
                 null
         ));
     }
@@ -274,20 +314,36 @@ public class ContentDefinitionReaderTests {
 
     @Test
     public void testReadComponentDefinition() {
-        var output = reader.read(mockContainingComponent, mockComponentDefinition, TIMESTAMP);
+        var z = randomInt();
+        var componentDefinition = component(
+                z,
+                mockComponentDimensDefinition,
+                mockRasterizedLineDefinition
+        );
+
+        var output = reader.read(mockContainingComponent, componentDefinition, TIMESTAMP);
 
         assertSame(mockComponent, output);
-        verify(mockComponentReader, once()).apply(
-                same(mockComponentDefinition),
-                same(mockContainingComponent),
-                eq(TIMESTAMP)
+        verify(mockComponentFactory, once()).make(
+                isNotNull(),
+                eq(z),
+                same(mockComponentDimens),
+                same(mockContainingComponent)
+        );
+        verify(mockRasterizedLineReader, once()).read(
+                same((Component) output),
+                same(mockRasterizedLineDefinition)
         );
     }
 
     @Test
     public void testReadWithInvalidArgs() {
-        assertThrows(IllegalArgumentException.class, () -> reader.read(null, mockComponentDefinition, TIMESTAMP));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(mockContainingComponent, null, TIMESTAMP));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(mockContainingComponent, mock(AbstractContentDefinition.class), TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(null, mock(ComponentDefinition.class), TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(mockContainingComponent, null, TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(mockContainingComponent, mock(AbstractContentDefinition.class),
+                        TIMESTAMP));
     }
 }

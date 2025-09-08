@@ -12,7 +12,8 @@ import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class RectangleRenderableDefinitionReader extends AbstractMouseEventsComponentDefinitionReader {
+public class RectangleRenderableDefinitionReader
+        extends AbstractMouseEventsComponentDefinitionReader {
     private final RectangleRenderableFactory FACTORY;
 
     public RectangleRenderableDefinitionReader(RectangleRenderableFactory factory,
@@ -26,29 +27,40 @@ public class RectangleRenderableDefinitionReader extends AbstractMouseEventsComp
     }
 
     public RectangleRenderable read(Component component,
-                                    RectangleRenderableDefinition definition) {
+                                    RectangleRenderableDefinition definition,
+                                    long timestamp) {
         Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 
         var area = PROVIDER_READER.read(
-                Check.ifNull(definition.AREA_PROVIDER, "definition.AREA_PROVIDER"));
+                Check.ifNull(definition.AREA_PROVIDER, "definition.AREA_PROVIDER"), timestamp);
 
-        var topLeft = provider(definition.topLeftColorProvider);
-        var topRight = provider(definition.topRightColorProvider);
-        var bottomLeft = provider(definition.bottomLeftColorProvider);
-        var bottomRight = provider(definition.bottomRightColorProvider);
+        var topLeft = provider(definition.topLeftColorProvider, timestamp);
+        var topRight = provider(definition.topRightColorProvider, timestamp);
+        var bottomLeft = provider(definition.bottomLeftColorProvider, timestamp);
+        var bottomRight = provider(definition.bottomRightColorProvider, timestamp);
 
-        var textureId = provider(definition.textureIdProvider);
-        var textureTileWidth = provider(definition.textureTileWidthProvider);
-        var textureTileHeight = provider(definition.textureTileHeightProvider);
+        var textureId = provider(definition.textureIdProvider, timestamp);
+        var textureTileWidth = provider(definition.textureTileWidthProvider, timestamp);
+        var textureTileHeight = provider(definition.textureTileHeightProvider, timestamp);
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);
         var onMouseOver = getAction(definition.onMouseOverId);
         var onMouseLeave = getAction(definition.onMouseLeaveId);
 
-        return FACTORY.make(topLeft, topRight, bottomLeft, bottomRight, textureId, textureTileWidth,
-                textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave, area,
-                definition.Z, UUID.randomUUID(), component);
+        var renderable = FACTORY.make(topLeft, topRight, bottomLeft, bottomRight, textureId,
+                textureTileWidth, textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave,
+                area, definition.Z, UUID.randomUUID(), component);
+
+        if (definition.onPressIds != null ||
+                definition.onReleaseIds != null ||
+                definition.onMouseOverId != null ||
+                definition.onMouseLeaveId != null
+        ) {
+            renderable.setCapturesMouseEvents(true);
+        }
+
+        return renderable;
     }
 }

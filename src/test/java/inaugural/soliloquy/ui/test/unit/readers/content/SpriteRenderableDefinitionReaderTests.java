@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.random.Random.randomLong;
 import static inaugural.soliloquy.tools.random.Random.randomString;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
@@ -27,6 +28,7 @@ import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.
 
 @ExtendWith(MockitoExtension.class)
 public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
+    private final long TIMESTAMP = randomLong();
     private final String SPRITE_ID = randomString();
     private final LookupAndEntitiesWithId<Sprite> MOCK_SPRITE_AND_LOOKUP =
             generateMockLookupFunctionWithId(Sprite.class, SPRITE_ID);
@@ -89,15 +91,18 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 .onMouseOver(ON_MOUSE_OVER_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ID);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_SPRITE, once()).apply(SPRITE_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockAreaProviderDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderThicknessDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderColorDefinition);
-        verify(mockShiftDefinitionReader, once()).read(mockShiftDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderThicknessDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderColorDefinition),
+                eq(TIMESTAMP));
+        verify(mockShiftDefinitionReader, once()).read(same(mockShiftDefinition), eq(TIMESTAMP));
         verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
@@ -122,12 +127,13 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
     public void testReadWithMinimalArgs() {
         var definition = sprite(SPRITE_ID, mockAreaProviderDefinition, Z);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_SPRITE, once()).apply(SPRITE_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockAreaProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
+                eq(TIMESTAMP));
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(MOCK_SPRITE),

@@ -31,29 +31,31 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
         GET_FONT = Check.ifNull(getFont, "getFont");
     }
 
-    public TextLineRenderable read(Component component, TextLineRenderableDefinition definition) {
+    public TextLineRenderable read(Component component,
+                                   TextLineRenderableDefinition definition,
+                                   long timestamp) {
         var font = GET_FONT.apply(definition.FONT_ID);
 
-        var text = PROVIDER_READER.read(definition.TEXT_PROVIDER);
-        var location = PROVIDER_READER.read(definition.LOCATION_PROVIDER);
-        var height = PROVIDER_READER.read(definition.HEIGHT_PROVIDER);
+        var text = PROVIDER_READER.read(definition.TEXT_PROVIDER, timestamp);
+        var location = PROVIDER_READER.read(definition.LOCATION_PROVIDER, timestamp);
+        var height = PROVIDER_READER.read(definition.HEIGHT_PROVIDER, timestamp);
 
         var colors = Collections.<Integer, ProviderAtTime<Color>>mapOf();
         if (definition.colorProviderIndices != null) {
             Arrays.stream(definition.colorProviderIndices)
-                    .forEach(c -> colors.put(c.FIRST, PROVIDER_READER.read(c.SECOND)));
+                    .forEach(c -> colors.put(c.FIRST, PROVIDER_READER.read(c.SECOND, timestamp)));
         }
         var italics = definition.italicIndices == null ? Collections.<Integer>listOf() :
                 Arrays.stream(definition.italicIndices).boxed().collect(Collectors.toList());
         var bolds = definition.boldIndices == null ? Collections.<Integer>listOf() :
                 Arrays.stream(definition.boldIndices).boxed().collect(Collectors.toList());
 
-        var borderThickness = provider(definition.borderThicknessProvider);
-        var borderColor = provider(definition.borderColorProvider);
+        var borderThickness = provider(definition.borderThicknessProvider, timestamp);
+        var borderColor = provider(definition.borderColorProvider, timestamp);
 
-        var dropShadowSize = provider(definition.dropShadowSizeProvider);
-        var dropShadowOffset = provider(definition.dropShadowOffsetProvider);
-        var dropShadowColor = provider(definition.dropShadowColorProvider);
+        var dropShadowSize = provider(definition.dropShadowSizeProvider, timestamp);
+        var dropShadowOffset = provider(definition.dropShadowOffsetProvider, timestamp);
+        var dropShadowColor = provider(definition.dropShadowColorProvider, timestamp);
 
         return FACTORY.make(
                 font,

@@ -14,6 +14,7 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
 
+import static inaugural.soliloquy.tools.random.Random.randomLong;
 import static inaugural.soliloquy.tools.random.Random.randomShort;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +24,7 @@ import static soliloquy.specs.ui.definitions.content.RasterizedLineSegmentRender
 @ExtendWith(MockitoExtension.class)
 public class RasterizedLineSegmentRenderableDefinitionReaderTests
         extends AbstractContentDefinitionTests {
+    private final long TIMESTAMP = randomLong();
     private final short STIPPLE_PATTERN = randomShort();
     private final short STIPPLE_FACTOR = randomShort();
     private final short DEFAULT_STIPPLE_PATTERN = randomShort();
@@ -44,11 +46,14 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
 
     @BeforeEach
     public void setUp() {
-        lenient().when(mockProviderDefinitionReader.read(vertex1Definition)).thenReturn(vertex1);
-        lenient().when(mockProviderDefinitionReader.read(vertex2Definition)).thenReturn(vertex2);
-        lenient().when(mockProviderDefinitionReader.read(thicknessDefinition))
+        lenient().when(mockProviderDefinitionReader.read(same(vertex1Definition), anyLong()))
+                .thenReturn(vertex1);
+        lenient().when(mockProviderDefinitionReader.read(same(vertex2Definition), anyLong()))
+                .thenReturn(vertex2);
+        lenient().when(mockProviderDefinitionReader.read(same(thicknessDefinition), anyLong()))
                 .thenReturn(thickness);
-        lenient().when(mockProviderDefinitionReader.read(colorDefinition)).thenReturn(color);
+        lenient().when(mockProviderDefinitionReader.read(same(colorDefinition), anyLong()))
+                .thenReturn(color);
 
         lenient().when(
                 mockFactory.make(any(), any(), any(), anyShort(), anyShort(), any(), anyInt(),
@@ -76,14 +81,14 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
                         colorDefinition, Z)
                         .withStipple(STIPPLE_PATTERN, STIPPLE_FACTOR);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockProviderDefinitionReader, once()).read(vertex1Definition);
-        verify(mockProviderDefinitionReader, once()).read(vertex2Definition);
-        verify(mockProviderDefinitionReader, once()).read(thicknessDefinition);
-        verify(mockProviderDefinitionReader, once()).read(colorDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(vertex1Definition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(vertex2Definition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(thicknessDefinition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(colorDefinition), eq(TIMESTAMP));
         verify(mockFactory, once()).make(
                 same(vertex1), same(vertex2),
                 same(thickness), eq(STIPPLE_PATTERN), eq(STIPPLE_FACTOR),
@@ -100,14 +105,14 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
                 rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
                         colorDefinition, Z);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockProviderDefinitionReader, once()).read(vertex1Definition);
-        verify(mockProviderDefinitionReader, once()).read(vertex2Definition);
-        verify(mockProviderDefinitionReader, once()).read(thicknessDefinition);
-        verify(mockProviderDefinitionReader, once()).read(colorDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(vertex1Definition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(vertex2Definition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(thicknessDefinition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(colorDefinition), eq(TIMESTAMP));
         verify(mockFactory, once()).make(
                 same(vertex1), same(vertex2),
                 same(thickness), eq(DEFAULT_STIPPLE_PATTERN), eq(DEFAULT_STIPPLE_FACTOR),
@@ -122,19 +127,19 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
     public void testReadWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class, () -> reader.read(null,
                 rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
-                        colorDefinition, Z)));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent, null));
+                        colorDefinition, Z), TIMESTAMP));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent, null, TIMESTAMP));
         assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent,
                 rasterizedLineSegment(null, vertex2Definition, thicknessDefinition, colorDefinition,
-                        Z)));
+                        Z), TIMESTAMP));
         assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent,
                 rasterizedLineSegment(vertex1Definition, null, thicknessDefinition, colorDefinition,
-                        Z)));
+                        Z), TIMESTAMP));
         assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent,
                 rasterizedLineSegment(vertex1Definition, vertex2Definition, null, colorDefinition,
-                        Z)));
+                        Z), TIMESTAMP));
         assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent,
                 rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
-                        null, Z)));
+                        null, Z), TIMESTAMP));
     }
 }

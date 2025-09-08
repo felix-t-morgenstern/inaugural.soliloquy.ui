@@ -22,16 +22,17 @@ public class AntialiasedLineSegmentRenderableDefinitionReader {
 
     public AntialiasedLineSegmentRenderable read(
             Component component,
-            AntialiasedLineSegmentRenderableDefinition definition
+            AntialiasedLineSegmentRenderableDefinition definition,
+            long timestamp
     ) {
-        var vertex1 = PROVIDER_READER.read(definition.VERTEX_1_PROVIDER);
-        var vertex2 = PROVIDER_READER.read(definition.VERTEX_2_PROVIDER);
-        var thickness = PROVIDER_READER.read(definition.THICKNESS_PROVIDER);
-        var color = PROVIDER_READER.read(definition.COLOR_PROVIDER);
+        var vertex1 = PROVIDER_READER.read(definition.VERTEX_1_PROVIDER, timestamp);
+        var vertex2 = PROVIDER_READER.read(definition.VERTEX_2_PROVIDER, timestamp);
+        var thickness = PROVIDER_READER.read(definition.THICKNESS_PROVIDER, timestamp);
+        var color = PROVIDER_READER.read(definition.COLOR_PROVIDER, timestamp);
         var thicknessGradientPercent =
-                PROVIDER_READER.read(definition.THICKNESS_GRADIENT_PERCENT_PROVIDER);
+                PROVIDER_READER.read(definition.THICKNESS_GRADIENT_PERCENT_PROVIDER, timestamp);
         var lengthGradientPercent =
-                PROVIDER_READER.read(definition.LENGTH_GRADIENT_PERCENT_PROVIDER);
+                PROVIDER_READER.read(definition.LENGTH_GRADIENT_PERCENT_PROVIDER, timestamp);
 
         return FACTORY.make(vertex1, vertex2, color, thickness, thicknessGradientPercent,
                 lengthGradientPercent, definition.Z, UUID.randomUUID(), component);

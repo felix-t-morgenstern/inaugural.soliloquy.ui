@@ -68,10 +68,13 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     public void setUp() {
         super.setUp();
 
-        lenient().when(mockProviderDefinitionReader.read(mockTextDefinition)).thenReturn(mockText);
-        lenient().when(mockProviderDefinitionReader.read(mockLocationDefinition))
+        lenient().when(mockProviderDefinitionReader.read(same(mockTextDefinition), eq(TIMESTAMP)))
+                .thenReturn(mockText);
+        lenient().when(
+                        mockProviderDefinitionReader.read(same(mockLocationDefinition),
+                                eq(TIMESTAMP)))
                 .thenReturn(mockLocation);
-        lenient().when(mockProviderDefinitionReader.read(mockHeightDefinition))
+        lenient().when(mockProviderDefinitionReader.read(same(mockHeightDefinition), eq(TIMESTAMP)))
                 .thenReturn(mockHeight);
 
         lenient().when(mockFactory.make(
@@ -109,13 +112,14 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
 
     @Test
     public void testRead() {
-        when(mockProviderDefinitionReader.read(mockColorDefinition)).thenReturn(mockColor);
-        when(mockProviderDefinitionReader.read(mockDropShadowSizeDefinition)).thenReturn(
-                mockDropShadowSize);
-        when(mockProviderDefinitionReader.read(mockDropShadowOffsetDefinition)).thenReturn(
-                mockDropShadowOffset);
-        when(mockProviderDefinitionReader.read(mockDropShadowColorDefinition)).thenReturn(
-                mockDropShadowColor);
+        when(mockProviderDefinitionReader.read(same(mockColorDefinition), anyLong())).thenReturn(
+                mockColor);
+        when(mockProviderDefinitionReader.read(same(mockDropShadowSizeDefinition),
+                anyLong())).thenReturn(mockDropShadowSize);
+        when(mockProviderDefinitionReader.read(same(mockDropShadowOffsetDefinition),
+                anyLong())).thenReturn(mockDropShadowOffset);
+        when(mockProviderDefinitionReader.read(same(mockDropShadowColorDefinition),
+                anyLong())).thenReturn(mockDropShadowColor);
 
         @SuppressWarnings("unchecked") var definition =
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
@@ -130,20 +134,27 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
                                 mockDropShadowColorDefinition
                         );
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockTextDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockLocationDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockHeightDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockColorDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderThicknessDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderColorDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockDropShadowSizeDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockDropShadowOffsetDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockDropShadowColorDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockTextDefinition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockLocationDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockHeightDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockColorDefinition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderThicknessDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderColorDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockDropShadowSizeDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockDropShadowOffsetDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockDropShadowColorDefinition),
+                eq(TIMESTAMP));
         verify(mockFactory, once()).make(
                 same(MOCK_FONT),
                 same(mockText),
@@ -170,14 +181,16 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
                         JUSTIFICATION, GLYPH_PADDING, Z);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockTextDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockLocationDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockHeightDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockTextDefinition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockLocationDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockHeightDefinition),
+                eq(TIMESTAMP));
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(MOCK_FONT),

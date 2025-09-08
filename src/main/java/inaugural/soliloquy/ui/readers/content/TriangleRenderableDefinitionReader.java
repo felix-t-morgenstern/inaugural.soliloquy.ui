@@ -25,21 +25,23 @@ public class TriangleRenderableDefinitionReader extends AbstractMouseEventsCompo
         FACTORY = Check.ifNull(factory, "factory");
     }
 
-    public TriangleRenderable read(Component component, TriangleRenderableDefinition definition) {
+    public TriangleRenderable read(Component component,
+                                   TriangleRenderableDefinition definition,
+                                   long timestamp) {
         Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 
-        var vector1 = provider(Check.ifNull(definition.VERTEX_1_PROVIDER, "definition.VERTEX_1_PROVIDER"));
-        var vector2 = provider(Check.ifNull(definition.VERTEX_2_PROVIDER, "definition.VERTEX_2_PROVIDER"));
-        var vector3 = provider(Check.ifNull(definition.VERTEX_3_PROVIDER, "definition.VERTEX_3_PROVIDER"));
+        var vector1 = provider(Check.ifNull(definition.VERTEX_1_PROVIDER, "definition.VERTEX_1_PROVIDER"), timestamp);
+        var vector2 = provider(Check.ifNull(definition.VERTEX_2_PROVIDER, "definition.VERTEX_2_PROVIDER"), timestamp);
+        var vector3 = provider(Check.ifNull(definition.VERTEX_3_PROVIDER, "definition.VERTEX_3_PROVIDER"), timestamp);
 
-        var vector1Color = provider(definition.vertex1ColorProvider);
-        var vector2Color = provider(definition.vertex2ColorProvider);
-        var vector3Color = provider(definition.vertex3ColorProvider);
+        var vector1Color = provider(definition.vertex1ColorProvider, timestamp);
+        var vector2Color = provider(definition.vertex2ColorProvider, timestamp);
+        var vector3Color = provider(definition.vertex3ColorProvider, timestamp);
 
-        var textureId = provider(definition.textureIdProvider);
-        var textureTileWidth = provider(definition.textureTileWidthProvider);
-        var textureTileHeight = provider(definition.textureTileHeightProvider);
+        var textureId = provider(definition.textureIdProvider, timestamp);
+        var textureTileWidth = provider(definition.textureTileWidthProvider, timestamp);
+        var textureTileHeight = provider(definition.textureTileHeightProvider, timestamp);
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

@@ -41,13 +41,14 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
                                           long timestamp) {
         var animation = GET_ANIMATION.apply(definition.ANIMATION_ID);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER);
+        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER, timestamp);
 
-        var borderThickness = provider(definition.borderThicknessProvider);
-        var borderColor = provider(definition.borderColorProvider);
+        var borderThickness = provider(definition.borderThicknessProvider, timestamp);
+        var borderColor = provider(definition.borderColorProvider, timestamp);
 
         List<ColorShift> colorShifts = definition.colorShifts == null ? listOf() :
-                Arrays.stream(definition.colorShifts).map(SHIFT_READER::read).toList();
+                Arrays.stream(definition.colorShifts)
+                        .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList();
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

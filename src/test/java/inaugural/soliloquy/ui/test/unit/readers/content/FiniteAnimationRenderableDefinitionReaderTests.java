@@ -55,20 +55,24 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 anyLong(), any())
         ).thenReturn(mockRenderable);
 
-        reader = new FiniteAnimationRenderableDefinitionReader(mockFactory, MOCK_GET_ANIMATION, MOCK_GET_ACTION,
+        reader = new FiniteAnimationRenderableDefinitionReader(mockFactory, MOCK_GET_ANIMATION,
+                MOCK_GET_ACTION,
                 mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new FiniteAnimationRenderableDefinitionReader(null, MOCK_GET_ANIMATION, MOCK_GET_ACTION,
+                () -> new FiniteAnimationRenderableDefinitionReader(null, MOCK_GET_ANIMATION,
+                        MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new FiniteAnimationRenderableDefinitionReader(mockFactory, null, MOCK_GET_ACTION,
+                () -> new FiniteAnimationRenderableDefinitionReader(mockFactory, null,
+                        MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new FiniteAnimationRenderableDefinitionReader(mockFactory, MOCK_GET_ANIMATION, null,
+                () -> new FiniteAnimationRenderableDefinitionReader(mockFactory, MOCK_GET_ANIMATION,
+                        null,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new FiniteAnimationRenderableDefinitionReader(mockFactory, MOCK_GET_ANIMATION,
@@ -101,10 +105,13 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_ANIMATION, once()).apply(ANIMATION_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockAreaProviderDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderThicknessDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderColorDefinition);
-        verify(mockShiftDefinitionReader, once()).read(mockShiftDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderThicknessDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderColorDefinition),
+                eq(TIMESTAMP));
+        verify(mockShiftDefinitionReader, once()).read(same(mockShiftDefinition), eq(TIMESTAMP));
         verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
@@ -135,7 +142,8 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_ANIMATION, once()).apply(ANIMATION_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockAreaProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
+                eq(TIMESTAMP));
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(MOCK_ANIMATION),

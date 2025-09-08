@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.random.Random.randomLong;
 import static inaugural.soliloquy.tools.random.Random.randomString;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
@@ -28,13 +29,18 @@ import static soliloquy.specs.ui.definitions.content.ImageAssetSetRenderableDefi
 
 @ExtendWith(MockitoExtension.class)
 public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
+    private final long TIMESTAMP = randomLong();
+
     private final String IMAGE_ASSET_SET_ID = randomString();
     private final String DATA_KEY = randomString();
     private final String DATA_VAL = randomString();
     private final Map<String, String> DATA = mapOf(pairOf(DATA_KEY, DATA_VAL));
-    private final LookupAndEntitiesWithId<ImageAssetSet> MOCK_IMAGE_ASSET_SET_AND_LOOKUP = generateMockLookupFunctionWithId(ImageAssetSet.class, IMAGE_ASSET_SET_ID);
-    private final ImageAssetSet MOCK_IMAGE_ASSET_SET = MOCK_IMAGE_ASSET_SET_AND_LOOKUP.entities.getFirst();
-    private final Function<String, ImageAssetSet> MOCK_GET_IMAGE_ASSET_SET = MOCK_IMAGE_ASSET_SET_AND_LOOKUP.lookup;
+    private final LookupAndEntitiesWithId<ImageAssetSet> MOCK_IMAGE_ASSET_SET_AND_LOOKUP =
+            generateMockLookupFunctionWithId(ImageAssetSet.class, IMAGE_ASSET_SET_ID);
+    private final ImageAssetSet MOCK_IMAGE_ASSET_SET =
+            MOCK_IMAGE_ASSET_SET_AND_LOOKUP.entities.getFirst();
+    private final Function<String, ImageAssetSet> MOCK_GET_IMAGE_ASSET_SET =
+            MOCK_IMAGE_ASSET_SET_AND_LOOKUP.lookup;
 
     @Mock private ImageAssetSetRenderable mockRenderable;
     @Mock private ImageAssetSetRenderableFactory mockFactory;
@@ -56,28 +62,36 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 any(),
                 any())).thenReturn(mockRenderable);
 
-        reader = new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider);
+        reader = new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
+                MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader,
+                mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetSetRenderableDefinitionReader(null, MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION,
+                () -> new ImageAssetSetRenderableDefinitionReader(null, MOCK_GET_IMAGE_ASSET_SET,
+                        MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, null, MOCK_GET_ACTION,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, null,
+                        MOCK_GET_ACTION,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET, null,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
+                        MOCK_GET_IMAGE_ASSET_SET, null,
                         mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
+                        MOCK_GET_IMAGE_ASSET_SET,
                         MOCK_GET_ACTION, null, mockShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
+                        MOCK_GET_IMAGE_ASSET_SET,
                         MOCK_GET_ACTION, mockProviderDefinitionReader, null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
+                () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
+                        MOCK_GET_IMAGE_ASSET_SET,
                         MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader,
                         null));
     }
@@ -92,15 +106,18 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 .onMouseOver(ON_MOUSE_OVER_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ID);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_IMAGE_ASSET_SET, once()).apply(IMAGE_ASSET_SET_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockAreaProviderDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderThicknessDefinition);
-        verify(mockProviderDefinitionReader, once()).read(mockBorderColorDefinition);
-        verify(mockShiftDefinitionReader, once()).read(mockShiftDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderThicknessDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(mockBorderColorDefinition),
+                eq(TIMESTAMP));
+        verify(mockShiftDefinitionReader, once()).read(same(mockShiftDefinition), eq(TIMESTAMP));
         verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
@@ -126,12 +143,13 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
     public void testReadWithMinimalArgs() {
         var definition = imageAssetSet(IMAGE_ASSET_SET_ID, DATA, mockAreaProviderDefinition, Z);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
         verify(MOCK_GET_IMAGE_ASSET_SET, once()).apply(IMAGE_ASSET_SET_ID);
-        verify(mockProviderDefinitionReader, once()).read(mockAreaProviderDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
+                eq(TIMESTAMP));
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(MOCK_IMAGE_ASSET_SET),

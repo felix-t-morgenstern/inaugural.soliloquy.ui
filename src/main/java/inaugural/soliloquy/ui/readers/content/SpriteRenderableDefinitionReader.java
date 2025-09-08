@@ -36,16 +36,19 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");
     }
 
-    public SpriteRenderable read(Component component, SpriteRenderableDefinition definition) {
+    public SpriteRenderable read(Component component,
+                                 SpriteRenderableDefinition definition,
+                                 long timestamp) {
         var sprite = GET_SPRITE.apply(definition.SPRITE_ID);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER);
+        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER, timestamp);
 
-        var borderThickness = provider(definition.borderThicknessProvider);
-        var borderColor = provider(definition.borderColorProvider);
+        var borderThickness = provider(definition.borderThicknessProvider, timestamp);
+        var borderColor = provider(definition.borderColorProvider, timestamp);
 
         List<ColorShift> colorShifts = definition.colorShifts == null ? listOf() :
-                Arrays.stream(definition.colorShifts).map(SHIFT_READER::read).toList();
+                Arrays.stream(definition.colorShifts)
+                        .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList();
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

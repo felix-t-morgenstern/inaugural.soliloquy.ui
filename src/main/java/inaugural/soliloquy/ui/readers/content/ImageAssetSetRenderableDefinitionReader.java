@@ -27,29 +27,31 @@ public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetD
     public ImageAssetSetRenderableDefinitionReader(ImageAssetSetRenderableFactory factory,
                                                    Function<String, ImageAssetSet> getImageAssetSet,
                                                    @SuppressWarnings("rawtypes")
-                                                Function<String, Action> getAction,
+                                                   Function<String, Action> getAction,
                                                    ProviderDefinitionReader providerReader,
                                                    ShiftDefinitionReader shiftReader,
                                                    @SuppressWarnings("rawtypes")
-                                                StaticProvider nullProvider) {
+                                                   StaticProvider nullProvider) {
         super(providerReader, nullProvider, getAction, shiftReader);
         FACTORY = Check.ifNull(factory, "factory");
         GET_IMAGE_ASSET_SET = Check.ifNull(getImageAssetSet, "getImageAssetSet");
     }
 
     public ImageAssetSetRenderable read(Component component,
-                                        ImageAssetSetRenderableDefinition definition) {
+                                        ImageAssetSetRenderableDefinition definition,
+                                        long timestamp) {
         var imageAssetSet = GET_IMAGE_ASSET_SET.apply(definition.IMAGE_ASSET_SET_ID);
 
         var data = mapOf(definition.DISPLAY_PARAMS);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER);
+        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER, timestamp);
 
-        var borderThickness = provider(definition.borderThicknessProvider);
-        var borderColor = provider(definition.borderColorProvider);
+        var borderThickness = provider(definition.borderThicknessProvider, timestamp);
+        var borderColor = provider(definition.borderColorProvider, timestamp);
 
         List<ColorShift> colorShifts = definition.colorShifts == null ? listOf() :
-                Arrays.stream(definition.colorShifts).map(SHIFT_READER::read).toList();
+                Arrays.stream(definition.colorShifts)
+                        .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList();
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

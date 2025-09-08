@@ -10,13 +10,13 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
+import static inaugural.soliloquy.tools.random.Random.randomLong;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockMap;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
@@ -24,10 +24,10 @@ import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 @ExtendWith(MockitoExtension.class)
 public class ProviderDefinitionReaderTests {
     @SuppressWarnings("rawtypes") @Mock private ProviderAtTime mockProvider;
-    @SuppressWarnings("rawtypes") @Mock private Function<Object, ProviderAtTime> mockReader;
+    @SuppressWarnings("rawtypes") @Mock private BiFunction<Object, Long, ProviderAtTime> mockReader;
     @SuppressWarnings("rawtypes") @Mock private AbstractProviderDefinition mockDefinition;
 
-    @SuppressWarnings("rawtypes") private Map<Class, Function<Object, ProviderAtTime>> readers;
+    @SuppressWarnings("rawtypes") private Map<Class, BiFunction<Object, Long, ProviderAtTime>> readers;
 
     private ProviderDefinitionReader reader;
 
@@ -45,13 +45,14 @@ public class ProviderDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        when(mockReader.apply(any())).thenReturn(mockProvider);
+        var timestamp = randomLong();
+        when(mockReader.apply(any(), any())).thenReturn(mockProvider);
 
-        @SuppressWarnings("unchecked") var provider = reader.read(mockDefinition);
+        @SuppressWarnings("unchecked") var provider = reader.read(mockDefinition, timestamp);
 
         assertNotNull(provider);
         assertSame(mockProvider, provider);
         verify(readers, once()).get(eq(mockDefinition.getClass()));
-        verify(mockReader, once()).apply(mockDefinition);
+        verify(mockReader, once()).apply(same(mockDefinition), eq(timestamp));
     }
 }

@@ -66,23 +66,23 @@ public class RenderableDefinitionReaderTests {
 
     @BeforeEach
     public void setUp() {
-        lenient().when(mockRasterizedLineReader.read(any(), any()))
+        lenient().when(mockRasterizedLineReader.read(any(), any(), anyLong()))
                 .thenReturn(mockRasterizedLineRenderable);
-        lenient().when(mockAntialiasedLineReader.read(any(), any()))
+        lenient().when(mockAntialiasedLineReader.read(any(), any(), anyLong()))
                 .thenReturn(mockAntialiasedLineRenderable);
-        lenient().when(mockRectangleReader.read(any(), any())).thenReturn(mockRectangleRenderable);
-        lenient().when(mockTriangleReader.read(any(), any())).thenReturn(mockTriangleRenderable);
-        lenient().when(mockSpriteReader.read(any(), any())).thenReturn(mockSpriteRenderable);
-        lenient().when(mockImageAssetSetReader.read(any(), any()))
+        lenient().when(mockRectangleReader.read(any(), any(), anyLong())).thenReturn(mockRectangleRenderable);
+        lenient().when(mockTriangleReader.read(any(), any(), anyLong())).thenReturn(mockTriangleRenderable);
+        lenient().when(mockSpriteReader.read(any(), any(), anyLong())).thenReturn(mockSpriteRenderable);
+        lenient().when(mockImageAssetSetReader.read(any(), any(), anyLong()))
                 .thenReturn(mockImageAssetSetRenderable);
         lenient().when(mockFiniteAnimationReader.read(any(), any(), anyLong()))
                 .thenReturn(mockFiniteAnimationRenderable);
-        lenient().when(mockTextLineReader.read(any(), any())).thenReturn(mockTextLineRenderable);
+        lenient().when(mockTextLineReader.read(any(), any(), anyLong())).thenReturn(mockTextLineRenderable);
 
         lenient().when(mockComponentFactory.make(any(), anyInt(), any(), any()))
                 .thenReturn(mockComponent);
 
-        lenient().when(mockProviderReader.read(mockComponentDimensDefinition))
+        lenient().when(mockProviderReader.read(same(mockComponentDimensDefinition), anyLong()))
                 .thenReturn(mockComponentDimens);
 
         reader = new RenderableDefinitionReader(
@@ -230,7 +230,8 @@ public class RenderableDefinitionReaderTests {
         assertSame(mockRasterizedLineRenderable, output);
         verify(mockRasterizedLineReader, once()).read(
                 same(mockContainingComponent),
-                same(mockRasterizedLineDefinition)
+                same(mockRasterizedLineDefinition),
+                eq(TIMESTAMP)
         );
     }
 
@@ -241,7 +242,8 @@ public class RenderableDefinitionReaderTests {
         assertSame(mockAntialiasedLineRenderable, output);
         verify(mockAntialiasedLineReader, once()).read(
                 same(mockContainingComponent),
-                same(mockAntialiasedLineDefinition)
+                same(mockAntialiasedLineDefinition),
+                eq(TIMESTAMP)
         );
     }
 
@@ -252,7 +254,8 @@ public class RenderableDefinitionReaderTests {
         assertSame(mockRectangleRenderable, output);
         verify(mockRectangleReader, once()).read(
                 same(mockContainingComponent),
-                same(mockRectangleDefinition)
+                same(mockRectangleDefinition),
+                eq(TIMESTAMP)
         );
     }
 
@@ -263,7 +266,8 @@ public class RenderableDefinitionReaderTests {
         assertSame(mockTriangleRenderable, output);
         verify(mockTriangleReader, once()).read(
                 same(mockContainingComponent),
-                same(mockTriangleDefinition)
+                same(mockTriangleDefinition),
+                eq(TIMESTAMP)
         );
     }
 
@@ -274,7 +278,8 @@ public class RenderableDefinitionReaderTests {
         assertSame(mockSpriteRenderable, output);
         verify(mockSpriteReader, once()).read(
                 same(mockContainingComponent),
-                same(mockSpriteDefinition)
+                same(mockSpriteDefinition),
+                eq(TIMESTAMP)
         );
     }
 
@@ -285,7 +290,8 @@ public class RenderableDefinitionReaderTests {
         assertSame(mockImageAssetSetRenderable, output);
         verify(mockImageAssetSetReader, once()).read(
                 same(mockContainingComponent),
-                same(mockImageAssetSetDefinition)
+                same(mockImageAssetSetDefinition),
+                eq(TIMESTAMP)
         );
     }
 
@@ -308,7 +314,8 @@ public class RenderableDefinitionReaderTests {
         assertSame(mockTextLineRenderable, output);
         verify(mockTextLineReader, once()).read(
                 same(mockContainingComponent),
-                same(mockTextLineDefinition)
+                same(mockTextLineDefinition),
+                eq(TIMESTAMP)
         );
     }
 
@@ -332,7 +339,8 @@ public class RenderableDefinitionReaderTests {
         );
         verify(mockRasterizedLineReader, once()).read(
                 same((Component) output),
-                same(mockRasterizedLineDefinition)
+                same(mockRasterizedLineDefinition),
+                eq(TIMESTAMP)
         );
     }
 

@@ -45,6 +45,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation("com.google.code.gson:gson:2.13.1")
+    // https://mvnrepository.com/artifact/org.int4.dirk/dirk-di
+    implementation("org.int4.dirk:dirk-di:1.0.0-beta1")
     // https://mvnrepository.com/artifact/org.javatuples/javatuples
     implementation("org.javatuples:javatuples:1.2")
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3

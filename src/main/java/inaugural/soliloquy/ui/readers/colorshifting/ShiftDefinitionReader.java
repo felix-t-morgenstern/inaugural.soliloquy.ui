@@ -16,10 +16,11 @@ public class ShiftDefinitionReader {
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
     }
 
-    public ColorShift read(ShiftDefinition definition) {
+    public ColorShift read(ShiftDefinition definition, long timestamp) {
         Check.ifNull(definition, "definition");
         var shiftAmountProvider = PROVIDER_DEF_READER.read(
-                Check.ifNull(definition.SHIFT_AMOUNT_PROVIDER, "definition.SHIFT_AMOUNT_PROVIDER"));
+                Check.ifNull(definition.SHIFT_AMOUNT_PROVIDER, "definition.SHIFT_AMOUNT_PROVIDER"),
+                timestamp);
         return switch (definition.SHIFT_TYPE) {
             case BRIGHTNESS -> brightnessShift(shiftAmountProvider,
                     definition.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);

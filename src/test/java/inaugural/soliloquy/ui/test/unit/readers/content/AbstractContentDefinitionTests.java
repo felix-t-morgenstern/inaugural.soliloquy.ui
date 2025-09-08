@@ -71,21 +71,25 @@ public abstract class AbstractContentDefinitionTests {
     @org.mockito.Mock protected ProviderAtTime<Float> mockTextureHeightProvider;
 
     protected void setUp() {
-        lenient().when(mockShiftDefinitionReader.read(any())).thenReturn(mockShift);
+        lenient().when(mockShiftDefinitionReader.read(any(), anyLong())).thenReturn(mockShift);
 
-        lenient().when(mockProviderDefinitionReader.read(mockAreaProviderDefinition)).thenReturn(
-                mockAreaProvider);
+        lenient().when(mockProviderDefinitionReader
+                .read(same(mockAreaProviderDefinition), anyLong())).thenReturn(mockAreaProvider);
 
-        lenient().when(mockProviderDefinitionReader.read(mockTextureIdProviderDefinition))
+        lenient().when(mockProviderDefinitionReader
+                .read(same(mockTextureIdProviderDefinition), anyLong()))
                 .thenReturn(mockTextureIdProvider);
-        lenient().when(mockProviderDefinitionReader.read(mockTextureWidthProviderDefinition))
+        lenient().when(mockProviderDefinitionReader
+                .read(same(mockTextureWidthProviderDefinition), anyLong()))
                 .thenReturn(mockTextureWidthProvider);
-        lenient().when(mockProviderDefinitionReader.read(mockTextureHeightProviderDefinition))
+        lenient().when(mockProviderDefinitionReader
+                .read(same(mockTextureHeightProviderDefinition), anyLong()))
                 .thenReturn(mockTextureHeightProvider);
 
-        lenient().when(mockProviderDefinitionReader.read(mockBorderThicknessDefinition)).thenReturn(
-                mockBorderThickness);
-        lenient().when(mockProviderDefinitionReader.read(mockBorderColorDefinition)).thenReturn(
-                mockBorderColor);
+        lenient().when(mockProviderDefinitionReader
+                .read(same(mockBorderThicknessDefinition), anyLong()))
+                .thenReturn(mockBorderThickness);
+        lenient().when(mockProviderDefinitionReader
+                .read(same(mockBorderColorDefinition), anyLong())).thenReturn(mockBorderColor);
     }
 }

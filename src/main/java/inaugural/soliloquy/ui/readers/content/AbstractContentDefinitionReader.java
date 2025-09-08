@@ -22,8 +22,9 @@ public abstract class AbstractContentDefinitionReader {
         NULL_PROVIDER = null;
     }
 
-    protected <T> ProviderAtTime<T> provider(AbstractProviderDefinition<T> definition) {
+    protected <T> ProviderAtTime<T> provider(AbstractProviderDefinition<T> definition,
+                                             long timestamp) {
         //noinspection unchecked
-        return definition == null ? NULL_PROVIDER : PROVIDER_READER.read(definition);
+        return definition == null ? NULL_PROVIDER : PROVIDER_READER.read(definition, timestamp);
     }
 }

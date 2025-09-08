@@ -15,6 +15,7 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.random.Random.randomInt;
+import static inaugural.soliloquy.tools.random.Random.randomLong;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,7 +24,10 @@ import static org.mockito.Mockito.*;
 import static soliloquy.specs.ui.definitions.content.AntialiasedLineSegmentRenderableDefinition.antialiasedLine;
 
 @ExtendWith(MockitoExtension.class)
-public class AntialiasedLineSegmentRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
+public class AntialiasedLineSegmentRenderableDefinitionReaderTests
+        extends AbstractContentDefinitionTests {
+    private final long TIMESTAMP = randomLong();
+
     @Mock private AntialiasedLineSegmentRenderable mockRenderable;
     @Mock private AntialiasedLineSegmentRenderableFactory mockFactory;
 
@@ -72,14 +76,17 @@ public class AntialiasedLineSegmentRenderableDefinitionReaderTests extends Abstr
         @SuppressWarnings("unchecked") var lengthGradientPercent =
                 (ProviderAtTime<Float>) mock(ProviderAtTime.class);
 
-        when(mockProviderDefinitionReader.read(vertex1Definition)).thenReturn(vertex1);
-        when(mockProviderDefinitionReader.read(vertex2Definition)).thenReturn(vertex2);
-        when(mockProviderDefinitionReader.read(thicknessDefinition)).thenReturn(thickness);
-        when(mockProviderDefinitionReader.read(colorDefinition)).thenReturn(color);
-        when(mockProviderDefinitionReader.read(thicknessGradientPercentDefinition)).thenReturn(
-                thicknessGradientPercent);
-        when(mockProviderDefinitionReader.read(lengthGradientPercentDefinition)).thenReturn(
-                lengthGradientPercent);
+        when(mockProviderDefinitionReader.read(same(vertex1Definition), anyLong())).thenReturn(
+                vertex1);
+        when(mockProviderDefinitionReader.read(same(vertex2Definition), anyLong())).thenReturn(
+                vertex2);
+        when(mockProviderDefinitionReader.read(same(thicknessDefinition), anyLong())).thenReturn(
+                thickness);
+        when(mockProviderDefinitionReader.read(same(colorDefinition), anyLong())).thenReturn(color);
+        when(mockProviderDefinitionReader.read(same(thicknessGradientPercentDefinition),
+                anyLong())).thenReturn(thicknessGradientPercent);
+        when(mockProviderDefinitionReader.read(same(lengthGradientPercentDefinition),
+                anyLong())).thenReturn(lengthGradientPercent);
 
         when(mockFactory.make(any(), any(), any(), any(), any(), any(), anyInt(), any(), any()))
                 .thenReturn(mockRenderable);
@@ -90,16 +97,18 @@ public class AntialiasedLineSegmentRenderableDefinitionReaderTests extends Abstr
                 thicknessDefinition, colorDefinition,
                 thicknessGradientPercentDefinition, lengthGradientPercentDefinition, z);
 
-        var renderable = reader.read(mockComponent, definition);
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockProviderDefinitionReader, once()).read(vertex1Definition);
-        verify(mockProviderDefinitionReader, once()).read(vertex2Definition);
-        verify(mockProviderDefinitionReader, once()).read(thicknessDefinition);
-        verify(mockProviderDefinitionReader, once()).read(colorDefinition);
-        verify(mockProviderDefinitionReader, once()).read(thicknessGradientPercentDefinition);
-        verify(mockProviderDefinitionReader, once()).read(lengthGradientPercentDefinition);
+        verify(mockProviderDefinitionReader, once()).read(same(vertex1Definition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(vertex2Definition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(thicknessDefinition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(colorDefinition), eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(thicknessGradientPercentDefinition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, once()).read(same(lengthGradientPercentDefinition),
+                eq(TIMESTAMP));
         verify(mockFactory, once()).make(
                 same(vertex1),
                 same(vertex2),

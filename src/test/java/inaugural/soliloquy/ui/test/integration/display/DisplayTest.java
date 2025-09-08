@@ -17,6 +17,7 @@ import soliloquy.specs.io.graphics.renderables.providers.factories.StaticProvide
 import soliloquy.specs.io.graphics.rendering.FrameExecutor;
 import soliloquy.specs.io.graphics.rendering.WindowDisplayMode;
 import soliloquy.specs.io.graphics.rendering.timing.FrameTimer;
+import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 
 import java.awt.*;
 import java.util.Map;
@@ -158,5 +159,11 @@ public class DisplayTest {
         when(mockSetting.getValue()).thenReturn(val);
 
         return mockSetting;
+    }
+
+    protected static long timestamp(UIModule uiModule) {
+        var ioModule = uiModule.provide(IOModule.class);
+        var globalClock = ioModule.provide(GlobalClock.class);
+        return globalClock.globalTimestamp();
     }
 }

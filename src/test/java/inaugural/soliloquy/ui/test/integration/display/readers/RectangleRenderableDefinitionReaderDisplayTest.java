@@ -36,7 +36,7 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
                 )
         );
         displayTest.runTest(
-                "Simple Rectangle definition reader display test",
+                "Rectangle renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         new ImageDefinitionDTO[]{
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
@@ -50,7 +50,7 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
                         new AnimatedMouseCursorDefinitionDTO[]{},
                         new StaticMouseCursorDefinitionDTO[]{}
                 ),
-                () -> DisplayTest.runThenClose("Simple Rectangle definition reader", 4000),
+                () -> DisplayTest.runThenClose("Rectangle renderable definition reader", 4000),
                 RectangleRenderableDefinitionReaderDisplayTest::populateTopLevelComponent
         );
     }
@@ -60,7 +60,6 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
         var ioModule = uiModule.provide(IOModule.class);
         var graphics = ioModule.provide(Graphics.class);
         var image = graphics.getImage(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
-        var globalClock = ioModule.provide(GlobalClock.class);
         var rectDef = rectangle(
                 staticVal(floatBoxOf(0.25f, 0.25f, 0.75f, 0.75f)),
                 0
@@ -89,6 +88,6 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
 
         var renderableDefReader = uiModule.provide(RenderableDefinitionReader.class);
 
-        renderableDefReader.read(topLevelComponent, rectDef, globalClock.globalTimestamp());
+        renderableDefReader.read(topLevelComponent, rectDef, timestamp(uiModule));
     }
 }

@@ -16,7 +16,7 @@ import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.content.FiniteAnimationRenderableDefinition.finiteAnimation;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class FiniteAnimationRenderableDefinitionReaderTest extends DisplayTest {
+public class FiniteAnimationRenderableDefinitionReaderDisplayTest extends DisplayTest {
     private final static String EXPLOSION_ANIMATION_ID = "explosion";
     private final static String EXPLOSION_RELATIVE_LOCATION =
             "./src/test/resources/images/effects/Explosion.png";
@@ -57,7 +57,7 @@ public class FiniteAnimationRenderableDefinitionReaderTest extends DisplayTest {
                 ),
                 () -> DisplayTest.runThenClose("Finite animation renderable definition reader",
                         4000),
-                FiniteAnimationRenderableDefinitionReaderTest::populateTopLevelComponent
+                FiniteAnimationRenderableDefinitionReaderDisplayTest::populateTopLevelComponent
         );
     }
 

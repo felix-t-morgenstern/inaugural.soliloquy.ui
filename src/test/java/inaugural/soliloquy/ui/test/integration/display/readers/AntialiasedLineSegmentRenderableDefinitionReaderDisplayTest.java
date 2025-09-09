@@ -6,6 +6,7 @@ import inaugural.soliloquy.ui.readers.content.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
+import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.AntialiasedLineSegmentRenderableDefinition.antialiasedLine;
@@ -17,15 +18,15 @@ public class AntialiasedLineSegmentRenderableDefinitionReaderDisplayTest extends
         displayTest.runTest(
                 "AntialiasedRenderable definition reader display test",
                 new AssetDefinitionsDTO(
-                        new ImageDefinitionDTO[]{},
-                        new FontDefinitionDTO[]{},
-                        new SpriteDefinitionDTO[]{},
-                        new AnimationDefinitionDTO[]{},
-                        new GlobalLoopingAnimationDefinitionDTO[]{},
-                        new ImageAssetSetDefinitionDTO[]{},
-                        new MouseCursorImageDefinitionDTO[]{},
-                        new AnimatedMouseCursorDefinitionDTO[]{},
-                        new StaticMouseCursorDefinitionDTO[]{}
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf()
                 ),
                 () -> DisplayTest.runThenClose("AntialiasedRenderable definition reader", 4000),
                 AntialiasedLineSegmentRenderableDefinitionReaderDisplayTest::populateTopLevelComponent

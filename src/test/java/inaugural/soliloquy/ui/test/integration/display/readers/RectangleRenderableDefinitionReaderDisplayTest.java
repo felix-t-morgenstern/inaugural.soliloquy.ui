@@ -7,10 +7,8 @@ import inaugural.soliloquy.ui.readers.content.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
-import static inaugural.soliloquy.tools.collections.Collections.setOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static soliloquy.specs.common.entities.Action.action;
@@ -38,17 +36,17 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
         displayTest.runTest(
                 "Rectangle renderable definition reader display test",
                 new AssetDefinitionsDTO(
-                        new ImageDefinitionDTO[]{
+                        arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
-                        },
-                        new FontDefinitionDTO[]{},
-                        new SpriteDefinitionDTO[]{},
-                        new AnimationDefinitionDTO[]{},
-                        new GlobalLoopingAnimationDefinitionDTO[]{},
-                        new ImageAssetSetDefinitionDTO[]{},
-                        new MouseCursorImageDefinitionDTO[]{},
-                        new AnimatedMouseCursorDefinitionDTO[]{},
-                        new StaticMouseCursorDefinitionDTO[]{}
+                        ),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf(),
+                        arrayOf()
                 ),
                 () -> DisplayTest.runThenClose("Rectangle renderable definition reader", 4000),
                 RectangleRenderableDefinitionReaderDisplayTest::populateTopLevelComponent

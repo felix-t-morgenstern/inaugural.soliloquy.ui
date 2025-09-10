@@ -125,6 +125,7 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
+        verify(mockRenderable, once()).setCapturesMouseEvents(true);
         verify(mockProviderDefinitionReader, once()).read(same(mockVector1Definition),
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(vector1ColorDefinition),

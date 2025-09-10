@@ -107,6 +107,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
+        verify(mockRenderable, once()).setCapturesMouseEvents(true);
         verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(topLeftColorDefinition),

@@ -12,7 +12,8 @@ import soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class TriangleRenderableDefinitionReader extends AbstractMouseEventsComponentDefinitionReader {
+public class TriangleRenderableDefinitionReader
+        extends AbstractMouseEventsComponentDefinitionReader {
     private final TriangleRenderableFactory FACTORY;
 
     public TriangleRenderableDefinitionReader(TriangleRenderableFactory factory,
@@ -31,9 +32,15 @@ public class TriangleRenderableDefinitionReader extends AbstractMouseEventsCompo
         Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 
-        var vector1 = provider(Check.ifNull(definition.VERTEX_1_PROVIDER, "definition.VERTEX_1_PROVIDER"), timestamp);
-        var vector2 = provider(Check.ifNull(definition.VERTEX_2_PROVIDER, "definition.VERTEX_2_PROVIDER"), timestamp);
-        var vector3 = provider(Check.ifNull(definition.VERTEX_3_PROVIDER, "definition.VERTEX_3_PROVIDER"), timestamp);
+        var vector1 =
+                provider(Check.ifNull(definition.VERTEX_1_PROVIDER, "definition.VERTEX_1_PROVIDER"),
+                        timestamp);
+        var vector2 =
+                provider(Check.ifNull(definition.VERTEX_2_PROVIDER, "definition.VERTEX_2_PROVIDER"),
+                        timestamp);
+        var vector3 =
+                provider(Check.ifNull(definition.VERTEX_3_PROVIDER, "definition.VERTEX_3_PROVIDER"),
+                        timestamp);
 
         var vector1Color = provider(definition.vertex1ColorProvider, timestamp);
         var vector2Color = provider(definition.vertex2ColorProvider, timestamp);
@@ -48,9 +55,19 @@ public class TriangleRenderableDefinitionReader extends AbstractMouseEventsCompo
         var onMouseOver = getAction(definition.onMouseOverId);
         var onMouseLeave = getAction(definition.onMouseLeaveId);
 
-        return FACTORY.make(vector1, vector1Color, vector2, vector2Color, vector3, vector3Color,
-                textureId, textureTileWidth,
-                textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave,
-                definition.Z, UUID.randomUUID(), component);
+        var renderable =
+                FACTORY.make(vector1, vector1Color, vector2, vector2Color, vector3, vector3Color,
+                        textureId, textureTileWidth, textureTileHeight, onPress, onRelease,
+                        onMouseOver, onMouseLeave, definition.Z, UUID.randomUUID(), component);
+
+        if (definition.onPressIds != null ||
+                definition.onReleaseIds != null ||
+                definition.onMouseOverId != null ||
+                definition.onMouseLeaveId != null
+        ) {
+            renderable.setCapturesMouseEvents(true);
+        }
+
+        return renderable;
     }
 }

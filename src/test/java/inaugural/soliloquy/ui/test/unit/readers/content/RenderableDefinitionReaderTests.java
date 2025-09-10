@@ -1,5 +1,6 @@
 package inaugural.soliloquy.ui.test.unit.readers.content;
 
+import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.content.*;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +15,7 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.*;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
-import static inaugural.soliloquy.tools.random.Random.randomInt;
-import static inaugural.soliloquy.tools.random.Random.randomLong;
+import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -79,7 +79,7 @@ public class RenderableDefinitionReaderTests {
                 .thenReturn(mockFiniteAnimationRenderable);
         lenient().when(mockTextLineReader.read(any(), any(), anyLong())).thenReturn(mockTextLineRenderable);
 
-        lenient().when(mockComponentFactory.make(any(), anyInt(), any(), any()))
+        lenient().when(mockComponentFactory.make(any(), anyInt(), any(), any(), any()))
                 .thenReturn(mockComponent);
 
         lenient().when(mockProviderReader.read(same(mockComponentDimensDefinition), anyLong()))
@@ -322,11 +322,14 @@ public class RenderableDefinitionReaderTests {
     @Test
     public void testReadComponentDefinition() {
         var z = randomInt();
+        var key = randomString();
+        var val = randomInt();
+        var data = Collections.<String, Object>mapOf(key, val);
         var componentDefinition = component(
                 z,
                 mockComponentDimensDefinition,
                 mockRasterizedLineDefinition
-        );
+        ).withData(data);
 
         var output = reader.read(mockContainingComponent, componentDefinition, TIMESTAMP);
 
@@ -335,7 +338,8 @@ public class RenderableDefinitionReaderTests {
                 isNotNull(),
                 eq(z),
                 same(mockComponentDimens),
-                same(mockContainingComponent)
+                same(mockContainingComponent),
+                eq(data)
         );
         verify(mockRasterizedLineReader, once()).read(
                 same((Component) output),

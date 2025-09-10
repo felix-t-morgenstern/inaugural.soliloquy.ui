@@ -19,7 +19,6 @@ public class ProviderDefinitionReader {
 
     public <T> ProviderAtTime<T> read(AbstractProviderDefinition<T> definition, long timestamp) {
         READERS.keySet().forEach(System.out::println);
-        System.out.println(READERS.get(definition.getClass()));
         var reader = READERS.get(definition.getClass());
 
         //noinspection unchecked

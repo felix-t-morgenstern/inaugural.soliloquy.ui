@@ -136,7 +136,7 @@ public class DisplayTest {
         var componentFactory = ioModule.provide(ComponentFactory.class);
         var staticProviderFactory = ioModule.provide(StaticProviderFactory.class);
         var wholeScreenProvider = staticProviderFactory.make(randomUUID(), WHOLE_SCREEN);
-        topLevelComponent = componentFactory.make(randomUUID(), 0, wholeScreenProvider, null);
+        topLevelComponent = componentFactory.make(randomUUID(), 0, wholeScreenProvider, null, mapOf());
         frameExecutor.setTopLevelComponent(topLevelComponent);
 
         coreLoop.startup(() -> {

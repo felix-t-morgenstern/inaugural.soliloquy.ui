@@ -27,7 +27,6 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
     private final long TIMESTAMP = randomLong();
     private final short STIPPLE_PATTERN = randomShort();
     private final short STIPPLE_FACTOR = randomShort();
-    private final short DEFAULT_STIPPLE_PATTERN = randomShort();
     private final short DEFAULT_STIPPLE_FACTOR = randomShort();
 
     @Mock private RasterizedLineSegmentRenderable mockRenderable;
@@ -56,22 +55,22 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
                 .thenReturn(color);
 
         lenient().when(
-                mockFactory.make(any(), any(), any(), anyShort(), anyShort(), any(), anyInt(),
+                mockFactory.make(any(), any(), any(), any(), anyShort(), any(), anyInt(),
                         any(), any())).thenReturn(mockRenderable);
 
         reader = new RasterizedLineSegmentRenderableDefinitionReader(mockFactory,
-                mockProviderDefinitionReader, DEFAULT_STIPPLE_PATTERN, DEFAULT_STIPPLE_FACTOR);
+                mockProviderDefinitionReader, DEFAULT_STIPPLE_FACTOR);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new RasterizedLineSegmentRenderableDefinitionReader(null,
-                        mockProviderDefinitionReader, DEFAULT_STIPPLE_PATTERN,
+                        mockProviderDefinitionReader,
                         DEFAULT_STIPPLE_FACTOR));
         assertThrows(IllegalArgumentException.class,
                 () -> new RasterizedLineSegmentRenderableDefinitionReader(mockFactory, null,
-                        DEFAULT_STIPPLE_PATTERN, DEFAULT_STIPPLE_FACTOR));
+                        DEFAULT_STIPPLE_FACTOR));
     }
 
     @Test
@@ -115,7 +114,7 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
         verify(mockProviderDefinitionReader, once()).read(same(colorDefinition), eq(TIMESTAMP));
         verify(mockFactory, once()).make(
                 same(vertex1), same(vertex2),
-                same(thickness), eq(DEFAULT_STIPPLE_PATTERN), eq(DEFAULT_STIPPLE_FACTOR),
+                same(thickness), isNull(), eq(DEFAULT_STIPPLE_FACTOR),
                 same(color),
                 eq(Z),
                 isNotNull(),
@@ -128,7 +127,8 @@ public class RasterizedLineSegmentRenderableDefinitionReaderTests
         assertThrows(IllegalArgumentException.class, () -> reader.read(null,
                 rasterizedLineSegment(vertex1Definition, vertex2Definition, thicknessDefinition,
                         colorDefinition, Z), TIMESTAMP));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent, null, TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(mockComponent, null, TIMESTAMP));
         assertThrows(IllegalArgumentException.class, () -> reader.read(mockComponent,
                 rasterizedLineSegment(null, vertex2Definition, thicknessDefinition, colorDefinition,
                         Z), TIMESTAMP));

@@ -12,17 +12,14 @@ import java.util.UUID;
 public class RasterizedLineSegmentRenderableDefinitionReader
         extends AbstractContentDefinitionReader {
     private final RasterizedLineSegmentRenderableFactory FACTORY;
-    private final short DEFAULT_STIPPLE_PATTERN;
     private final short DEFAULT_STIPPLE_FACTOR;
 
     public RasterizedLineSegmentRenderableDefinitionReader(
             RasterizedLineSegmentRenderableFactory factory,
             ProviderDefinitionReader providerReader,
-            short defaultStipplePattern,
             short defaultStippleFactor) {
         super(providerReader);
         FACTORY = Check.ifNull(factory, "factory");
-        DEFAULT_STIPPLE_PATTERN = defaultStipplePattern;
         DEFAULT_STIPPLE_FACTOR = defaultStippleFactor;
     }
 
@@ -43,7 +40,7 @@ public class RasterizedLineSegmentRenderableDefinitionReader
         var thickness = PROVIDER_READER.read(
                 Check.ifNull(definition.THICKNESS_PROVIDER, "definition.THICKNESS_PROVIDER"),
                 timestamp);
-        short stipplePattern = definition.stipplePattern == null ? DEFAULT_STIPPLE_PATTERN :
+        Short stipplePattern = definition.stipplePattern == null ? null :
                 definition.stipplePattern;
         short stippleFactor = definition.stippleFactor == null ? DEFAULT_STIPPLE_FACTOR :
                 definition.stippleFactor;

@@ -100,7 +100,7 @@ public class UIModule implements Module {
                 new RasterizedLineSegmentRenderableDefinitionReader(
                         ioModule.provide(RasterizedLineSegmentRenderableFactory.class),
                         providerReader,
-                        (short) 0, (short) 0
+                        (short) 1
                 ),
                 new AntialiasedLineSegmentRenderableDefinitionReader(
                         ioModule.provide(AntialiasedLineSegmentRenderableFactory.class),

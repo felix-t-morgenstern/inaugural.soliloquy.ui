@@ -7,6 +7,7 @@ import soliloquy.specs.io.graphics.renderables.Renderable;
 import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
 import soliloquy.specs.ui.definitions.content.*;
 
+import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;
 
 public class RenderableDefinitionReader extends AbstractContentDefinitionReader {
@@ -81,7 +82,8 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                         randomUUID(),
                         d.Z,
                         PROVIDER_READER.read(d.DIMENSIONS_PROVIDER, timestamp),
-                        containingComponent
+                        containingComponent,
+                        mapOf(d.data)
                 );
                 for (var contentDef : d.CONTENT) {
                     read(readComponent, contentDef, timestamp);

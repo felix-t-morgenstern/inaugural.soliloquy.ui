@@ -6,7 +6,7 @@ import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TriangleRenderableFactory;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition;
 
 import java.util.UUID;
@@ -21,7 +21,7 @@ public class TriangleRenderableDefinitionReader
                                               Function<String, Action> getAction,
                                               ProviderDefinitionReader providerReader,
                                               @SuppressWarnings("rawtypes")
-                                              StaticProvider nullProvider) {
+                                              ProviderAtTime nullProvider) {
         super(providerReader, nullProvider, getAction);
         FACTORY = Check.ifNull(factory, "factory");
     }

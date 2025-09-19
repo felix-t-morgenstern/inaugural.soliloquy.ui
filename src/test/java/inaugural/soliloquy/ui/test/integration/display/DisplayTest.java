@@ -12,7 +12,7 @@ import soliloquy.specs.gamestate.entities.Setting;
 import soliloquy.specs.io.graphics.bootstrap.GraphicsCoreLoop;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
-import soliloquy.specs.io.graphics.renderables.providers.factories.StaticProviderFactory;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.rendering.FrameExecutor;
 import soliloquy.specs.io.graphics.rendering.WindowDisplayMode;
 import soliloquy.specs.io.graphics.rendering.timing.FrameTimer;
@@ -21,8 +21,11 @@ import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 import java.awt.*;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
+import static inaugural.soliloquy.io.api.Constants.STATIC_PROVIDER_FACTORY;
 import static inaugural.soliloquy.io.api.Constants.WHOLE_SCREEN;
 import static inaugural.soliloquy.io.api.Settings.*;
 import static inaugural.soliloquy.io.api.dto.AssetType.*;
@@ -134,9 +137,12 @@ public class DisplayTest {
 
         var frameExecutor = ioModule.provide(FrameExecutor.class);
         var componentFactory = ioModule.provide(ComponentFactory.class);
-        var staticProviderFactory = ioModule.provide(StaticProviderFactory.class);
-        var wholeScreenProvider = staticProviderFactory.make(randomUUID(), WHOLE_SCREEN);
-        topLevelComponent = componentFactory.make(randomUUID(), 0, wholeScreenProvider, null, mapOf());
+        @SuppressWarnings("rawtypes") BiFunction<UUID, Object, ProviderAtTime>
+                staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
+        var wholeScreenProvider = staticProviderFactory.apply(randomUUID(), WHOLE_SCREEN);
+        //noinspection unchecked
+        topLevelComponent =
+                componentFactory.make(randomUUID(), 0, wholeScreenProvider, null, mapOf());
         frameExecutor.setTopLevelComponent(topLevelComponent);
 
         coreLoop.startup(() -> {

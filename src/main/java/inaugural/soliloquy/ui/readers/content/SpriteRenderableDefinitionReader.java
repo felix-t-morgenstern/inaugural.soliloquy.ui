@@ -9,7 +9,7 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.SpriteRenderable;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.factories.SpriteRenderableFactory;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition;
 
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
                                             ProviderDefinitionReader providerReader,
                                             ShiftDefinitionReader shiftReader,
                                             @SuppressWarnings("rawtypes")
-                                            StaticProvider nullProvider) {
+                                            ProviderAtTime nullProvider) {
         super(providerReader, nullProvider, getAction, shiftReader);
         FACTORY = Check.ifNull(factory, "factory");
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");

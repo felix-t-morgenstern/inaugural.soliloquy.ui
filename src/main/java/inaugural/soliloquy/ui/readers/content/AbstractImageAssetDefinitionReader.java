@@ -4,7 +4,7 @@ import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 
 import java.util.function.Function;
 
@@ -13,7 +13,7 @@ public class AbstractImageAssetDefinitionReader extends AbstractMouseEventsCompo
 
     protected AbstractImageAssetDefinitionReader(
             ProviderDefinitionReader providerReader,
-            @SuppressWarnings("rawtypes") StaticProvider nullProvider,
+            @SuppressWarnings("rawtypes") ProviderAtTime nullProvider,
             @SuppressWarnings("rawtypes") Function<String, Action> getAction,
             ShiftDefinitionReader shiftReader) {
         super(providerReader, nullProvider, getAction);

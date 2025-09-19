@@ -16,11 +16,12 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.*;
 import soliloquy.specs.ui.definitions.providers.*;
 
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
-import static java.util.UUID.randomUUID;
+import static inaugural.soliloquy.io.api.Constants.NULL_PROVIDER;
+import static inaugural.soliloquy.io.api.Constants.STATIC_PROVIDER_FACTORY;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 
 public class UIModule implements Module {
@@ -39,8 +40,9 @@ public class UIModule implements Module {
         andRegister(ioModule);
 
         var graphics = ioModule.provide(Graphics.class);
-        var staticProviderFactory = ioModule.provide(StaticProviderFactory.class);
-        var nullProvider = staticProviderFactory.make(randomUUID(), null);
+        @SuppressWarnings("rawtypes") BiFunction<UUID, Object, ProviderAtTime>
+                staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
+        @SuppressWarnings("rawtypes") ProviderAtTime nullProvider = ioModule.provide(NULL_PROVIDER);
 
         // ==================
         // Definition Readers
@@ -85,7 +87,7 @@ public class UIModule implements Module {
                         pairOf(
                                 StaticProviderDefinition.class,
                                 (d, _) -> new StaticProviderDefinitionReader(
-                                        ioModule.provide(StaticProviderFactory.class)
+                                        staticProviderFactory
                                 ).read((StaticProviderDefinition) d)
                         )
                 ));

@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
-import soliloquy.specs.io.graphics.renderables.providers.factories.StaticProviderFactory;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
+
+import java.util.UUID;
+import java.util.function.BiFunction;
 
 import static inaugural.soliloquy.tools.random.Random.randomInt;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
@@ -19,9 +21,9 @@ import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.
 
 @ExtendWith(MockitoExtension.class)
 public class StaticProviderDefinitionReaderTests {
-    @Mock private StaticProviderFactory mockFactory;
+    @SuppressWarnings("rawtypes") @Mock private BiFunction<UUID, Object, ProviderAtTime> mockFactory;
     @SuppressWarnings("rawtypes")
-    @Mock private StaticProvider mockStaticProvider;
+    @Mock private ProviderAtTime mockStaticProvider;
 
     private StaticProviderDefinitionReader reader;
 
@@ -38,15 +40,14 @@ public class StaticProviderDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        //noinspection unchecked
-        when(mockFactory.make(any(), any())).thenReturn(mockStaticProvider);
+        when(mockFactory.apply(any(), any())).thenReturn(mockStaticProvider);
         var val = randomInt();
         var definition = staticVal(val);
 
         var output = reader.read(definition);
 
         assertSame(mockStaticProvider, output);
-        verify(mockFactory, once()).make(any(), eq(val));
+        verify(mockFactory, once()).apply(any(), eq(val));
     }
 
     @Test

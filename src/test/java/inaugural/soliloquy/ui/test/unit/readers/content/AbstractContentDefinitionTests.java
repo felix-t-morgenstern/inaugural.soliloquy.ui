@@ -8,7 +8,6 @@ import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
 import soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
@@ -48,7 +47,7 @@ public abstract class AbstractContentDefinitionTests {
     @org.mockito.Mock protected ProviderDefinitionReader mockProviderDefinitionReader;
     @org.mockito.Mock protected ShiftDefinitionReader mockShiftDefinitionReader;
     @org.mockito.Mock protected Component mockComponent;
-    @SuppressWarnings("rawtypes") @org.mockito.Mock protected StaticProvider mockNullProvider;
+    @SuppressWarnings("rawtypes") @org.mockito.Mock protected ProviderAtTime mockNullProvider;
 
     @org.mockito.Mock protected ShiftDefinition mockShiftDefinition;
     @org.mockito.Mock protected ColorShift mockShift;

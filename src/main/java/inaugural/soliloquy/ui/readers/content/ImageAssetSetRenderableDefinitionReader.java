@@ -9,7 +9,7 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.ImageAssetSetRenderable;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.factories.ImageAssetSetRenderableFactory;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.ImageAssetSetRenderableDefinition;
 
 import java.util.Arrays;
@@ -31,7 +31,7 @@ public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetD
                                                    ProviderDefinitionReader providerReader,
                                                    ShiftDefinitionReader shiftReader,
                                                    @SuppressWarnings("rawtypes")
-                                                   StaticProvider nullProvider) {
+                                                   ProviderAtTime nullProvider) {
         super(providerReader, nullProvider, getAction, shiftReader);
         FACTORY = Check.ifNull(factory, "factory");
         GET_IMAGE_ASSET_SET = Check.ifNull(getImageAssetSet, "getImageAssetSet");

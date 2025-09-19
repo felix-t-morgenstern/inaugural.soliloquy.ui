@@ -1,21 +1,23 @@
 package inaugural.soliloquy.ui.readers.providers;
 
 import inaugural.soliloquy.tools.Check;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
-import soliloquy.specs.io.graphics.renderables.providers.factories.StaticProviderFactory;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
 
 import java.util.UUID;
+import java.util.function.BiFunction;
 
 public class StaticProviderDefinitionReader {
-    private final StaticProviderFactory FACTORY;
+    @SuppressWarnings("rawtypes") private final BiFunction<UUID, Object, ProviderAtTime> FACTORY;
 
-    public StaticProviderDefinitionReader(StaticProviderFactory factory) {
+    public StaticProviderDefinitionReader(
+            @SuppressWarnings("rawtypes") BiFunction<UUID, Object, ProviderAtTime> factory) {
         FACTORY = Check.ifNull(factory, "factory");
     }
 
-    public <T> StaticProvider<T> read(StaticProviderDefinition<T> definition) {
-        return FACTORY.make(
+    public <T> ProviderAtTime<T> read(StaticProviderDefinition<T> definition) {
+        //noinspection unchecked
+        return (ProviderAtTime<T>) FACTORY.apply(
                 UUID.randomUUID(),
                 Check.ifNull(definition, "definition").VALUE
         );

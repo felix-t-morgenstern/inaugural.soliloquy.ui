@@ -8,7 +8,6 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TextLineRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
 import soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition;
 
 import java.awt.*;
@@ -25,7 +24,7 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
             TextLineRenderableFactory factory,
             Function<String, Font> getFont,
             ProviderDefinitionReader providerReader,
-            @SuppressWarnings("rawtypes") StaticProvider nullProvider) {
+            @SuppressWarnings("rawtypes") ProviderAtTime nullProvider) {
         super(providerReader, nullProvider);
         FACTORY = Check.ifNull(factory, "factory");
         GET_FONT = Check.ifNull(getFont, "getFont");

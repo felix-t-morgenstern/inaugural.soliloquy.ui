@@ -4,7 +4,7 @@ import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
-import soliloquy.specs.io.graphics.renderables.providers.StaticProvider;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.EventInputs;
 
 import java.util.Map;
@@ -15,7 +15,7 @@ public abstract class AbstractMouseEventsComponentDefinitionReader extends Abstr
 
     protected AbstractMouseEventsComponentDefinitionReader(
             ProviderDefinitionReader providerReader,
-            @SuppressWarnings("rawtypes") StaticProvider nullProvider,
+            @SuppressWarnings("rawtypes") ProviderAtTime nullProvider,
             @SuppressWarnings("rawtypes") Function<String, Action> getAction) {
         super(providerReader, nullProvider);
         GET_ACTION = Check.ifNull(getAction, "getAction");

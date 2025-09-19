@@ -8,6 +8,7 @@ import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
 import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Function;
 import soliloquy.specs.gamestate.entities.Setting;
 import soliloquy.specs.io.graphics.bootstrap.GraphicsCoreLoop;
 import soliloquy.specs.io.graphics.renderables.Component;
@@ -54,6 +55,7 @@ public class DisplayTest {
             "./src/main/resources/shaders/defaultShader";
 
     @SuppressWarnings("rawtypes") private final Map<String, Action> ACTIONS;
+    @SuppressWarnings("rawtypes") private final Map<String, Function> FUNCTIONS;
 
     public Component topLevelComponent;
 
@@ -63,6 +65,7 @@ public class DisplayTest {
 
     public DisplayTest(@SuppressWarnings("rawtypes") Set<Action> actions) {
         ACTIONS = mapOf();
+        FUNCTIONS = mapOf();
         Check.ifNull(actions, "actions").forEach(action -> ACTIONS.put(action.id(), action));
     }
 
@@ -120,6 +123,7 @@ public class DisplayTest {
                 commonModule,
                 settings::get,
                 ACTIONS::get,
+                FUNCTIONS::get,
                 listOf(),
                 testName,
                 assetDefinitionsDTO

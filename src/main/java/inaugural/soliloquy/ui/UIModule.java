@@ -50,45 +50,58 @@ public class UIModule implements Module {
 
         // Provider Definition Reader
 
+        var finiteLinearMovingColorProviderDefReader =
+                new FiniteLinearMovingColorProviderDefinitionReader(
+                        ioModule.provide(FiniteLinearMovingColorProviderFactory.class));
+        var finiteLinearMovingProviderDefReader = new FiniteLinearMovingProviderDefinitionReader(
+                ioModule.provide(FiniteLinearMovingProviderFactory.class));
+        var finiteSinusoidMovingProviderDefReader =
+                new FiniteSinusoidMovingProviderDefinitionReader(
+                        ioModule.provide(FiniteSinusoidMovingProviderFactory.class));
+        var functionalProviderDefReader = new FunctionalProviderDefinitionReader(
+                ioModule.provide(FunctionalProviderFactory.class));
+        var loopingLinearMovingColorProviderDefReader =
+                new LoopingLinearMovingColorProviderDefinitionReader(
+                        ioModule.provide(LoopingLinearMovingColorProviderFactory.class));
+        var loopingLinearMovingProviderDefReader = new LoopingLinearMovingProviderDefinitionReader(
+                ioModule.provide(LoopingLinearMovingProviderFactory.class));
+        var staticProviderDefReader = new StaticProviderDefinitionReader(staticProviderFactory);
+
         @SuppressWarnings({"rawtypes", "unchecked"}) var providerReader =
                 new ProviderDefinitionReader(Collections.mapOf(
                         pairOf(
                                 FiniteLinearMovingColorProviderDefinition.class,
-                                (d, t) -> new FiniteLinearMovingColorProviderDefinitionReader(
-                                        ioModule.provide(
-                                                FiniteLinearMovingColorProviderFactory.class)
-                                ).read((FiniteLinearMovingColorProviderDefinition) d, t)
+                                (d, t) -> finiteLinearMovingColorProviderDefReader.read(
+                                        (FiniteLinearMovingColorProviderDefinition) d, t)
                         ),
                         pairOf(
                                 FiniteLinearMovingProviderDefinition.class,
-                                (d, t) -> new FiniteLinearMovingProviderDefinitionReader(
-                                        ioModule.provide(FiniteLinearMovingProviderFactory.class)
-                                ).read((FiniteLinearMovingProviderDefinition) d, t)
+                                (d, t) -> finiteLinearMovingProviderDefReader.read(
+                                        (FiniteLinearMovingProviderDefinition) d, t)
                         ),
                         pairOf(
                                 FiniteSinusoidMovingProviderDefinition.class,
-                                (d, t) -> new FiniteSinusoidMovingProviderDefinitionReader(
-                                        ioModule.provide(FiniteSinusoidMovingProviderFactory.class)
-                                ).read((FiniteSinusoidMovingProviderDefinition) d, t)
+                                (d, t) -> finiteSinusoidMovingProviderDefReader.read(
+                                        (FiniteSinusoidMovingProviderDefinition) d, t)
+                        ),
+                        pairOf(
+                                FunctionalProviderDefinition.class,
+                                (d, _) -> functionalProviderDefReader.read(
+                                        (FunctionalProviderDefinition) d)
                         ),
                         pairOf(
                                 LoopingLinearMovingColorProviderDefinition.class,
-                                (d, t) -> new LoopingLinearMovingColorProviderDefinitionReader(
-                                        ioModule.provide(
-                                                LoopingLinearMovingColorProviderFactory.class)
-                                ).read((LoopingLinearMovingColorProviderDefinition) d, t)
+                                (d, t) -> loopingLinearMovingColorProviderDefReader.read(
+                                        (LoopingLinearMovingColorProviderDefinition) d, t)
                         ),
                         pairOf(
                                 LoopingLinearMovingProviderDefinition.class,
-                                (d, t) -> new LoopingLinearMovingProviderDefinitionReader(
-                                        ioModule.provide(LoopingLinearMovingProviderFactory.class)
-                                ).read((LoopingLinearMovingProviderDefinition) d, t)
+                                (d, t) -> loopingLinearMovingProviderDefReader.read(
+                                        (LoopingLinearMovingProviderDefinition) d, t)
                         ),
                         pairOf(
                                 StaticProviderDefinition.class,
-                                (d, _) -> new StaticProviderDefinitionReader(
-                                        staticProviderFactory
-                                ).read((StaticProviderDefinition) d)
+                                (d, _) -> staticProviderDefReader.read((StaticProviderDefinition) d)
                         )
                 ));
 

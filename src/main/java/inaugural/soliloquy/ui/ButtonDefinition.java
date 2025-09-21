@@ -23,6 +23,7 @@ public class ButtonDefinition {
     public AbstractProviderDefinition<Color> bgColorBottomLeft;
     public AbstractProviderDefinition<Color> bgColorBottomRight;
 
+    public AbstractProviderDefinition<Integer> bgTexProvider;
     public String bgTexRelLoc;
 
     public Map<Integer, String> onPressIds;
@@ -36,8 +37,26 @@ public class ButtonDefinition {
     private ButtonDefinition() {
     }
 
-    public static ButtonDefinition button() {
-        return new ButtonDefinition();
+    public static ButtonDefinition button(AbstractProviderDefinition<FloatBox> dimens) {
+        return new ButtonDefinition()
+                .withDimens(dimens);
+    }
+
+    public static ButtonDefinition button(FloatBox dimens) {
+        return new ButtonDefinition()
+                .withDimens(dimens);
+    }
+
+    public static ButtonDefinition button(String text,
+                                          String fontId,
+                                          AbstractProviderDefinition<Float> textHeight) {
+        return new ButtonDefinition()
+                .withText(text, fontId, textHeight);
+    }
+
+    public static ButtonDefinition button(String text, String fontId, float textHeight) {
+        return new ButtonDefinition()
+                .withText(text, fontId, textHeight);
     }
 
     public ButtonDefinition withKey(char key) {
@@ -66,14 +85,14 @@ public class ButtonDefinition {
         return this;
     }
 
+    public ButtonDefinition withText(String text, String fontId, float textHeight) {
+        return withText(text, fontId, staticVal(textHeight));
+    }
+
     public ButtonDefinition withTextPadding(float textPadding) {
         this.textPadding = textPadding;
 
         return this;
-    }
-
-    public ButtonDefinition withText(String text, String fontId, float textHeight) {
-        return withText(text, fontId, staticVal(textHeight));
     }
 
     public ButtonDefinition withBgColor(AbstractProviderDefinition<Color> bgColor) {
@@ -92,6 +111,12 @@ public class ButtonDefinition {
         this.bgColorTopRight = bgColorTopRight;
         this.bgColorBottomLeft = bgColorBottomLeft;
         this.bgColorBottomRight = bgColorBottomRight;
+
+        return this;
+    }
+
+    public ButtonDefinition withTexture(AbstractProviderDefinition<Integer> bgTexProvider) {
+        this.bgTexProvider = bgTexProvider;
 
         return this;
     }

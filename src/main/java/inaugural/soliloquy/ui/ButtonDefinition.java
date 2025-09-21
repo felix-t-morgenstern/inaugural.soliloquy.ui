@@ -9,6 +9,8 @@ import java.util.Map;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ButtonDefinition {
+    public char key;
+
     public AbstractProviderDefinition<FloatBox> dimens;
 
     public String text;
@@ -36,6 +38,12 @@ public class ButtonDefinition {
 
     public static ButtonDefinition button() {
         return new ButtonDefinition();
+    }
+
+    public ButtonDefinition withKey(char key) {
+        this.key = key;
+
+        return this;
     }
 
     public ButtonDefinition withDimens(AbstractProviderDefinition<FloatBox> dimens) {

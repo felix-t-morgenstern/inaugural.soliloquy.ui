@@ -84,7 +84,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                         d.Z,
                         PROVIDER_READER.read(d.DIMENSIONS_PROVIDER, timestamp),
                         containingComponent,
-                        mapOf(d.data)
+                        d.data == null ? mapOf() : mapOf(d.data)
                 );
                 for (var contentDef : d.CONTENT) {
                     read(readComponent, contentDef, timestamp);

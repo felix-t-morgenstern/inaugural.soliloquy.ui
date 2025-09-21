@@ -8,23 +8,19 @@ import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionRe
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
+import static inaugural.soliloquy.io.api.Constants.WHOLE_SCREEN;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
-import static inaugural.soliloquy.tools.random.Random.randomColor;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
+import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
-import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
-    protected final static String SHIELD_SPRITE_ID = "shieldSpriteId";
-    protected final static String RPG_WEAPONS_RELATIVE_LOCATION =
-            "./src/test/resources/images/items/RPG_Weapons.png";
+public class ComponentDefinitionReaderDisplayTest extends SpriteRenderableDefinitionReaderDisplayTest {
+    private final static String SWORD_SPRITE_ID = "swordSpriteId";
 
     public static void main(String[] args) {
-        var displayTest = new DisplayTest(MOUSE_ACTIONS);
+        var displayTest = new DisplayTest();
         displayTest.runTest(
-                "Sprite renderable definition reader display test",
+                "Component definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(RPG_WEAPONS_RELATIVE_LOCATION, true)
@@ -32,7 +28,9 @@ public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf(
                                 new SpriteDefinitionDTO(SHIELD_SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
-                                        266, 271, 313, 343)
+                                        266, 271, 313, 343),
+                                new SpriteDefinitionDTO(SWORD_SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
+                                        208, 32, 227, 105)
                         ),
                         arrayOf(),
                         arrayOf(),
@@ -41,28 +39,16 @@ public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Sprite renderable definition reader", 4000),
-                SpriteRenderableDefinitionReaderDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Component definition reader", 4000),
+                ComponentDefinitionReaderDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var definition = sprite(SHIELD_SPRITE_ID, floatBoxOf(0.25f, 0.125f, 0.75f, 0.875f), 0)
-                .withBorder(
-                        staticVal(0.01f),
-                        staticVal(randomColor())
-                )
-                .onPress(mapOf(
-                        GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_PRESS_ACTION_ID
-                ))
-                .onRelease(mapOf(
-                        GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_RELEASE_ACTION_ID
-                ))
-                .onMouseOver(ON_MOUSE_OVER_ACTION_ID)
-                .onMouseLeave(ON_MOUSE_LEAVE_ACTION_ID);
+        var shieldSpriteDef = sprite(SHIELD_SPRITE_ID, floatBoxOf(0.35f, 0.25f, 0.65f, 0.75f), 1);
+        var swordSpriteDef = sprite(SWORD_SPRITE_ID, floatBoxOf(0.45f, 0f, 0.55f, 1f), 0);
+        var definition = component(0, WHOLE_SCREEN, shieldSpriteDef, swordSpriteDef);
         var reader = uiModule.provide(RenderableDefinitionReader.class);
         reader.read(topLevelComponent, definition, timestamp(uiModule));
     }

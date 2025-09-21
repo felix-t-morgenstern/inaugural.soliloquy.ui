@@ -15,6 +15,7 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.*;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
+import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -345,6 +346,23 @@ public class RenderableDefinitionReaderTests {
                 same((Component) output),
                 same(mockRasterizedLineDefinition),
                 eq(TIMESTAMP)
+        );
+    }
+
+    @Test
+    public void testReadComponentDefinitionWithMinimalArgs() {
+        var z = randomInt();
+        var componentDefinition = component(z, mockComponentDimensDefinition);
+
+        var output = reader.read(mockContainingComponent, componentDefinition, TIMESTAMP);
+
+        assertSame(mockComponent, output);
+        verify(mockComponentFactory, once()).make(
+                isNotNull(),
+                eq(z),
+                same(mockComponentDimens),
+                same(mockContainingComponent),
+                eq(mapOf())
         );
     }
 

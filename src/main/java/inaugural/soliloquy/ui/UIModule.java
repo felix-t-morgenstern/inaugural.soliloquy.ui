@@ -4,7 +4,7 @@ import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
-import inaugural.soliloquy.ui.readers.content.*;
+import inaugural.soliloquy.ui.readers.content.renderables.*;
 import inaugural.soliloquy.ui.readers.providers.*;
 import org.int4.dirk.api.Injector;
 import org.int4.dirk.di.Injectors;

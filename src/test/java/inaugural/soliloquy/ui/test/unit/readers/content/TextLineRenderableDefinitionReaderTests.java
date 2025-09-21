@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.test.unit.readers.content;
 
-import inaugural.soliloquy.ui.readers.content.TextLineRenderableDefinitionReader;
+import inaugural.soliloquy.ui.readers.content.renderables.TextLineRenderableDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

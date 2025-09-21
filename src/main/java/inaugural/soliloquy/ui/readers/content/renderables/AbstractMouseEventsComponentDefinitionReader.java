@@ -1,7 +1,8 @@
-package inaugural.soliloquy.ui.readers.content;
+package inaugural.soliloquy.ui.readers.content.renderables;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.readers.content.AbstractContentDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -10,7 +11,8 @@ import soliloquy.specs.ui.EventInputs;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class AbstractMouseEventsComponentDefinitionReader extends AbstractContentDefinitionReader {
+public abstract class AbstractMouseEventsComponentDefinitionReader extends
+        AbstractContentDefinitionReader {
     @SuppressWarnings("rawtypes") protected final Function<String, Action> GET_ACTION;
 
     protected AbstractMouseEventsComponentDefinitionReader(

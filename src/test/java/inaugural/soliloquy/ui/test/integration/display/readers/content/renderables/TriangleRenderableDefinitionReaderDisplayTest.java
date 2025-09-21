@@ -1,39 +1,36 @@
-package inaugural.soliloquy.ui.test.integration.display.readers;
+package inaugural.soliloquy.ui.test.integration.display.readers.content.renderables;
 
+import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
-import inaugural.soliloquy.io.api.dto.SpriteDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
-import inaugural.soliloquy.ui.readers.content.RenderableDefinitionReader;
+import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
+import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
-import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
-import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
-    private final static String SPRITE_ID = "spriteId";
-    private final static String RPG_WEAPONS_RELATIVE_LOCATION =
-            "./src/test/resources/images/items/RPG_Weapons.png";
+public class TriangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
+    private static final String BACKGROUND_TEXTURE_RELATIVE_LOCATION =
+            "./src/test/resources/images/backgrounds/stone_tile_1.png";
 
     public static void main(String[] args) {
         var displayTest = new DisplayTest(MOUSE_ACTIONS);
         displayTest.runTest(
-                "Sprite renderable definition reader display test",
+                "Triangle renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
-                                new ImageDefinitionDTO(RPG_WEAPONS_RELATIVE_LOCATION, true)
+                                new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
                         ),
                         arrayOf(),
-                        arrayOf(
-                                new SpriteDefinitionDTO(SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
-                                        266, 271, 313, 343)
-                        ),
+                        arrayOf(),
                         arrayOf(),
                         arrayOf(),
                         arrayOf(),
@@ -41,16 +38,30 @@ public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Sprite renderable definition reader", 4000),
-                SpriteRenderableDefinitionReaderDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Triangle renderable definition reader", 4000),
+                TriangleRenderableDefinitionReaderDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var definition = sprite(SPRITE_ID, staticVal(floatBoxOf(0.25f, 0.125f, 0.75f, 0.875f)), 0)
-                .withBorder(
-                        staticVal(0.01f),
+        var ioModule = uiModule.provide(IOModule.class);
+        var graphics = ioModule.provide(Graphics.class);
+        var image = graphics.getImage(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
+        var def = triangle(
+                staticVal(vertexOf(0.2f, 0.2f)),
+                staticVal(vertexOf(0.8f, 0.4f)),
+                staticVal(vertexOf(0.5f, 0.8f)),
+                0
+        )
+                .withTexture(
+                        staticVal(image.textureId()),
+                        staticVal(0.5f),
+                        staticVal(0.5f)
+                )
+                .withColors(
+                        staticVal(randomColor()),
+                        staticVal(randomColor()),
                         staticVal(randomColor())
                 )
                 .onPress(mapOf(
@@ -63,7 +74,9 @@ public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 ))
                 .onMouseOver(ON_MOUSE_OVER_ACTION_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ACTION_ID);
+
         var reader = uiModule.provide(RenderableDefinitionReader.class);
-        reader.read(topLevelComponent, definition, timestamp(uiModule));
+
+        reader.read(topLevelComponent, def, timestamp(uiModule));
     }
 }

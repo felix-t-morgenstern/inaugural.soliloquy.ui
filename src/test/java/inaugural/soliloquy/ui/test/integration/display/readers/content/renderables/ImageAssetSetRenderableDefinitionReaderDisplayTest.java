@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.readers;
+package inaugural.soliloquy.ui.test.integration.display.readers.content.renderables;
 
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.dto.*;

@@ -1,11 +1,11 @@
-package inaugural.soliloquy.ui.test.integration.display.readers;
+package inaugural.soliloquy.ui.test.integration.display.readers.content.renderables;
 
 import inaugural.soliloquy.io.api.dto.AnimationDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.AnimationFrameDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
-import inaugural.soliloquy.ui.readers.content.RenderableDefinitionReader;
+import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 

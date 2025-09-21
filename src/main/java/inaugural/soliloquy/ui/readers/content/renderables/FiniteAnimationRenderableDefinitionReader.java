@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.readers.content;
+package inaugural.soliloquy.ui.readers.content.renderables;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;

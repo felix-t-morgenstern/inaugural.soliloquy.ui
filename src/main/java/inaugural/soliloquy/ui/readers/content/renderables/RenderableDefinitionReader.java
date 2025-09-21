@@ -1,6 +1,7 @@
-package inaugural.soliloquy.ui.readers.content;
+package inaugural.soliloquy.ui.readers.content.renderables;
 
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.ui.readers.content.AbstractContentDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.Renderable;

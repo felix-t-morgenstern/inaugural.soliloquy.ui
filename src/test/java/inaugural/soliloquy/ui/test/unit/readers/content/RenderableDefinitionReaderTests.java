@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.test.unit.readers.content;
 
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.readers.content.*;
+import inaugural.soliloquy.ui.readers.content.renderables.*;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

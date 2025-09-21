@@ -1,10 +1,10 @@
-package inaugural.soliloquy.ui.test.integration.display.readers;
+package inaugural.soliloquy.ui.test.integration.display.readers.content.renderables;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.FontDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.FontStyleDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
-import inaugural.soliloquy.ui.readers.content.RenderableDefinitionReader;
+import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.io.graphics.renderables.Component;

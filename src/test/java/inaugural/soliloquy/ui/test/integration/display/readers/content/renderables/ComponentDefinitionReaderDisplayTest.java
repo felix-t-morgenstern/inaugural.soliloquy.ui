@@ -18,8 +18,7 @@ public class ComponentDefinitionReaderDisplayTest extends SpriteRenderableDefini
     private final static String SWORD_SPRITE_ID = "swordSpriteId";
 
     public static void main(String[] args) {
-        var displayTest = new DisplayTest();
-        displayTest.runTest(
+        new DisplayTest().runTest(
                 "Component definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(

@@ -14,8 +14,7 @@ import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.
 
 public class AntialiasedLineSegmentRenderableDefinitionReaderDisplayTest extends DisplayTest {
     public static void main(String[] args) {
-        var displayTest = new DisplayTest();
-        displayTest.runTest(
+        new DisplayTest().runTest(
                 "AntialiasedRenderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(),

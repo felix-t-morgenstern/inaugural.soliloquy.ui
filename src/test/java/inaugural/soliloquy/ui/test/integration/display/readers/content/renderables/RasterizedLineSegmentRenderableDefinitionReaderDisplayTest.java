@@ -14,8 +14,7 @@ import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.
 
 public class RasterizedLineSegmentRenderableDefinitionReaderDisplayTest extends DisplayTest {
     public static void main(String[] args) {
-        var displayTest = new DisplayTest(MOUSE_ACTIONS);
-        displayTest.runTest(
+        new DisplayTest().runTest(
                 "Rasterized line segment renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(),

@@ -37,8 +37,7 @@ public class FiniteAnimationRenderableDefinitionReaderDisplayTest extends Displa
                 )).toArray(AnimationFrameDefinitionDTO[]::new)
         );
 
-        var displayTest = new DisplayTest();
-        displayTest.runTest(
+        new DisplayTest().runTest(
                 "Finite animation renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(

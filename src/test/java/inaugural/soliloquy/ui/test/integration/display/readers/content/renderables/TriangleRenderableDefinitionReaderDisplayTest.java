@@ -22,8 +22,7 @@ public class TriangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
             "./src/test/resources/images/backgrounds/stone_tile_1.png";
 
     public static void main(String[] args) {
-        var displayTest = new DisplayTest(MOUSE_ACTIONS);
-        displayTest.runTest(
+        new DisplayTest().runTest(
                 "Triangle renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(

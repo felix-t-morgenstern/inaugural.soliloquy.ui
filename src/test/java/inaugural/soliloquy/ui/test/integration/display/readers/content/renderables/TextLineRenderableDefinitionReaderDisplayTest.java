@@ -29,8 +29,7 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
     protected final static float ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN = 0.25f;
 
     public static void main(String[] args) {
-        var displayTest = new DisplayTest();
-        displayTest.runTest(
+        new DisplayTest().runTest(
                 "Text line renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(),

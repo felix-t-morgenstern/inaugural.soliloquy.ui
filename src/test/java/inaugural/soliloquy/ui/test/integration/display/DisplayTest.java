@@ -6,6 +6,7 @@ import inaugural.soliloquy.io.api.WindowResolution;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.UIMethods;
 import inaugural.soliloquy.ui.UIModule;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.entities.Function;
@@ -21,7 +22,6 @@ import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 
 import java.awt.*;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -32,10 +32,10 @@ import static inaugural.soliloquy.io.api.Settings.*;
 import static inaugural.soliloquy.io.api.dto.AssetType.*;
 import static inaugural.soliloquy.tools.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.tools.collections.Collections.*;
+import static inaugural.soliloquy.tools.reflection.Reflection.readMethods;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static soliloquy.specs.common.entities.Action.action;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 
 public class DisplayTest {
@@ -43,12 +43,6 @@ public class DisplayTest {
     protected static final String ON_MOUSE_LEAVE_ACTION_ID = "onMouseLeave";
     protected static final String ON_MOUSE_PRESS_ACTION_ID = "onMousePress";
     protected static final String ON_MOUSE_RELEASE_ACTION_ID = "onMouseRelease";
-    @SuppressWarnings("rawtypes") protected static Set<Action> MOUSE_ACTIONS = setOf(
-            action(ON_MOUSE_OVER_ACTION_ID, _ -> System.out.println("MOUSE OVER")),
-            action(ON_MOUSE_LEAVE_ACTION_ID, _ -> System.out.println("MOUSE LEAVE")),
-            action(ON_MOUSE_PRESS_ACTION_ID, _ -> System.out.println("MOUSE PRESS")),
-            action(ON_MOUSE_RELEASE_ACTION_ID, _ -> System.out.println("MOUSE RELEASE"))
-    );
 
     protected final static WindowResolution DEFAULT_RES = WindowResolution.RES_1680x1050;
     private final static String SHADER_FILENAME_PREFIX =
@@ -60,13 +54,13 @@ public class DisplayTest {
     public Component topLevelComponent;
 
     public DisplayTest() {
-        this(setOf());
-    }
-
-    public DisplayTest(@SuppressWarnings("rawtypes") Set<Action> actions) {
         ACTIONS = mapOf();
         FUNCTIONS = mapOf();
-        Check.ifNull(actions, "actions").forEach(action -> ACTIONS.put(action.id(), action));
+
+        var methods = readMethods(UIMethods.class);
+
+        Check.ifNull(methods.FIRST, "actions").forEach(a -> ACTIONS.put(a.id(), a));
+        Check.ifNull(methods.SECOND, "functions").forEach(f -> FUNCTIONS.put(f.id(), f));
     }
 
     public void runTest(

@@ -26,10 +26,7 @@ public class ButtonDefinition {
     public AbstractProviderDefinition<Integer> bgTexProvider;
     public String bgTexRelLoc;
 
-    public Map<Integer, String> onPressIds;
-    public Map<Integer, String> onReleaseIds;
-    public String onMouseOverId;
-    public String onMouseLeaveId;
+    public String onPressId;
 
     public String pressSoundId;
     public String releaseSoundId;
@@ -127,26 +124,8 @@ public class ButtonDefinition {
         return this;
     }
 
-    public ButtonDefinition onPress(Map<Integer, String> onPressIds) {
-        this.onPressIds = onPressIds;
-
-        return this;
-    }
-
-    public ButtonDefinition onRelease(Map<Integer, String> onReleaseIds) {
-        this.onReleaseIds = onReleaseIds;
-
-        return this;
-    }
-
-    public ButtonDefinition onMouseOver(String onMouseOverId) {
-        this.onMouseOverId = onMouseOverId;
-
-        return this;
-    }
-
-    public ButtonDefinition onMouseLeave(String onMouseLeaveId) {
-        this.onMouseLeaveId = onMouseLeaveId;
+    public ButtonDefinition onPress(String onPressId) {
+        this.onPressId = onPressId;
 
         return this;
     }

@@ -15,8 +15,7 @@ public class ImageAssetSetRenderableDefinitionReaderDisplayTest extends DisplayT
             "./src/test/resources/images/items/RPG_Weapons.png";
 
     public static void main(String[] args) {
-        var displayTest = new DisplayTest(MOUSE_ACTIONS);
-        displayTest.runTest(
+        new DisplayTest().runTest(
                 "Image asset set renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(

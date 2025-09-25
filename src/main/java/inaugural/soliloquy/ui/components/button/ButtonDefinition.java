@@ -1,14 +1,14 @@
-package inaugural.soliloquy.ui;
+package inaugural.soliloquy.ui.components.button;
 
 import soliloquy.specs.common.valueobjects.FloatBox;
+import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
-import java.util.Map;
 
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ButtonDefinition {
+public class ButtonDefinition extends AbstractContentDefinition {
     public char key;
 
     public AbstractProviderDefinition<FloatBox> dimens;
@@ -31,28 +31,30 @@ public class ButtonDefinition {
     public String pressSoundId;
     public String releaseSoundId;
 
-    private ButtonDefinition() {
+    private ButtonDefinition(int z) {
+        super(z);
     }
 
-    public static ButtonDefinition button(AbstractProviderDefinition<FloatBox> dimens) {
-        return new ButtonDefinition()
+    public static ButtonDefinition button(AbstractProviderDefinition<FloatBox> dimens, int z) {
+        return new ButtonDefinition(z)
                 .withDimens(dimens);
     }
 
-    public static ButtonDefinition button(FloatBox dimens) {
-        return new ButtonDefinition()
+    public static ButtonDefinition button(FloatBox dimens, int z) {
+        return new ButtonDefinition(z)
                 .withDimens(dimens);
     }
 
     public static ButtonDefinition button(String text,
                                           String fontId,
-                                          AbstractProviderDefinition<Float> textHeight) {
-        return new ButtonDefinition()
+                                          AbstractProviderDefinition<Float> textHeight,
+                                          int z) {
+        return new ButtonDefinition(z)
                 .withText(text, fontId, textHeight);
     }
 
-    public static ButtonDefinition button(String text, String fontId, float textHeight) {
-        return new ButtonDefinition()
+    public static ButtonDefinition button(String text, String fontId, float textHeight, int z) {
+        return new ButtonDefinition(z)
                 .withText(text, fontId, textHeight);
     }
 

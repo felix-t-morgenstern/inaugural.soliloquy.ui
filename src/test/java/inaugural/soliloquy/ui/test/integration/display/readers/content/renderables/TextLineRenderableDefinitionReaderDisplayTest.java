@@ -23,10 +23,10 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
     protected final static String TRAJAN_ID = "font";
     protected final static String RELATIVE_LOCATION_TRAJAN =
             "./src/test/resources/fonts/Trajan Pro Regular.ttf";
-    protected final static float MAX_LOSSLESS_FONT_SIZE_TRAJAN = 100f;
+    protected final static float MAX_LOSSLESS_FONT_SIZE_TRAJAN = 250f;
+    protected final static float ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_TRAJAN = 0.75f;
+    protected final static float ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN = 0.35f;
     protected final static float LEADING_ADJUSTMENT_TRAJAN = 0f;
-    protected final static float ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_TRAJAN = 0.25f;
-    protected final static float ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN = 0.25f;
 
     public static void main(String[] args) {
         new DisplayTest().runTest(

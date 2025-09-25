@@ -4,9 +4,7 @@ import inaugural.soliloquy.common.CommonModule;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.WindowResolution;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
-import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.UIMethods;
 import inaugural.soliloquy.ui.UIModule;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.entities.Function;
@@ -26,8 +24,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
-import static inaugural.soliloquy.io.api.Constants.STATIC_PROVIDER_FACTORY;
-import static inaugural.soliloquy.io.api.Constants.WHOLE_SCREEN;
+import static inaugural.soliloquy.io.api.Constants.*;
 import static inaugural.soliloquy.io.api.Settings.*;
 import static inaugural.soliloquy.io.api.dto.AssetType.*;
 import static inaugural.soliloquy.tools.CheckedExceptionWrapper.sleep;
@@ -57,10 +54,10 @@ public class DisplayTest {
         ACTIONS = mapOf();
         FUNCTIONS = mapOf();
 
-        var methods = readMethods(UIMethods.class);
+        var methods = readMethods(DisplayTestMethods.class);
 
-        Check.ifNull(methods.FIRST, "actions").forEach(a -> ACTIONS.put(a.id(), a));
-        Check.ifNull(methods.SECOND, "functions").forEach(f -> FUNCTIONS.put(f.id(), f));
+        methods.FIRST.forEach(a -> ACTIONS.put(a.id(), a));
+        methods.SECOND.forEach(f -> FUNCTIONS.put(f.id(), f));
     }
 
     public void runTest(
@@ -122,6 +119,10 @@ public class DisplayTest {
                 testName,
                 assetDefinitionsDTO
         );
+
+        var ioMethods = readMethods((Object) ioModule.provide(IO_METHODS));
+        ioMethods.FIRST.forEach(a -> ACTIONS.put(a.id(), a));
+        ioMethods.SECOND.forEach(f -> FUNCTIONS.put(f.id(), f));
 
         var uiModule = new UIModule(
                 ioModule,

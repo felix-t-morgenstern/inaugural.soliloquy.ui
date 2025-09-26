@@ -3,6 +3,7 @@ package inaugural.soliloquy.ui.test.integration.display.readers.content.renderab
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.FontDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.FontStyleDefinitionDTO;
+import inaugural.soliloquy.io.api.dto.FontStyleDefinitionGlyphPropertyDTO;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
@@ -20,13 +21,21 @@ import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinitio
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
-    protected final static String TRAJAN_ID = "font";
-    protected final static String RELATIVE_LOCATION_TRAJAN =
-            "./src/test/resources/fonts/Trajan Pro Regular.ttf";
-    protected final static float MAX_LOSSLESS_FONT_SIZE_TRAJAN = 250f;
-    protected final static float ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_TRAJAN = 0.75f;
-    protected final static float ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN = 0.35f;
-    protected final static float LEADING_ADJUSTMENT_TRAJAN = 0f;
+    protected final static String CINZEL_ID = "cinzel";
+    protected final static String RELATIVE_LOCATION_CINZEL =
+            "./src/test/resources/fonts/Cinzel-VariableFont_wght.ttf";
+    protected final static float MAX_LOSSLESS_FONT_SIZE_CINZEL = 200f;
+    protected final static float ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL = 0.25f;
+    protected final static float ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL = 0.25f;
+    protected final static float LEADING_ADJUSTMENT_CINZEL = 0f;
+    protected final static FontStyleDefinitionGlyphPropertyDTO[] CINZEL_ITALIC_WIDTH_FACTORS =
+            arrayOf(
+                    new FontStyleDefinitionGlyphPropertyDTO('I', 0.965f),
+                    new FontStyleDefinitionGlyphPropertyDTO('W', 0.975f),
+                    new FontStyleDefinitionGlyphPropertyDTO('i', 0.965f),
+                    new FontStyleDefinitionGlyphPropertyDTO('w', 0.975f),
+                    new FontStyleDefinitionGlyphPropertyDTO('^', 0.975f)
+            );
 
     public static void main(String[] args) {
         new DisplayTest().runTest(
@@ -35,33 +44,37 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf(
                                 new FontDefinitionDTO(
-                                        TRAJAN_ID,
-                                        RELATIVE_LOCATION_TRAJAN,
-                                        MAX_LOSSLESS_FONT_SIZE_TRAJAN,
-                                        LEADING_ADJUSTMENT_TRAJAN,
+                                        CINZEL_ID,
+                                        RELATIVE_LOCATION_CINZEL,
+                                        MAX_LOSSLESS_FONT_SIZE_CINZEL,
+                                        LEADING_ADJUSTMENT_CINZEL,
                                         new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_TRAJAN,
+                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
                                                 arrayOf(),
                                                 arrayOf(),
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN
+                                                arrayOf(),
+                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
                                         ),
                                         new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_TRAJAN,
+                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
                                                 arrayOf(),
                                                 arrayOf(),
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN
+                                                CINZEL_ITALIC_WIDTH_FACTORS,
+                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
                                         ),
                                         new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_TRAJAN,
+                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
                                                 arrayOf(),
                                                 arrayOf(),
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN
+                                                arrayOf(),
+                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
                                         ),
                                         new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_TRAJAN,
+                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
                                                 arrayOf(),
                                                 arrayOf(),
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_TRAJAN
+                                                CINZEL_ITALIC_WIDTH_FACTORS,
+                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
                                         )
                                 )
                         ),
@@ -82,7 +95,7 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
                                                     Component topLevelComponent) {
         var text = "This is the text!";
         var def = textLine(
-                TRAJAN_ID,
+                CINZEL_ID,
                 staticVal(text),
                 staticVal(vertexOf(0.5f, 0.475f)),
                 staticVal(0.05f),

@@ -9,7 +9,7 @@ import inaugural.soliloquy.ui.UIModule;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.entities.Function;
 import soliloquy.specs.gamestate.entities.Setting;
-import soliloquy.specs.io.graphics.bootstrap.GraphicsCoreLoop;
+import soliloquy.specs.io.bootstrap.CoreLoop;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -20,6 +20,7 @@ import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 
 import java.awt.*;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -47,6 +48,12 @@ public class DisplayTest {
 
     @SuppressWarnings("rawtypes") private final Map<String, Action> ACTIONS;
     @SuppressWarnings("rawtypes") private final Map<String, Function> FUNCTIONS;
+
+    private final static Set<String> AUDIO_DIR_RELATIVE_PATHS = setOf(
+            "\\src\\test\\resources\\sounds\\ui\\button\\"
+    );
+    protected final static String PRESS_SOUND_ID = "pressSoundId";
+    protected final static String RELEASE_SOUND_ID = "releaseSoundId";
 
     public Component topLevelComponent;
 
@@ -107,7 +114,9 @@ public class DisplayTest {
                 STARTING_WINDOW_RESOLUTION_ID,
                 generateMockSetting(DEFAULT_RES),
                 DEFAULT_FONT_COLOR_ID,
-                generateMockSetting(Color.WHITE)
+                generateMockSetting(Color.WHITE),
+                AUDIO_RELATIVE_DIRS_ID,
+                AUDIO_DIR_RELATIVE_PATHS
         );
 
         var ioModule = new IOModule(
@@ -117,6 +126,14 @@ public class DisplayTest {
                 FUNCTIONS::get,
                 listOf(),
                 testName,
+                mapOf(
+                        "JDSherbert - Ultimate UI SFX Pack - Cursor - 5.wav",
+                        PRESS_SOUND_ID,
+                        "JDSherbert - Ultimate UI SFX Pack - Select - 1.wav",
+                        RELEASE_SOUND_ID
+                ),
+                mapOf(),
+                mapOf(),
                 assetDefinitionsDTO
         );
 
@@ -129,7 +146,7 @@ public class DisplayTest {
                 ACTIONS::get
         );
 
-        var coreLoop = ioModule.provide(GraphicsCoreLoop.class);
+        var coreLoop = ioModule.provide(CoreLoop.class);
 
         var frameTimer = ioModule.provide(FrameTimer.class);
         frameTimer.setTargetFps(null);

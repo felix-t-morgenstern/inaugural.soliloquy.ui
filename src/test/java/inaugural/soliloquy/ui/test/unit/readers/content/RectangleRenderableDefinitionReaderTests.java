@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -14,8 +15,7 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
-import static inaugural.soliloquy.tools.random.Random.randomInt;
-import static inaugural.soliloquy.tools.random.Random.randomLong;
+import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -26,6 +26,15 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 @ExtendWith(MockitoExtension.class)
 public class RectangleRenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     private final long TIMESTAMP = randomLong();
+
+    @SuppressWarnings("unchecked")
+    @Mock ProviderAtTime<Color> mockTopLeftColor = mock(ProviderAtTime.class);
+    @SuppressWarnings("unchecked")
+    @Mock ProviderAtTime<Color> mockTopRightColor = mock(ProviderAtTime.class);
+    @SuppressWarnings("unchecked")
+    @Mock ProviderAtTime<Color> mockBottomLeftColor = mock(ProviderAtTime.class);
+    @SuppressWarnings("unchecked")
+    @Mock ProviderAtTime<Color> mockBottomRightColor = mock(ProviderAtTime.class);
 
     @Mock private RectangleRenderable mockRenderable;
     @Mock private RectangleRenderableFactory mockFactory;
@@ -61,7 +70,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
     }
 
     @Test
-    public void testRead() {
+    public void testReadWithFullArgsAndProviderDefs() {
         @SuppressWarnings("unchecked") var topLeftColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var topRightColorDefinition =
@@ -70,23 +79,15 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings("unchecked") var bottomRightColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings("unchecked") var topLeftColor =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var topRightColor =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var bottomLeftColor =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") var bottomRightColor =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
 
         when(mockProviderDefinitionReader.read(same(topLeftColorDefinition), anyLong())).thenReturn(
-                topLeftColor);
+                mockTopLeftColor);
         when(mockProviderDefinitionReader.read(same(topRightColorDefinition),
-                anyLong())).thenReturn(topRightColor);
+                anyLong())).thenReturn(mockTopRightColor);
         when(mockProviderDefinitionReader.read(same(bottomLeftColorDefinition),
-                anyLong())).thenReturn(bottomLeftColor);
+                anyLong())).thenReturn(mockBottomLeftColor);
         when(mockProviderDefinitionReader.read(same(bottomRightColorDefinition),
-                anyLong())).thenReturn(bottomRightColor);
+                anyLong())).thenReturn(mockBottomRightColor);
 
         var definition = rectangle(mockAreaProviderDefinition, Z)
                 .withColors(
@@ -131,8 +132,8 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_LEAVE_ID);
         //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(topLeftColor), same(topRightColor),
-                same(bottomLeftColor), same(bottomRightColor),
+                same(mockTopLeftColor), same(mockTopRightColor),
+                same(mockBottomLeftColor), same(mockBottomRightColor),
                 same(mockTextureIdProvider), same(mockTextureWidthProvider), same(
                         mockTextureHeightProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
@@ -170,6 +171,72 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
     }
 
     @Test
+    public void testReadFromDimensProvider() {
+        var definition = rectangle(mockAreaProvider, Z);
+
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
+
+        assertNotNull(renderable);
+        assertSame(mockRenderable, renderable);
+        verify(mockProviderDefinitionReader, never()).read(same(mockAreaProviderDefinition), anyLong());
+        verify(mockRenderable, never()).setCapturesMouseEvents(anyBoolean());
+        verify(mockFactory, once()).make(
+                any(), any(),
+                any(), any(),
+                any(), any(), any(),
+                any(), any(),
+                isNull(), isNull(),
+                same(mockAreaProvider),
+                anyInt(),
+                isNotNull(),
+                any());
+    }
+
+    @Test
+    public void testReadWithTexIdProvider() {
+        var definition = rectangle(mockAreaProviderDefinition, Z)
+                .withTexture(mockTextureIdProvider, randomFloat(), randomFloat());
+
+        reader.read(mockComponent, definition, TIMESTAMP);
+
+        //noinspection unchecked
+        verify(mockFactory, once()).make(
+                same(mockNullProvider), same(mockNullProvider),
+                same(mockNullProvider), same(mockNullProvider),
+                same(mockTextureIdProvider), any(), any(),
+                eq(mapOf()), eq(mapOf()),
+                isNull(), isNull(),
+                same(mockAreaProvider),
+                eq(Z),
+                isNotNull(),
+                same(mockComponent));
+    }
+
+    @Test
+    public void testReadWithColorProviders() {
+        var definition = rectangle(mockAreaProviderDefinition, Z)
+                .withColors(
+                        mockTopLeftColor,
+                        mockTopRightColor,
+                        mockBottomLeftColor,
+                        mockBottomRightColor
+                );
+
+        reader.read(mockComponent, definition, TIMESTAMP);
+
+        verify(mockFactory, once()).make(
+                same(mockTopLeftColor), same(mockTopRightColor),
+                same(mockBottomLeftColor), same(mockBottomRightColor),
+                any(), any(), any(),
+                anyMap(), anyMap(),
+                isNull(), isNull(),
+                any(),
+                anyInt(),
+                isNotNull(),
+                any());
+    }
+
+    @Test
     public void testReadWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> reader.read(null, rectangle(mockAreaProviderDefinition, randomInt()),
@@ -177,6 +244,11 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         assertThrows(IllegalArgumentException.class,
                 () -> reader.read(mockComponent, null, TIMESTAMP));
         assertThrows(IllegalArgumentException.class,
-                () -> reader.read(mockComponent, rectangle(null, randomInt()), TIMESTAMP));
+                () -> reader.read(mockComponent,
+                        rectangle((AbstractProviderDefinition<FloatBox>) null, randomInt()),
+                        TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(mockComponent,
+                        rectangle((ProviderAtTime<FloatBox>) null, randomInt()), TIMESTAMP));
     }
 }

@@ -10,11 +10,13 @@ import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.io.api.Constants.WHOLE_SCREEN;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
+import static inaugural.soliloquy.tools.collections.Collections.setOf;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
 
-public class ComponentDefinitionReaderDisplayTest extends SpriteRenderableDefinitionReaderDisplayTest {
+public class ComponentDefinitionReaderDisplayTest
+        extends SpriteRenderableDefinitionReaderDisplayTest {
     private final static String SWORD_SPRITE_ID = "swordSpriteId";
 
     public static void main(String[] args) {
@@ -26,9 +28,11 @@ public class ComponentDefinitionReaderDisplayTest extends SpriteRenderableDefini
                         ),
                         arrayOf(),
                         arrayOf(
-                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
+                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID,
+                                        RPG_WEAPONS_RELATIVE_LOCATION,
                                         266, 271, 313, 343),
-                                new SpriteDefinitionDTO(SWORD_SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
+                                new SpriteDefinitionDTO(SWORD_SPRITE_ID,
+                                        RPG_WEAPONS_RELATIVE_LOCATION,
                                         208, 32, 227, 105)
                         ),
                         arrayOf(),
@@ -47,7 +51,7 @@ public class ComponentDefinitionReaderDisplayTest extends SpriteRenderableDefini
                                                     Component topLevelComponent) {
         var shieldSpriteDef = sprite(SHIELD_SPRITE_ID, floatBoxOf(0.35f, 0.25f, 0.65f, 0.75f), 1);
         var swordSpriteDef = sprite(SWORD_SPRITE_ID, floatBoxOf(0.45f, 0f, 0.55f, 1f), 0);
-        var definition = component(0, WHOLE_SCREEN, shieldSpriteDef, swordSpriteDef);
+        var definition = component(0, WHOLE_SCREEN, setOf(shieldSpriteDef, swordSpriteDef));
         var reader = uiModule.provide(RenderableDefinitionReader.class);
         reader.read(topLevelComponent, definition, timestamp(uiModule));
     }

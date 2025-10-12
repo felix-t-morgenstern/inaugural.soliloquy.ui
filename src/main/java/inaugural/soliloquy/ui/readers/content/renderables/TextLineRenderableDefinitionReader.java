@@ -13,9 +13,13 @@ import soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 
 public class TextLineRenderableDefinitionReader extends AbstractContentDefinitionReader {
     private final TextLineRenderableFactory FACTORY;
@@ -37,18 +41,22 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
         var font = GET_FONT.apply(definition.FONT_ID);
 
         var text = PROVIDER_READER.read(definition.TEXT_PROVIDER, timestamp);
-        var location = PROVIDER_READER.read(definition.LOCATION_PROVIDER, timestamp);
+        var location = defaultIfNull(definition.LOCATION_PROVIDER,
+                PROVIDER_READER.read(definition.LOCATION_PROVIDER_DEF, timestamp));
         var height = PROVIDER_READER.read(definition.HEIGHT_PROVIDER, timestamp);
 
-        var colors = Collections.<Integer, ProviderAtTime<Color>>mapOf();
-        if (definition.colorProviderIndices != null) {
-            Arrays.stream(definition.colorProviderIndices)
-                    .forEach(c -> colors.put(c.FIRST, PROVIDER_READER.read(c.SECOND, timestamp)));
-        }
-        var italics = definition.italicIndices == null ? Collections.<Integer>listOf() :
-                Arrays.stream(definition.italicIndices).boxed().collect(Collectors.toList());
-        var bolds = definition.boldIndices == null ? Collections.<Integer>listOf() :
-                Arrays.stream(definition.boldIndices).boxed().collect(Collectors.toList());
+        Map<Integer, ProviderAtTime<Color>> colors = defaultIfNull(
+                definition.colorProviderIndices,
+                definition.colorProviderIndicesDefs != null ?
+                        definition.colorProviderIndicesDefs.entrySet().stream().collect(
+                                Collectors.toMap(Map.Entry::getKey,
+                                        e -> PROVIDER_READER.read(e.getValue(), timestamp))) :
+                        mapOf()
+        );
+        var italics = defaultIfNull(definition.italicIndices, Collections.<Integer>listOf(),
+                i -> Arrays.stream(i).boxed().collect(Collectors.toList()));
+        var bolds = defaultIfNull(definition.boldIndices, Collections.<Integer>listOf(),
+                i -> Arrays.stream(i).boxed().collect(Collectors.toList()));
 
         var borderThickness = provider(definition.borderThicknessProvider, timestamp);
         var borderColor = provider(definition.borderColorProvider, timestamp);

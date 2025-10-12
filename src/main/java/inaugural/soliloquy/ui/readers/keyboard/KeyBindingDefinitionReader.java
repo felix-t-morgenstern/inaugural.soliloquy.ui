@@ -2,13 +2,13 @@ package inaugural.soliloquy.ui.readers.keyboard;
 
 import inaugural.soliloquy.tools.Check;
 import soliloquy.specs.common.entities.Action;
-import soliloquy.specs.io.input.keyboard.entities.KeyBinding;
+import soliloquy.specs.io.input.keyboard.KeyBinding;
 import soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition;
-import soliloquy.specs.ui.definitions.keyboard.KeyEventInfo;
 
 import java.util.function.Function;
 
-import static soliloquy.specs.io.input.keyboard.entities.KeyBinding.keyBinding;
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static soliloquy.specs.io.input.keyboard.KeyBinding.keyBinding;
 
 public class KeyBindingDefinitionReader {
     @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
@@ -20,13 +20,10 @@ public class KeyBindingDefinitionReader {
     }
 
     public KeyBinding read(KeyBindingDefinition definition) {
-        @SuppressWarnings("unchecked") Action<KeyEventInfo> onPress =
-                definition.PRESS_ACTION_ID == null ? null :
-                        GET_ACTION.apply(definition.PRESS_ACTION_ID);
-        @SuppressWarnings("unchecked") Action<KeyEventInfo> onRelease =
-                definition.RELEASE_ACTION_ID == null ? null :
-                        GET_ACTION.apply(definition.RELEASE_ACTION_ID);
+        var onPress = defaultIfNull(definition.PRESS_ACTION_ID, null, GET_ACTION);
+        var onRelease = defaultIfNull(definition.RELEASE_ACTION_ID, null, GET_ACTION);
 
-        return keyBinding(definition.CHARS, onPress, onRelease);
+        //noinspection unchecked
+        return keyBinding(definition.KEYS, onPress, onRelease);
     }
 }

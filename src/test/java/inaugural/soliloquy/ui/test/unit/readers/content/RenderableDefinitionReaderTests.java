@@ -6,26 +6,33 @@ import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.*;
 import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
+import soliloquy.specs.io.input.keyboard.KeyBinding;
 import soliloquy.specs.ui.definitions.content.*;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
+import java.util.Set;
+import java.util.function.Function;
+
+import static inaugural.soliloquy.tools.collections.Collections.arrayChars;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
+import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
 
 @ExtendWith(MockitoExtension.class)
-public class RenderableDefinitionReaderTests {
+public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
+    private final int Z = randomInt();
     private final long TIMESTAMP = randomLong();
 
     @Mock private RasterizedLineSegmentRenderableDefinition mockRasterizedLineDefinition;
@@ -56,8 +63,15 @@ public class RenderableDefinitionReaderTests {
     @Mock private FiniteAnimationRenderable mockFiniteAnimationRenderable;
     @Mock private TextLineRenderable mockTextLineRenderable;
     @Mock private Component mockComponent;
+    @Mock private AbstractContentDefinition mockCustomDef;
+    @Mock private Function<AbstractContentDefinition, ComponentDefinition> mockCustomReader;
+    @SuppressWarnings("rawtypes") @Mock
+    private Function<Class, Function<AbstractContentDefinition, ComponentDefinition>>
+            mockComponentReaders;
 
-    @Mock private AbstractProviderDefinition<FloatBox> mockComponentDimensDefinition;
+    @Mock private ProviderAtTime<FloatBox> mockWholeScreenProvider;
+
+    @Mock private AbstractProviderDefinition<FloatBox> mockComponentDimensDef;
     @Mock private ProviderDefinitionReader mockProviderReader;
     @Mock private ProviderAtTime<FloatBox> mockComponentDimens;
 
@@ -71,19 +85,23 @@ public class RenderableDefinitionReaderTests {
                 .thenReturn(mockRasterizedLineRenderable);
         lenient().when(mockAntialiasedLineReader.read(any(), any(), anyLong()))
                 .thenReturn(mockAntialiasedLineRenderable);
-        lenient().when(mockRectangleReader.read(any(), any(), anyLong())).thenReturn(mockRectangleRenderable);
-        lenient().when(mockTriangleReader.read(any(), any(), anyLong())).thenReturn(mockTriangleRenderable);
-        lenient().when(mockSpriteReader.read(any(), any(), anyLong())).thenReturn(mockSpriteRenderable);
+        lenient().when(mockRectangleReader.read(any(), any(), anyLong()))
+                .thenReturn(mockRectangleRenderable);
+        lenient().when(mockTriangleReader.read(any(), any(), anyLong()))
+                .thenReturn(mockTriangleRenderable);
+        lenient().when(mockSpriteReader.read(any(), any(), anyLong()))
+                .thenReturn(mockSpriteRenderable);
         lenient().when(mockImageAssetSetReader.read(any(), any(), anyLong()))
                 .thenReturn(mockImageAssetSetRenderable);
         lenient().when(mockFiniteAnimationReader.read(any(), any(), anyLong()))
                 .thenReturn(mockFiniteAnimationRenderable);
-        lenient().when(mockTextLineReader.read(any(), any(), anyLong())).thenReturn(mockTextLineRenderable);
+        lenient().when(mockTextLineReader.read(any(), any(), anyLong()))
+                .thenReturn(mockTextLineRenderable);
 
-        lenient().when(mockComponentFactory.make(any(), anyInt(), any(), any(), any()))
-                .thenReturn(mockComponent);
+        lenient().when(mockComponentFactory.make(any(), anyInt(), any(), anyBoolean(), any(), any(),
+                any())).thenReturn(mockComponent);
 
-        lenient().when(mockProviderReader.read(same(mockComponentDimensDefinition), anyLong()))
+        lenient().when(mockProviderReader.read(same(mockComponentDimensDef), anyLong()))
                 .thenReturn(mockComponentDimens);
 
         reader = new RenderableDefinitionReader(
@@ -96,7 +114,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         );
     }
 
@@ -112,7 +132,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -124,7 +146,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -136,7 +160,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -148,7 +174,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -160,7 +188,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -172,7 +202,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -184,7 +216,9 @@ public class RenderableDefinitionReaderTests {
                 null,
                 mockTextLineReader,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -196,7 +230,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 null,
                 mockComponentFactory,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -208,7 +244,9 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 null,
-                mockProviderReader
+                mockProviderReader,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
         ));
         assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -220,6 +258,36 @@ public class RenderableDefinitionReaderTests {
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
+                null,
+                MOCK_GET_ACTION,
+                mockWholeScreenProvider
+        ));
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
+                mockRasterizedLineReader,
+                mockAntialiasedLineReader,
+                mockRectangleReader,
+                mockTriangleReader,
+                mockSpriteReader,
+                mockImageAssetSetReader,
+                mockFiniteAnimationReader,
+                mockTextLineReader,
+                mockComponentFactory,
+                mockProviderReader,
+                null,
+                mockWholeScreenProvider
+        ));
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
+                mockRasterizedLineReader,
+                mockAntialiasedLineReader,
+                mockRectangleReader,
+                mockTriangleReader,
+                mockSpriteReader,
+                mockImageAssetSetReader,
+                mockFiniteAnimationReader,
+                mockTextLineReader,
+                mockComponentFactory,
+                mockProviderReader,
+                MOCK_GET_ACTION,
                 null
         ));
     }
@@ -321,27 +389,49 @@ public class RenderableDefinitionReaderTests {
     }
 
     @Test
-    public void testReadComponentDefinition() {
-        var z = randomInt();
-        var key = randomString();
-        var val = randomInt();
-        var data = Collections.<String, Object>mapOf(key, val);
-        var componentDefinition = component(
-                z,
-                mockComponentDimensDefinition,
-                mockRasterizedLineDefinition
-        ).withData(data);
+    public void testReadComponentDefinitionWithFullArgsAndDimensProviderDef() {
+        var key = randomChar();
+        var overrides = randomBoolean();
+        var dataKey = randomString();
+        var dataVal = randomInt();
+        var data = Collections.<String, Object>mapOf(dataKey, dataVal);
+        var definition = component(Z, mockComponentDimensDef)
+                .withContent(mockRasterizedLineDefinition)
+                .withBindings(
+                        overrides,
+                        binding(
+                                ON_PRESS_ID,
+                                ON_RELEASE_ID,
+                                key
+                        )
+                )
+                .withData(data);
 
-        var output = reader.read(mockContainingComponent, componentDefinition, TIMESTAMP);
+        var output = reader.read(mockContainingComponent, definition, TIMESTAMP);
 
         assertSame(mockComponent, output);
+        var bindingsCaptor = ArgumentCaptor.forClass(Set.class);
+        //noinspection unchecked
         verify(mockComponentFactory, once()).make(
                 isNotNull(),
-                eq(z),
+                eq(Z),
+                bindingsCaptor.capture(),
+                eq(overrides),
                 same(mockComponentDimens),
                 same(mockContainingComponent),
                 eq(data)
         );
+        @SuppressWarnings("unchecked") var bindings = (Set<KeyBinding>) bindingsCaptor.getValue();
+        assertEquals(1, bindings.size());
+        @SuppressWarnings("OptionalGetWithoutIsPresent") var binding =
+                bindings.stream().findFirst().get();
+        assertArrayEquals(arrayChars(key), binding.BOUND_KEYS);
+        assertSame(MOCK_ON_PRESS, binding.ON_PRESS);
+        assertSame(MOCK_ON_RELEASE, binding.ON_RELEASE);
+        verify(MOCK_GET_ACTION, times(2)).apply(anyString());
+        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
+
         verify(mockRasterizedLineReader, once()).read(
                 same((Component) output),
                 same(mockRasterizedLineDefinition),
@@ -351,19 +441,116 @@ public class RenderableDefinitionReaderTests {
 
     @Test
     public void testReadComponentDefinitionWithMinimalArgs() {
-        var z = randomInt();
-        var componentDefinition = component(z, mockComponentDimensDefinition);
+        var definition = component(Z, mockComponentDimensDef);
+
+        var output = reader.read(mockContainingComponent, definition, TIMESTAMP);
+
+        assertSame(mockComponent, output);
+        var bindingsCaptor = ArgumentCaptor.forClass(Set.class);
+        //noinspection unchecked
+        verify(mockComponentFactory, once()).make(
+                isNotNull(),
+                eq(Z),
+                bindingsCaptor.capture(),
+                eq(false),
+                same(mockComponentDimens),
+                same(mockContainingComponent),
+                eq(mapOf())
+        );
+        @SuppressWarnings("unchecked") var bindings = (Set<KeyBinding>) bindingsCaptor.getValue();
+        assertTrue(bindings.isEmpty());
+        verify(MOCK_GET_ACTION, never()).apply(anyString());
+    }
+
+    @Test
+    public void testReadComponentDefinitionWithDimensProvider() {
+        var componentDefinition = component(Z, mockComponentDimens);
 
         var output = reader.read(mockContainingComponent, componentDefinition, TIMESTAMP);
 
         assertSame(mockComponent, output);
         verify(mockComponentFactory, once()).make(
                 isNotNull(),
-                eq(z),
+                eq(Z),
+                any(),
+                eq(false),
                 same(mockComponentDimens),
                 same(mockContainingComponent),
                 eq(mapOf())
         );
+    }
+
+    @Test
+    public void testReadComponentDefinitionWithNoDimens() {
+        var definition = component(Z);
+
+        var output = reader.read(mockContainingComponent, definition, TIMESTAMP);
+
+        assertSame(mockComponent, output);
+        verify(mockComponentFactory, once()).make(
+                isNotNull(),
+                anyInt(),
+                any(),
+                anyBoolean(),
+                same(mockWholeScreenProvider),
+                any(),
+                anyMap()
+        );
+    }
+
+    @Test
+    public void testRead() {
+        var key = randomChar();
+        var overrides = randomBoolean();
+        var dataKey = randomString();
+        var dataVal = randomInt();
+        var data = Collections.<String, Object>mapOf(dataKey, dataVal);
+        var componentDef = component(Z, mockComponentDimensDef)
+                .withContent(mockRasterizedLineDefinition)
+                .withBindings(
+                        overrides,
+                        binding(
+                                ON_PRESS_ID,
+                                ON_RELEASE_ID,
+                                key
+                        )
+                )
+                .withData(data);
+        when(mockCustomReader.apply(any())).thenReturn(componentDef);
+
+        reader.addCustomComponentReader(mockCustomDef.getClass(), mockCustomReader);
+        var output = reader.read(mockContainingComponent, mockCustomDef, TIMESTAMP);
+
+        assertSame(mockComponent, output);
+        var bindingsCaptor = ArgumentCaptor.forClass(Set.class);
+        //noinspection unchecked
+        verify(mockComponentFactory, once()).make(
+                isNotNull(),
+                eq(Z),
+                bindingsCaptor.capture(),
+                eq(overrides),
+                same(mockComponentDimens),
+                same(mockContainingComponent),
+                eq(data)
+        );
+        @SuppressWarnings("unchecked") var bindings = (Set<KeyBinding>) bindingsCaptor.getValue();
+        assertEquals(1, bindings.size());
+        @SuppressWarnings("OptionalGetWithoutIsPresent") var binding =
+                bindings.stream().findFirst().get();
+        assertArrayEquals(arrayChars(key), binding.BOUND_KEYS);
+        assertSame(MOCK_ON_PRESS, binding.ON_PRESS);
+        assertSame(MOCK_ON_RELEASE, binding.ON_RELEASE);
+        verify(MOCK_GET_ACTION, times(2)).apply(anyString());
+        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
+
+        verify(mockRasterizedLineReader, once()).read(
+                same((Component) output),
+                same(mockRasterizedLineDefinition),
+                eq(TIMESTAMP)
+        );
+
+        verify(mockCustomReader, once()).apply(mockCustomDef);
     }
 
     @Test
@@ -375,5 +562,13 @@ public class RenderableDefinitionReaderTests {
         assertThrows(IllegalArgumentException.class,
                 () -> reader.read(mockContainingComponent, mock(AbstractContentDefinition.class),
                         TIMESTAMP));
+    }
+
+    @Test
+    public void testAddCustomComponentReaderWithInvalidArgs() {
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.addCustomComponentReader(null, _ -> null));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.addCustomComponentReader(AbstractContentDefinition.class, null));
     }
 }

@@ -7,7 +7,9 @@ import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 
 import java.util.UUID;
 
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static java.util.UUID.randomUUID;
 
 public class FunctionalProviderDefinitionReader {
     private final FunctionalProviderFactory FACTORY;
@@ -18,12 +20,12 @@ public class FunctionalProviderDefinitionReader {
 
     public <T> ProviderAtTime<T> read(FunctionalProviderDefinition<T> definition) {
         return FACTORY.make(
-                definition.uuid == null ? UUID.randomUUID() : definition.uuid,
+                defaultIfNull(definition.uuid, randomUUID()),
                 definition.PROVIDE_FUNCTION_ID,
                 definition.pauseActionId,
                 definition.unpauseActionId,
                 definition.pauseTimestamp,
-                definition.data == null ? mapOf() : definition.data
+                defaultIfNull(definition.data, mapOf())
         );
     }
 }

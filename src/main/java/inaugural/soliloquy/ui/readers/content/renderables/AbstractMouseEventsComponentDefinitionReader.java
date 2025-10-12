@@ -11,6 +11,8 @@ import soliloquy.specs.ui.EventInputs;
 import java.util.Map;
 import java.util.function.Function;
 
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+
 public abstract class AbstractMouseEventsComponentDefinitionReader extends
         AbstractContentDefinitionReader {
     @SuppressWarnings("rawtypes") protected final Function<String, Action> GET_ACTION;
@@ -25,7 +27,7 @@ public abstract class AbstractMouseEventsComponentDefinitionReader extends
 
     protected Action<EventInputs> getAction(String id) {
         //noinspection unchecked
-        return id == null ? null : GET_ACTION.apply(id);
+        return defaultIfNull(id, null, GET_ACTION);
     }
 
     protected Map<Integer, Action<EventInputs>> getActionPerButton(Map<Integer, String> ids) {

@@ -10,6 +10,8 @@ import soliloquy.specs.ui.definitions.content.RasterizedLineSegmentRenderableDef
 
 import java.util.UUID;
 
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+
 public class RasterizedLineSegmentRenderableDefinitionReader
         extends AbstractContentDefinitionReader {
     private final RasterizedLineSegmentRenderableFactory FACTORY;
@@ -41,10 +43,8 @@ public class RasterizedLineSegmentRenderableDefinitionReader
         var thickness = PROVIDER_READER.read(
                 Check.ifNull(definition.THICKNESS_PROVIDER, "definition.THICKNESS_PROVIDER"),
                 timestamp);
-        Short stipplePattern = definition.stipplePattern == null ? null :
-                definition.stipplePattern;
-        short stippleFactor = definition.stippleFactor == null ? DEFAULT_STIPPLE_FACTOR :
-                definition.stippleFactor;
+        var stipplePattern = definition.stipplePattern;
+        var stippleFactor = defaultIfNull(definition.stippleFactor, DEFAULT_STIPPLE_FACTOR);
         var color = PROVIDER_READER.read(
                 Check.ifNull(definition.COLOR_PROVIDER, "definition.COLOR_PROVIDER"), timestamp);
 

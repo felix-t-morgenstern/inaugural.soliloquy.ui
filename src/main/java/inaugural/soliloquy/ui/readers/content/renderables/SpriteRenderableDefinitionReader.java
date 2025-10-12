@@ -1,5 +1,6 @@
 package inaugural.soliloquy.ui.readers.content.renderables;
 
+import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 
 public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefinitionReader {
@@ -41,21 +43,29 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
                                  long timestamp) {
         var sprite = GET_SPRITE.apply(definition.SPRITE_ID);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER, timestamp);
+        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER_DEF, timestamp);
 
-        var borderThickness = provider(definition.borderThicknessProvider, timestamp);
-        var borderColor = provider(definition.borderColorProvider, timestamp);
+        var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
+        var borderColor = provider(definition.borderColorProviderDef, timestamp);
 
-        List<ColorShift> colorShifts = definition.colorShifts == null ? listOf() :
-                Arrays.stream(definition.colorShifts)
-                        .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList();
+        List<ColorShift> colorShifts = defaultIfNull(definition.colorShiftDefs, listOf(),
+                c -> Arrays.stream(c).map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp))
+                        .toList());
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);
         var onMouseOver = getAction(definition.onMouseOverId);
         var onMouseLeave = getAction(definition.onMouseLeaveId);
 
-        return FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease, onMouseOver,
-                onMouseLeave, colorShifts, dimensions, definition.Z, UUID.randomUUID(), component);
+        var renderable = FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease, onMouseOver, onMouseLeave, colorShifts, dimensions, definition.Z, UUID.randomUUID(), component);
+        if (
+                (definition.onPressIds != null && !definition.onPressIds.isEmpty()) ||
+                        (definition.onReleaseIds != null && !definition.onReleaseIds.isEmpty()) ||
+                        !Strings.isNullOrEmpty(definition.onMouseOverId) ||
+                        !Strings.isNullOrEmpty(definition.onMouseLeaveId)
+        ) {
+            renderable.setCapturesMouseEvents(true);
+        }
+        return renderable;
     }
 }

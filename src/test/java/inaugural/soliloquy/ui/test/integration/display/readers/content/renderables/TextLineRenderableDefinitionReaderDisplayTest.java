@@ -4,18 +4,18 @@ import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.FontDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.FontStyleDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.FontStyleDefinitionGlyphPropertyDTO;
+import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
-import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TextJustification;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
+import java.util.Map;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
@@ -103,7 +103,7 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 0f,
                 0
         )
-                .withColors(rainbowGradient(text))
+                .withColorDefs(rainbowGradient(text))
                 .withItalics(5, 7, 12)
                 .withBold(0, 4, 12)
                 .withBorder(
@@ -122,16 +122,15 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static Pair<Integer, AbstractProviderDefinition<Color>>[] rainbowGradient(
+    private static Map<Integer, AbstractProviderDefinition<Color>> rainbowGradient(
             String lineText) {
-        var rainbowGradient = listOf();
+        var rainbowGradient = Collections.<Integer, AbstractProviderDefinition<Color>>mapOf();
 
         var degreePerLetter = 360f / lineText.length();
         for (var i = 0; i < lineText.length(); i++) {
-            rainbowGradient.add(pairOf(i, staticVal(colorAtDegree((float) i * degreePerLetter))));
+            rainbowGradient.put(i, staticVal(colorAtDegree((float) i * degreePerLetter)));
         }
-        //noinspection SuspiciousToArrayCall,unchecked
-        return rainbowGradient.toArray(Pair[]::new);
+        return rainbowGradient;
     }
 
     private static Color colorAtDegree(float degree) {

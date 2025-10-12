@@ -1,15 +1,28 @@
 package inaugural.soliloquy.ui.readers.content.renderables;
 
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.content.AbstractContentDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
+import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.Renderable;
 import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.*;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.setOf;
 import static java.util.UUID.randomUUID;
+import static soliloquy.specs.io.input.keyboard.KeyBinding.keyBinding;
 
 public class RenderableDefinitionReader extends AbstractContentDefinitionReader {
     private final RasterizedLineSegmentRenderableDefinitionReader RASTERIZED_LINE_READER;
@@ -23,6 +36,12 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
 
     private final ComponentFactory COMPONENT_FACTORY;
 
+    @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
+    @SuppressWarnings("rawtypes")
+    private final Map<Class, Function<AbstractContentDefinition, ComponentDefinition>>
+            CUSTOM_READERS;
+    private final ProviderAtTime<FloatBox> WHOLE_SCREEN_PROVIDER;
+
     public RenderableDefinitionReader(
             RasterizedLineSegmentRenderableDefinitionReader rasterizedLineReader,
             AntialiasedLineSegmentRenderableDefinitionReader antialiasedLineReader,
@@ -33,7 +52,9 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             FiniteAnimationRenderableDefinitionReader finiteAnimationReader,
             TextLineRenderableDefinitionReader textLineReader,
             ComponentFactory componentFactory,
-            ProviderDefinitionReader providerReader) {
+            ProviderDefinitionReader providerReader,
+            @SuppressWarnings("rawtypes") Function<String, Action> getAction,
+            ProviderAtTime<FloatBox> wholeScreenProvider) {
         super(providerReader);
         RASTERIZED_LINE_READER = Check.ifNull(rasterizedLineReader, "rasterizedLineReader");
         ANTIALIASED_LINE_READER = Check.ifNull(antialiasedLineReader, "antialiasedLineReader");
@@ -44,6 +65,9 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         FINITE_ANIMATION_READER = Check.ifNull(finiteAnimationReader, "finiteAnimationReader");
         TEXT_LINE_READER = Check.ifNull(textLineReader, "textLineReader");
         COMPONENT_FACTORY = Check.ifNull(componentFactory, "componentFactory");
+        GET_ACTION = Check.ifNull(getAction, "getAction");
+        CUSTOM_READERS = mapOf();
+        WHOLE_SCREEN_PROVIDER = Check.ifNull(wholeScreenProvider, "wholeScreenProvider");
     }
 
     public <TDef extends AbstractContentDefinition, TRend extends Renderable> TRend read(
@@ -78,23 +102,60 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             case TextLineRenderableDefinition d ->
                 //noinspection unchecked
                     (TRend) TEXT_LINE_READER.read(containingComponent, d, timestamp);
-            case ComponentDefinition d -> {
-                var readComponent = COMPONENT_FACTORY.make(
-                        randomUUID(),
-                        d.Z,
-                        PROVIDER_READER.read(d.DIMENSIONS_PROVIDER, timestamp),
-                        containingComponent,
-                        d.data == null ? mapOf() : mapOf(d.data)
-                );
-                for (var contentDef : d.CONTENT) {
-                    read(readComponent, contentDef, timestamp);
-                }
-                //noinspection unchecked
-                yield (TRend) readComponent;
-            }
-            default -> throw new IllegalArgumentException(
+            case ComponentDefinition d -> readComponentDef(d, containingComponent, timestamp);
+            default -> //noinspection unchecked
+                    (TRend) readCustomDef(definition, containingComponent, timestamp);
+        };
+    }
+
+    private <T extends AbstractContentDefinition> Component readCustomDef(
+            T definition,
+            Component containingComponent,
+            long timestamp
+    ) {
+        var reader = CUSTOM_READERS.get(definition.getClass());
+        if (reader == null) {
+            throw new IllegalArgumentException(
                     "ContentDefinitionReader.read: Unexpected definition type (" +
                             definition.getClass().getCanonicalName() + ")");
-        };
+        }
+        var componentDef = reader.apply(definition);
+        return readComponentDef(componentDef, containingComponent, timestamp);
+    }
+
+    private <T extends Component> T readComponentDef(
+            ComponentDefinition d,
+            Component containingComponent,
+            long timestamp
+    ) {
+        @SuppressWarnings("unchecked") var readComponent = COMPONENT_FACTORY.make(
+                randomUUID(),
+                d.Z,
+                defaultIfNull(d.bindings, setOf(), bindings -> Arrays.stream(bindings)
+                        .map(binding -> keyBinding(
+                                binding.KEYS,
+                                GET_ACTION.apply(binding.PRESS_ACTION_ID),
+                                GET_ACTION.apply(binding.RELEASE_ACTION_ID)))
+                        .collect(Collectors.toSet())),
+                falseIfNull(d.blocksLowerBindings),
+                d.DIMENSIONS_PROVIDER != null ? d.DIMENSIONS_PROVIDER :
+                        d.DIMENSIONS_PROVIDER_DEF != null ?
+                                PROVIDER_READER.read(d.DIMENSIONS_PROVIDER_DEF, timestamp) :
+                                WHOLE_SCREEN_PROVIDER,
+                containingComponent,
+                defaultIfNull(d.data, mapOf(), Collections::mapOf)
+        );
+        for (var contentDef : d.CONTENT) {
+            read(readComponent, contentDef, timestamp);
+        }
+        //noinspection unchecked
+        return (T) readComponent;
+    }
+
+    public <T extends AbstractContentDefinition> void addCustomComponentReader(
+            Class<T> aClass,
+            Function<AbstractContentDefinition, ComponentDefinition> reader
+    ) {
+        CUSTOM_READERS.put(Check.ifNull(aClass, "aClass"), Check.ifNull(reader, "reader"));
     }
 }

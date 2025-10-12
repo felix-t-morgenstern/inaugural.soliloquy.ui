@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 
 public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAssetDefinitionReader {
@@ -41,14 +42,14 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
                                           long timestamp) {
         var animation = GET_ANIMATION.apply(definition.ANIMATION_ID);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER, timestamp);
+        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER_DEF, timestamp);
 
-        var borderThickness = provider(definition.borderThicknessProvider, timestamp);
-        var borderColor = provider(definition.borderColorProvider, timestamp);
+        var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
+        var borderColor = provider(definition.borderColorProviderDef, timestamp);
 
-        List<ColorShift> colorShifts = definition.colorShifts == null ? listOf() :
-                Arrays.stream(definition.colorShifts)
-                        .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList();
+        List<ColorShift> colorShifts = defaultIfNull(definition.colorShiftDefs, listOf(),
+                c -> Arrays.stream(c).map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp))
+                        .toList());
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

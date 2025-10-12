@@ -111,7 +111,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     }
 
     @Test
-    public void testRead() {
+    public void testReadWithRenderingLocDef() {
         when(mockProviderDefinitionReader.read(same(mockColorDefinition), anyLong())).thenReturn(
                 mockColor);
         when(mockProviderDefinitionReader.read(same(mockDropShadowSizeDefinition),
@@ -121,10 +121,10 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
         when(mockProviderDefinitionReader.read(same(mockDropShadowColorDefinition),
                 anyLong())).thenReturn(mockDropShadowColor);
 
-        @SuppressWarnings("unchecked") var definition =
+        var definition =
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
                         JUSTIFICATION, GLYPH_PADDING, Z)
-                        .withColors(pairOf(COLOR_INDEX, mockColorDefinition))
+                        .withColorDefs(mapOf(COLOR_INDEX, mockColorDefinition))
                         .withItalics(ITALIC_INDEX)
                         .withBold(BOLD_INDEX)
                         .withBorder(mockBorderThicknessDefinition, mockBorderColorDefinition)
@@ -176,6 +176,35 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     }
 
     @Test
+    public void testReadWithRenderingLocProvider() {
+        var definition =
+                textLine(FONT_ID, mockTextDefinition, mockLocation, mockHeightDefinition,
+                        JUSTIFICATION, GLYPH_PADDING, Z);
+
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
+
+        verify(mockProviderDefinitionReader, never()).read(same(mockLocationDefinition), anyLong());
+        verify(mockFactory, once()).make(
+                any(),
+                any(),
+                same(mockLocation),
+                any(),
+                any(),
+                anyFloat(),
+                any(),
+                any(),
+                any(),
+                any(), any(),
+                any(),
+                any(),
+                any(),
+                anyInt(),
+                isNotNull(),
+                any()
+        );
+    }
+
+    @Test
     public void testReadWithMinimalArgs() {
         var definition =
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
@@ -209,6 +238,35 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
                 eq(Z),
                 isNotNull(),
                 same(mockComponent)
+        );
+    }
+
+    @Test
+    public void testReadWithColorProviders() {
+        var definition =
+                textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
+                        JUSTIFICATION, GLYPH_PADDING, Z)
+                        .withColorProviders(mapOf(COLOR_INDEX, mockColor));
+
+        reader.read(mockComponent, definition, TIMESTAMP);
+
+        verify(mockFactory, once()).make(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                anyFloat(),
+                eq(mapOf(pairOf(COLOR_INDEX, mockColor))),
+                any(),
+                any(),
+                any(), any(),
+                any(),
+                any(),
+                any(),
+                anyInt(),
+                any(),
+                any()
         );
     }
 }

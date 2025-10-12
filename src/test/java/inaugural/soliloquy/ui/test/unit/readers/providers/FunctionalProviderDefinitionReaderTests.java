@@ -53,7 +53,7 @@ public class FunctionalProviderDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        var definition = functionalProvider(PROVIDE_ID)
+        var definition = functionalProvider(PROVIDE_ID, Object.class)
                 .withUuid(UUID)
                 .withPauseActions(PAUSE_ID, UNPAUSE_ID)
                 .withPauseTimestamp(PAUSE_TIME)
@@ -75,7 +75,7 @@ public class FunctionalProviderDefinitionReaderTests {
 
     @Test
     public void testReadWithMinimalArgs() {
-        var definition = functionalProvider(PROVIDE_ID);
+        var definition = functionalProvider(PROVIDE_ID, Object.class);
 
         var output = reader.read(definition);
 

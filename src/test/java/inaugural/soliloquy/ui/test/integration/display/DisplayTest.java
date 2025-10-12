@@ -122,8 +122,8 @@ public class DisplayTest {
         var ioModule = new IOModule(
                 commonModule,
                 settings::get,
-                ACTIONS::get,
-                FUNCTIONS::get,
+                ACTIONS,
+                FUNCTIONS,
                 listOf(),
                 testName,
                 mapOf(
@@ -137,13 +137,10 @@ public class DisplayTest {
                 assetDefinitionsDTO
         );
 
-        var ioMethods = readMethods((Object) ioModule.provide(IO_METHODS));
-        ioMethods.FIRST.forEach(a -> ACTIONS.put(a.id(), a));
-        ioMethods.SECOND.forEach(f -> FUNCTIONS.put(f.id(), f));
-
         var uiModule = new UIModule(
                 ioModule,
-                ACTIONS::get
+                ACTIONS,
+                FUNCTIONS
         );
 
         var coreLoop = ioModule.provide(CoreLoop.class);
@@ -158,7 +155,8 @@ public class DisplayTest {
         var wholeScreenProvider = staticProviderFactory.apply(randomUUID(), WHOLE_SCREEN);
         //noinspection unchecked
         topLevelComponent =
-                componentFactory.make(randomUUID(), 0, wholeScreenProvider, null, mapOf());
+                componentFactory.make(randomUUID(), 0, setOf(), false, wholeScreenProvider, null,
+                        mapOf());
         frameExecutor.setTopLevelComponent(topLevelComponent);
 
         coreLoop.startup(() -> {

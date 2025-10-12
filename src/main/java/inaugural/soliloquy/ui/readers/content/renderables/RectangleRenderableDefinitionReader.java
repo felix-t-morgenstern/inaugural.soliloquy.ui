@@ -12,6 +12,8 @@ import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+
 public class RectangleRenderableDefinitionReader
         extends AbstractMouseEventsComponentDefinitionReader {
     private final RectangleRenderableFactory FACTORY;
@@ -32,15 +34,30 @@ public class RectangleRenderableDefinitionReader
         Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 
-        var area = PROVIDER_READER.read(
-                Check.ifNull(definition.AREA_PROVIDER, "definition.AREA_PROVIDER"), timestamp);
+        var area = definition.DIMENS_PROVIDER != null ? definition.DIMENS_PROVIDER :
+                PROVIDER_READER.read(
+                        Check.ifNull(definition.DIMENS_PROVIDER_DEF, "definition.DIMENS_PROVIDER"),
+                        timestamp);
 
-        var topLeft = provider(definition.topLeftColorProvider, timestamp);
-        var topRight = provider(definition.topRightColorProvider, timestamp);
-        var bottomLeft = provider(definition.bottomLeftColorProvider, timestamp);
-        var bottomRight = provider(definition.bottomRightColorProvider, timestamp);
+        var topLeft = provider(
+                definition.topLeftColorProvider,
+                definition.topLeftColorProviderDef,
+                timestamp);
+        var topRight = provider(
+                definition.topRightColorProvider,
+                definition.topRightColorProviderDef,
+                timestamp);
+        var bottomLeft = provider(
+                definition.bottomLeftColorProvider,
+                definition.bottomLeftColorProviderDef,
+                timestamp);
+        var bottomRight = provider(
+                definition.bottomRightColorProvider,
+                definition.bottomRightColorProviderDef,
+                timestamp);
 
-        var textureId = provider(definition.textureIdProvider, timestamp);
+        var textureId = defaultIfNull(definition.textureIdProvider,
+                provider(definition.textureIdProviderDef, timestamp));
         var textureTileWidth = provider(definition.textureTileWidthProvider, timestamp);
         var textureTileHeight = provider(definition.textureTileHeightProvider, timestamp);
 

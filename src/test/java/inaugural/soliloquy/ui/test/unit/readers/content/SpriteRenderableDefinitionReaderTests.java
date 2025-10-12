@@ -21,8 +21,7 @@ import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
 
@@ -121,6 +120,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 isNotNull(),
                 same(mockComponent)
         );
+        verify(mockRenderable, once()).setCapturesMouseEvents(true);
     }
 
     @Test
@@ -148,5 +148,6 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 isNotNull(),
                 same(mockComponent)
         );
+        verify(mockRenderable, never()).setCapturesMouseEvents(anyBoolean());
     }
 }

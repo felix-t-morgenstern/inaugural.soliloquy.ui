@@ -41,8 +41,8 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
         var font = GET_FONT.apply(definition.FONT_ID);
 
         var text = PROVIDER_READER.read(definition.TEXT_PROVIDER, timestamp);
-        var location = defaultIfNull(definition.LOCATION_PROVIDER,
-                PROVIDER_READER.read(definition.LOCATION_PROVIDER_DEF, timestamp));
+        var location = definition.LOCATION_PROVIDER != null ? definition.LOCATION_PROVIDER :
+                PROVIDER_READER.read(definition.LOCATION_PROVIDER_DEF, timestamp);
         var height = PROVIDER_READER.read(definition.HEIGHT_PROVIDER, timestamp);
 
         Map<Integer, ProviderAtTime<Color>> colors = defaultIfNull(

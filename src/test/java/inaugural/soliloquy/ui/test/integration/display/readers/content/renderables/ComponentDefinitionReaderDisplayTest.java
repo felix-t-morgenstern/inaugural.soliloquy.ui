@@ -8,11 +8,14 @@ import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionRe
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
+import java.awt.*;
+
 import static inaugural.soliloquy.io.api.Constants.WHOLE_SCREEN;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
+import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
 
 public class ComponentDefinitionReaderDisplayTest
@@ -51,7 +54,12 @@ public class ComponentDefinitionReaderDisplayTest
                                                     Component topLevelComponent) {
         var shieldSpriteDef = sprite(SHIELD_SPRITE_ID, floatBoxOf(0.35f, 0.25f, 0.65f, 0.75f), 1);
         var swordSpriteDef = sprite(SWORD_SPRITE_ID, floatBoxOf(0.45f, 0f, 0.55f, 1f), 0);
-        var definition = component(0, WHOLE_SCREEN, setOf(shieldSpriteDef, swordSpriteDef));
+        var rectDef = rectangle(
+                floatBoxOf(0.2f, 0.2f, 0.8f, 0.8f),
+                -1
+        )
+                .withColor(new Color(127, 0, 31));
+        var definition = component(0, WHOLE_SCREEN, setOf(shieldSpriteDef, swordSpriteDef, rectDef));
         var reader = uiModule.provide(RenderableDefinitionReader.class);
         reader.read(topLevelComponent, definition, timestamp(uiModule));
     }

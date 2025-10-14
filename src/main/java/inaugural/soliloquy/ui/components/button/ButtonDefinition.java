@@ -209,6 +209,26 @@ public class ButtonDefinition extends AbstractContentDefinition {
     }
 
     /**
+     * @param bgColorTopLeft     The top left background color
+     * @param bgColorTopRight    The top right background color
+     * @param bgColorBottomLeft  The bottom left background color
+     * @param bgColorBottomRight The bottom right background color
+     */
+    public ButtonDefinition withBgColors(
+            Color bgColorTopLeft,
+            Color bgColorTopRight,
+            Color bgColorBottomLeft,
+            Color bgColorBottomRight
+    ) {
+        return this.withBgColors(
+                staticVal(bgColorTopLeft),
+                staticVal(bgColorTopRight),
+                staticVal(bgColorBottomLeft),
+                staticVal(bgColorBottomRight)
+        );
+    }
+
+    /**
      * @param bgColor A definition of the background color
      */
     public ButtonDefinition withBgColor(AbstractProviderDefinition<Color> bgColor) {
@@ -312,7 +332,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
     }
 
     /**
-     * @param glyphPadding A modification to the space between each glyph, c.f. {@link TextLineRenderable#getPaddingBetweenGlyphs()}
+     * @param glyphPadding A modification to the space between each glyph, c.f.
+     *                     {@link TextLineRenderable#getPaddingBetweenGlyphs()}
      */
     public ButtonDefinition withGlyphPadding(float glyphPadding) {
         textGlyphPadding = glyphPadding;
@@ -411,6 +432,28 @@ public class ButtonDefinition extends AbstractContentDefinition {
         this.bgColorBottomRightHover = bgColorBottomRight;
 
         return this;
+    }
+
+    /**
+     * These background colors are used <i>when the button is being pressed down</i>
+     *
+     * @param bgColorTopLeft     The top left background color
+     * @param bgColorTopRight    The top right background color
+     * @param bgColorBottomLeft  The bottom left background color
+     * @param bgColorBottomRight The bottom right background color
+     */
+    public ButtonDefinition withBgColorsHover(
+            Color bgColorTopLeft,
+            Color bgColorTopRight,
+            Color bgColorBottomLeft,
+            Color bgColorBottomRight
+    ) {
+        return this.withBgColorsHover(
+                staticVal(bgColorTopLeft),
+                staticVal(bgColorTopRight),
+                staticVal(bgColorBottomLeft),
+                staticVal(bgColorBottomRight)
+        );
     }
 
     /**
@@ -556,6 +599,28 @@ public class ButtonDefinition extends AbstractContentDefinition {
         this.bgColorBottomRightPressed = bgColorBottomRight;
 
         return this;
+    }
+
+    /**
+     * These background colors are used <i>when the button is being pressed down</i>
+     *
+     * @param bgColorTopLeft     The top left background color
+     * @param bgColorTopRight    The top right background color
+     * @param bgColorBottomLeft  The bottom left background color
+     * @param bgColorBottomRight The bottom right background color
+     */
+    public ButtonDefinition withBgColorsPressed(
+            Color bgColorTopLeft,
+            Color bgColorTopRight,
+            Color bgColorBottomLeft,
+            Color bgColorBottomRight
+    ) {
+        return this.withBgColorsPressed(
+                staticVal(bgColorTopLeft),
+                staticVal(bgColorTopRight),
+                staticVal(bgColorBottomLeft),
+                staticVal(bgColorBottomRight)
+        );
     }
 
     /**

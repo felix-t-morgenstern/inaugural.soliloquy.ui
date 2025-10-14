@@ -1,19 +1,13 @@
 package inaugural.soliloquy.ui.test.integration.display.readers.content.renderables;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
-import inaugural.soliloquy.io.api.dto.FontDefinitionDTO;
-import inaugural.soliloquy.io.api.dto.FontStyleDefinitionDTO;
-import inaugural.soliloquy.io.api.dto.FontStyleDefinitionGlyphPropertyDTO;
-import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TextJustification;
-import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
-import java.util.Map;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
@@ -21,62 +15,13 @@ import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinitio
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
-    protected final static String CINZEL_ID = "cinzel";
-    protected final static String RELATIVE_LOCATION_CINZEL =
-            "./src/test/resources/fonts/Cinzel-VariableFont_wght.ttf";
-    protected final static float MAX_LOSSLESS_FONT_SIZE_CINZEL = 200f;
-    protected final static float ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL = 0.25f;
-    protected final static float ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL = 0.25f;
-    protected final static float LEADING_ADJUSTMENT_CINZEL = 0f;
-    protected final static FontStyleDefinitionGlyphPropertyDTO[] CINZEL_ITALIC_WIDTH_FACTORS =
-            arrayOf(
-                    new FontStyleDefinitionGlyphPropertyDTO('I', 0.965f),
-                    new FontStyleDefinitionGlyphPropertyDTO('W', 0.975f),
-                    new FontStyleDefinitionGlyphPropertyDTO('i', 0.965f),
-                    new FontStyleDefinitionGlyphPropertyDTO('w', 0.975f),
-                    new FontStyleDefinitionGlyphPropertyDTO('^', 0.975f)
-            );
-
     public static void main(String[] args) {
         new DisplayTest().runTest(
                 "Text line renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(),
                         arrayOf(
-                                new FontDefinitionDTO(
-                                        CINZEL_ID,
-                                        RELATIVE_LOCATION_CINZEL,
-                                        MAX_LOSSLESS_FONT_SIZE_CINZEL,
-                                        LEADING_ADJUSTMENT_CINZEL,
-                                        new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
-                                                arrayOf(),
-                                                arrayOf(),
-                                                arrayOf(),
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
-                                        ),
-                                        new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
-                                                arrayOf(),
-                                                arrayOf(),
-                                                CINZEL_ITALIC_WIDTH_FACTORS,
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
-                                        ),
-                                        new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
-                                                arrayOf(),
-                                                arrayOf(),
-                                                arrayOf(),
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
-                                        ),
-                                        new FontStyleDefinitionDTO(
-                                                ADDITIONAL_GLYPH_HORIZONTAL_TEXTURE_SPACING_CINZEL,
-                                                arrayOf(),
-                                                arrayOf(),
-                                                CINZEL_ITALIC_WIDTH_FACTORS,
-                                                ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_CINZEL
-                                        )
-                                )
+                                CINZEL_DEFINITION_DTO
                         ),
                         arrayOf(),
                         arrayOf(),
@@ -119,46 +64,5 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
         reader.read(topLevelComponent, def, timestamp(uiModule));
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static Map<Integer, AbstractProviderDefinition<Color>> rainbowGradient(
-            String lineText) {
-        var rainbowGradient = Collections.<Integer, AbstractProviderDefinition<Color>>mapOf();
-
-        var degreePerLetter = 360f / lineText.length();
-        for (var i = 0; i < lineText.length(); i++) {
-            rainbowGradient.put(i, staticVal(colorAtDegree((float) i * degreePerLetter)));
-        }
-        return rainbowGradient;
-    }
-
-    private static Color colorAtDegree(float degree) {
-        var red = getColorComponent(0f, degree);
-        var green = getColorComponent(120f, degree);
-        var blue = getColorComponent(240f, degree);
-
-        return new Color(red, green, blue, 1f);
-    }
-
-    private static float getColorComponent(float componentCenter, float degree) {
-        var degreesInCircle = 360f;
-        var halfOfCircle = 180f;
-        var sixthOfCircle = 60f;
-        var degreeModulo = degree % degreesInCircle;
-        var distance = componentCenter - degreeModulo;
-        if (distance < -halfOfCircle) {
-            distance += degreesInCircle;
-        }
-        var absVal = Math.abs(distance);
-        if (absVal <= sixthOfCircle) {
-            return 1f;
-        }
-        absVal -= sixthOfCircle;
-        var absValWithCeiling = Math.min(sixthOfCircle, absVal);
-        var amountOfSixthOfCircle = sixthOfCircle - absValWithCeiling;
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        var colorComponent = amountOfSixthOfCircle / sixthOfCircle;
-        return colorComponent;
     }
 }

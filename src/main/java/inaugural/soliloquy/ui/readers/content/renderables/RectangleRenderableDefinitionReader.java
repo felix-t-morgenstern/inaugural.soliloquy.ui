@@ -34,7 +34,7 @@ public class RectangleRenderableDefinitionReader
         Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 
-        var area = definition.DIMENS_PROVIDER != null ? definition.DIMENS_PROVIDER :
+        var dimens = definition.DIMENS_PROVIDER != null ? definition.DIMENS_PROVIDER :
                 PROVIDER_READER.read(
                         Check.ifNull(definition.DIMENS_PROVIDER_DEF, "definition.DIMENS_PROVIDER"),
                         timestamp);
@@ -68,7 +68,7 @@ public class RectangleRenderableDefinitionReader
 
         var renderable = FACTORY.make(topLeft, topRight, bottomLeft, bottomRight, textureId,
                 textureTileWidth, textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave,
-                area, definition.Z, UUID.randomUUID(), component);
+                dimens, definition.Z, UUID.randomUUID(), component);
 
         if (definition.onPressIds != null ||
                 definition.onReleaseIds != null ||

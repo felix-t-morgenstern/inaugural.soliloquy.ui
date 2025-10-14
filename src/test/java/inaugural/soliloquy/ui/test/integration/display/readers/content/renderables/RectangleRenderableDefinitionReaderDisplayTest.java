@@ -16,9 +16,6 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
-    private static final String BACKGROUND_TEXTURE_RELATIVE_LOCATION =
-            "./src/test/resources/images/backgrounds/stone_tile_1.png";
-
     public static void main(String[] args) {
         new DisplayTest().runTest(
                 "Rectangle renderable definition reader display test",
@@ -71,8 +68,8 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
                 .onMouseOver(ON_MOUSE_OVER_ACTION_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ACTION_ID);
 
-        var renderableDefReader = uiModule.provide(RenderableDefinitionReader.class);
+        var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        renderableDefReader.read(topLevelComponent, rectDef, timestamp(uiModule));
+        reader.read(topLevelComponent, rectDef, timestamp(uiModule));
     }
 }

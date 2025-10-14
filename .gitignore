@@ -1,5 +1,6 @@
 
 *.class
+*.log
 .gradle/*
 .idea/inaugural.soliloquy.gamestate.iml
 .idea/libraries

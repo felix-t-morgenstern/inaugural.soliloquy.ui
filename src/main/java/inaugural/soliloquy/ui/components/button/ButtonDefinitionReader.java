@@ -6,6 +6,7 @@ import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
+import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Font;
 import soliloquy.specs.io.graphics.renderables.TextJustification;
@@ -27,6 +28,7 @@ import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
+import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.io.graphics.renderables.TextJustification.CENTER;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
@@ -51,6 +53,8 @@ public class ButtonDefinitionReader {
             "provideTextRenderingLocFromRect_Button";
     private static final String RECT_DIMENS_FROM_TEXT_LOC_METHOD =
             "provideRectDimensFromText_Button";
+    private static final String TEX_WIDTH_FROM_RECT_DIMENS_METHOD = "provideTexTileWidth_Button";
+    private static final String TEX_HEIGHT_FROM_RECT_DIMENS_METHOD = "provideTexTileHeight_Button";
 
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
     private final ShiftDefinitionReader SHIFT_DEF_READER;
@@ -194,17 +198,12 @@ public class ButtonDefinitionReader {
                             : textLineLengthDefault;
             if (rectDimensFromDef != null) {
                 // define the locs by rect dimens
-                textRenderingLoc = textRenderingLocFromRectDimens(
-                        definition,
-                        rectDimensFromDef,
-                        defaultIfNull(definition.textJustification, CENTER),
+                rectDimensProvider = rectDimensFromDef;
+                textRenderingLoc = textRenderingLocProviderFromRectDimensProvider(
+                        rectDimensProvider,
+                        definition.textJustification,
                         paddingHoriz,
-                        textLineLengthDefault,
-                        textLineLengthHover,
-                        textLineLengthPressed,
-                        defaultOptions,
-                        hoverOptions,
-                        pressedOptions,
+                        definition.textHeight,
                         timestamp
                 );
             }
@@ -264,55 +263,6 @@ public class ButtonDefinitionReader {
         return content;
     }
 
-    private ProviderAtTime<Vertex> textRenderingLocFromRectDimens(
-            ButtonDefinition definition,
-            ProviderAtTime<FloatBox> rectDimensProvider,
-            TextJustification textJustification,
-            float paddingHoriz,
-            float textLineLengthDefault,
-            float textLineLengthHover,
-            float textLineLengthPressed,
-            RenderableOptions defaultOptions,
-            RenderableOptions hoverOptions,
-            RenderableOptions pressedOptions,
-            long timestamp
-    ) {
-        var textRenderingLocProviderDefault = textRenderingLocProviderFromRectDimensProvider(
-                rectDimensProvider,
-                textJustification,
-                paddingHoriz,
-                textLineLengthDefault,
-                definition.textHeight,
-                timestamp
-        );
-        var textRenderingLocProviderHover =
-                textLineLengthHover == textLineLengthDefault ? null :
-                        textRenderingLocProviderFromRectDimensProvider(
-                                rectDimensProvider,
-                                textJustification,
-                                paddingHoriz,
-                                textLineLengthHover,
-                                definition.textHeight,
-                                timestamp
-                        );
-        var textRenderingLocProviderPressed =
-                textLineLengthPressed == textLineLengthDefault ? null :
-                        textRenderingLocProviderFromRectDimensProvider(
-                                rectDimensProvider,
-                                textJustification,
-                                paddingHoriz,
-                                textLineLengthPressed,
-                                definition.textHeight,
-                                timestamp
-                        );
-
-        defaultOptions.textRenderingLoc = textRenderingLocProviderDefault;
-        hoverOptions.textRenderingLoc = textRenderingLocProviderHover;
-        pressedOptions.textRenderingLoc = textRenderingLocProviderPressed;
-
-        return textRenderingLocProviderDefault;
-    }
-
     private List<Integer> indicesOrDefault(int[] providedIndices, List<Integer> defaultIndices) {
         return defaultIfNull(providedIndices, defaultIndices, Collections::listInts);
     }
@@ -336,6 +286,17 @@ public class ButtonDefinitionReader {
         var bgTexProviderDefault = getNullProviderIfNull(
                 getBgTexProviderDef(definition.bgTexProviderDefault, definition.bgTexRelLocDefault),
                 timestamp);
+        ProviderAtTime<Float> texWidthProvider;
+        ProviderAtTime<Float> texHeightProvider;
+        if (bgTexProviderDefault != NULL_PROVIDER) {
+            var texDimensProviders = makeTexDimensProviders(rectDimensProvider, timestamp);
+            texWidthProvider = texDimensProviders.FIRST;
+            texHeightProvider = texDimensProviders.SECOND;
+        }
+        else {
+            //noinspection unchecked
+            texWidthProvider = texHeightProvider = NULL_PROVIDER;
+        }
 
         var bgTexProviderHover = defaultIfNull(
                 getBgTexProviderDef(definition.bgTexProviderHover, definition.bgTexRelLocHover),
@@ -385,6 +346,11 @@ public class ButtonDefinitionReader {
                         bgColorTopRightDefault,
                         bgColorBottomLeftDefault,
                         bgColorBottomRightDefault
+                )
+                .withTexture(
+                        bgTexProviderDefault,
+                        texWidthProvider,
+                        texHeightProvider
                 )
                 .onPress(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD))
                 .onMouseOver(MOUSE_OVER_METHOD)
@@ -454,6 +420,27 @@ public class ButtonDefinitionReader {
         pressedOptions.rectDimens = providerPressed;
 
         return providerDefault;
+    }
+
+    private Pair<ProviderAtTime<Float>, ProviderAtTime<Float>> makeTexDimensProviders(
+            ProviderAtTime<FloatBox> rectDimensProvider,
+            long timestamp
+    ) {
+        var data = Collections.<String, Object>mapOf(
+                provideTexTileDimens_Button_rectDimensProvider,
+                rectDimensProvider
+        );
+
+        var texWidth = PROVIDER_DEF_READER.read(
+                functionalProvider(TEX_WIDTH_FROM_RECT_DIMENS_METHOD, Float.class)
+                        .withData(data),
+                timestamp);
+        var texHeight = PROVIDER_DEF_READER.read(
+                functionalProvider(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD, Float.class)
+                        .withData(data),
+                timestamp);
+
+        return pairOf(texWidth, texHeight);
     }
 
     private SpriteRenderableDefinition makeSpriteDef(
@@ -561,7 +548,6 @@ public class ButtonDefinitionReader {
             ProviderAtTime<FloatBox> rectDimensProvider,
             TextJustification textJustification,
             float paddingHoriz,
-            float textLineLength,
             float textHeight,
             long timestamp
     ) {
@@ -574,8 +560,6 @@ public class ButtonDefinitionReader {
                                 rectDimensProvider,
                                 provideTextRenderingLocFromRect_Button_paddingHoriz,
                                 paddingHoriz,
-                                provideTextRenderingLocFromRect_Button_lineLength,
-                                textLineLength,
                                 provideTextRenderingLocFromRect_Button_textHeight,
                                 textHeight
                         ));

@@ -1,11 +1,12 @@
 package inaugural.soliloquy.ui.test.integration.display.button;
 
+import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
+import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
-import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
-import soliloquy.specs.common.valueobjects.FloatBox;
+import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TextJustification;
 
@@ -14,14 +15,17 @@ import java.awt.*;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
+import static inaugural.soliloquy.ui.test.integration.display.button.ButtonFromRectDimensWithTextDisplayTest.testButton;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
-public class ButtonFromRectDimensWithTextDisplayTest extends DisplayTest {
+public class ButtonFromRectDimensWithTextAndTexDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition from rect dimens with text display test",
+                "Button definition from rect dimens with text and texture display test",
                 new AssetDefinitionsDTO(
-                        arrayOf(),
+                        arrayOf(
+                                new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
+                        ),
                         arrayOf(
                                 MERRIWEATHER_DEFINITION_DTO
                         ),
@@ -33,8 +37,8 @@ public class ButtonFromRectDimensWithTextDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition from rect dimens with text", 8000),
-                ButtonFromRectDimensWithTextDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Button definition from rect dimens with text and texture", 8000),
+                ButtonFromRectDimensWithTextAndTexDisplayTest::populateTopLevelComponent
         );
     }
 
@@ -44,19 +48,22 @@ public class ButtonFromRectDimensWithTextDisplayTest extends DisplayTest {
                 floatBoxOf(0.05f, 0.4f, 0.25f, 0.6f),
                 "Left",
                 TextJustification.LEFT
-        );
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
 
         var buttonDefCenter = testButton(
                 floatBoxOf(0.4f, 0.4f, 0.6f, 0.6f),
                 "Center",
                 TextJustification.CENTER
-        );
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
 
         var buttonDefRight = testButton(
                 floatBoxOf(0.75f, 0.4f, 0.95f, 0.6f),
                 "Right",
                 TextJustification.RIGHT
-        );
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
@@ -65,44 +72,5 @@ public class ButtonFromRectDimensWithTextDisplayTest extends DisplayTest {
                 buttonDefCenter,
                 buttonDefRight
         ).forEach(d -> reader.read(topLevelComponent, d, timestamp(uiModule)));
-    }
-
-    protected static ButtonDefinition testButton(
-            FloatBox rectDimens,
-            String text,
-            TextJustification justification
-    ) {
-        return button(
-                rectDimens,
-                0
-        )
-                .withBgColors(
-                        new Color(255, 0, 127),
-                        Color.RED,
-                        Color.RED,
-                        new Color(255, 127, 0)
-                )
-                .withBgColorsHover(
-                        new Color(127, 255, 0),
-                        Color.GREEN,
-                        Color.GREEN,
-                        new Color(0, 255, 127)
-                )
-                .withBgColorsPressed(
-                        new Color(0, 127, 255),
-                        Color.BLUE,
-                        Color.BLUE,
-                        new Color(127, 0, 255)
-                )
-                .withText(
-                        text,
-                        MERRIWEATHER_ID,
-                        0.075f
-                )
-                .withTextColor(Color.CYAN)
-                .withTextColorHover(Color.MAGENTA)
-                .withTextColorPressed(Color.YELLOW)
-                .withTextJustification(justification)
-                .withTextPadding(0.01f);
     }
 }

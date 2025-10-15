@@ -56,6 +56,8 @@ public class ButtonDefinitionReaderTests {
             "provideTextRenderingLocFromRect_Button";
     private static final String RECT_DIMENS_FROM_TEXT_LOC_METHOD =
             "provideRectDimensFromText_Button";
+    private static final String TEX_WIDTH_FROM_RECT_DIMENS_METHOD = "provideTexTileWidth_Button";
+    private static final String TEX_HEIGHT_FROM_RECT_DIMENS_METHOD = "provideTexTileHeight_Button";
 
     private final static String PRESS_ACTION_DATA_KEY = "pressAction";
     private final static String PRESS_SOUND_ID_DATA_KEY = "pressSoundId";
@@ -73,8 +75,6 @@ public class ButtonDefinitionReaderTests {
             "provideTextRenderingLocFromRect_Button_rectDimensProvider";
     private final static String provideTextRenderingLocFromRect_Button_paddingHoriz =
             "provideTextRenderingLocFromRect_Button_paddingHoriz";
-    private final static String provideTextRenderingLocFromRect_Button_lineLength =
-            "provideTextRenderingLocFromRect_Button_lineLength";
     private final static String provideTextRenderingLocFromRect_Button_textHeight =
             "provideTextRenderingLocFromRect_Button_textHeight";
 
@@ -161,15 +161,16 @@ public class ButtonDefinitionReaderTests {
     @Mock private ShiftDefinition mockSpriteShiftHoverDef;
     @Mock private ShiftDefinition mockSpriteShiftPressedDef;
 
-    @Mock private AbstractProviderDefinition<Vertex> mockTextRenderingLocDefaultDef;
-    @Mock private AbstractProviderDefinition<Vertex> mockTextRenderingLocHoverDef;
-    @Mock private AbstractProviderDefinition<Vertex> mockTextRenderingLocPressedDef;
+    @Mock private AbstractProviderDefinition<Vertex> mockTextRenderingLocDef;
 
     @Mock private AbstractProviderDefinition<Color> mockTextColorDefaultDef;
     @Mock private AbstractProviderDefinition<Color> mockTextColorHoverDef;
     @Mock private AbstractProviderDefinition<Color> mockTextColorPressedDef;
 
     @Mock private ProviderAtTime<FloatBox> mockRectDimensProvider;
+
+    @Mock private ProviderAtTime<Float> mockTexTileWidthProvider;
+    @Mock private ProviderAtTime<Float> mockTexTileHeightProvider;
 
     @Mock private ProviderAtTime<Color> mockBgColorTopLeftDefault;
     @Mock private ProviderAtTime<Color> mockBgColorTopRightDefault;
@@ -198,9 +199,7 @@ public class ButtonDefinitionReaderTests {
     @Mock private ColorShift mockSpriteShiftHover;
     @Mock private ColorShift mockSpriteShiftPressed;
 
-    @Mock private ProviderAtTime<Vertex> mockTextRenderingLocDefault;
-    @Mock private ProviderAtTime<Vertex> mockTextRenderingLocHover;
-    @Mock private ProviderAtTime<Vertex> mockTextRenderingLocPressed;
+    @Mock private ProviderAtTime<Vertex> mockTextRenderingLoc;
 
     @Mock private ProviderAtTime<Color> mockTextColorDefault;
     @Mock private ProviderAtTime<Color> mockTextColorHover;
@@ -271,12 +270,8 @@ public class ButtonDefinitionReaderTests {
         lenient().when(mockProviderDefReader.read(same(mockTexProviderPressedDef), anyLong()))
                 .thenReturn(mockTexProviderPressed);
 
-        lenient().when(mockProviderDefReader.read(same(mockTextRenderingLocDefaultDef), anyLong()))
-                .thenReturn(mockTextRenderingLocDefault);
-        lenient().when(mockProviderDefReader.read(same(mockTextRenderingLocHoverDef), anyLong()))
-                .thenReturn(mockTextRenderingLocHover);
-        lenient().when(mockProviderDefReader.read(same(mockTextRenderingLocPressedDef), anyLong()))
-                .thenReturn(mockTextRenderingLocPressed);
+        lenient().when(mockProviderDefReader.read(same(mockTextRenderingLocDef), anyLong()))
+                .thenReturn(mockTextRenderingLoc);
 
         lenient().when(mockProviderDefReader.read(same(mockTextColorDefaultDef), anyLong()))
                 .thenReturn(mockTextColorDefault);
@@ -331,7 +326,7 @@ public class ButtonDefinitionReaderTests {
                         new FunctionalProviderDefMatcher(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
                                         provideRectDimensFromText_Button_textRenderingLocProvider,
-                                        mockTextRenderingLocDefault,
+                                        mockTextRenderingLoc,
                                         provideRectDimensFromText_Button_lineLength,
                                         TEXT_LINE_LENGTH_DEFAULT,
                                         provideRectDimensFromText_Button_textHeight,
@@ -347,7 +342,7 @@ public class ButtonDefinitionReaderTests {
                         new FunctionalProviderDefMatcher(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
                                         provideRectDimensFromText_Button_textRenderingLocProvider,
-                                        mockTextRenderingLocDefault,
+                                        mockTextRenderingLoc,
                                         provideRectDimensFromText_Button_lineLength,
                                         TEXT_LINE_LENGTH_HOVER,
                                         provideRectDimensFromText_Button_textHeight,
@@ -363,7 +358,7 @@ public class ButtonDefinitionReaderTests {
                         new FunctionalProviderDefMatcher(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
                                         provideRectDimensFromText_Button_textRenderingLocProvider,
-                                        mockTextRenderingLocDefault,
+                                        mockTextRenderingLoc,
                                         provideRectDimensFromText_Button_lineLength,
                                         TEXT_LINE_LENGTH_PRESSED,
                                         provideRectDimensFromText_Button_textHeight,
@@ -374,6 +369,23 @@ public class ButtonDefinitionReaderTests {
                                         TEXT_PADDING_HORIZ
                                 ))), anyLong()))
                 .thenReturn(mockRectDimensFuncProviderPressed);
+
+        //noinspection unchecked
+        lenient().when(mockProviderDefReader.read(argThat(
+                        new FunctionalProviderDefMatcher(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
+                                mapOf(
+                                        provideTexTileDimens_Button_rectDimensProvider,
+                                        mockRectDimensProvider
+                                ))), anyLong())).
+                thenReturn(mockTexTileWidthProvider);
+        //noinspection unchecked
+        lenient().when(mockProviderDefReader.read(argThat(
+                        new FunctionalProviderDefMatcher(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
+                                mapOf(
+                                        provideTexTileDimens_Button_rectDimensProvider,
+                                        mockRectDimensProvider
+                                ))), anyLong())).
+                thenReturn(mockTexTileHeightProvider);
 
         lenient().when(mockGetWidthToHeightRatio.get()).thenReturn(WIDTH_TO_HEIGHT_RATIO);
 
@@ -441,44 +453,10 @@ public class ButtonDefinitionReaderTests {
                         mockRectDimensProvider,
                         provideTextRenderingLocFromRect_Button_paddingHoriz,
                         TEXT_PADDING_HORIZ,
-                        provideTextRenderingLocFromRect_Button_lineLength,
-                        TEXT_LINE_LENGTH_DEFAULT,
                         provideTextRenderingLocFromRect_Button_textHeight,
                         TEXT_HEIGHT
                 ))), anyLong()))
-                .thenReturn(mockTextRenderingLocDefault);
-        var mockTextRenderingLocHover = mock(ProviderAtTime.class);
-        //noinspection unchecked
-        when(mockProviderDefReader.read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
-                        provideTextRenderingLocFromRect_Button_textJustification,
-                        TEXT_JUSTIFICATION,
-                        provideTextRenderingLocFromRect_Button_rectDimensProvider,
-                        mockRectDimensProvider,
-                        provideTextRenderingLocFromRect_Button_paddingHoriz,
-                        TEXT_PADDING_HORIZ,
-                        provideTextRenderingLocFromRect_Button_lineLength,
-                        TEXT_LINE_LENGTH_HOVER,
-                        provideTextRenderingLocFromRect_Button_textHeight,
-                        TEXT_HEIGHT
-                ))), anyLong()))
-                .thenReturn(mockTextRenderingLocHover);
-        var mockTextRenderingLocPressed = mock(ProviderAtTime.class);
-        //noinspection unchecked
-        when(mockProviderDefReader.read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
-                        provideTextRenderingLocFromRect_Button_textJustification,
-                        TEXT_JUSTIFICATION,
-                        provideTextRenderingLocFromRect_Button_rectDimensProvider,
-                        mockRectDimensProvider,
-                        provideTextRenderingLocFromRect_Button_paddingHoriz,
-                        TEXT_PADDING_HORIZ,
-                        provideTextRenderingLocFromRect_Button_lineLength,
-                        TEXT_LINE_LENGTH_PRESSED,
-                        provideTextRenderingLocFromRect_Button_textHeight,
-                        TEXT_HEIGHT
-                ))), anyLong()))
-                .thenReturn(mockTextRenderingLocPressed);
+                .thenReturn(mockTextRenderingLoc);
 
         var def = buttonDefinitionFromRectDimensAndDefsWithMaximalArgs();
 
@@ -502,6 +480,9 @@ public class ButtonDefinitionReaderTests {
         assertSame(mockBgColorTopRightDefault, rectDef.topRightColorProvider);
         assertSame(mockBgColorBottomLeftDefault, rectDef.bottomLeftColorProvider);
         assertSame(mockBgColorBottomRightDefault, rectDef.bottomRightColorProvider);
+        assertSame(mockTexProviderDefault, rectDef.textureIdProvider);
+        assertSame(mockTexTileWidthProvider, rectDef.textureTileWidthProvider);
+        assertSame(mockTexTileHeightProvider, rectDef.textureTileHeightProvider);
         assertEquals(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD), rectDef.onPressIds);
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
@@ -520,12 +501,10 @@ public class ButtonDefinitionReaderTests {
                 SPRITE_ID_DEFAULT,
                 mockSpriteDimensDefault,
                 mockSpriteShiftDefault,
-                mockTextRenderingLocDefault,
                 textColorsDefault,
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
         );
-        @SuppressWarnings("unchecked")
         var expectedHoverOptions = new ButtonMethods.RenderableOptions(
                 null,
                 mockBgColorTopLeftHover,
@@ -536,12 +515,10 @@ public class ButtonDefinitionReaderTests {
                 SPRITE_ID_HOVER,
                 mockSpriteDimensHover,
                 mockSpriteShiftHover,
-                mockTextRenderingLocHover,
                 textColorsHover,
                 listInts(ITALIC_INDEX_HOVER),
                 listInts(BOLD_INDEX_HOVER)
         );
-        @SuppressWarnings("unchecked")
         var expectedPressedOptions = new ButtonMethods.RenderableOptions(
                 null,
                 mockBgColorTopLeftPressed,
@@ -552,7 +529,6 @@ public class ButtonDefinitionReaderTests {
                 SPRITE_ID_PRESSED,
                 mockSpriteDimensPressed,
                 mockSpriteShiftPressed,
-                mockTextRenderingLocPressed,
                 textColorsPressed,
                 listInts(ITALIC_INDEX_PRESSED),
                 listInts(BOLD_INDEX_PRESSED)
@@ -618,8 +594,25 @@ public class ButtonDefinitionReaderTests {
 
     @Test
     public void testReadFromTextAndDefsWithMaximalArgs() {
-        when(mockProviderDefReader.read(mockTextRenderingLocDefaultDef, TIMESTAMP))
-                .thenReturn(mockTextRenderingLocDefault);
+        when(mockProviderDefReader.read(mockTextRenderingLocDef, TIMESTAMP))
+                .thenReturn(mockTextRenderingLoc);
+
+        //noinspection unchecked
+        lenient().when(mockProviderDefReader.read(argThat(
+                        new FunctionalProviderDefMatcher(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
+                                mapOf(
+                                        provideTexTileDimens_Button_rectDimensProvider,
+                                        mockRectDimensFuncProviderDefault
+                                ))), anyLong())).
+                thenReturn(mockTexTileWidthProvider);
+        //noinspection unchecked
+        lenient().when(mockProviderDefReader.read(argThat(
+                        new FunctionalProviderDefMatcher(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
+                                mapOf(
+                                        provideTexTileDimens_Button_rectDimensProvider,
+                                        mockRectDimensFuncProviderDefault
+                                ))), anyLong())).
+                thenReturn(mockTexTileHeightProvider);
 
         var def = buttonDefinitionFromTextAndDefsWithMaximalArgs();
 
@@ -643,6 +636,9 @@ public class ButtonDefinitionReaderTests {
         assertSame(mockBgColorTopRightDefault, rectDef.topRightColorProvider);
         assertSame(mockBgColorBottomLeftDefault, rectDef.bottomLeftColorProvider);
         assertSame(mockBgColorBottomRightDefault, rectDef.bottomRightColorProvider);
+        assertSame(mockTexProviderDefault, rectDef.textureIdProvider);
+        assertSame(mockTexTileWidthProvider, rectDef.textureTileWidthProvider);
+        assertSame(mockTexTileHeightProvider, rectDef.textureTileHeightProvider);
         assertEquals(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD), rectDef.onPressIds);
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
@@ -656,7 +652,7 @@ public class ButtonDefinitionReaderTests {
         assertEquals(FONT_ID, textLineDef.FONT_ID);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.TEXT_PROVIDER);
         assertEquals(TEXT, extractStaticVal(textLineDef.TEXT_PROVIDER));
-        assertSame(mockTextRenderingLocDefault, textLineDef.LOCATION_PROVIDER);
+        assertSame(mockTextRenderingLoc, textLineDef.LOCATION_PROVIDER);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.HEIGHT_PROVIDER);
         assertEquals(TEXT_HEIGHT, extractStaticVal(textLineDef.HEIGHT_PROVIDER));
         assertEquals(TextJustification.CENTER, textLineDef.JUSTIFICATION);
@@ -676,7 +672,6 @@ public class ButtonDefinitionReaderTests {
                 SPRITE_ID_DEFAULT,
                 mockSpriteDimensDefault,
                 mockSpriteShiftDefault,
-                null,
                 textColorsDefault,
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
@@ -691,7 +686,6 @@ public class ButtonDefinitionReaderTests {
                 SPRITE_ID_HOVER,
                 mockSpriteDimensHover,
                 mockSpriteShiftHover,
-                null,
                 textColorsHover,
                 listInts(ITALIC_INDEX_HOVER),
                 listInts(BOLD_INDEX_HOVER)
@@ -706,7 +700,6 @@ public class ButtonDefinitionReaderTests {
                 SPRITE_ID_PRESSED,
                 mockSpriteDimensPressed,
                 mockSpriteShiftPressed,
-                null,
                 textColorsPressed,
                 listInts(ITALIC_INDEX_PRESSED),
                 listInts(BOLD_INDEX_PRESSED)
@@ -782,12 +775,10 @@ public class ButtonDefinitionReaderTests {
                         mockRectDimensProvider,
                         provideTextRenderingLocFromRect_Button_paddingHoriz,
                         TEXT_PADDING_HORIZ,
-                        provideTextRenderingLocFromRect_Button_lineLength,
-                        TEXT_LINE_LENGTH_DEFAULT,
                         provideTextRenderingLocFromRect_Button_textHeight,
                         TEXT_HEIGHT
                 ))), anyLong()))
-                .thenReturn(mockTextRenderingLocDefault);
+                .thenReturn(mockTextRenderingLoc);
 
         var definition = withMaximalDefaultArgs(withText(definitionFromRectDimens()));
 
@@ -811,6 +802,9 @@ public class ButtonDefinitionReaderTests {
         assertSame(mockBgColorTopRightDefault, rectDef.topRightColorProvider);
         assertSame(mockBgColorBottomLeftDefault, rectDef.bottomLeftColorProvider);
         assertSame(mockBgColorBottomRightDefault, rectDef.bottomRightColorProvider);
+        assertSame(mockTexProviderDefault, rectDef.textureIdProvider);
+        assertSame(mockTexTileWidthProvider, rectDef.textureTileWidthProvider);
+        assertSame(mockTexTileHeightProvider, rectDef.textureTileHeightProvider);
         assertEquals(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD), rectDef.onPressIds);
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
@@ -829,7 +823,6 @@ public class ButtonDefinitionReaderTests {
                 SPRITE_ID_DEFAULT,
                 mockSpriteDimensDefault,
                 mockSpriteShiftDefault,
-                mockTextRenderingLocDefault,
                 textColorsDefault,
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
@@ -908,7 +901,7 @@ public class ButtonDefinitionReaderTests {
         assertEquals(FONT_ID, textLineDef.FONT_ID);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.TEXT_PROVIDER);
         assertEquals(TEXT, extractStaticVal(textLineDef.TEXT_PROVIDER));
-        assertSame(mockTextRenderingLocDefault, textLineDef.LOCATION_PROVIDER);
+        assertSame(mockTextRenderingLoc, textLineDef.LOCATION_PROVIDER);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.HEIGHT_PROVIDER);
         assertEquals(TEXT_HEIGHT, extractStaticVal(textLineDef.HEIGHT_PROVIDER));
         assertEquals(TEXT_JUSTIFICATION, textLineDef.JUSTIFICATION);
@@ -948,7 +941,6 @@ public class ButtonDefinitionReaderTests {
                 mockNullProvider,
                 mockNullProvider,
                 mockNullProvider,
-                null,
                 null,
                 null,
                 null,
@@ -999,7 +991,7 @@ public class ButtonDefinitionReaderTests {
                 TEXT,
                 FONT_ID,
                 TEXT_HEIGHT,
-                mockTextRenderingLocDefaultDef,
+                mockTextRenderingLocDef,
                 Z
         );
 
@@ -1028,7 +1020,7 @@ public class ButtonDefinitionReaderTests {
         assertEquals(FONT_ID, textLineDef.FONT_ID);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.TEXT_PROVIDER);
         assertEquals(TEXT, extractStaticVal(textLineDef.TEXT_PROVIDER));
-        assertSame(mockTextRenderingLocDefault, textLineDef.LOCATION_PROVIDER);
+        assertSame(mockTextRenderingLoc, textLineDef.LOCATION_PROVIDER);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.HEIGHT_PROVIDER);
         assertEquals(TEXT_HEIGHT, extractStaticVal(textLineDef.HEIGHT_PROVIDER));
         assertEquals(TextJustification.CENTER, textLineDef.JUSTIFICATION);
@@ -1045,7 +1037,6 @@ public class ButtonDefinitionReaderTests {
                 mockNullProvider,
                 mockNullProvider,
                 mockNullProvider,
-                null,
                 null,
                 null,
                 null,
@@ -1075,7 +1066,7 @@ public class ButtonDefinitionReaderTests {
         );
 
         verify(mockProviderDefReader, times(2)).read(any(), anyLong());
-        verify(mockProviderDefReader, once()).read(mockTextRenderingLocDefaultDef, TIMESTAMP);
+        verify(mockProviderDefReader, once()).read(mockTextRenderingLocDef, TIMESTAMP);
     }
 
     private void assertMapsEqualWithOptions(
@@ -1108,7 +1099,6 @@ public class ButtonDefinitionReaderTests {
         assertEquals(expected.spriteId, actual.spriteId);
         assertSame(expected.spriteDimens, actual.spriteDimens);
         assertSame(expected.spriteShift, actual.spriteShift);
-        assertSame(expected.textRenderingLoc, actual.textRenderingLoc);
         assertEquals(expected.textColors, actual.textColors);
         assertEquals(expected.italics, actual.italics);
         assertEquals(expected.bolds, actual.bolds);
@@ -1127,7 +1117,7 @@ public class ButtonDefinitionReaderTests {
                 TEXT,
                 FONT_ID,
                 TEXT_HEIGHT,
-                mockTextRenderingLocDefaultDef,
+                mockTextRenderingLocDef,
                 Z
         ));
     }

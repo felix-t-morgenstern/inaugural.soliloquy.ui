@@ -58,8 +58,8 @@ public class RectangleRenderableDefinitionReader
 
         var textureId = defaultIfNull(definition.textureIdProvider,
                 provider(definition.textureIdProviderDef, timestamp));
-        var textureTileWidth = provider(definition.textureTileWidthProvider, timestamp);
-        var textureTileHeight = provider(definition.textureTileHeightProvider, timestamp);
+        var textureTileWidth = definition.textureTileWidthProvider != null ? definition.textureTileWidthProvider : provider(definition.textureTileWidthProviderDef, timestamp);
+        var textureTileHeight = definition.textureTileHeightProvider != null ? definition.textureTileHeightProvider : provider(definition.textureTileHeightProviderDef, timestamp);
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

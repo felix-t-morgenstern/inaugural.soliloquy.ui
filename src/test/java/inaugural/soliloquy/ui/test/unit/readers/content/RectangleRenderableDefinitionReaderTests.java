@@ -213,6 +213,40 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
     }
 
     @Test
+    public void testReadWithTexDimensProviders() {
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexWidthProvider = mock(ProviderAtTime.class);
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexHeightProvider = mock(ProviderAtTime.class);
+
+        var definition = rectangle(mockAreaProviderDefinition, Z)
+                .withTexture(
+                        mockTextureIdProvider,
+                        mockTexWidthProvider,
+                        mockTexHeightProvider
+                )
+                .withTexture(
+                        mockTextureIdProvider,
+                        randomFloat(),
+                        randomFloat()
+                );
+
+        reader.read(mockComponent, definition, TIMESTAMP);
+
+        //noinspection unchecked
+        verify(mockFactory, once()).make(
+                same(mockNullProvider), same(mockNullProvider),
+                same(mockNullProvider), same(mockNullProvider),
+                same(mockTextureIdProvider),
+                same(mockTexWidthProvider),
+                same(mockTexHeightProvider),
+                eq(mapOf()), eq(mapOf()),
+                isNull(), isNull(),
+                same(mockAreaProvider),
+                eq(Z),
+                isNotNull(),
+                same(mockComponent));
+    }
+
+    @Test
     public void testReadWithColorProviders() {
         var definition = rectangle(mockAreaProviderDefinition, Z)
                 .withColors(

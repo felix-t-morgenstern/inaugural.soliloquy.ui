@@ -585,7 +585,6 @@ public class ButtonMethodsTests {
                 spriteId,
                 mockSpriteDimens,
                 mockSpriteShift,
-                mockTextRenderingLoc,
                 mockTextColors,
                 mockItalics,
                 mockBolds);
@@ -623,7 +622,6 @@ public class ButtonMethodsTests {
         verify(mockSpriteRenderable, atLeastOnce()).colorShifts();
         verify(mockSpriteShifts, atLeastOnce()).clear();
         verify(mockSpriteShifts, atLeastOnce()).add(mockSpriteShift);
-        verify(mockTextLineRenderable, atLeastOnce()).setRenderingLocationProvider(mockTextRenderingLoc);
         verify(mockTextLineRenderable, atLeastOnce()).colorProviderIndices();
         verify(mockTextColors, atLeastOnce()).clear();
         verify(mockTextColors, atLeastOnce()).putAll(mockTextColors);
@@ -651,7 +649,6 @@ public class ButtonMethodsTests {
         verify(mockSpriteRenderable, never()).colorShifts();
         verify(mockSpriteShifts, never()).clear();
         verify(mockSpriteShifts, never()).add(any());
-        verify(mockTextLineRenderable, never()).setRenderingLocationProvider(any());
         verify(mockTextLineRenderable, never()).colorProviderIndices();
         verify(mockTextColors, never()).clear();
         verify(mockTextColors, never()).putAll(any());
@@ -736,7 +733,6 @@ public class ButtonMethodsTests {
                         TextJustification.LEFT),
                 pairOf(provideTextRenderingLocFromRect_Button_rectDimensProvider, mockRectDimens),
                 pairOf(provideTextRenderingLocFromRect_Button_paddingHoriz, PADDING_HORIZ),
-                pairOf(provideTextRenderingLocFromRect_Button_lineLength, LINE_LENGTH),
                 pairOf(provideTextRenderingLocFromRect_Button_textHeight, TEXT_HEIGHT)
         );
 
@@ -758,7 +754,6 @@ public class ButtonMethodsTests {
                         TextJustification.CENTER),
                 pairOf(provideTextRenderingLocFromRect_Button_rectDimensProvider, mockRectDimens),
                 pairOf(provideTextRenderingLocFromRect_Button_paddingHoriz, PADDING_HORIZ),
-                pairOf(provideTextRenderingLocFromRect_Button_lineLength, LINE_LENGTH),
                 pairOf(provideTextRenderingLocFromRect_Button_textHeight, TEXT_HEIGHT)
         );
 
@@ -768,7 +763,7 @@ public class ButtonMethodsTests {
                 mockInputsData
         ));
 
-        var expectedX = (RECT_DIMENS.LEFT_X + RECT_DIMENS.RIGHT_X - LINE_LENGTH) / 2f;
+        var expectedX = (RECT_DIMENS.LEFT_X + RECT_DIMENS.RIGHT_X) / 2f;
         assertEquals(vertexOf(expectedX, TEX_RENDERING_LOC_Y_FROM_RECT_DIMENS), output);
         verify(mockRectDimens, once()).provide(TIMESTAMP);
     }
@@ -780,7 +775,6 @@ public class ButtonMethodsTests {
                         TextJustification.RIGHT),
                 pairOf(provideTextRenderingLocFromRect_Button_rectDimensProvider, mockRectDimens),
                 pairOf(provideTextRenderingLocFromRect_Button_paddingHoriz, PADDING_HORIZ),
-                pairOf(provideTextRenderingLocFromRect_Button_lineLength, LINE_LENGTH),
                 pairOf(provideTextRenderingLocFromRect_Button_textHeight, TEXT_HEIGHT)
         );
 
@@ -790,7 +784,7 @@ public class ButtonMethodsTests {
                 mockInputsData
         ));
 
-        var expectedX = RECT_DIMENS.RIGHT_X - PADDING_HORIZ - LINE_LENGTH;
+        var expectedX = RECT_DIMENS.RIGHT_X - PADDING_HORIZ;
         assertEquals(vertexOf(expectedX, TEX_RENDERING_LOC_Y_FROM_RECT_DIMENS), output);
         verify(mockRectDimens, once()).provide(TIMESTAMP);
     }
@@ -822,5 +816,49 @@ public class ButtonMethodsTests {
         );
         assertEquals(expected, output);
         verify(mockTextRenderingLoc, once()).provide(TIMESTAMP);
+    }
+
+    @Test
+    public void testProvideTexTileWidth_Button() {
+        var rectDimens = randomFloatBox();
+        when(mockRectDimens.provide(anyLong())).thenReturn(rectDimens);
+        Map<String, Object> mockInputsData = generateMockMap(
+                pairOf(
+                        provideTexTileDimens_Button_rectDimensProvider,
+                        mockRectDimens
+                )
+        );
+
+        var output = buttonMethods.provideTexTileWidth_Button(providerInputs(
+                TIMESTAMP,
+                null,
+                mockInputsData
+        ));
+
+        assertEquals(rectDimens.width(), output);
+
+        verify(mockRectDimens, once()).provide(TIMESTAMP);
+    }
+
+    @Test
+    public void testProvideTexTileHeight_Button() {
+        var rectDimens = randomFloatBox();
+        when(mockRectDimens.provide(anyLong())).thenReturn(rectDimens);
+        Map<String, Object> mockInputsData = generateMockMap(
+                pairOf(
+                        provideTexTileDimens_Button_rectDimensProvider,
+                        mockRectDimens
+                )
+        );
+
+        var output = buttonMethods.provideTexTileHeight_Button(providerInputs(
+                TIMESTAMP,
+                null,
+                mockInputsData
+        ));
+
+        assertEquals(rectDimens.height(), output);
+
+        verify(mockRectDimens, once()).provide(TIMESTAMP);
     }
 }

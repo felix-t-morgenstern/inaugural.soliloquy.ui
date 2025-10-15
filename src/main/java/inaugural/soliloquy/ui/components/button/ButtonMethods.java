@@ -207,8 +207,6 @@ public class ButtonMethods {
         }
         if (textResult.isPresent()) {
             var text = (TextLineRenderable) textResult.get();
-            text.setRenderingLocationProvider(
-                    optionOrDefault(options, defaultOptions, o -> o.textRenderingLoc));
             text.colorProviderIndices().clear();
             text.colorProviderIndices()
                     .putAll(optionOrDefault(options, defaultOptions, o -> o.textColors));
@@ -238,7 +236,6 @@ public class ButtonMethods {
         String spriteId;
         ProviderAtTime<FloatBox> spriteDimens;
         ColorShift spriteShift;
-        ProviderAtTime<Vertex> textRenderingLoc;
         Map<Integer, ProviderAtTime<Color>> textColors;
         List<Integer> italics;
         List<Integer> bolds;
@@ -255,7 +252,6 @@ public class ButtonMethods {
                                  String spriteId,
                                  ProviderAtTime<FloatBox> spriteDimens,
                                  ColorShift spriteShift,
-                                 ProviderAtTime<Vertex> textRenderingLoc,
                                  Map<Integer, ProviderAtTime<Color>> textColors,
                                  List<Integer> italics,
                                  List<Integer> bolds) {
@@ -268,7 +264,6 @@ public class ButtonMethods {
             this.spriteId = spriteId;
             this.spriteDimens = spriteDimens;
             this.spriteShift = spriteShift;
-            this.textRenderingLoc = textRenderingLoc;
             this.textColors = textColors;
             this.italics = italics;
             this.bolds = bolds;
@@ -281,8 +276,6 @@ public class ButtonMethods {
             "provideTextRenderingLocFromRect_Button_rectDimensProvider";
     final static String provideTextRenderingLocFromRect_Button_paddingHoriz =
             "provideTextRenderingLocFromRect_Button_paddingHoriz";
-    final static String provideTextRenderingLocFromRect_Button_lineLength =
-            "provideTextRenderingLocFromRect_Button_lineLength";
     final static String provideTextRenderingLocFromRect_Button_textHeight =
             "provideTextRenderingLocFromRect_Button_textHeight";
 
@@ -294,14 +287,12 @@ public class ButtonMethods {
         var rectDimens = rectDimensProvider.provide(e.timestamp());
         float paddingHoriz =
                 getFromData(e.data(), provideTextRenderingLocFromRect_Button_paddingHoriz);
-        float lineLength = getFromData(e.data(), provideTextRenderingLocFromRect_Button_lineLength);
         float textHeight = getFromData(e.data(), provideTextRenderingLocFromRect_Button_textHeight);
 
         var texRenderingLocX = switch (textJustification) {
             case LEFT -> rectDimens.LEFT_X + paddingHoriz;
-            case CENTER -> (rectDimens.LEFT_X + rectDimens.RIGHT_X - lineLength) /
-                    2f;
-            case RIGHT -> rectDimens.RIGHT_X - paddingHoriz - lineLength;
+            case CENTER -> (rectDimens.LEFT_X + rectDimens.RIGHT_X) / 2f;
+            case RIGHT -> rectDimens.RIGHT_X - paddingHoriz;
             default -> 0F;
         };
         var texRenderingLocY = (rectDimens.TOP_Y + rectDimens.BOTTOM_Y - textHeight) / 2f;
@@ -337,5 +328,22 @@ public class ButtonMethods {
                 textRenderingLoc.X + lineLength + textPaddingHoriz,
                 textRenderingLoc.Y + textHeight + textPaddingVert
         );
+    }
+
+    final static String provideTexTileDimens_Button_rectDimensProvider =
+            "provideTexTileDimens_Button_rectDimensProvider";
+
+    public float provideTexTileWidth_Button(FunctionalProvider.Inputs e) {
+        ProviderAtTime<FloatBox> rectDimensProvider =
+                getFromData(e.data(), provideTexTileDimens_Button_rectDimensProvider);
+        FloatBox rectDimens = rectDimensProvider.provide(e.timestamp());
+        return rectDimens.width();
+    }
+
+    public float provideTexTileHeight_Button(FunctionalProvider.Inputs e) {
+        ProviderAtTime<FloatBox> rectDimensProvider =
+                getFromData(e.data(), provideTexTileDimens_Button_rectDimensProvider);
+        FloatBox rectDimens = rectDimensProvider.provide(e.timestamp());
+        return rectDimens.height();
     }
 }

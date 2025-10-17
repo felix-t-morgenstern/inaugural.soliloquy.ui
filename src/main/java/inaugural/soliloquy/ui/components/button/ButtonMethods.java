@@ -221,7 +221,10 @@ public class ButtonMethods {
                     optionOrDefault(options, defaultOptions, o -> o.spriteDimens));
 
             sprite.colorShifts().clear();
-            sprite.colorShifts().add(optionOrDefault(options, defaultOptions, o -> o.spriteShift));
+            var shift = optionOrDefault(options, defaultOptions, o -> o.spriteShift);
+            if (shift != null) {
+                sprite.colorShifts().add(shift);
+            }
         }
         if (textResult.isPresent()) {
             var text = (TextLineRenderable) textResult.get();

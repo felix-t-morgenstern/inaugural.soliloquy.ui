@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.readers.content.renderables;
 
 import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
@@ -48,16 +49,20 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
         var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
         var borderColor = provider(definition.borderColorProviderDef, timestamp);
 
-        List<ColorShift> colorShifts = defaultIfNull(definition.colorShiftDefs, listOf(),
-                c -> Arrays.stream(c).map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp))
-                        .toList());
+        List<ColorShift> colorShifts = defaultIfNull(definition.colorShifts,
+                defaultIfNull(definition.colorShiftDefs, listOf(),
+                        c -> listOf(shiftDef -> SHIFT_READER.read(shiftDef, timestamp), c)),
+                Collections::listOf);
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);
         var onMouseOver = getAction(definition.onMouseOverId);
         var onMouseLeave = getAction(definition.onMouseLeaveId);
 
-        var renderable = FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease, onMouseOver, onMouseLeave, colorShifts, dimensions, definition.Z, UUID.randomUUID(), component);
+        var renderable =
+                FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease, onMouseOver,
+                        onMouseLeave, colorShifts, dimensions, definition.Z, UUID.randomUUID(),
+                        component);
         if (
                 (definition.onPressIds != null && !definition.onPressIds.isEmpty()) ||
                         (definition.onReleaseIds != null && !definition.onReleaseIds.isEmpty()) ||

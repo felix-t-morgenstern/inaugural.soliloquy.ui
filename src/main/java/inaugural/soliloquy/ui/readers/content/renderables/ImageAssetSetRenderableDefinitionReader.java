@@ -50,9 +50,10 @@ public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetD
         var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
         var borderColor = provider(definition.borderColorProviderDef, timestamp);
 
-        List<ColorShift> colorShifts = defaultIfNull(definition.colorShiftDefs, listOf(),
-                c -> Arrays.stream(c).map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp))
-                        .toList());
+        List<ColorShift> colorShifts = defaultIfNull(definition.colorShifts,
+                defaultIfNull(definition.colorShiftDefs, listOf(), c -> Arrays.stream(c)
+                        .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList()),
+                d -> Arrays.stream(d).toList());
 
         var onPress = getActionPerButton(definition.onPressIds);
         var onRelease = getActionPerButton(definition.onReleaseIds);

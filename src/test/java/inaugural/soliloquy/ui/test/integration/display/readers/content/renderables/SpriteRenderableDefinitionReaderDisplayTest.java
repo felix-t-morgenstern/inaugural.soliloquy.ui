@@ -61,23 +61,7 @@ public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 .onMouseOver(ON_MOUSE_OVER_ACTION_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ACTION_ID);
 
-        var rectDef3 = rectangle(
-                staticVal(floatBoxOf(0.1f, 0.1f, 0.9f, 0.9f)),
-                5
-        )
-//                .withTexture(
-//                        staticVal(image.textureId()),
-//                        staticVal(0.5f),
-//                        staticVal(0.5f)
-//                )
-                .withColors(
-                        staticVal(randomColor()),
-                        staticVal(randomColor()),
-                        staticVal(randomColor()),
-                        staticVal(randomColor())
-                );
         var reader = uiModule.provide(RenderableDefinitionReader.class);
         reader.read(topLevelComponent, definition, timestamp(uiModule));
-        reader.read(topLevelComponent, rectDef3, timestamp(uiModule));
     }
 }

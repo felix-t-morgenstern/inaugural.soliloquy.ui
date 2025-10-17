@@ -175,6 +175,18 @@ public class ButtonDefinition extends AbstractContentDefinition {
     }
 
     /**
+     * <b>If you define a button as a sprite, then it will have neither text nor a rectangle. If you
+     * instead want a button that combines both a Sprite along with a rectangle and some text, then
+     * use one of the alternate constructors, in conjunction with some variant of
+     * {@link #withSprite}.</b>
+     */
+    public static ButtonDefinition button(String spriteId,
+                                          FloatBox dimens,
+                                          int z) {
+        return button(spriteId, staticVal(dimens), z);
+    }
+
+    /**
      * @param keys     The keys which activate the button when pressed
      * @param priority The priority of the KeyBinding for this button (c.f.
      *                 {@link soliloquy.specs.io.input.keyboard.KeyEventHandler#addComponent})

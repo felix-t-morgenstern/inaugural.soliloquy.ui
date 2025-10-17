@@ -561,6 +561,35 @@ public class ButtonMethodsTests {
     }
 
     @Test
+    public void testWhenNoShiftsInOptionsShiftIsNotAdded() {
+        var optionsWithoutShift = new ButtonMethods.RenderableOptions(mockRectDimens,
+                mockBgTopLeft,
+                mockBgTopRight,
+                mockBgBottomLeft,
+                mockBgBottomRight,
+                mockBgTexProvider,
+                SPRITE_ID_DEFAULT,
+                mockSpriteDimens,
+                null,
+                mockTextColors,
+                mockItalics,
+                mockBolds);
+        when(mockData.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY)).thenReturn(optionsWithoutShift);
+
+        when(mockData.get(RECT_HOVER_STATE_DATA_KEY))
+                .thenReturn(true)
+                .thenReturn(false);
+
+        buttonMethods.mouseLeave_Button(
+                eventInputs(randomLong())
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+        );
+
+        verify(mockSpriteShifts, once()).clear();
+        verify(mockSpriteShifts, never()).add(any());
+    }
+
+    @Test
     public void testRenderablesAtUnspecifiedZValuesDoNotReceiveRenderableOptions() {
         // just gotta make sure it isn't RECT_Z, SPRITE_Z, or TEXT_Z, respectively
         when(mockRectangleRenderable.getZ()).thenReturn(randomIntWithInclusiveCeiling(-1));

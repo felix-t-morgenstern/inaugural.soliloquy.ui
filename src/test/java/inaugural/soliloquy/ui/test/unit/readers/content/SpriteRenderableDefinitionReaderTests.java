@@ -81,7 +81,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
     }
 
     @Test
-    public void testRead() {
+    public void testReadWithMaximalArgsFromDefs() {
         var definition = sprite(SPRITE_ID, mockAreaProviderDefinition, Z)
                 .withBorder(mockBorderThicknessDefinition, mockBorderColorDefinition)
                 .withColorShifts(mockShiftDefinition)
@@ -121,6 +121,29 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 same(mockComponent)
         );
         verify(mockRenderable, once()).setCapturesMouseEvents(true);
+    }
+
+    @Test
+    public void testReadShiftsFromProviders() {
+        var definition = sprite(SPRITE_ID, mockAreaProviderDefinition, Z)
+                .withColorShifts(mockShift);
+
+        reader.read(mockComponent, definition, TIMESTAMP);
+
+        verify(mockShiftDefinitionReader, never()).read(any(), anyLong());
+        verify(mockFactory, once()).make(
+                any(),
+                any(), any(),
+                anyMap(),
+                anyMap(),
+                any(),
+                any(),
+                eq(listOf(mockShift)),
+                any(),
+                anyInt(),
+                any(),
+                any()
+        );
     }
 
     @Test

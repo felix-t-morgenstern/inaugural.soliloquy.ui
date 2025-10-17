@@ -22,8 +22,7 @@ import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionW
 import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.content.ImageAssetSetRenderableDefinition.imageAssetSet;
 
@@ -97,7 +96,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
     }
 
     @Test
-    public void testRead() {
+    public void testReadWithMaximalArgsFromDefs() {
         var definition = imageAssetSet(IMAGE_ASSET_SET_ID, DATA, mockAreaProviderDefinition, Z)
                 .withBorder(mockBorderThicknessDefinition, mockBorderColorDefinition)
                 .withColorShifts(mockShiftDefinition)
@@ -136,6 +135,30 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 eq(Z),
                 isNotNull(),
                 same(mockComponent)
+        );
+    }
+
+    @Test
+    public void testReadShiftsFromProviders() {
+        var definition = imageAssetSet(IMAGE_ASSET_SET_ID, DATA, mockAreaProviderDefinition, Z)
+                .withColorShifts(mockShift);
+
+        reader.read(mockComponent, definition, TIMESTAMP);
+
+        verify(mockShiftDefinitionReader, never()).read(any(), anyLong());
+        verify(mockFactory, once()).make(
+                any(),
+                anyMap(),
+                any(), any(),
+                anyMap(),
+                anyMap(),
+                any(),
+                any(),
+                eq(listOf(mockShift)),
+                any(),
+                anyInt(),
+                any(),
+                any()
         );
     }
 

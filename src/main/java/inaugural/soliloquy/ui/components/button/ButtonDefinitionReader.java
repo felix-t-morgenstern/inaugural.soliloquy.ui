@@ -10,6 +10,7 @@ import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Font;
 import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
 import soliloquy.specs.ui.definitions.content.*;
@@ -17,7 +18,6 @@ import soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -461,7 +461,8 @@ public class ButtonDefinitionReader {
                 defaultIfNull(definition.spriteDimensPressedDef, null,
                         d -> PROVIDER_DEF_READER.read(d, timestamp));
 
-        var spriteShiftDefault = SHIFT_DEF_READER.read(definition.spriteShiftDefaultDef, timestamp);
+        var spriteShiftDefault = defaultIfNull(definition.spriteShiftDefaultDef, null,
+                d -> SHIFT_DEF_READER.read(d, timestamp));
         var spriteShiftHover = defaultIfNull(definition.spriteShiftHoverDef, null,
                 d -> SHIFT_DEF_READER.read(d, timestamp));
         var spriteShiftPressed = defaultIfNull(definition.spriteShiftPressedDef, null,
@@ -479,10 +480,21 @@ public class ButtonDefinitionReader {
         pressedOptions.spriteDimens = spriteDimensPressed;
         pressedOptions.spriteShift = spriteShiftPressed;
 
-        return sprite(definition.spriteIdDefault, definition.spriteDimensDefaultDef, SPRITE_Z)
+        return sprite(
+                definition.spriteIdDefault,
+                definition.spriteDimensDefaultDef,
+                SPRITE_Z
+        )
                 .onPress(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD))
                 .onMouseOver(MOUSE_OVER_METHOD)
-                .onMouseLeave(MOUSE_LEAVE_METHOD);
+                .onMouseLeave(MOUSE_LEAVE_METHOD)
+                .withColorShifts(
+                        defaultIfNull(
+                                spriteShiftDefault,
+                                Collections.<ColorShift>arrayOf(),
+                                Collections::arrayOf
+                        )
+                );
     }
 
     private TextLineRenderableDefinition makeTextLineDef(

@@ -21,8 +21,7 @@ import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionW
 import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.content.FiniteAnimationRenderableDefinition.finiteAnimation;
 
@@ -87,7 +86,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
     }
 
     @Test
-    public void testRead() {
+    public void testReadWithMaximalArgsFromDefs() {
         var startTimestampOffset = randomInt();
 
         var definition = finiteAnimation(ANIMATION_ID, mockAreaProviderDefinition, Z)
@@ -130,6 +129,30 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 isNotNull(),
                 same(mockComponent),
                 eq(startTimestamp), any()
+        );
+    }
+
+    @Test
+    public void testReadShiftsFromProviders() {
+        var definition = finiteAnimation(ANIMATION_ID, mockAreaProviderDefinition, Z)
+                .withColorShifts(mockShift);
+
+        reader.read(mockComponent, definition, TIMESTAMP);
+
+        verify(mockShiftDefinitionReader, never()).read(any(), anyLong());
+        verify(mockFactory, once()).make(
+                any(),
+                any(), any(),
+                anyMap(),
+                anyMap(),
+                any(),
+                any(),
+                eq(listOf(mockShift)),
+                any(),
+                anyInt(),
+                any(),
+                any(),
+                anyLong(), any()
         );
     }
 

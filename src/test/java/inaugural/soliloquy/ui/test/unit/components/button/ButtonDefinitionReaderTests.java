@@ -813,7 +813,7 @@ public class ButtonDefinitionReaderTests {
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
 
-        assertSpriteHasFullDef(output);
+        assertSpriteHasFullDef(output, true);
 
         assertTextHasFullDef(output);
 
@@ -882,10 +882,10 @@ public class ButtonDefinitionReaderTests {
 
         assertNotNull(output);
         assertEquals(1, output.CONTENT.size());
-        assertSpriteHasFullDef(output);
+        assertSpriteHasBasicDef(output);
     }
 
-    private void assertSpriteHasFullDef(ComponentDefinition output) {
+    private SpriteRenderableDefinition assertSpriteHasBasicDef(ComponentDefinition output) {
         @SuppressWarnings("OptionalGetWithoutIsPresent") var atSpriteZ =
                 output.CONTENT.stream().filter(d -> d.Z == SPRITE_Z).findFirst().get();
         assertInstanceOf(SpriteRenderableDefinition.class, atSpriteZ);
@@ -895,6 +895,22 @@ public class ButtonDefinitionReaderTests {
         assertEquals(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD), spriteDef.onPressIds);
         assertEquals(MOUSE_OVER_METHOD, spriteDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, spriteDef.onMouseLeaveId);
+        return spriteDef;
+    }
+
+    private void assertSpriteHasFullDef(ComponentDefinition output, boolean justDefault) {
+        var spriteDef = assertSpriteHasBasicDef(output);
+        assertArrayEquals(arrayOf(mockSpriteShiftDefault), spriteDef.colorShifts);
+        verify(mockShiftReader, once()).read(mockSpriteShiftDefaultDef, TIMESTAMP);
+        verify(mockShiftReader, times(justDefault ? 1 : 3)).read(any(), anyLong());
+        if (!justDefault) {
+            verify(mockShiftReader, once()).read(mockSpriteShiftHoverDef, TIMESTAMP);
+            verify(mockShiftReader, once()).read(mockSpriteShiftPressedDef, TIMESTAMP);
+        }
+    }
+
+    private void assertSpriteHasFullDef(ComponentDefinition output) {
+        assertSpriteHasFullDef(output, false);
     }
 
     private void assertTextHasFullDef(ComponentDefinition output) {

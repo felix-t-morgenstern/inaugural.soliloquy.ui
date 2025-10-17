@@ -1,22 +1,24 @@
 package inaugural.soliloquy.ui.test.integration.display.button;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
+import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
-import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
-public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
+public class ButtonFromTextDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition from rect dimens with text display test",
+                "Button definition from text with texture display test",
                 new AssetDefinitionsDTO(
-                        arrayOf(),
+                        arrayOf(
+                                new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
+                        ),
                         arrayOf(
                                 MERRIWEATHER_DEFINITION_DTO
                         ),
@@ -28,37 +30,23 @@ public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition from rect dimens with text", 8000),
-                ButtonFromRectDimensWithTextDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Button definition from text with texture", 8000),
+                ButtonFromTextDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var buttonDefLeft = testButtonFromRectDimens(
-                floatBoxOf(0.05f, 0.4f, 0.25f, 0.6f),
-                "Left",
-                TextJustification.LEFT
-        );
-
-        var buttonDefCenter = testButtonFromRectDimens(
-                floatBoxOf(0.4f, 0.4f, 0.6f, 0.6f),
-                "Center",
-                TextJustification.CENTER
-        );
-
-        var buttonDefRight = testButtonFromRectDimens(
-                floatBoxOf(0.75f, 0.4f, 0.95f, 0.6f),
-                "Right",
-                TextJustification.RIGHT
-        );
+        var buttonDef = testButtonFromText(
+                "Button",
+                vertexOf(0.5f, 0.5f - (BUTTON_TEXT_HEIGHT / 2f))
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
         setOf(
-                buttonDefLeft,
-                buttonDefCenter,
-                buttonDefRight
+                buttonDef
         ).forEach(d -> reader.read(topLevelComponent, d, timestamp(uiModule)));
     }
 }

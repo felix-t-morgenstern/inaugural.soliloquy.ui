@@ -17,6 +17,7 @@ import soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -104,7 +105,7 @@ public class ButtonDefinitionReader {
         );
 
         KeyBindingDefinition[] bindings =
-                defaultIfNull(definition.keys, arrayOf(), k -> arrayOf(binding(
+                defaultIfNull(definition.keyCodepoints, arrayOf(), k -> arrayOf(binding(
                         PRESS_KEY_METHOD,
                         RELEASE_KEY_METHOD,
                         k
@@ -116,6 +117,7 @@ public class ButtonDefinitionReader {
         )
                 .withBindings(
                         false,
+                        definition.keyEventPriority,
                         bindings
                 )
                 .withData(mapOf(

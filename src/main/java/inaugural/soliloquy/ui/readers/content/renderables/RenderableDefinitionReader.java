@@ -41,6 +41,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
     private final Map<Class, Function<AbstractContentDefinition, ComponentDefinition>>
             CUSTOM_READERS;
     private final ProviderAtTime<FloatBox> WHOLE_SCREEN_PROVIDER;
+    private final int DEFAULT_KEY_EVENT_PRIORITY;
 
     public RenderableDefinitionReader(
             RasterizedLineSegmentRenderableDefinitionReader rasterizedLineReader,
@@ -54,7 +55,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             ComponentFactory componentFactory,
             ProviderDefinitionReader providerReader,
             @SuppressWarnings("rawtypes") Function<String, Action> getAction,
-            ProviderAtTime<FloatBox> wholeScreenProvider) {
+            ProviderAtTime<FloatBox> wholeScreenProvider, int defaultKeyEventPriority) {
         super(providerReader);
         RASTERIZED_LINE_READER = Check.ifNull(rasterizedLineReader, "rasterizedLineReader");
         ANTIALIASED_LINE_READER = Check.ifNull(antialiasedLineReader, "antialiasedLineReader");
@@ -68,6 +69,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         GET_ACTION = Check.ifNull(getAction, "getAction");
         CUSTOM_READERS = mapOf();
         WHOLE_SCREEN_PROVIDER = Check.ifNull(wholeScreenProvider, "wholeScreenProvider");
+        DEFAULT_KEY_EVENT_PRIORITY = defaultKeyEventPriority;
     }
 
     public <TDef extends AbstractContentDefinition, TRend extends Renderable> TRend read(
@@ -131,13 +133,14 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         @SuppressWarnings("unchecked") var readComponent = COMPONENT_FACTORY.make(
                 randomUUID(),
                 d.Z,
-                defaultIfNull(d.bindings, setOf(), bindings -> Arrays.stream(bindings)
-                        .map(binding -> keyBinding(
-                                binding.KEYS,
-                                GET_ACTION.apply(binding.PRESS_ACTION_ID),
-                                GET_ACTION.apply(binding.RELEASE_ACTION_ID)))
+                defaultIfNull(d.bindings, setOf(), bindingDefs -> Arrays.stream(bindingDefs)
+                        .map(bindingDef -> keyBinding(
+                                bindingDef.KEY_CODEPOINTS,
+                                GET_ACTION.apply(bindingDef.PRESS_ACTION_ID),
+                                GET_ACTION.apply(bindingDef.RELEASE_ACTION_ID)))
                         .collect(Collectors.toSet())),
                 falseIfNull(d.blocksLowerBindings),
+                defaultIfNull(d.keyBindingPriority, DEFAULT_KEY_EVENT_PRIORITY),
                 d.DIMENSIONS_PROVIDER != null ? d.DIMENSIONS_PROVIDER :
                         d.DIMENSIONS_PROVIDER_DEF != null ?
                                 PROVIDER_READER.read(d.DIMENSIONS_PROVIDER_DEF, timestamp) :

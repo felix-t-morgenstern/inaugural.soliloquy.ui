@@ -1,22 +1,25 @@
 package inaugural.soliloquy.ui.test.integration.display.button;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
+import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
 
+import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
-import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
 
-public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
+public class ButtonWithKeyBindingDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition from rect dimens with text display test",
+                "Button definition with key binding display test",
                 new AssetDefinitionsDTO(
-                        arrayOf(),
+                        arrayOf(
+                                new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
+                        ),
                         arrayOf(
                                 MERRIWEATHER_DEFINITION_DTO
                         ),
@@ -28,37 +31,21 @@ public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition from rect dimens with text", 8000),
-                ButtonFromRectDimensWithTextDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Button definition with key binding", 800000),
+                ButtonWithKeyBindingDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var buttonDefLeft = testButtonFromRectDimens(
-                floatBoxOf(0.05f, 0.4f, 0.25f, 0.6f),
-                "Left",
-                TextJustification.LEFT
-        );
-
-        var buttonDefCenter = testButtonFromRectDimens(
-                floatBoxOf(0.4f, 0.4f, 0.6f, 0.6f),
-                "Center",
-                TextJustification.CENTER
-        );
-
-        var buttonDefRight = testButtonFromRectDimens(
-                floatBoxOf(0.75f, 0.4f, 0.95f, 0.6f),
-                "Right",
-                TextJustification.RIGHT
-        );
+        var buttonDef = testFullDefFromText("Button", SCREEN_CENTER)
+                .withTextItalicIndices(0, 1)
+                .withKey(GLFW_KEY_B, 0);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
         setOf(
-                buttonDefLeft,
-                buttonDefCenter,
-                buttonDefRight
+                buttonDef
         ).forEach(d -> reader.read(topLevelComponent, d, timestamp(uiModule)));
     }
 }

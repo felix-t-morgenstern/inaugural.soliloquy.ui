@@ -1,0 +1,87 @@
+package inaugural.soliloquy.ui.test.integration.display.button;
+
+import inaugural.soliloquy.ui.components.button.ButtonDefinition;
+import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
+import soliloquy.specs.common.valueobjects.FloatBox;
+import soliloquy.specs.common.valueobjects.Vertex;
+import soliloquy.specs.io.graphics.renderables.TextJustification;
+
+import java.awt.*;
+
+import static inaugural.soliloquy.tools.valueobjects.Vertex.translate;
+import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+
+class ButtonDisplayTest extends DisplayTest {
+    protected static float BUTTON_TEXT_HEIGHT = 0.075f;
+
+    protected static ButtonDefinition testButtonFromRectDimens(
+            FloatBox rectDimens,
+            String text,
+            TextJustification justification
+    ) {
+        return withMaxTestArgs(button(
+                rectDimens,
+                0
+        ))
+                .withText(
+                        text,
+                        MERRIWEATHER_ID,
+                        0.075f
+                )
+                .withTextJustification(justification);
+    }
+
+    protected static ButtonDefinition testButtonFromText(
+            String text,
+            Vertex renderingLoc
+    ) {
+        return withMaxTestArgs(button(
+                text,
+                MERRIWEATHER_ID,
+                BUTTON_TEXT_HEIGHT,
+                renderingLoc,
+                0
+        ))
+                .withTextPadding(0.025f);
+    }
+
+    protected static ButtonDefinition withMaxTestArgs(ButtonDefinition definition) {
+        return definition
+                .withBgColors(
+                        new Color(255, 0, 127),
+                        Color.RED,
+                        Color.RED,
+                        new Color(255, 127, 0)
+                )
+                .withBgColorsHover(
+                        new Color(127, 255, 0),
+                        Color.GREEN,
+                        Color.GREEN,
+                        new Color(0, 255, 127)
+                )
+                .withBgColorsPressed(
+                        new Color(0, 127, 255),
+                        Color.BLUE,
+                        Color.BLUE,
+                        new Color(127, 0, 255)
+                )
+                .withTextColor(Color.CYAN)
+                .withTextColorHover(Color.MAGENTA)
+                .withTextColorPressed(Color.YELLOW)
+                .withTextPadding(0.01f);
+    }
+
+    protected static ButtonDefinition testFullDefFromText(
+            String text,
+            Vertex center
+    ) {
+        return testButtonFromText(
+                text,
+                translate(center, 0, -(BUTTON_TEXT_HEIGHT / 2f))
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
+                .withPressSound(PRESS_SOUND_ID)
+                .withReleaseSound(RELEASE_SOUND_ID);
+    }
+}

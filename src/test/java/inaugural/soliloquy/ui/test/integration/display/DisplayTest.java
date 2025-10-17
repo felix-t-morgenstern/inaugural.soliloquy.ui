@@ -35,6 +35,7 @@ import static inaugural.soliloquy.io.api.dto.AssetType.*;
 import static inaugural.soliloquy.tools.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.reflection.Reflection.readMethods;
+import static inaugural.soliloquy.ui.Settings.DEFAULT_KEY_BINDING_PRIORITY;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -188,7 +189,7 @@ public class DisplayTest {
         // Many of these are dummy values which should be tweaked for performance
         @SuppressWarnings("rawtypes") var settings = Collections.<String, Setting>mapOf(
                 AUDIO_FILETYPES_ID,
-                setOf(),
+                generateMockSetting(setOf("wav", "mp3")),
                 PERIODS_PER_FRAME_RATE_REPORT_AGGREGATE_ID,
                 generateMockSetting(10),
                 FRAME_TIMER_POLLING_INTERVAL_ID,
@@ -224,7 +225,9 @@ public class DisplayTest {
                 DEFAULT_FONT_COLOR_ID,
                 generateMockSetting(Color.WHITE),
                 AUDIO_RELATIVE_DIRS_ID,
-                AUDIO_DIR_RELATIVE_PATHS
+                AUDIO_DIR_RELATIVE_PATHS,
+                DEFAULT_KEY_BINDING_PRIORITY,
+                generateMockSetting(0)
         );
 
         var ioModule = new IOModule(
@@ -247,6 +250,7 @@ public class DisplayTest {
 
         var uiModule = new UIModule(
                 ioModule,
+                settings::get,
                 ACTIONS,
                 FUNCTIONS
         );
@@ -263,7 +267,7 @@ public class DisplayTest {
         var wholeScreenProvider = staticProviderFactory.apply(randomUUID(), WHOLE_SCREEN);
         //noinspection unchecked
         topLevelComponent =
-                componentFactory.make(randomUUID(), 0, setOf(), false, wholeScreenProvider, null,
+                componentFactory.make(randomUUID(), 0, setOf(), false, 0, wholeScreenProvider, null,
                         mapOf());
         frameExecutor.setTopLevelComponent(topLevelComponent);
 

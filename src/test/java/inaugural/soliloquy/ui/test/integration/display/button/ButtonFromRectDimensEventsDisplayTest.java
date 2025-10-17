@@ -12,7 +12,7 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
-public class ButtonFromRectDimensEventsDisplayTest extends DisplayTest {
+public class ButtonFromRectDimensEventsDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
                 "Button definition from rect dimens events display test",
@@ -57,8 +57,8 @@ public class ButtonFromRectDimensEventsDisplayTest extends DisplayTest {
                         new Color(127, 0, 255)
                 );
 
-        var renderableDefReader = uiModule.provide(RenderableDefinitionReader.class);
+        var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        renderableDefReader.read(topLevelComponent, buttonDef, timestamp(uiModule));
+        reader.read(topLevelComponent, buttonDef, timestamp(uiModule));
     }
 }

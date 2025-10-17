@@ -24,6 +24,6 @@ public class KeyBindingDefinitionReader {
         var onRelease = defaultIfNull(definition.RELEASE_ACTION_ID, null, GET_ACTION);
 
         //noinspection unchecked
-        return keyBinding(definition.KEYS, onPress, onRelease);
+        return keyBinding(definition.KEY_CODEPOINTS, onPress, onRelease);
     }
 }

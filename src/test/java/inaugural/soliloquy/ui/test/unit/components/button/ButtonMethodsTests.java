@@ -26,6 +26,7 @@ import java.util.function.Function;
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
 import static inaugural.soliloquy.tools.random.Random.*;
+import static inaugural.soliloquy.tools.testing.Assertions.assertFloatBoxesEqual;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
@@ -181,8 +182,8 @@ public class ButtonMethodsTests {
         runnableCaptor.getValue().run();
 
         inOrder.verify(mockData, once()).get(RECT_HOVER_STATE_DATA_KEY);
-        inOrder.verify(mockData, never()).get(SPRITE_HOVER_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESS_STATE_DATA_KEY, false);
+        inOrder.verify(mockData, never()).get(SPRITE_HOVER_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESSED_KEY_DATA_KEY, null);
         inOrder.verify(mockData, once()).get(RELEASE_SOUND_ID_DATA_KEY);
         inOrder.verify(mockPlaySound, once()).accept(RELEASE_SOUND_ID);
@@ -305,6 +306,7 @@ public class ButtonMethodsTests {
 
         //noinspection unchecked
         verify(mockPressAction, never()).accept(any());
+        verify(mockData, once()).put(PRESS_STATE_DATA_KEY, false);
     }
 
     @Test
@@ -703,7 +705,7 @@ public class ButtonMethodsTests {
 
     @Test
     public void testReleaseKey_Button() {
-        var key = randomChar();
+        var key = randomInt();
         when(mockData.get(PRESS_STATE_DATA_KEY)).thenReturn(true);
         when(mockData.get(PRESSED_KEY_DATA_KEY)).thenReturn(key);
 
@@ -716,8 +718,8 @@ public class ButtonMethodsTests {
         inOrder.verify(mockComponent, once()).data();
         inOrder.verify(mockData, once()).get(PRESSED_KEY_DATA_KEY);
         inOrder.verify(mockData, once()).get(PRESS_STATE_DATA_KEY);
-        verify(mockData, never()).get(RECT_HOVER_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESS_STATE_DATA_KEY, false);
+        verify(mockData, never()).get(RECT_HOVER_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESSED_KEY_DATA_KEY, null);
         inOrder.verify(mockData, once()).get(RELEASE_SOUND_ID_DATA_KEY);
         inOrder.verify(mockPlaySound, once()).accept(RELEASE_SOUND_ID);
@@ -808,13 +810,14 @@ public class ButtonMethodsTests {
                 mockInputsData
         ));
 
+        var distFromCenterHoriz = PADDING_HORIZ + (LINE_LENGTH/2f);
         var expected = floatBoxOf(
-                textRenderingLoc.X - PADDING_HORIZ,
+                textRenderingLoc.X - distFromCenterHoriz,
                 textRenderingLoc.Y - PADDING_VERT,
-                textRenderingLoc.X + LINE_LENGTH + PADDING_HORIZ,
+                textRenderingLoc.X + distFromCenterHoriz,
                 textRenderingLoc.Y + TEXT_HEIGHT + PADDING_VERT
         );
-        assertEquals(expected, output);
+        assertFloatBoxesEqual(expected, output);
         verify(mockTextRenderingLoc, once()).provide(TIMESTAMP);
     }
 

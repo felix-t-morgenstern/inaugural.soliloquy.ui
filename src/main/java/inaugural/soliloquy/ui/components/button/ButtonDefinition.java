@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.button;
 
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TextJustification;
 import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -16,7 +17,8 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ButtonDefinition extends AbstractContentDefinition {
-    public char[] keys;
+    public int[] keyCodepoints;
+    public int keyEventPriority;
 
     public final AbstractProviderDefinition<FloatBox> RECT_DIMENS_DEF;
     public final AbstractProviderDefinition<Vertex> TEXT_RENDERING_LOC_DEF;
@@ -173,19 +175,24 @@ public class ButtonDefinition extends AbstractContentDefinition {
     }
 
     /**
-     * @param keys The keys which activate the button when pressed
+     * @param keys     The keys which activate the button when pressed
+     * @param priority The priority of the KeyBinding for this button (c.f.
+     *                 {@link soliloquy.specs.io.input.keyboard.KeyEventHandler#addComponent})
      */
-    public ButtonDefinition withKeys(char... keys) {
-        this.keys = keys;
+    public ButtonDefinition withKeys(int priority, int... keys) {
+        this.keyCodepoints = keys;
+        this.keyEventPriority = priority;
 
         return this;
     }
 
     /**
-     * @param key The key which activates the button when pressed
+     * @param keyCodepoint The keyCodepoint which activates the button when pressed
+     * @param priority The priority of the KeyBinding for this button (c.f.
+     *                 {@link soliloquy.specs.io.input.keyboard.KeyEventHandler#addComponent})
      */
-    public ButtonDefinition withKey(char key) {
-        return this.withKeys(key);
+    public ButtonDefinition withKey(int keyCodepoint, int priority) {
+        return this.withKeys(priority, keyCodepoint);
     }
 
     /**
@@ -343,7 +350,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
 
     /**
      * Defaults to {@link TextJustification#CENTER}. (Vertical alignment is centered.) <i>This has
-     * no effect unless you manually set the button's dimensions.</i>
+     * no effect unless you manually set the button's dimensions when creating the definition, via
+     * e.g. {@link ButtonDefinition#button(AbstractProviderDefinition, int)}.</i>
      *
      * @param justification The justification of the text within the button
      */

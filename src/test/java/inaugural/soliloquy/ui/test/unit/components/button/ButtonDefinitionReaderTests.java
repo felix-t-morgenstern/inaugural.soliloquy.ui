@@ -100,7 +100,8 @@ public class ButtonDefinitionReaderTests {
     private final Function<String, Font> MOCK_GET_FONT = MOCK_FONT_AND_LOOKUP.lookup;
 
     private final int Z = randomInt();
-    private final char KEY = randomChar();
+    private final int KEY = randomInt();
+    private final int KEY_BINDING_PRIORITY = randomInt();
     private final String SPRITE_ID_DEFAULT = randomString();
     private final String SPRITE_ID_HOVER = randomString();
     private final String SPRITE_ID_PRESSED = randomString();
@@ -467,7 +468,8 @@ public class ButtonDefinitionReaderTests {
         assertEquals(3, output.CONTENT.size());
         assertEquals(1, output.bindings.length);
         var binding = output.bindings[0];
-        assertArrayEquals(arrayChars(KEY), binding.KEYS);
+        assertArrayEquals(arrayInts(KEY), binding.KEY_CODEPOINTS);
+        assertEquals(KEY_BINDING_PRIORITY, output.keyBindingPriority);
         assertEquals(PRESS_KEY_METHOD, binding.PRESS_ACTION_ID);
         assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_ACTION_ID);
 
@@ -623,7 +625,8 @@ public class ButtonDefinitionReaderTests {
         assertEquals(3, output.CONTENT.size());
         assertEquals(1, output.bindings.length);
         var binding = output.bindings[0];
-        assertArrayEquals(arrayChars(KEY), binding.KEYS);
+        assertArrayEquals(arrayInts(KEY), binding.KEY_CODEPOINTS);
+        assertEquals(KEY_BINDING_PRIORITY, output.keyBindingPriority);
         assertEquals(PRESS_KEY_METHOD, binding.PRESS_ACTION_ID);
         assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_ACTION_ID);
 
@@ -789,7 +792,8 @@ public class ButtonDefinitionReaderTests {
         assertEquals(3, output.CONTENT.size());
         assertEquals(1, output.bindings.length);
         var binding = output.bindings[0];
-        assertArrayEquals(arrayChars(KEY), binding.KEYS);
+        assertArrayEquals(arrayInts(KEY), binding.KEY_CODEPOINTS);
+        assertEquals(KEY_BINDING_PRIORITY, output.keyBindingPriority);
         assertEquals(PRESS_KEY_METHOD, binding.PRESS_ACTION_ID);
         assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_ACTION_ID);
 
@@ -1162,7 +1166,7 @@ public class ButtonDefinitionReaderTests {
 
     private ButtonDefinition withMaximalDefaultArgs(ButtonDefinition definition) {
         return definition
-                .withKeys(arrayChars(KEY))
+                .withKeys(KEY_BINDING_PRIORITY, arrayInts(KEY))
                 .withTextPadding(TEXT_PADDING_VERT)
                 .withGlyphPadding(TEXT_GLYPH_PADDING)
                 .withBgColors(

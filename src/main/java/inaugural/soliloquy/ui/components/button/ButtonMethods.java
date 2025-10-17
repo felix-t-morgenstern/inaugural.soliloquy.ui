@@ -58,16 +58,17 @@ public class ButtonMethods {
     }
 
     public void pressMouse_Button(EventInputs e) {
-        pressButton(e.component, null, e);
         // When the button is pressed, it subscribes to the next release of the left mouse button.
-        SUBSCRIBE_TO_MOUSE_EVENTS.accept(LEFT_MOUSE_BUTTON, MouseEventHandler.EventType.RELEASE,
-                () -> releaseButton(e, null));
+        pressButton(e.component, null, e, () ->
+                SUBSCRIBE_TO_MOUSE_EVENTS.accept(LEFT_MOUSE_BUTTON,
+                        MouseEventHandler.EventType.RELEASE, () -> releaseButton(e, null)));
+
     }
 
     public void mouseOver_Button(EventInputs e) {
         var isHovering = getHoverState(e.component.data());
         e.component.data().put(getHoverStateDataKey(e), true);
-        if (!isHovering) {
+        if (!isHovering && isNotPressedByKey(e.component.data())) {
             if (falseIfNull(getFromData(e.component.data(), PRESS_STATE))) {
                 setRenderablesPressed(e);
             }
@@ -81,9 +82,15 @@ public class ButtonMethods {
         var isHoveringPrev = getHoverState(e.component.data());
         e.component.data().put(getHoverStateDataKey(e), false);
         var isHoveringNow = getHoverState(e.component.data());
-        if (isHoveringPrev && !isHoveringNow) {
+        if (isHoveringPrev && !isHoveringNow && isNotPressedByKey(e.component.data())) {
             setRenderablesDefault(e);
         }
+    }
+
+    private boolean isNotPressedByKey(Map<String, Object> data) {
+        var isPressed = falseIfNull(getFromData(data, PRESS_STATE));
+        Integer pressedKey = getFromData(data, PRESSED_KEY);
+        return !isPressed || pressedKey == null;
     }
 
     private String getHoverStateDataKey(EventInputs e) {
@@ -96,14 +103,14 @@ public class ButtonMethods {
     }
 
     public void pressKey_Button(EventInputs e) {
-        pressButton(e.component, e.key, e);
+        pressButton(e.component, e.keyCodepoint, e, null);
     }
 
     public void releaseKey_Button(EventInputs e) {
-        releaseButton(e, e.key);
+        releaseButton(e, e.keyCodepoint);
     }
 
-    private void pressButton(Component c, Character key, EventInputs e) {
+    private void pressButton(Component c, Integer key, EventInputs e, Runnable afterFire) {
         var data = c.data();
         if (!falseIfNull(data.get(PRESS_STATE))) {
             data.put(PRESS_STATE, true);
@@ -114,22 +121,33 @@ public class ButtonMethods {
                 PLAY_SOUND.accept(pressSoundIdStr);
             }
             setRenderablesPressed(e);
+
+            if (afterFire != null) {
+                afterFire.run();
+            }
         }
     }
 
-    private void releaseButton(EventInputs e, Character key) {
+    private void releaseButton(EventInputs e, Integer keyCodepoint) {
         var willFire = false;
         var data = e.component.data();
         var pressedKey = data.get(PRESSED_KEY);
         // If it's a key action, we need to make sure the button has already been pressed by the
         // key being released.
-        if (key != null && falseIfNull(data.get(PRESS_STATE)) && key.equals(pressedKey)) {
+        if (keyCodepoint != null &&
+                falseIfNull(data.get(PRESS_STATE)) &&
+                keyCodepoint.equals(pressedKey)) {
             willFire = true;
         }
         // If it's a mouse action, we need to verify whether the mouse is still hovering on the
         // button.
-        else if (key == null && getHoverState(data)) {
-            willFire = true;
+        else if (keyCodepoint == null) {
+            if (getHoverState(data)) {
+                willFire = true;
+            }
+            else {
+                data.put(PRESS_STATE, false);
+            }
         }
 
         if (willFire) {
@@ -321,11 +339,12 @@ public class ButtonMethods {
                 getFromData(e.data(), provideRectDimensFromText_Button_textPaddingVert);
         float textPaddingHoriz =
                 getFromData(e.data(), provideRectDimensFromText_Button_textPaddingHoriz);
+        var distFromCenterHoriz = textPaddingHoriz + lineLength / 2f;
 
         return floatBoxOf(
-                textRenderingLoc.X - textPaddingHoriz,
+                textRenderingLoc.X - distFromCenterHoriz,
                 textRenderingLoc.Y - textPaddingVert,
-                textRenderingLoc.X + lineLength + textPaddingHoriz,
+                textRenderingLoc.X + distFromCenterHoriz,
                 textRenderingLoc.Y + textHeight + textPaddingVert
         );
     }
@@ -336,14 +355,14 @@ public class ButtonMethods {
     public float provideTexTileWidth_Button(FunctionalProvider.Inputs e) {
         ProviderAtTime<FloatBox> rectDimensProvider =
                 getFromData(e.data(), provideTexTileDimens_Button_rectDimensProvider);
-        FloatBox rectDimens = rectDimensProvider.provide(e.timestamp());
+        var rectDimens = rectDimensProvider.provide(e.timestamp());
         return rectDimens.width();
     }
 
     public float provideTexTileHeight_Button(FunctionalProvider.Inputs e) {
         ProviderAtTime<FloatBox> rectDimensProvider =
                 getFromData(e.data(), provideTexTileDimens_Button_rectDimensProvider);
-        FloatBox rectDimens = rectDimensProvider.provide(e.timestamp());
+        var rectDimens = rectDimensProvider.provide(e.timestamp());
         return rectDimens.height();
     }
 }

@@ -53,10 +53,8 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
                                         e -> PROVIDER_READER.read(e.getValue(), timestamp))) :
                         mapOf()
         );
-        var italics = defaultIfNull(definition.italicIndices, Collections.<Integer>listOf(),
-                i -> Arrays.stream(i).boxed().collect(Collectors.toList()));
-        var bolds = defaultIfNull(definition.boldIndices, Collections.<Integer>listOf(),
-                i -> Arrays.stream(i).boxed().collect(Collectors.toList()));
+        var italics = defaultIfNull(definition.italicIndices, Collections.<Integer>listOf());
+        var bolds = defaultIfNull(definition.boldIndices, Collections.<Integer>listOf());
 
         var borderThickness = provider(definition.borderThicknessProvider, timestamp);
         var borderColor = provider(definition.borderColorProvider, timestamp);

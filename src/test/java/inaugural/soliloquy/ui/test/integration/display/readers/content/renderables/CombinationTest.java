@@ -13,8 +13,7 @@ import soliloquy.specs.io.graphics.renderables.TextJustification;
 
 import java.awt.*;
 
-import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
@@ -111,8 +110,8 @@ public class CombinationTest extends DisplayTest {
                 2
         )
                 .withColorDefs(rainbowGradient(text))
-                .withItalics(5, 7, 12)
-                .withBold(0, 4, 12)
+                .withItalics(listOf(5, 7, 12))
+                .withBold(listOf(0, 4, 12))
                 .withBorder(
                         staticVal(0.001f),
                         staticVal(Color.WHITE)

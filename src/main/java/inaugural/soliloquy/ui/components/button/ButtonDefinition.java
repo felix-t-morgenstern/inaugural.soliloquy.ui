@@ -2,7 +2,6 @@ package inaugural.soliloquy.ui.components.button;
 
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TextJustification;
 import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -11,8 +10,10 @@ import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
 
+import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
@@ -43,8 +44,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public ShiftDefinition spriteShiftDefaultDef;
 
     public Map<Integer, AbstractProviderDefinition<Color>> textColorIndicesDefault;
-    public int[] textItalicIndicesDefault;
-    public int[] textBoldIndicesDefault;
+    public List<Integer> textItalicIndicesDefault;
+    public List<Integer> textBoldIndicesDefault;
 
     // hover
     public AbstractProviderDefinition<Color> bgColorTopLeftHover;
@@ -59,8 +60,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public ShiftDefinition spriteShiftHoverDef;
 
     public Map<Integer, AbstractProviderDefinition<Color>> textColorIndicesHover;
-    public int[] textItalicIndicesHover;
-    public int[] textBoldIndicesHover;
+    public List<Integer> textItalicIndicesHover;
+    public List<Integer> textBoldIndicesHover;
 
     // pressed
     public AbstractProviderDefinition<Color> bgColorTopLeftPressed;
@@ -75,8 +76,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public ShiftDefinition spriteShiftPressedDef;
 
     public Map<Integer, AbstractProviderDefinition<Color>> textColorIndicesPressed;
-    public int[] textItalicIndicesPressed;
-    public int[] textBoldIndicesPressed;
+    public List<Integer> textItalicIndicesPressed;
+    public List<Integer> textBoldIndicesPressed;
 
     public String onPressId;
 
@@ -402,7 +403,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * @param italicIndices The indices which mark the starts and ends of italicization within the
      *                      text (c.f. {@link TextLineRenderable#italicIndices()})
      */
-    public ButtonDefinition withTextItalicIndices(int... italicIndices) {
+    public ButtonDefinition withTextItalicIndices(List<Integer> italicIndices) {
         this.textItalicIndicesDefault = italicIndices;
 
         return this;
@@ -412,14 +413,14 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * Makes the whole text italicized
      */
     public ButtonDefinition italic() {
-        return this.withTextItalicIndices(0);
+        return this.withTextItalicIndices(listOf(0));
     }
 
     /**
      * @param boldIndices The indices which mark the starts and ends of boldface within the text
      *                    (c.f. {@link TextLineRenderable#boldIndices()} ()})
      */
-    public ButtonDefinition withTextBoldIndices(int... boldIndices) {
+    public ButtonDefinition withTextBoldIndices(List<Integer> boldIndices) {
         this.textBoldIndicesDefault = boldIndices;
 
         return this;
@@ -429,7 +430,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * Makes the whole text bold
      */
     public ButtonDefinition bold() {
-        return this.withTextBoldIndices(0);
+        return this.withTextBoldIndices(listOf(0));
     }
 
     /**
@@ -568,7 +569,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      *                      text <i>when the button is being pressed down</i> (c.f.
      *                      {@link TextLineRenderable#italicIndices()})
      */
-    public ButtonDefinition withTextItalicIndicesHover(int... italicIndices) {
+    public ButtonDefinition withTextItalicIndicesHover(List<Integer> italicIndices) {
         this.textItalicIndicesHover = italicIndices;
 
         return this;
@@ -578,7 +579,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * Makes the whole text italicized <i>when the button is being pressed down</i>
      */
     public ButtonDefinition italicHover() {
-        return this.withTextItalicIndicesHover(0);
+        return this.withTextItalicIndicesHover(listOf(0));
     }
 
     /**
@@ -586,7 +587,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      *                    <i>when the button is being pressed down</i> (c.f.
      *                    {@link TextLineRenderable#boldIndices()})
      */
-    public ButtonDefinition withTextBoldIndicesHover(int... boldIndices) {
+    public ButtonDefinition withTextBoldIndicesHover(List<Integer> boldIndices) {
         this.textBoldIndicesHover = boldIndices;
 
         return this;
@@ -596,7 +597,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * Makes the whole text bold <i>when the button is being pressed down</i>
      */
     public ButtonDefinition boldHover() {
-        return this.withTextBoldIndicesHover(0);
+        return this.withTextBoldIndicesHover(listOf(0));
     }
 
     /**
@@ -735,7 +736,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      *                      text <i>when the button is being pressed down</i> (c.f.
      *                      {@link TextLineRenderable#italicIndices()})
      */
-    public ButtonDefinition withTextItalicIndicesPressed(int... italicIndices) {
+    public ButtonDefinition withTextItalicIndicesPressed(List<Integer> italicIndices) {
         this.textItalicIndicesPressed = italicIndices;
 
         return this;
@@ -745,7 +746,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * Makes the whole text italicized <i>when the button is being pressed down</i>
      */
     public ButtonDefinition italicPressed() {
-        return this.withTextItalicIndicesPressed(0);
+        return this.withTextItalicIndicesPressed(listOf(0));
     }
 
     /**
@@ -753,7 +754,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      *                    <i>when the button is being pressed down</i> (c.f.
      *                    {@link TextLineRenderable#boldIndices()})
      */
-    public ButtonDefinition withTextBoldIndicesPressed(int... boldIndices) {
+    public ButtonDefinition withTextBoldIndicesPressed(List<Integer> boldIndices) {
         this.textBoldIndicesPressed = boldIndices;
 
         return this;
@@ -763,7 +764,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * Makes the whole text bold <i>when the button is being pressed down</i>
      */
     public ButtonDefinition boldPressed() {
-        return this.withTextBoldIndicesPressed(0);
+        return this.withTextBoldIndicesPressed(listOf(0));
     }
 
     /**

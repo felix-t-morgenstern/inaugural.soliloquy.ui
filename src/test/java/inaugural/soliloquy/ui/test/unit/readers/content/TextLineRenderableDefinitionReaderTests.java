@@ -125,8 +125,8 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
                         JUSTIFICATION, GLYPH_PADDING, Z)
                         .withColorDefs(mapOf(COLOR_INDEX, mockColorDefinition))
-                        .withItalics(ITALIC_INDEX)
-                        .withBold(BOLD_INDEX)
+                        .withItalics(listOf(ITALIC_INDEX))
+                        .withBold(listOf(BOLD_INDEX))
                         .withBorder(mockBorderThicknessDefinition, mockBorderColorDefinition)
                         .withDropShadow(
                                 mockDropShadowSizeDefinition,

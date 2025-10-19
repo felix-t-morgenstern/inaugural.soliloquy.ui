@@ -8,8 +8,7 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
-import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.tools.collections.Collections.setOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
 
 public class ButtonWithKeyBindingDisplayTest extends ButtonDisplayTest {
@@ -39,7 +38,7 @@ public class ButtonWithKeyBindingDisplayTest extends ButtonDisplayTest {
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var buttonDef = testFullDefFromText("Button", SCREEN_CENTER)
-                .withTextItalicIndices(0, 1)
+                .withTextItalicIndices(listOf(0, 1))
                 .withKey(GLFW_KEY_B, 0);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);

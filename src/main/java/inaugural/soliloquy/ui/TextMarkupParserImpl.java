@@ -35,7 +35,8 @@ public class TextMarkupParserImpl implements TextMarkupParser {
     private final Map<String, Color> COLOR_PRESETS;
     private final TextLineRenderer TEXT_LINE_RENDERER;
 
-    public TextMarkupParserImpl(Color defaultColor, Map<String, Color> colorPresets,
+    public TextMarkupParserImpl(Color defaultColor,
+                                Map<String, Color> colorPresets,
                                 TextLineRenderer textLineRenderer) {
         DEFAULT_COLOR = Check.ifNull(defaultColor, "defaultColor");
         DEFAULT_COLORS = mapOf(0, DEFAULT_COLOR);
@@ -197,7 +198,7 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                     italicAtMostRecentSpaceIndex) ? listOf(0) : listOf();
                             List<Integer> newBoldIndices = (aChar == CARRIAGE_RETURN ? isBold :
                                     boldAtMostRecentSpaceIndex) ? listOf(0) : listOf();
-                            if (mostRecentSpaceIndex > 0) {
+                            if (mostRecentSpaceIndex > 0 && aChar != CARRIAGE_RETURN) {
                                 prevLineText = textBuilder.substring(0, mostRecentSpaceIndex);
 
                                 final int prevLineEnd = mostRecentSpaceIndex;

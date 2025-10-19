@@ -24,16 +24,15 @@ import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 import soliloquy.specs.io.input.mouse.MouseEventHandler;
 import soliloquy.specs.ui.definitions.providers.*;
 
+import java.awt.*;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
 import static inaugural.soliloquy.io.api.Constants.*;
-import static inaugural.soliloquy.io.api.Settings.AUDIO_FILETYPES_ID;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.reflection.Reflection.readMethods;
-import static inaugural.soliloquy.ui.Settings.DEFAULT_KEY_BINDING_PRIORITY;
+import static inaugural.soliloquy.ui.Settings.*;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 
 public class UIModule extends AbstractModule {
@@ -129,7 +128,7 @@ public class UIModule extends AbstractModule {
         // Renderable Definition Readers
 
         var defaultKeyBindingPriority =
-                (int) (getSetting.apply(DEFAULT_KEY_BINDING_PRIORITY).getValue());
+                (int) (getSetting.apply(DEFAULT_KEY_BINDING_PRIORITY_SETTING_ID).getValue());
         var renderableDefinitionReader = andRegister(new RenderableDefinitionReader(
                 new RasterizedLineSegmentRenderableDefinitionReader(
                         ioModule.provide(RasterizedLineSegmentRenderableFactory.class),
@@ -187,6 +186,17 @@ public class UIModule extends AbstractModule {
                 actions::get,
                 wholeScreenProvider,
                 defaultKeyBindingPriority
+        ));
+
+        // Custom component readers
+
+        var defaultTextColor = (Color) (getSetting.apply(DEFAULT_TEXT_COLOR_SETTING_ID).getValue());
+        @SuppressWarnings("unchecked") var defaultColorPresets =
+                (Map<String, Color>) (getSetting.apply(COLOR_PRESETS_SETTING_ID).getValue());
+        andRegister(new TextMarkupParserImpl(
+                defaultTextColor,
+                defaultColorPresets,
+                textLineRenderer
         ));
 
         var customComponentMethods = Collections.setOf();

@@ -665,4 +665,53 @@ public class TextMarkupParserImplTests {
         assertTrue(formatting[3].italicIndices().isEmpty());
         assertTrue(formatting[3].boldIndices().isEmpty());
     }
+
+    @Test
+    public void testFormattingPreservedAcrossLinesWhenUsingLineBreaksInTextBlock() {
+        var rawText = String.format(
+                """
+                wordNumber1 extraWord
+                wo***[color=%s]rdNumber2
+                wordNumber***[/color]3
+                wordNumber4""",
+                PRESET_COLOR_NAME);
+
+        var formatting = parser.formatMultiline(
+                rawText,
+                mockFont,
+                PADDING_BETWEEN_GLYPHS,
+                LINE_HEIGHT,
+                VERY_HIGH_MAX_LENGTH
+        );
+
+        assertNotNull(formatting);
+        assertEquals(4, formatting.length);
+        assertNotNull(formatting[0].text());
+        assertEquals("wordNumber1 extraWord", formatting[0].text());
+        assertEquals("wordNumber2", formatting[1].text());
+        assertEquals("wordNumber3", formatting[2].text());
+        assertEquals("wordNumber4", formatting[3].text());
+        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertTrue(formatting[0].italicIndices().isEmpty());
+        assertTrue(formatting[0].boldIndices().isEmpty());
+        assertEquals(mapOf(
+                0,
+                DEFAULT_COLOR,
+                2,
+                PRESET_COLOR
+        ), formatting[1].colorIndices());
+        assertEquals(listOf(2), formatting[1].italicIndices());
+        assertEquals(listOf(2), formatting[1].boldIndices());
+        assertEquals(mapOf(
+                0,
+                PRESET_COLOR,
+                10,
+                DEFAULT_COLOR
+        ), formatting[2].colorIndices());
+        assertEquals(listOf(0, 10), formatting[2].italicIndices());
+        assertEquals(listOf(0, 10), formatting[2].boldIndices());
+        assertEquals(DEFAULT_COLOR_INDICES, formatting[3].colorIndices());
+        assertTrue(formatting[3].italicIndices().isEmpty());
+        assertTrue(formatting[3].boldIndices().isEmpty());
+    }
 }

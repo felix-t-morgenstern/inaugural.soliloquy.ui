@@ -35,7 +35,8 @@ import static inaugural.soliloquy.io.api.dto.AssetType.*;
 import static inaugural.soliloquy.tools.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.reflection.Reflection.readMethods;
-import static inaugural.soliloquy.ui.Settings.DEFAULT_KEY_BINDING_PRIORITY;
+import static inaugural.soliloquy.ui.Constants.COLOR_PRESETS;
+import static inaugural.soliloquy.ui.Settings.*;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -225,9 +226,13 @@ public class DisplayTest {
                 DEFAULT_FONT_COLOR_ID,
                 generateMockSetting(Color.WHITE),
                 AUDIO_RELATIVE_DIRS_ID,
-                AUDIO_DIR_RELATIVE_PATHS,
-                DEFAULT_KEY_BINDING_PRIORITY,
-                generateMockSetting(0)
+                generateMockSetting(AUDIO_DIR_RELATIVE_PATHS),
+                DEFAULT_KEY_BINDING_PRIORITY_SETTING_ID,
+                generateMockSetting(0),
+                DEFAULT_TEXT_COLOR_SETTING_ID,
+                generateMockSetting(Color.WHITE),
+                COLOR_PRESETS_SETTING_ID,
+                generateMockSetting(COLOR_PRESETS)
         );
 
         var ioModule = new IOModule(

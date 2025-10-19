@@ -9,10 +9,8 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
-import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.tools.collections.Collections.setOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
-import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
 
 public class ButtonWithFullOptionsDisplayTest extends ButtonDisplayTest {
@@ -46,7 +44,7 @@ public class ButtonWithFullOptionsDisplayTest extends ButtonDisplayTest {
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var buttonDef = testFullDefFromText("Button", SCREEN_CENTER)
-                .withTextItalicIndices(0, 1)
+                .withTextItalicIndices(listOf(listOf(0, 1)))
                 .withKey(GLFW_KEY_B, 0)
                 .withSprite(
                         SHIELD_SPRITE_ID,

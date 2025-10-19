@@ -158,10 +158,8 @@ public class ButtonDefinitionReader {
             ProviderAtTime<Vertex> textRenderingLoc;
             var font = GET_FONT.apply(definition.fontId);
             var paddingHoriz = definition.textPaddingVertical / GET_WIDTH_TO_HEIGHT_RATIO.get();
-            List<Integer> textItalicIndicesDefault =
-                    indicesOrDefault(definition.textItalicIndicesDefault, listOf());
-            List<Integer> textBoldIndicesDefault =
-                    indicesOrDefault(definition.textBoldIndicesDefault, listOf());
+            List<Integer> textItalicIndicesDefault = defaultIfNull(definition.textItalicIndicesDefault, listOf());
+            List<Integer> textBoldIndicesDefault = defaultIfNull(definition.textBoldIndicesDefault, listOf());
             var textLineLengthDefault = TEXT_LINE_RENDERER.textLineLength(
                     definition.text,
                     font,
@@ -177,9 +175,9 @@ public class ButtonDefinitionReader {
                                     definition.text,
                                     font,
                                     definition.textGlyphPadding,
-                                    indicesOrDefault(definition.textItalicIndicesHover,
+                                    defaultIfNull(definition.textItalicIndicesHover,
                                             textItalicIndicesDefault),
-                                    indicesOrDefault(definition.textBoldIndicesHover,
+                                    defaultIfNull(definition.textBoldIndicesHover,
                                             textBoldIndicesDefault),
                                     definition.textHeight
                             )
@@ -191,9 +189,9 @@ public class ButtonDefinitionReader {
                                     definition.text,
                                     font,
                                     definition.textGlyphPadding,
-                                    indicesOrDefault(definition.textItalicIndicesPressed,
+                                    defaultIfNull(definition.textItalicIndicesPressed,
                                             textItalicIndicesDefault),
-                                    indicesOrDefault(definition.textBoldIndicesPressed,
+                                    defaultIfNull(definition.textBoldIndicesPressed,
                                             textBoldIndicesDefault),
                                     definition.textHeight
                             )
@@ -511,17 +509,17 @@ public class ButtonDefinitionReader {
         var colorsPressed = defaultIfNull(definition.textColorIndicesPressed, null,
                 d -> getColorIndices(d, timestamp));
 
-        var italicsDefault = listInts(definition.textItalicIndicesDefault);
+        List<Integer> italicsDefault = defaultIfNull(definition.textItalicIndicesDefault, listOf());
         var italicsHover =
-                defaultIfNull(definition.textItalicIndicesHover, null, Collections::listInts);
+                defaultIfNull(definition.textItalicIndicesHover, null);
         var italicsPressed =
-                defaultIfNull(definition.textItalicIndicesPressed, null, Collections::listInts);
+                defaultIfNull(definition.textItalicIndicesPressed, null);
 
-        var boldsDefault = listInts(definition.textBoldIndicesDefault);
+        List<Integer> boldsDefault = defaultIfNull(definition.textBoldIndicesDefault, listOf());
         var boldsHover =
-                defaultIfNull(definition.textBoldIndicesHover, null, Collections::listInts);
+                defaultIfNull(definition.textBoldIndicesHover, null);
         var boldsPressed =
-                defaultIfNull(definition.textBoldIndicesPressed, null, Collections::listInts);
+                defaultIfNull(definition.textBoldIndicesPressed, null);
 
         defaultOptions.textColors = colorsDefault;
         defaultOptions.italics = italicsDefault;

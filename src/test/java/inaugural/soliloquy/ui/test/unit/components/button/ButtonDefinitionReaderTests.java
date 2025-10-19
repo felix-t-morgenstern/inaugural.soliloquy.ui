@@ -662,8 +662,8 @@ public class ButtonDefinitionReaderTests {
         assertEquals(TEXT_GLYPH_PADDING, textLineDef.GLYPH_PADDING);
         assertEquals(textColorsDefault, textLineDef.colorProviderIndices);
         assertNull(textLineDef.colorProviderIndicesDefs);
-        assertArrayEquals(arrayInts(ITALIC_INDEX_DEFAULT), textLineDef.italicIndices);
-        assertArrayEquals(arrayInts(BOLD_INDEX_DEFAULT), textLineDef.boldIndices);
+        assertEquals(listOf(ITALIC_INDEX_DEFAULT), textLineDef.italicIndices);
+        assertEquals(listOf(BOLD_INDEX_DEFAULT), textLineDef.boldIndices);
 
         var expectedDefaultOptions = new ButtonMethods.RenderableOptions(
                 mockRectDimensFuncProviderDefault,
@@ -928,8 +928,8 @@ public class ButtonDefinitionReaderTests {
         assertEquals(TEXT_GLYPH_PADDING, textLineDef.GLYPH_PADDING);
         assertEquals(textColorsDefault, textLineDef.colorProviderIndices);
         assertNull(textLineDef.colorProviderIndicesDefs);
-        assertArrayEquals(arrayInts(ITALIC_INDEX_DEFAULT), textLineDef.italicIndices);
-        assertArrayEquals(arrayInts(BOLD_INDEX_DEFAULT), textLineDef.boldIndices);
+        assertEquals(listOf(ITALIC_INDEX_DEFAULT), textLineDef.italicIndices);
+        assertEquals(listOf(BOLD_INDEX_DEFAULT), textLineDef.boldIndices);
     }
 
     @Test
@@ -1164,8 +1164,8 @@ public class ButtonDefinitionReaderTests {
                 .withSpriteHover(SPRITE_ID_HOVER, mockSpriteDimensHoverDef)
                 .withSpriteColorShiftHover(mockSpriteShiftHoverDef)
                 .withTextColorIndicesHover(textColorsHoverDefs)
-                .withTextItalicIndicesHover(ITALIC_INDEX_HOVER)
-                .withTextBoldIndicesHover(BOLD_INDEX_HOVER)
+                .withTextItalicIndicesHover(listOf(ITALIC_INDEX_HOVER))
+                .withTextBoldIndicesHover(listOf(BOLD_INDEX_HOVER))
                 .withBgColorsPressed(
                         mockBgColorTopLeftPressedDef,
                         mockBgColorTopRightPressedDef,
@@ -1176,8 +1176,8 @@ public class ButtonDefinitionReaderTests {
                 .withSpritePressed(SPRITE_ID_PRESSED, mockSpriteDimensPressedDef)
                 .withSpriteColorShiftPressed(mockSpriteShiftPressedDef)
                 .withTextColorIndicesPressed(textColorsPressedDefs)
-                .withTextItalicIndicesPressed(ITALIC_INDEX_PRESSED)
-                .withTextBoldIndicesPressed(BOLD_INDEX_PRESSED);
+                .withTextItalicIndicesPressed(listOf(ITALIC_INDEX_PRESSED))
+                .withTextBoldIndicesPressed(listOf(BOLD_INDEX_PRESSED));
     }
 
     private ButtonDefinition withMaximalDefaultArgs(ButtonDefinition definition) {
@@ -1195,8 +1195,8 @@ public class ButtonDefinitionReaderTests {
                 .withSprite(SPRITE_ID_DEFAULT, mockSpriteDimensDefaultDef)
                 .withSpriteColorShift(mockSpriteShiftDefaultDef)
                 .withTextColorIndices(textColorsDefaultDefs)
-                .withTextItalicIndices(ITALIC_INDEX_DEFAULT)
-                .withTextBoldIndices(BOLD_INDEX_DEFAULT)
+                .withTextItalicIndices(listOf(ITALIC_INDEX_DEFAULT))
+                .withTextBoldIndices(listOf(BOLD_INDEX_DEFAULT))
                 .onPress(PRESS_ACTION_ID)
                 .withPressSound(PRESS_SOUND_ID)
                 .withMouseOverSound(MOUSE_OVER_SOUND_ID)

@@ -49,8 +49,8 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 0
         )
                 .withColorDefs(rainbowGradient(text))
-                .withItalics(5, 7, 12)
-                .withBold(0, 4, 12)
+                .withItalics(listOf(5, 7, 12))
+                .withBold(listOf(0, 4, 12))
                 .withBorder(
                         staticVal(0.001f),
                         staticVal(Color.WHITE)

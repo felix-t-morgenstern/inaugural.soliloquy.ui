@@ -80,10 +80,7 @@ public class TextMarkupParserImpl implements TextMarkupParser {
 
         var results = Collections.<LineFormatting>listOf();
         var lineLength = 0f;
-        var baseGlyphPadding = 0f;
-        if (isMultiline) {
-            baseGlyphPadding = paddingBetweenGlyphs * lineHeight;
-        }
+        var paddingToRender = paddingBetweenGlyphs * lineHeight;
         var mostRecentSpaceIndex = 0;
         var colorAtMostRecentSpaceIndex = DEFAULT_COLOR;
         var italicAtMostRecentSpaceIndex = false;
@@ -180,17 +177,18 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                         }
                         else {
                             if (!textBuilder.isEmpty()) {
-                                lineLength += baseGlyphPadding;
+                                lineLength += paddingToRender;
                             }
                             var fontStyle = getStyle(font, isItalic, isBold);
                             var glyphWidth =
                                     TEXT_LINE_RENDERER.getGlyphWidth(aChar, fontStyle, lineHeight);
                             lineLength += glyphWidth;
-                            makeNewLine = lineLength > maxLength;
+                            makeNewLine = lineLength >= maxLength;
                         }
                         if (makeNewLine) {
                             String prevLineText;
                             String newLineText;
+                            int trimAdjustment;
                             var newColors = mapOf(pairOf(0, aChar == CARRIAGE_RETURN ?
                                     defaultIfNull(customColorApplied, DEFAULT_COLOR) :
                                     colorAtMostRecentSpaceIndex));
@@ -210,11 +208,13 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                         listOf(boldIndices.stream().filter(j -> j < prevLineEnd))
                                 ));
 
-                                var newLineIndex = mostRecentSpaceIndex + 1;
-                                newLineText = textBuilder.substring(newLineIndex);
-                                var newLineTextTrimmed = newLineText.trim();
+                                newLineText = textBuilder.substring(Math.min(mostRecentSpaceIndex, textBuilder.length()));
+                                newLineText += aChar;
+                                var trimNewLine = newLineText.charAt(0) == SPACE;
+                                trimAdjustment = (trimNewLine ? 1 : 0);
+                                newLineText = newLineText.substring(trimAdjustment);
                                 lineLength = TEXT_LINE_RENDERER.textLineLength(
-                                        newLineTextTrimmed,
+                                        newLineText,
                                         font,
                                         paddingBetweenGlyphs,
                                         listOf(),
@@ -222,9 +222,7 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                         lineHeight
                                 );
                                 textBuilder = new StringBuilder(newLineText);
-                                var charsTrimmed =
-                                        newLineText.length() - newLineTextTrimmed.length();
-                                var newLineStartInPrevLine = newLineIndex + charsTrimmed;
+                                var newLineStartInPrevLine = mostRecentSpaceIndex + trimAdjustment;
 
                                 newColors.putAll(mapOf(colors.entrySet().stream()
                                         .filter(e -> e.getKey() >= prevLineEnd).map(e -> pairOf(
@@ -243,9 +241,10 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                             }
                             else {
                                 prevLineText = textBuilder.toString();
-                                newLineText = "";
+                                newLineText = "" + (aChar == CARRIAGE_RETURN ? "" : aChar);
                                 lineLength = 0f;
-                                textBuilder = new StringBuilder();
+                                textBuilder = new StringBuilder(newLineText);
+                                trimAdjustment = 1;
 
                                 results.add(new LineFormatting(
                                         prevLineText,
@@ -263,13 +262,10 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                     defaultIfNull(customColorApplied, DEFAULT_COLOR);
                             italicAtMostRecentSpaceIndex = isItalic;
                             boldAtMostRecentSpaceIndex = isBold;
-                            indexAdjustment = i - newLineText.length();
-                        }
-                        if (aChar != CARRIAGE_RETURN) {
-                            textBuilder.append(aChar);
+                            indexAdjustment = i - newLineText.length() + trimAdjustment;
                         }
                         else {
-                            indexAdjustment++;
+                            textBuilder.append(aChar);
                         }
                     }
                     else {

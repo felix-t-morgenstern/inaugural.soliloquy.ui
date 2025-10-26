@@ -11,6 +11,7 @@ import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.entities.Function;
+import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.gamestate.entities.Setting;
 import soliloquy.specs.io.bootstrap.CoreLoop;
 import soliloquy.specs.io.graphics.renderables.Component;
@@ -183,6 +184,46 @@ public class DisplayTest {
             Runnable displayTest,
             BiConsumer<UIModule, Component> populateTopLevelComponent
     ) {
+        var modules = getModules(
+                ACTIONS,
+                FUNCTIONS,
+                testName,
+                assetDefinitionsDTO
+        );
+        var uiModule = modules.FIRST;
+        var ioModule = modules.SECOND;
+
+        var coreLoop = ioModule.provide(CoreLoop.class);
+
+        var frameTimer = ioModule.provide(FrameTimer.class);
+        frameTimer.setTargetFps(null);
+
+        var frameExecutor = ioModule.provide(FrameExecutor.class);
+        var componentFactory = ioModule.provide(ComponentFactory.class);
+        @SuppressWarnings("rawtypes") BiFunction<UUID, Object, ProviderAtTime>
+                staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
+        var wholeScreenProvider = staticProviderFactory.apply(randomUUID(), WHOLE_SCREEN);
+        //noinspection unchecked
+        topLevelComponent =
+                componentFactory.make(randomUUID(), 0, setOf(), false, 0, wholeScreenProvider, null,
+                        mapOf());
+        frameExecutor.setTopLevelComponent(topLevelComponent);
+
+        coreLoop.startup(() -> {
+            if (populateTopLevelComponent != null) {
+                populateTopLevelComponent.accept(uiModule, topLevelComponent);
+            }
+
+            displayTest.run();
+        });
+    }
+
+    protected static Pair<UIModule, IOModule> getModules(
+            @SuppressWarnings("rawtypes") Map<String, Action> actions,
+            @SuppressWarnings("rawtypes") Map<String, Function> functions,
+            String testName,
+            AssetDefinitionsDTO assetDefinitionsDTO
+    ) {
         var commonModule = new CommonModule();
 
         var meshVerticesAndUvCoords = new float[]{0f, 1f, 1f, 1f, 1f, 0f, 1f, 0f, 0f, 0f, 0f, 1f};
@@ -238,8 +279,8 @@ public class DisplayTest {
         var ioModule = new IOModule(
                 commonModule,
                 settings::get,
-                ACTIONS,
-                FUNCTIONS,
+                actions,
+                functions,
                 listOf(),
                 testName,
                 mapOf(
@@ -256,33 +297,11 @@ public class DisplayTest {
         var uiModule = new UIModule(
                 ioModule,
                 settings::get,
-                ACTIONS,
-                FUNCTIONS
+                actions,
+                functions
         );
 
-        var coreLoop = ioModule.provide(CoreLoop.class);
-
-        var frameTimer = ioModule.provide(FrameTimer.class);
-        frameTimer.setTargetFps(null);
-
-        var frameExecutor = ioModule.provide(FrameExecutor.class);
-        var componentFactory = ioModule.provide(ComponentFactory.class);
-        @SuppressWarnings("rawtypes") BiFunction<UUID, Object, ProviderAtTime>
-                staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
-        var wholeScreenProvider = staticProviderFactory.apply(randomUUID(), WHOLE_SCREEN);
-        //noinspection unchecked
-        topLevelComponent =
-                componentFactory.make(randomUUID(), 0, setOf(), false, 0, wholeScreenProvider, null,
-                        mapOf());
-        frameExecutor.setTopLevelComponent(topLevelComponent);
-
-        coreLoop.startup(() -> {
-            if (populateTopLevelComponent != null) {
-                populateTopLevelComponent.accept(uiModule, topLevelComponent);
-            }
-
-            displayTest.run();
-        });
+        return pairOf(uiModule, ioModule);
     }
 
     protected static void runThenClose(String testName, int ms) {
@@ -291,7 +310,7 @@ public class DisplayTest {
         System.out.println(testName + " display test ended");
     }
 
-    private <T> Setting<T> generateMockSetting(T val) {
+    private static <T> Setting<T> generateMockSetting(T val) {
         @SuppressWarnings("unchecked") var mockSetting = (Setting<T>) mock(Setting.class);
 
         when(mockSetting.getValue()).thenReturn(val);

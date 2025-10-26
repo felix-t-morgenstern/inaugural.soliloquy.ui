@@ -416,6 +416,7 @@ public class TextMarkupParserImplTests {
         // (The small multiplicand at the end is to avoid rounding errors)
         var maxLength = (lineCharLength * GLYPH_WIDTH) +
                 ((lineCharLength - 1) * (PADDING_BETWEEN_GLYPHS * LINE_HEIGHT)) * (1.0001f);
+        System.out.println("maxLength = " + maxLength);
 
         var formatting = parser.formatMultiline(
                 rawText,

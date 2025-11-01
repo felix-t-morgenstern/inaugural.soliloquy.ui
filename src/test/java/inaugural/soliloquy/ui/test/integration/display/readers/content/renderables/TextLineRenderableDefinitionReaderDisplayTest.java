@@ -5,7 +5,7 @@ import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 
 import java.awt.*;
 
@@ -44,7 +44,7 @@ public class TextLineRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 staticVal(text),
                 staticVal(vertexOf(0.5f, 0.475f)),
                 staticVal(0.05f),
-                TextJustification.CENTER,
+                HorizontalAlignment.CENTER,
                 0f,
                 0
         )

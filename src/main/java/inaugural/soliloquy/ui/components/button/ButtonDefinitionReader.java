@@ -9,7 +9,7 @@ import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Font;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
@@ -30,7 +30,7 @@ import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
-import static soliloquy.specs.io.graphics.renderables.TextJustification.CENTER;
+import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.CENTER;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
@@ -197,7 +197,7 @@ public class ButtonDefinitionReader {
                 rectDimensProvider = rectDimensFromDef;
                 textRenderingLoc = textRenderingLocProviderFromRectDimensProvider(
                         rectDimensProvider,
-                        definition.textJustification,
+                        definition.horizontalAlignment,
                         paddingHoriz,
                         definition.textHeight,
                         timestamp
@@ -530,7 +530,7 @@ public class ButtonDefinitionReader {
                 staticVal(definition.text),
                 textRenderingLoc,
                 staticVal(definition.textHeight),
-                defaultIfNull(definition.textJustification, CENTER),
+                defaultIfNull(definition.horizontalAlignment, CENTER),
                 definition.textGlyphPadding,
                 TEXT_Z
         )
@@ -550,7 +550,7 @@ public class ButtonDefinitionReader {
 
     private ProviderAtTime<Vertex> textRenderingLocProviderFromRectDimensProvider(
             ProviderAtTime<FloatBox> rectDimensProvider,
-            TextJustification textJustification,
+            HorizontalAlignment horizontalAlignment,
             float paddingHoriz,
             float textHeight,
             long timestamp
@@ -558,8 +558,8 @@ public class ButtonDefinitionReader {
         var providerDef =
                 functionalProvider(TEXT_LOC_FROM_RECT_DIMENS_METHOD, Vertex.class)
                         .withData(mapOf(
-                                provideTextRenderingLocFromRect_Button_textJustification,
-                                textJustification,
+                                provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                                horizontalAlignment,
                                 provideTextRenderingLocFromRect_Button_rectDimensProvider,
                                 rectDimensProvider,
                                 provideTextRenderingLocFromRect_Button_paddingHoriz,

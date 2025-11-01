@@ -7,7 +7,7 @@ import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.ui.TextMarkupParser;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
@@ -90,7 +90,7 @@ public class TextMarkupParserDisplayTest extends DisplayTest {
                             "" + i,
                             vertexOf(0.22f, textLineY),
                             lineHeight,
-                            TextJustification.LEFT,
+                            HorizontalAlignment.LEFT,
                             0f,
                             1
                     )
@@ -102,7 +102,7 @@ public class TextMarkupParserDisplayTest extends DisplayTest {
                             formattedText[i].text(),
                             vertexOf(0.25f, textLineY),
                             lineHeight,
-                            TextJustification.LEFT,
+                            HorizontalAlignment.LEFT,
                             0f,
                             1
                     )

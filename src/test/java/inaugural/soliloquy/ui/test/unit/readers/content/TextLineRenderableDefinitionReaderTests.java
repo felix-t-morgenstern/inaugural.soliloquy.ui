@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Font;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TextLineRenderableFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -37,8 +37,8 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     private final Font MOCK_FONT = MOCK_FONT_AND_LOOKUP.entities.getFirst();
     private final Function<String, Font> MOCK_GET_FONT = MOCK_FONT_AND_LOOKUP.lookup;
 
-    private final TextJustification JUSTIFICATION =
-            TextJustification.fromValue(randomIntInRange(1, 3));
+    private final HorizontalAlignment ALIGNMENT =
+            HorizontalAlignment.fromValue(randomIntInRange(1, 3));
     private final float GLYPH_PADDING = randomFloat();
     private final int COLOR_INDEX = randomInt();
     private final int ITALIC_INDEX = randomInt();
@@ -123,7 +123,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
 
         var definition =
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
-                        JUSTIFICATION, GLYPH_PADDING, Z)
+                        ALIGNMENT, GLYPH_PADDING, Z)
                         .withColorDefs(mapOf(COLOR_INDEX, mockColorDefinition))
                         .withItalics(listOf(ITALIC_INDEX))
                         .withBold(listOf(BOLD_INDEX))
@@ -160,7 +160,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockText),
                 same(mockLocation),
                 same(mockHeight),
-                eq(JUSTIFICATION),
+                eq(ALIGNMENT),
                 eq(GLYPH_PADDING),
                 eq(mapOf(pairOf(COLOR_INDEX, mockColor))),
                 eq(listOf(ITALIC_INDEX)),
@@ -179,7 +179,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     public void testReadWithRenderingLocProvider() {
         var definition =
                 textLine(FONT_ID, mockTextDefinition, mockLocation, mockHeightDefinition,
-                        JUSTIFICATION, GLYPH_PADDING, Z);
+                        ALIGNMENT, GLYPH_PADDING, Z);
 
         var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
@@ -208,7 +208,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     public void testReadWithMinimalArgs() {
         var definition =
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
-                        JUSTIFICATION, GLYPH_PADDING, Z);
+                        ALIGNMENT, GLYPH_PADDING, Z);
 
         var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
@@ -226,7 +226,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockText),
                 same(mockLocation),
                 same(mockHeight),
-                eq(JUSTIFICATION),
+                eq(ALIGNMENT),
                 eq(GLYPH_PADDING),
                 eq(mapOf()),
                 eq(listOf()),
@@ -245,7 +245,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     public void testReadWithColorProviders() {
         var definition =
                 textLine(FONT_ID, mockTextDefinition, mockLocationDefinition, mockHeightDefinition,
-                        JUSTIFICATION, GLYPH_PADDING, Z)
+                        ALIGNMENT, GLYPH_PADDING, Z)
                         .withColorProviders(mapOf(COLOR_INDEX, mockColor));
 
         reader.read(mockComponent, definition, TIMESTAMP);

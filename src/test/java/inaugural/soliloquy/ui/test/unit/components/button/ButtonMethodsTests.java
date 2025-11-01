@@ -760,8 +760,8 @@ public class ButtonMethodsTests {
     @Test
     public void testProvideTextRenderingLocFromRect_ButtonLeftJustified() {
         var mockInputsData = generateMockMap(
-                pairOf(provideTextRenderingLocFromRect_Button_textJustification,
-                        TextJustification.LEFT),
+                pairOf(provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                        HorizontalAlignment.LEFT),
                 pairOf(provideTextRenderingLocFromRect_Button_rectDimensProvider, mockRectDimens),
                 pairOf(provideTextRenderingLocFromRect_Button_paddingHoriz, PADDING_HORIZ),
                 pairOf(provideTextRenderingLocFromRect_Button_textHeight, TEXT_HEIGHT)
@@ -781,8 +781,8 @@ public class ButtonMethodsTests {
     @Test
     public void testProvideTextRenderingLocFromRect_ButtonCenterJustified() {
         var mockInputsData = generateMockMap(
-                pairOf(provideTextRenderingLocFromRect_Button_textJustification,
-                        TextJustification.CENTER),
+                pairOf(provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                        HorizontalAlignment.CENTER),
                 pairOf(provideTextRenderingLocFromRect_Button_rectDimensProvider, mockRectDimens),
                 pairOf(provideTextRenderingLocFromRect_Button_paddingHoriz, PADDING_HORIZ),
                 pairOf(provideTextRenderingLocFromRect_Button_textHeight, TEXT_HEIGHT)
@@ -802,8 +802,8 @@ public class ButtonMethodsTests {
     @Test
     public void testProvideTextRenderingLocFromRect_ButtonRightJustified() {
         var mockInputsData = generateMockMap(
-                pairOf(provideTextRenderingLocFromRect_Button_textJustification,
-                        TextJustification.RIGHT),
+                pairOf(provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                        HorizontalAlignment.RIGHT),
                 pairOf(provideTextRenderingLocFromRect_Button_rectDimensProvider, mockRectDimens),
                 pairOf(provideTextRenderingLocFromRect_Button_paddingHoriz, PADDING_HORIZ),
                 pairOf(provideTextRenderingLocFromRect_Button_textHeight, TEXT_HEIGHT)

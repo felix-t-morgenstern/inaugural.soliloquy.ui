@@ -13,7 +13,7 @@ import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Font;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
@@ -67,8 +67,8 @@ public class ButtonDefinitionReaderTests {
     private final static String HOVER_RENDERABLE_OPTIONS_DATA_KEY = "hoverRenderableOptions";
     private final static String PRESSED_RENDERABLE_OPTIONS_DATA_KEY = "pressedRenderableOptions";
 
-    private final static String provideTextRenderingLocFromRect_Button_textJustification =
-            "provideTextRenderingLocFromRect_Button_textJustification";
+    private final static String provideTextRenderingLocFromRect_Button_horizontalAlignment =
+            "provideTextRenderingLocFromRect_Button_horizontalAlignment";
     private final static String provideTextRenderingLocFromRect_Button_rectDimensProvider =
             "provideTextRenderingLocFromRect_Button_rectDimensProvider";
     private final static String provideTextRenderingLocFromRect_Button_paddingHoriz =
@@ -104,8 +104,8 @@ public class ButtonDefinitionReaderTests {
     private final String SPRITE_ID_HOVER = randomString();
     private final String SPRITE_ID_PRESSED = randomString();
     private final String TEXT = randomString();
-    private final TextJustification TEXT_JUSTIFICATION =
-            TextJustification.fromValue(randomIntInRange(1, 3));
+    private final HorizontalAlignment TEXT_ALIGNMENT =
+            HorizontalAlignment.fromValue(randomIntInRange(1, 3));
     private final float TEXT_LINE_LENGTH_DEFAULT = randomFloat();
     private final float TEXT_LINE_LENGTH_HOVER = randomFloat();
     private final float TEXT_LINE_LENGTH_PRESSED = randomFloat();
@@ -439,8 +439,8 @@ public class ButtonDefinitionReaderTests {
         //noinspection unchecked
         when(mockProviderDefReader.read(
                 argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
-                        provideTextRenderingLocFromRect_Button_textJustification,
-                        TEXT_JUSTIFICATION,
+                        provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                        TEXT_ALIGNMENT,
                         provideTextRenderingLocFromRect_Button_rectDimensProvider,
                         mockRectDimensProvider,
                         provideTextRenderingLocFromRect_Button_paddingHoriz,
@@ -650,7 +650,7 @@ public class ButtonDefinitionReaderTests {
         assertSame(mockTextRenderingLoc, textLineDef.LOCATION_PROVIDER);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.HEIGHT_PROVIDER);
         assertEquals(TEXT_HEIGHT, extractStaticVal(textLineDef.HEIGHT_PROVIDER));
-        assertEquals(TextJustification.CENTER, textLineDef.JUSTIFICATION);
+        assertEquals(HorizontalAlignment.CENTER, textLineDef.ALIGNMENT);
         assertEquals(TEXT_GLYPH_PADDING, textLineDef.GLYPH_PADDING);
         assertEquals(textColorsDefault, textLineDef.colorProviderIndices);
         assertNull(textLineDef.colorProviderIndicesDefs);
@@ -763,8 +763,8 @@ public class ButtonDefinitionReaderTests {
         //noinspection unchecked
         when(mockProviderDefReader.read(
                 argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
-                        provideTextRenderingLocFromRect_Button_textJustification,
-                        TEXT_JUSTIFICATION,
+                        provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                        TEXT_ALIGNMENT,
                         provideTextRenderingLocFromRect_Button_rectDimensProvider,
                         mockRectDimensProvider,
                         provideTextRenderingLocFromRect_Button_paddingHoriz,
@@ -916,7 +916,7 @@ public class ButtonDefinitionReaderTests {
         assertSame(mockTextRenderingLoc, textLineDef.LOCATION_PROVIDER);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.HEIGHT_PROVIDER);
         assertEquals(TEXT_HEIGHT, extractStaticVal(textLineDef.HEIGHT_PROVIDER));
-        assertEquals(TEXT_JUSTIFICATION, textLineDef.JUSTIFICATION);
+        assertEquals(TEXT_ALIGNMENT, textLineDef.ALIGNMENT);
         assertEquals(TEXT_GLYPH_PADDING, textLineDef.GLYPH_PADDING);
         assertEquals(textColorsDefault, textLineDef.colorProviderIndices);
         assertNull(textLineDef.colorProviderIndicesDefs);
@@ -1037,7 +1037,7 @@ public class ButtonDefinitionReaderTests {
         assertSame(mockTextRenderingLoc, textLineDef.LOCATION_PROVIDER);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.HEIGHT_PROVIDER);
         assertEquals(TEXT_HEIGHT, extractStaticVal(textLineDef.HEIGHT_PROVIDER));
-        assertEquals(TextJustification.CENTER, textLineDef.JUSTIFICATION);
+        assertEquals(HorizontalAlignment.CENTER, textLineDef.ALIGNMENT);
         assertEquals(0f, textLineDef.GLYPH_PADDING);
         assertTrue(textLineDef.colorProviderIndices.isEmpty());
         assertNull(textLineDef.colorProviderIndicesDefs);
@@ -1143,7 +1143,7 @@ public class ButtonDefinitionReaderTests {
                         FONT_ID,
                         TEXT_HEIGHT
                 )
-                .withTextJustification(TEXT_JUSTIFICATION);
+                .withHorizontalAlignment(TEXT_ALIGNMENT);
     }
 
     private ButtonDefinition withMaximalArgsFromDefs(ButtonDefinition definition) {

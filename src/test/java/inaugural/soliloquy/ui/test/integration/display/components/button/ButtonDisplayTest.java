@@ -4,7 +4,7 @@ import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 
 import java.awt.*;
 
@@ -20,7 +20,7 @@ class ButtonDisplayTest extends DisplayTest {
     protected static ButtonDefinition testButtonFromRectDimens(
             FloatBox rectDimens,
             String text,
-            TextJustification justification
+            HorizontalAlignment alignment
     ) {
         return withMaxTestArgs(button(
                 rectDimens,
@@ -31,7 +31,7 @@ class ButtonDisplayTest extends DisplayTest {
                         MERRIWEATHER_ID,
                         0.075f
                 )
-                .withTextJustification(justification);
+                .withHorizontalAlignment(alignment);
     }
 
     protected static ButtonDefinition testButtonFromText(

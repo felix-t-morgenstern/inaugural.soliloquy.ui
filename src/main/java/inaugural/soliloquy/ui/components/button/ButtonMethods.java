@@ -292,8 +292,8 @@ public class ButtonMethods {
         }
     }
 
-    final static String provideTextRenderingLocFromRect_Button_textJustification =
-            "provideTextRenderingLocFromRect_Button_textJustification";
+    final static String provideTextRenderingLocFromRect_Button_horizontalAlignment =
+            "provideTextRenderingLocFromRect_Button_horizontalAlignment";
     final static String provideTextRenderingLocFromRect_Button_rectDimensProvider =
             "provideTextRenderingLocFromRect_Button_rectDimensProvider";
     final static String provideTextRenderingLocFromRect_Button_paddingHoriz =
@@ -302,9 +302,9 @@ public class ButtonMethods {
             "provideTextRenderingLocFromRect_Button_textHeight";
 
     public Vertex provideTextRenderingLocFromRect_Button(FunctionalProvider.Inputs inputs) {
-        TextJustification textJustification =
+        HorizontalAlignment horizontalAlignment =
                 getFromData(inputs.data(),
-                        provideTextRenderingLocFromRect_Button_textJustification);
+                        provideTextRenderingLocFromRect_Button_horizontalAlignment);
         ProviderAtTime<FloatBox> rectDimensProvider =
                 getFromData(inputs.data(),
                         provideTextRenderingLocFromRect_Button_rectDimensProvider);
@@ -314,7 +314,7 @@ public class ButtonMethods {
         float textHeight =
                 getFromData(inputs.data(), provideTextRenderingLocFromRect_Button_textHeight);
 
-        var texRenderingLocX = switch (textJustification) {
+        var texRenderingLocX = switch (horizontalAlignment) {
             case LEFT -> rectDimens.LEFT_X + paddingHoriz;
             case CENTER -> (rectDimens.LEFT_X + rectDimens.RIGHT_X) / 2f;
             case RIGHT -> rectDimens.RIGHT_X - paddingHoriz;

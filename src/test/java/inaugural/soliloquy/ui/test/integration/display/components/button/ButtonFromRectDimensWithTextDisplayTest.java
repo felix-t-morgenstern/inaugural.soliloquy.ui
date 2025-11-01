@@ -5,7 +5,7 @@ import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
@@ -38,19 +38,19 @@ public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
         var buttonDefLeft = testButtonFromRectDimens(
                 floatBoxOf(0.05f, 0.4f, 0.25f, 0.6f),
                 "Left",
-                TextJustification.LEFT
+                HorizontalAlignment.LEFT
         );
 
         var buttonDefCenter = testButtonFromRectDimens(
                 floatBoxOf(0.4f, 0.4f, 0.6f, 0.6f),
                 "Center",
-                TextJustification.CENTER
+                HorizontalAlignment.CENTER
         );
 
         var buttonDefRight = testButtonFromRectDimens(
                 floatBoxOf(0.75f, 0.4f, 0.95f, 0.6f),
                 "Right",
-                TextJustification.RIGHT
+                HorizontalAlignment.RIGHT
         );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);

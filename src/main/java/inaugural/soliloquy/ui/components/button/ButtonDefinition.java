@@ -2,7 +2,7 @@ package inaugural.soliloquy.ui.components.button;
 
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.TextJustification;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition;
@@ -30,7 +30,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public float textHeight;
     public float textPaddingVertical;
     public float textGlyphPadding;
-    public TextJustification textJustification;
+    public HorizontalAlignment horizontalAlignment;
 
     // default state
     public AbstractProviderDefinition<Color> bgColorTopLeftDefault;
@@ -100,7 +100,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * relative to these dimensions.</b>
      * <p>
      * (Text will always be vertically centered; its horizontal placement will depend on its
-     * justification.)
+     * alignment.)
      *
      * @param dimens The dimensions of the button on the screen
      * @param z      The z-index
@@ -114,7 +114,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * relative to these dimensions.</b>
      * <p>
      * (Text will always be vertically centered; its horizontal placement will depend on its
-     * justification.)
+     * alignment.)
      *
      * @param dimens The dimensions of the button on the screen
      * @param z      The z-index
@@ -327,11 +327,11 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * manually.</u>
      * <p>
      * <i>If the dimensions have been set manually,</i> this property determines the distance of the
-     * text from the left or right edge. When {@link #withTextJustification} is set to
-     * {@link TextJustification#LEFT}, this property determines how far the left end of the text is
-     * from the left edge of the button. Conversely, when justification is set to
-     * {@link TextJustification#RIGHT}, it's how far the end of the text line is from the right edge
-     * of the button. When the justification is {@link TextJustification#CENTER}, this property has
+     * text from the left or right edge. When {@link #withHorizontalAlignment} is set to
+     * {@link HorizontalAlignment#LEFT}, this property determines how far the left end of the text is
+     * from the left edge of the button. Conversely, when alignment is set to
+     * {@link HorizontalAlignment#RIGHT}, it's how far the end of the text line is from the right edge
+     * of the button. When the alignment is {@link HorizontalAlignment#CENTER}, this property has
      * no effect.
      * <p>
      * <i>If the dimensions have not been set manually,</i> this property expands the boundaries of
@@ -362,14 +362,14 @@ public class ButtonDefinition extends AbstractContentDefinition {
     }
 
     /**
-     * Defaults to {@link TextJustification#CENTER}. (Vertical alignment is centered.) <i>This has
+     * Defaults to {@link HorizontalAlignment#CENTER}. (Vertical alignment is centered.) <i>This has
      * no effect unless you manually set the button's dimensions when creating the definition, via
      * e.g. {@link ButtonDefinition#button(AbstractProviderDefinition, int)}.</i>
      *
-     * @param justification The justification of the text within the button
+     * @param alignment The alignment of the text within the button
      */
-    public ButtonDefinition withTextJustification(TextJustification justification) {
-        this.textJustification = justification;
+    public ButtonDefinition withHorizontalAlignment(HorizontalAlignment alignment) {
+        this.horizontalAlignment = alignment;
 
         return this;
     }

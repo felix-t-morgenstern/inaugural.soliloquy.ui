@@ -12,7 +12,6 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -65,7 +64,7 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
 
         return FACTORY.make(
                 font,
-                text, location, height, definition.JUSTIFICATION, definition.GLYPH_PADDING,
+                text, location, height, definition.ALIGNMENT, definition.GLYPH_PADDING,
                 colors, italics, bolds,
                 borderThickness, borderColor,
                 dropShadowSize, dropShadowOffset, dropShadowColor,

@@ -9,6 +9,9 @@ import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import inaugural.soliloquy.ui.components.button.ButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.button.ButtonMethods;
+import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
+import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
+import inaugural.soliloquy.ui.components.textblock.TextBlockMethods;
 import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.content.renderables.*;
 import inaugural.soliloquy.ui.readers.providers.*;
@@ -197,7 +200,7 @@ public class UIModule extends AbstractModule {
         var defaultTextColor = (Color) (getSetting.apply(DEFAULT_TEXT_COLOR_SETTING_ID).getValue());
         @SuppressWarnings("unchecked") var defaultColorPresets =
                 (Map<Set<String>, Color>) (getSetting.apply(COLOR_PRESETS_SETTING_ID).getValue());
-        andRegister(new TextMarkupParserImpl(
+        var markupParser = andRegister(new TextMarkupParserImpl(
                 defaultTextColor,
                 defaultColorPresets,
                 textLineRenderer
@@ -235,6 +238,13 @@ public class UIModule extends AbstractModule {
                 BeveledButtonDefinition.class,
                 (d, t) -> beveledButtonReader.read((BeveledButtonDefinition) d, t)
         );
+
+        // Text Block
+        var textBlockReader = new TextBlockDefinitionReader(markupParser, graphics::getFont,
+                providerDefinitionReader);
+        customComponentMethods.add(new TextBlockMethods(graphics::getComponent));
+        renderableDefinitionReader.addCustomComponentReader(TextBlockDefinition.class,
+                (d, t) -> textBlockReader.read((TextBlockDefinition) d, t));
 
         customComponentMethods.forEach(methods -> {
             var fromMethods = readMethods(methods);

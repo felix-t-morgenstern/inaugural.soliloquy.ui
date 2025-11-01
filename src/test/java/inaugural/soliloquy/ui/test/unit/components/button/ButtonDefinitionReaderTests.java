@@ -1,8 +1,7 @@
 package inaugural.soliloquy.ui.components.button;
 
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
-import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
+import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionTest;
 import inaugural.soliloquy.ui.test.unit.components.FunctionalProviderDefMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.assets.Font;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -43,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ButtonDefinitionReaderTests {
+public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     private static final String PRESS_MOUSE_METHOD = "pressMouse_Button";
     private static final String MOUSE_OVER_METHOD = "mouseOver_Button";
     private static final String MOUSE_LEAVE_METHOD = "mouseLeave_Button";
@@ -91,20 +89,13 @@ public class ButtonDefinitionReaderTests {
 
     private final float WIDTH_TO_HEIGHT_RATIO = randomFloat();
 
-    private final String FONT_ID = randomString();
-    private final LookupAndEntitiesWithId<Font> MOCK_FONT_AND_LOOKUP =
-            generateMockLookupFunctionWithId(Font.class, FONT_ID);
-    private final Font MOCK_FONT = MOCK_FONT_AND_LOOKUP.entities.getFirst();
-    private final Function<String, Font> MOCK_GET_FONT = MOCK_FONT_AND_LOOKUP.lookup;
-
-    private final int Z = randomInt();
     private final int KEY = randomInt();
     private final int KEY_BINDING_PRIORITY = randomInt();
     private final String SPRITE_ID_DEFAULT = randomString();
     private final String SPRITE_ID_HOVER = randomString();
     private final String SPRITE_ID_PRESSED = randomString();
     private final String TEXT = randomString();
-    private final HorizontalAlignment TEXT_ALIGNMENT =
+    private final HorizontalAlignment ALIGNMENT =
             HorizontalAlignment.fromValue(randomIntInRange(1, 3));
     private final float TEXT_LINE_LENGTH_DEFAULT = randomFloat();
     private final float TEXT_LINE_LENGTH_HOVER = randomFloat();
@@ -128,8 +119,6 @@ public class ButtonDefinitionReaderTests {
     private final String MOUSE_OVER_SOUND_ID = randomString();
     private final String MOUSE_LEAVE_SOUND_ID = randomString();
     private final String RELEASE_SOUND_ID = randomString();
-
-    private final long TIMESTAMP = randomLong();
 
     @Mock private AbstractProviderDefinition<FloatBox> mockRectDimensProviderDef;
 
@@ -209,8 +198,6 @@ public class ButtonDefinitionReaderTests {
     @Mock private ProviderAtTime<FloatBox> mockRectDimensFuncProviderHover;
     @Mock private ProviderAtTime<FloatBox> mockRectDimensFuncProviderPressed;
 
-    @Mock private ProviderDefinitionReader mockProviderDefReader;
-    @Mock private ColorShiftDefinitionReader mockShiftReader;
     @SuppressWarnings("rawtypes") @Mock private ProviderAtTime mockNullProvider;
     @Mock private TextLineRenderer mockTextLineRenderer;
     @Mock private Function<String, Integer> mockGetTexId;
@@ -440,7 +427,7 @@ public class ButtonDefinitionReaderTests {
         when(mockProviderDefReader.read(
                 argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
                         provideTextRenderingLocFromRect_Button_horizontalAlignment,
-                        TEXT_ALIGNMENT,
+                        ALIGNMENT,
                         provideTextRenderingLocFromRect_Button_rectDimensProvider,
                         mockRectDimensProvider,
                         provideTextRenderingLocFromRect_Button_paddingHoriz,
@@ -764,7 +751,7 @@ public class ButtonDefinitionReaderTests {
         when(mockProviderDefReader.read(
                 argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
                         provideTextRenderingLocFromRect_Button_horizontalAlignment,
-                        TEXT_ALIGNMENT,
+                        ALIGNMENT,
                         provideTextRenderingLocFromRect_Button_rectDimensProvider,
                         mockRectDimensProvider,
                         provideTextRenderingLocFromRect_Button_paddingHoriz,
@@ -916,7 +903,7 @@ public class ButtonDefinitionReaderTests {
         assertSame(mockTextRenderingLoc, textLineDef.LOCATION_PROVIDER);
         assertInstanceOf(StaticProviderDefinition.class, textLineDef.HEIGHT_PROVIDER);
         assertEquals(TEXT_HEIGHT, extractStaticVal(textLineDef.HEIGHT_PROVIDER));
-        assertEquals(TEXT_ALIGNMENT, textLineDef.ALIGNMENT);
+        assertEquals(ALIGNMENT, textLineDef.ALIGNMENT);
         assertEquals(TEXT_GLYPH_PADDING, textLineDef.GLYPH_PADDING);
         assertEquals(textColorsDefault, textLineDef.colorProviderIndices);
         assertNull(textLineDef.colorProviderIndicesDefs);
@@ -1143,7 +1130,7 @@ public class ButtonDefinitionReaderTests {
                         FONT_ID,
                         TEXT_HEIGHT
                 )
-                .withHorizontalAlignment(TEXT_ALIGNMENT);
+                .withHorizontalAlignment(ALIGNMENT);
     }
 
     private ButtonDefinition withMaximalArgsFromDefs(ButtonDefinition definition) {
@@ -1201,9 +1188,5 @@ public class ButtonDefinitionReaderTests {
     @Test
     public void testReadWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class, () -> reader.read(null, randomLong()));
-    }
-
-    private <T> T extractStaticVal(AbstractProviderDefinition<T> provider) {
-        return ((StaticProviderDefinition<T>) provider).VALUE;
     }
 }

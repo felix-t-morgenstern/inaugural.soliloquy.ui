@@ -111,7 +111,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     }
 
     @Test
-    public void testReadWithRenderingLocDef() {
+    public void testReadFromDefs() {
         when(mockProviderDefinitionReader.read(same(mockColorDefinition), anyLong())).thenReturn(
                 mockColor);
         when(mockProviderDefinitionReader.read(same(mockDropShadowSizeDefinition),
@@ -176,16 +176,17 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
     }
 
     @Test
-    public void testReadWithRenderingLocProvider() {
+    public void testReadFromProviders() {
         var definition =
-                textLine(FONT_ID, mockTextDefinition, mockLocation, mockHeightDefinition,
+                textLine(MOCK_FONT, mockTextDefinition, mockLocation, mockHeightDefinition,
                         ALIGNMENT, GLYPH_PADDING, Z);
 
-        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
+        reader.read(mockComponent, definition, TIMESTAMP);
 
         verify(mockProviderDefinitionReader, never()).read(same(mockLocationDefinition), anyLong());
+        verify(MOCK_GET_FONT, never()).apply(anyString());
         verify(mockFactory, once()).make(
-                any(),
+                same(MOCK_FONT),
                 any(),
                 same(mockLocation),
                 any(),

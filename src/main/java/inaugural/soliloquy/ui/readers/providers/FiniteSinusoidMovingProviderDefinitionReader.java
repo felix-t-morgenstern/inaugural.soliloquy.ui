@@ -1,6 +1,7 @@
 package inaugural.soliloquy.ui.readers.providers;
 
 import inaugural.soliloquy.tools.Check;
+import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.FiniteSinusoidMovingProviderFactory;
 import soliloquy.specs.ui.definitions.providers.FiniteSinusoidMovingProviderDefinition;

@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.provideIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 
 public class TextLineRenderableDefinitionReader extends AbstractContentDefinitionReader {
@@ -37,7 +38,7 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
     public TextLineRenderable read(Component component,
                                    TextLineRenderableDefinition definition,
                                    long timestamp) {
-        var font = GET_FONT.apply(definition.FONT_ID);
+        var font = provideIfNull(definition.FONT, () -> GET_FONT.apply(definition.FONT_ID));
 
         var text = PROVIDER_READER.read(definition.TEXT_PROVIDER, timestamp);
         var location = definition.LOCATION_PROVIDER != null ? definition.LOCATION_PROVIDER :

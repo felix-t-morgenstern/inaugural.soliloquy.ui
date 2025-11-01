@@ -18,6 +18,7 @@ import soliloquy.specs.ui.definitions.content.*;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
@@ -64,7 +65,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     @Mock private TextLineRenderable mockTextLineRenderable;
     @Mock private Component mockComponent;
     @Mock private AbstractContentDefinition mockCustomDef;
-    @Mock private Function<AbstractContentDefinition, ComponentDefinition> mockCustomReader;
+    @Mock private BiFunction<AbstractContentDefinition, Long, ComponentDefinition> mockCustomReader;
     @SuppressWarnings("rawtypes") @Mock
     private Function<Class, Function<AbstractContentDefinition, ComponentDefinition>>
             mockComponentReaders;
@@ -98,7 +99,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         lenient().when(mockTextLineReader.read(any(), any(), anyLong()))
                 .thenReturn(mockTextLineRenderable);
 
-        lenient().when(mockComponentFactory.make(any(), anyInt(), any(), anyBoolean(), anyInt(), any(), any(), any())).thenReturn(mockComponent);
+        lenient().when(
+                mockComponentFactory.make(any(), anyInt(), any(), anyBoolean(), anyInt(), any(),
+                        any(), any())).thenReturn(mockComponent);
 
         lenient().when(mockProviderReader.read(same(mockComponentDimensDef), anyLong()))
                 .thenReturn(mockComponentDimens);
@@ -427,7 +430,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         var bindingsCaptor = ArgumentCaptor.forClass(Set.class);
         //noinspection unchecked
         verify(mockComponentFactory, once()).make(
-                isNotNull(),
+                eq(definition.UUID),
                 eq(Z),
                 bindingsCaptor.capture(),
                 eq(overrides),
@@ -464,7 +467,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         var bindingsCaptor = ArgumentCaptor.forClass(Set.class);
         //noinspection unchecked
         verify(mockComponentFactory, once()).make(
-                isNotNull(),
+                eq(definition.UUID),
                 eq(Z),
                 bindingsCaptor.capture(),
                 eq(false),
@@ -480,13 +483,13 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
 
     @Test
     public void testReadComponentDefinitionWithDimensProvider() {
-        var componentDefinition = component(Z, mockComponentDimens);
+        var definition = component(Z, mockComponentDimens);
 
-        var output = reader.read(mockContainingComponent, componentDefinition, TIMESTAMP);
+        var output = reader.read(mockContainingComponent, definition, TIMESTAMP);
 
         assertSame(mockComponent, output);
         verify(mockComponentFactory, once()).make(
-                isNotNull(),
+                eq(definition.UUID),
                 eq(Z),
                 any(),
                 eq(false),
@@ -505,7 +508,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
 
         assertSame(mockComponent, output);
         verify(mockComponentFactory, once()).make(
-                isNotNull(),
+                eq(definition.UUID),
                 anyInt(),
                 any(),
                 anyBoolean(),
@@ -517,7 +520,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     }
 
     @Test
-    public void testRead() {
+    public void testReadFromCustomDefinitionType() {
         var key = randomInt();
         var overrides = randomBoolean();
         var priority = randomInt();
@@ -536,7 +539,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                         )
                 )
                 .withData(data);
-        when(mockCustomReader.apply(any())).thenReturn(componentDef);
+        when(mockCustomReader.apply(any(), anyLong())).thenReturn(componentDef);
 
         reader.addCustomComponentReader(mockCustomDef.getClass(), mockCustomReader);
         var output = reader.read(mockContainingComponent, mockCustomDef, TIMESTAMP);
@@ -571,7 +574,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 eq(TIMESTAMP)
         );
 
-        verify(mockCustomReader, once()).apply(mockCustomDef);
+        verify(mockCustomReader, once()).apply(mockCustomDef, TIMESTAMP);
     }
 
     @Test
@@ -588,7 +591,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     @Test
     public void testAddCustomComponentReaderWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> reader.addCustomComponentReader(null, _ -> null));
+                () -> reader.addCustomComponentReader(null, (_, _) -> null));
         assertThrows(IllegalArgumentException.class,
                 () -> reader.addCustomComponentReader(AbstractContentDefinition.class, null));
     }

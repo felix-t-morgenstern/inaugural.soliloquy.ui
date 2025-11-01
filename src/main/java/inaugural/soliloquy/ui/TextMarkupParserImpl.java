@@ -11,6 +11,7 @@ import soliloquy.specs.ui.TextMarkupParser;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.*;
@@ -36,12 +37,14 @@ public class TextMarkupParserImpl implements TextMarkupParser {
     private final TextLineRenderer TEXT_LINE_RENDERER;
 
     public TextMarkupParserImpl(Color defaultColor,
-                                Map<String, Color> colorPresets,
+                                Map<Set<String>, Color> colorPresets,
                                 TextLineRenderer textLineRenderer) {
         DEFAULT_COLOR = Check.ifNull(defaultColor, "defaultColor");
         DEFAULT_COLORS = mapOf(0, DEFAULT_COLOR);
-        COLOR_PRESETS = mapOf(Check.ifNull(colorPresets, "colorPresets").entrySet().stream()
-                .map(e -> pairOf(e.getKey().toLowerCase(), e.getValue())));
+        COLOR_PRESETS = mapOf();
+        Check.ifNull(colorPresets, "colorPresets").forEach(
+                (key, value) -> Check.ifNull(key, "key within colorPresets")
+                        .forEach(s -> addColorPreset(s, value)));
         TEXT_LINE_RENDERER = Check.ifNull(textLineRenderer, "textLineRenderer");
     }
 
@@ -208,7 +211,8 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                         listOf(boldIndices.stream().filter(j -> j < prevLineEnd))
                                 ));
 
-                                newLineText = textBuilder.substring(Math.min(mostRecentSpaceIndex, textBuilder.length()));
+                                newLineText = textBuilder.substring(
+                                        Math.min(mostRecentSpaceIndex, textBuilder.length()));
                                 newLineText += aChar;
                                 var trimNewLine = newLineText.charAt(0) == SPACE;
                                 trimAdjustment = (trimNewLine ? 1 : 0);

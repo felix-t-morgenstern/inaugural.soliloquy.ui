@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.button;
+package inaugural.soliloquy.ui.test.integration.display.components.button;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -8,13 +8,13 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
-import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.tools.collections.Collections.setOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
 
-public class ButtonWithSoundDisplayTest extends ButtonDisplayTest {
+public class ButtonWithKeyBindingDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition from text with texture display test",
+                "Button definition with key binding display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
@@ -30,14 +30,16 @@ public class ButtonWithSoundDisplayTest extends ButtonDisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition from text with texture", 8000),
-                ButtonWithSoundDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Button definition with key binding", 800000),
+                ButtonWithKeyBindingDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var buttonDef = testFullDefFromText("Button", SCREEN_CENTER);
+        var buttonDef = testFullDefFromText("Button", SCREEN_CENTER)
+                .withTextItalicIndices(listOf(0, 1))
+                .withKey(GLFW_KEY_B, 0);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

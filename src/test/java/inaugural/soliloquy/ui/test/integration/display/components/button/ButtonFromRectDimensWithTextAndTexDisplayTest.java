@@ -1,6 +1,7 @@
-package inaugural.soliloquy.ui.test.integration.display.button;
+package inaugural.soliloquy.ui.test.integration.display.components.button;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
+import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
@@ -9,14 +10,17 @@ import soliloquy.specs.io.graphics.renderables.TextJustification;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
+import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
-public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
+public class ButtonFromRectDimensWithTextAndTexDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition from rect dimens with text display test",
+                "Button definition from rect dimens with text and texture display test",
                 new AssetDefinitionsDTO(
-                        arrayOf(),
+                        arrayOf(
+                                new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
+                        ),
                         arrayOf(
                                 MERRIWEATHER_DEFINITION_DTO
                         ),
@@ -28,8 +32,8 @@ public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition from rect dimens with text", 8000),
-                ButtonFromRectDimensWithTextDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Button definition from rect dimens with text and texture", 8000),
+                ButtonFromRectDimensWithTextAndTexDisplayTest::populateTopLevelComponent
         );
     }
 
@@ -39,19 +43,22 @@ public class ButtonFromRectDimensWithTextDisplayTest extends ButtonDisplayTest {
                 floatBoxOf(0.05f, 0.4f, 0.25f, 0.6f),
                 "Left",
                 TextJustification.LEFT
-        );
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
 
         var buttonDefCenter = testButtonFromRectDimens(
                 floatBoxOf(0.4f, 0.4f, 0.6f, 0.6f),
                 "Center",
                 TextJustification.CENTER
-        );
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
 
         var buttonDefRight = testButtonFromRectDimens(
                 floatBoxOf(0.75f, 0.4f, 0.95f, 0.6f),
                 "Right",
                 TextJustification.RIGHT
-        );
+        )
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

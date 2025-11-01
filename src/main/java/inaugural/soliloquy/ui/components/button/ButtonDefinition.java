@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static java.util.UUID.randomUUID;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ButtonDefinition extends AbstractContentDefinition {
@@ -86,10 +87,10 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public String mouseLeaveSoundId;
     public String releaseSoundId;
 
-    private ButtonDefinition(int z,
-                             AbstractProviderDefinition<FloatBox> rectDimensDef,
-                             AbstractProviderDefinition<Vertex> textRenderingLocDef) {
-        super(z);
+    protected ButtonDefinition(int z,
+                               AbstractProviderDefinition<FloatBox> rectDimensDef,
+                               AbstractProviderDefinition<Vertex> textRenderingLocDef) {
+        super(z, randomUUID());
         RECT_DIMENS_DEF = rectDimensDef;
         TEXT_RENDERING_LOC_DEF = textRenderingLocDef;
     }
@@ -158,8 +159,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
                                           float textHeight,
                                           Vertex textRenderingLoc,
                                           int z) {
-        return new ButtonDefinition(z, null, staticVal(textRenderingLoc))
-                .withText(text, fontId, textHeight);
+        return button(text, fontId, textHeight, staticVal(textRenderingLoc), z);
     }
 
     /**

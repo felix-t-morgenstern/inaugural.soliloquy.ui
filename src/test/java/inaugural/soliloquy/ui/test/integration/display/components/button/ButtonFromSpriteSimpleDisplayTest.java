@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.button;
+package inaugural.soliloquy.ui.test.integration.display.components.button;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;

@@ -62,7 +62,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 any())).thenReturn(mockRenderable);
 
         reader = new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
-                MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader,
+                MOCK_GET_ACTION, mockProviderDefinitionReader, mockColorShiftDefinitionReader,
                 mockNullProvider);
     }
 
@@ -70,29 +70,28 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(null, MOCK_GET_IMAGE_ASSET_SET,
-                        MOCK_GET_ACTION,
-                        mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
+                        MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, null,
-                        MOCK_GET_ACTION,
-                        mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
+                        MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_IMAGE_ASSET_SET, null,
-                        mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
+                        MOCK_GET_IMAGE_ASSET_SET, null, mockProviderDefinitionReader,
+                        mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_IMAGE_ASSET_SET,
-                        MOCK_GET_ACTION, null, mockShiftDefinitionReader, mockNullProvider));
+                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, null,
+                        mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_IMAGE_ASSET_SET,
-                        MOCK_GET_ACTION, mockProviderDefinitionReader, null, mockNullProvider));
+                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_IMAGE_ASSET_SET,
-                        MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader,
-                        null));
+                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        mockColorShiftDefinitionReader, null));
     }
 
     @Test
@@ -116,7 +115,8 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(mockBorderColorDefinition),
                 eq(TIMESTAMP));
-        verify(mockShiftDefinitionReader, once()).read(same(mockShiftDefinition), eq(TIMESTAMP));
+        verify(mockColorShiftDefinitionReader, once()).read(same(mockShiftDefinition),
+                eq(TIMESTAMP));
         verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
@@ -145,7 +145,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
 
         reader.read(mockComponent, definition, TIMESTAMP);
 
-        verify(mockShiftDefinitionReader, never()).read(any(), anyLong());
+        verify(mockColorShiftDefinitionReader, never()).read(any(), anyLong());
         verify(mockFactory, once()).make(
                 any(),
                 anyMap(),

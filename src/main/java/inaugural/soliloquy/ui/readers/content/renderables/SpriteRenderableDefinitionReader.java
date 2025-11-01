@@ -3,7 +3,7 @@ package inaugural.soliloquy.ui.readers.content.renderables;
 import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.io.graphics.assets.Sprite;
@@ -14,7 +14,6 @@ import soliloquy.specs.io.graphics.renderables.factories.SpriteRenderableFactory
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -31,7 +30,7 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
                                             @SuppressWarnings("rawtypes")
                                             Function<String, Action> getAction,
                                             ProviderDefinitionReader providerReader,
-                                            ShiftDefinitionReader shiftReader,
+                                            ColorShiftDefinitionReader shiftReader,
                                             @SuppressWarnings("rawtypes")
                                             ProviderAtTime nullProvider) {
         super(providerReader, nullProvider, getAction, shiftReader);

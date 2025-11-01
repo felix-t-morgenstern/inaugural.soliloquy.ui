@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.button;
+package inaugural.soliloquy.ui.test.integration.display.components.beveledbutton;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -7,14 +7,18 @@ import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionRe
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
-import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
-import static inaugural.soliloquy.tools.collections.Collections.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
+import java.awt.*;
 
-public class ButtonWithKeyBindingDisplayTest extends ButtonDisplayTest {
+import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
+import static inaugural.soliloquy.tools.random.Random.randomColor;
+import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
+
+public class BeveledButtonDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition with key binding display test",
+                "Beveled button display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false)
@@ -30,21 +34,30 @@ public class ButtonWithKeyBindingDisplayTest extends ButtonDisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition with key binding", 800000),
-                ButtonWithKeyBindingDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Beveled button", 16000),
+                BeveledButtonDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var buttonDef = testFullDefFromText("Button", SCREEN_CENTER)
-                .withTextItalicIndices(listOf(0, 1))
-                .withKey(GLFW_KEY_B, 0);
+        var lineHeight = 0.075f;
+
+        var def = beveledButton(
+                "Button",
+                MERRIWEATHER_ID,
+                lineHeight,
+                vertexOf(0.5f, 0.5f - (lineHeight/2f)),
+                0.05f,
+                0.125f,
+                0
+        )
+                .withTextPadding(0.025f)
+                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
+                .withBgColor(randomColor());
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        setOf(
-                buttonDef
-        ).forEach(d -> reader.read(topLevelComponent, d, timestamp(uiModule)));
+        reader.read(topLevelComponent, def, timestamp(uiModule));
     }
 }

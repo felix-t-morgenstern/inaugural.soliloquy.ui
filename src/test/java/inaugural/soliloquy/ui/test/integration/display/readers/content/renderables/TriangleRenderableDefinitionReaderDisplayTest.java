@@ -9,6 +9,8 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.Component;
 
+import java.awt.*;
+
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
@@ -55,8 +57,8 @@ public class TriangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
         )
                 .withTexture(
                         staticVal(image.textureId()),
-                        staticVal(0.5f),
-                        staticVal(0.5f)
+                        staticVal(0.6f),
+                        staticVal(0.6f)
                 )
                 .withColors(
                         staticVal(randomColor()),

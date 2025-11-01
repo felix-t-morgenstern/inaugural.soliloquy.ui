@@ -9,10 +9,10 @@ import static soliloquy.specs.io.graphics.renderables.colorshifting.BrightnessSh
 import static soliloquy.specs.io.graphics.renderables.colorshifting.ColorComponentIntensityShift.colorComponentShift;
 import static soliloquy.specs.io.graphics.renderables.colorshifting.ColorRotationShift.rotationShift;
 
-public class ShiftDefinitionReader {
+public class ColorShiftDefinitionReader {
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
 
-    public ShiftDefinitionReader(ProviderDefinitionReader providerDefReader) {
+    public ColorShiftDefinitionReader(ProviderDefinitionReader providerDefReader) {
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
     }
 

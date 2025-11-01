@@ -2,7 +2,7 @@ package inaugural.soliloquy.ui.components.button;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
@@ -46,7 +46,7 @@ public class ButtonDefinitionReader {
     private static final String PRESS_KEY_METHOD = "pressKey_Button";
     private static final String RELEASE_KEY_METHOD = "releaseKey_Button";
 
-    static final int RECT_Z = 0;
+    public static final int RECT_Z = 0;
     static final int SPRITE_Z = 1;
     static final int TEXT_Z = 2;
 
@@ -58,9 +58,8 @@ public class ButtonDefinitionReader {
     private static final String TEX_HEIGHT_FROM_RECT_DIMENS_METHOD = "provideTexTileHeight_Button";
 
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
-    private final ShiftDefinitionReader SHIFT_DEF_READER;
+    private final ColorShiftDefinitionReader SHIFT_DEF_READER;
     @SuppressWarnings("rawtypes") private final ProviderAtTime NULL_PROVIDER;
-    private final Supplier<Long> GET_TIMESTAMP;
     private final TextLineRenderer TEXT_LINE_RENDERER;
     @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
     private final Function<String, Font> GET_FONT;
@@ -68,9 +67,8 @@ public class ButtonDefinitionReader {
     private final Supplier<Float> GET_WIDTH_TO_HEIGHT_RATIO;
 
     public ButtonDefinitionReader(ProviderDefinitionReader providerDefReader,
-                                  ShiftDefinitionReader shiftDefReader,
+                                  ColorShiftDefinitionReader shiftDefReader,
                                   @SuppressWarnings("rawtypes") ProviderAtTime nullProvider,
-                                  Supplier<Long> getTimestamp,
                                   TextLineRenderer textLineRenderer,
                                   @SuppressWarnings("rawtypes") Function<String, Action> getAction,
                                   Function<String, Font> getFont,
@@ -79,7 +77,6 @@ public class ButtonDefinitionReader {
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
         SHIFT_DEF_READER = Check.ifNull(shiftDefReader, "shiftDefReader");
         NULL_PROVIDER = Check.ifNull(nullProvider, "nullProvider");
-        GET_TIMESTAMP = Check.ifNull(getTimestamp, "getTimestamp");
         TEXT_LINE_RENDERER = Check.ifNull(textLineRenderer, "textLineRenderer");
         GET_ACTION = Check.ifNull(getAction, "getAction");
         GET_FONT = Check.ifNull(getFont, "getFont");
@@ -87,14 +84,12 @@ public class ButtonDefinitionReader {
         GET_WIDTH_TO_HEIGHT_RATIO = Check.ifNull(getWidthToHeightRatio, "getWidthToHeightRatio");
     }
 
-    public ComponentDefinition read(ButtonDefinition definition) {
+    public ComponentDefinition read(ButtonDefinition definition, long timestamp) {
         Check.ifNull(definition, "definition");
 
-        var timestamp = GET_TIMESTAMP.get();
-
-        var defaultOptions = new RenderableOptions();
-        var hoverOptions = new RenderableOptions();
-        var pressedOptions = new RenderableOptions();
+        var defaultOptions = new Options();
+        var hoverOptions = new Options();
+        var pressedOptions = new Options();
 
         var content = makeContent(
                 definition,
@@ -113,7 +108,8 @@ public class ButtonDefinitionReader {
 
         return component(
                 definition.Z,
-                content
+                content,
+                definition.UUID
         )
                 .withBindings(
                         false,
@@ -143,9 +139,9 @@ public class ButtonDefinitionReader {
 
     private Set<AbstractContentDefinition> makeContent(
             ButtonDefinition definition,
-            RenderableOptions defaultOptions,
-            RenderableOptions hoverOptions,
-            RenderableOptions pressedOptions,
+            Options defaultOptions,
+            Options hoverOptions,
+            Options pressedOptions,
             long timestamp
     ) {
         var content = Collections.<AbstractContentDefinition>setOf();
@@ -263,16 +259,12 @@ public class ButtonDefinitionReader {
         return content;
     }
 
-    private List<Integer> indicesOrDefault(int[] providedIndices, List<Integer> defaultIndices) {
-        return defaultIfNull(providedIndices, defaultIndices, Collections::listInts);
-    }
-
     private RectangleRenderableDefinition makeRectDef(
             ProviderAtTime<FloatBox> rectDimensProvider,
             ButtonDefinition definition,
-            RenderableOptions defaultOptions,
-            RenderableOptions hoverOptions,
-            RenderableOptions pressedOptions,
+            Options defaultOptions,
+            Options hoverOptions,
+            Options pressedOptions,
             long timestamp
     ) {
         var bgColorTopLeftDefault =
@@ -365,9 +357,9 @@ public class ButtonDefinitionReader {
             float lineHeight,
             float textPaddingVert,
             float textPaddingHoriz,
-            RenderableOptions defaultOptions,
-            RenderableOptions hoverOptions,
-            RenderableOptions pressedOptions,
+            Options defaultOptions,
+            Options hoverOptions,
+            Options pressedOptions,
             long timestamp
     ) {
         var providerDefault = PROVIDER_DEF_READER.read(
@@ -445,9 +437,9 @@ public class ButtonDefinitionReader {
 
     private SpriteRenderableDefinition makeSpriteDef(
             ButtonDefinition definition,
-            RenderableOptions defaultOptions,
-            RenderableOptions hoverOptions,
-            RenderableOptions pressedOptions,
+            Options defaultOptions,
+            Options hoverOptions,
+            Options pressedOptions,
             long timestamp
     ) {
         var spriteDimensDefault =
@@ -498,9 +490,9 @@ public class ButtonDefinitionReader {
     private TextLineRenderableDefinition makeTextLineDef(
             ButtonDefinition definition,
             ProviderAtTime<Vertex> textRenderingLoc,
-            RenderableOptions defaultOptions,
-            RenderableOptions hoverOptions,
-            RenderableOptions pressedOptions,
+            Options defaultOptions,
+            Options hoverOptions,
+            Options pressedOptions,
             long timestamp
     ) {
         var colorsDefault = getColorIndices(definition.textColorIndicesDefault, timestamp);

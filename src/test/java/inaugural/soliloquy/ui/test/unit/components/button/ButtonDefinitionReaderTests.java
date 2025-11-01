@@ -1,12 +1,12 @@
 package inaugural.soliloquy.ui.components.button;
 
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
+import inaugural.soliloquy.ui.test.unit.components.FunctionalProviderDefMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.entities.Action;
@@ -24,12 +24,10 @@ import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 import soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition;
 import soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
-import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
 
 import java.awt.*;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -212,9 +210,8 @@ public class ButtonDefinitionReaderTests {
     @Mock private ProviderAtTime<FloatBox> mockRectDimensFuncProviderPressed;
 
     @Mock private ProviderDefinitionReader mockProviderDefReader;
-    @Mock private ShiftDefinitionReader mockShiftReader;
+    @Mock private ColorShiftDefinitionReader mockShiftReader;
     @SuppressWarnings("rawtypes") @Mock private ProviderAtTime mockNullProvider;
-    @Mock private Supplier<Long> mockGetTimestamp;
     @Mock private TextLineRenderer mockTextLineRenderer;
     @Mock private Function<String, Integer> mockGetTexId;
     @Mock private Supplier<Float> mockGetWidthToHeightRatio;
@@ -294,8 +291,6 @@ public class ButtonDefinitionReaderTests {
                 .thenReturn(mockSpriteShiftHover);
         lenient().when(mockShiftReader.read(same(mockSpriteShiftPressedDef), anyLong()))
                 .thenReturn(mockSpriteShiftPressed);
-
-        lenient().when(mockGetTimestamp.get()).thenReturn(TIMESTAMP);
 
         lenient().when(mockTextLineRenderer.textLineLength(
                 anyString(),
@@ -399,48 +394,44 @@ public class ButtonDefinitionReaderTests {
 
         reader =
                 new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader, mockNullProvider,
-                        mockGetTimestamp, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
-                        mockGetTexId, mockGetWidthToHeightRatio);
+                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockGetWidthToHeightRatio);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(null, mockShiftReader, mockNullProvider,
-                        mockGetTimestamp, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
-                        mockGetTexId, mockGetWidthToHeightRatio));
+                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, null, mockNullProvider,
-                        mockGetTimestamp, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
-                        mockGetTexId, mockGetWidthToHeightRatio));
+                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader, null,
-                        mockGetTimestamp, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
-                        mockGetTexId, mockGetWidthToHeightRatio));
+                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, null, mockTextLineRenderer, MOCK_GET_ACTION,
-                        MOCK_GET_FONT, mockGetTexId, mockGetWidthToHeightRatio));
+                        mockNullProvider, null, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockGetTimestamp, null, MOCK_GET_ACTION, MOCK_GET_FONT,
-                        mockGetTexId, mockGetWidthToHeightRatio));
+                        mockNullProvider, mockTextLineRenderer, null, MOCK_GET_FONT, mockGetTexId,
+                        mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockGetTimestamp, mockTextLineRenderer, null,
-                        MOCK_GET_FONT, mockGetTexId, mockGetWidthToHeightRatio));
+                        mockNullProvider, mockTextLineRenderer, MOCK_GET_ACTION, null, mockGetTexId,
+                        mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockGetTimestamp, mockTextLineRenderer, MOCK_GET_ACTION,
-                        null, mockGetTexId, mockGetWidthToHeightRatio));
+                        mockNullProvider, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
+                        null, mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockGetTimestamp, mockTextLineRenderer, MOCK_GET_ACTION,
-                        MOCK_GET_FONT, null, mockGetWidthToHeightRatio));
-        assertThrows(IllegalArgumentException.class,
-                () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockGetTimestamp, mockTextLineRenderer, MOCK_GET_ACTION,
-                        MOCK_GET_FONT, mockGetTexId, null));
+                        mockNullProvider, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
+                        mockGetTexId, null));
     }
 
     @Test
@@ -459,11 +450,12 @@ public class ButtonDefinitionReaderTests {
                 ))), anyLong()))
                 .thenReturn(mockTextRenderingLoc);
 
-        var def = buttonDefinitionFromRectDimensAndDefsWithMaximalArgs();
+        var definition = buttonDefinitionFromRectDimensAndDefsWithMaximalArgs();
 
-        var output = reader.read(def);
+        var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
+        assertEquals(definition.UUID, output.UUID);
         assertEquals(Z, output.Z);
         assertEquals(3, output.CONTENT.size());
         assertEquals(1, output.bindings.length);
@@ -493,7 +485,7 @@ public class ButtonDefinitionReaderTests {
 
         assertTextHasFullDef(output);
 
-        var expectedDefaultOptions = new ButtonMethods.RenderableOptions(
+        var expectedDefaultOptions = new ButtonMethods.Options(
                 mockRectDimensProvider,
                 mockBgColorTopLeftDefault,
                 mockBgColorTopRightDefault,
@@ -507,7 +499,7 @@ public class ButtonDefinitionReaderTests {
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
         );
-        var expectedHoverOptions = new ButtonMethods.RenderableOptions(
+        var expectedHoverOptions = new ButtonMethods.Options(
                 null,
                 mockBgColorTopLeftHover,
                 mockBgColorTopRightHover,
@@ -521,7 +513,7 @@ public class ButtonDefinitionReaderTests {
                 listInts(ITALIC_INDEX_HOVER),
                 listInts(BOLD_INDEX_HOVER)
         );
-        var expectedPressedOptions = new ButtonMethods.RenderableOptions(
+        var expectedPressedOptions = new ButtonMethods.Options(
                 null,
                 mockBgColorTopLeftPressed,
                 mockBgColorTopRightPressed,
@@ -555,7 +547,6 @@ public class ButtonDefinitionReaderTests {
                 output.data
         );
 
-        verify(mockGetTimestamp, once()).get();
         verify(MOCK_GET_ACTION, once()).apply(PRESS_ACTION_ID);
         verify(mockProviderDefReader, once()).read(mockRectDimensProviderDef, TIMESTAMP);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
@@ -616,11 +607,12 @@ public class ButtonDefinitionReaderTests {
                                 ))), anyLong())).
                 thenReturn(mockTexTileHeightProvider);
 
-        var def = buttonDefinitionFromTextAndDefsWithMaximalArgs();
+        var definition = buttonDefinitionFromTextAndDefsWithMaximalArgs();
 
-        var output = reader.read(def);
+        var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
+        assertEquals(definition.UUID, output.UUID);
         assertEquals(Z, output.Z);
         assertEquals(3, output.CONTENT.size());
         assertEquals(1, output.bindings.length);
@@ -665,7 +657,7 @@ public class ButtonDefinitionReaderTests {
         assertEquals(listOf(ITALIC_INDEX_DEFAULT), textLineDef.italicIndices);
         assertEquals(listOf(BOLD_INDEX_DEFAULT), textLineDef.boldIndices);
 
-        var expectedDefaultOptions = new ButtonMethods.RenderableOptions(
+        var expectedDefaultOptions = new ButtonMethods.Options(
                 mockRectDimensFuncProviderDefault,
                 mockBgColorTopLeftDefault,
                 mockBgColorTopRightDefault,
@@ -679,7 +671,7 @@ public class ButtonDefinitionReaderTests {
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
         );
-        var expectedHoverOptions = new ButtonMethods.RenderableOptions(
+        var expectedHoverOptions = new ButtonMethods.Options(
                 mockRectDimensFuncProviderHover,
                 mockBgColorTopLeftHover,
                 mockBgColorTopRightHover,
@@ -693,7 +685,7 @@ public class ButtonDefinitionReaderTests {
                 listInts(ITALIC_INDEX_HOVER),
                 listInts(BOLD_INDEX_HOVER)
         );
-        var expectedPressedOptions = new ButtonMethods.RenderableOptions(
+        var expectedPressedOptions = new ButtonMethods.Options(
                 mockRectDimensFuncProviderPressed,
                 mockBgColorTopLeftPressed,
                 mockBgColorTopRightPressed,
@@ -728,7 +720,6 @@ public class ButtonDefinitionReaderTests {
                 output.data
         );
 
-        verify(mockGetTimestamp, once()).get();
         verify(MOCK_GET_ACTION, once()).apply(PRESS_ACTION_ID);
         verify(mockProviderDefReader, once()).read(mockTexProviderDefaultDef, TIMESTAMP);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
@@ -785,9 +776,10 @@ public class ButtonDefinitionReaderTests {
 
         var definition = withMaximalDefaultArgs(withText(definitionFromRectDimens()));
 
-        var output = reader.read(definition);
+        var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
+        assertEquals(definition.UUID, output.UUID);
         assertEquals(Z, output.Z);
         assertEquals(3, output.CONTENT.size());
         assertEquals(1, output.bindings.length);
@@ -817,7 +809,7 @@ public class ButtonDefinitionReaderTests {
 
         assertTextHasFullDef(output);
 
-        var expectedOptions = new ButtonMethods.RenderableOptions(
+        var expectedOptions = new ButtonMethods.Options(
                 mockRectDimensProvider,
                 mockBgColorTopLeftDefault,
                 mockBgColorTopRightDefault,
@@ -846,12 +838,11 @@ public class ButtonDefinitionReaderTests {
         assertMapsEqualWithOptions(
                 expectedData,
                 expectedOptions,
-                new ButtonMethods.RenderableOptions(),
-                new ButtonMethods.RenderableOptions(),
+                new ButtonMethods.Options(),
+                new ButtonMethods.Options(),
                 output.data
         );
 
-        verify(mockGetTimestamp, once()).get();
         verify(MOCK_GET_ACTION, once()).apply(PRESS_ACTION_ID);
         verify(mockProviderDefReader, once()).read(mockRectDimensProviderDef, TIMESTAMP);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
@@ -878,9 +869,10 @@ public class ButtonDefinitionReaderTests {
     public void testReadSpriteOnly() {
         var definition = button(SPRITE_ID_DEFAULT, mockSpriteDimensDefaultDef, Z);
 
-        var output = reader.read(definition);
+        var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
+        assertEquals(definition.UUID, output.UUID);
         assertEquals(1, output.CONTENT.size());
         assertSpriteHasBasicDef(output);
     }
@@ -936,9 +928,10 @@ public class ButtonDefinitionReaderTests {
     public void testReadFromRectDimensWithMinimalArgs() {
         var definition = definitionFromRectDimens();
 
-        var output = reader.read(definition);
+        var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
+        assertEquals(definition.UUID, output.UUID);
         assertEquals(1, output.CONTENT.size());
         assertEquals(0, output.bindings.length);
         //noinspection OptionalGetWithoutIsPresent
@@ -954,7 +947,7 @@ public class ButtonDefinitionReaderTests {
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
 
-        @SuppressWarnings("unchecked") var expectedOptions = new ButtonMethods.RenderableOptions(
+        @SuppressWarnings("unchecked") var expectedOptions = new ButtonMethods.Options(
                 mockRectDimensProvider,
                 mockNullProvider,
                 mockNullProvider,
@@ -984,8 +977,8 @@ public class ButtonDefinitionReaderTests {
         assertMapsEqualWithOptions(
                 expectedData,
                 expectedOptions,
-                new ButtonMethods.RenderableOptions(),
-                new ButtonMethods.RenderableOptions(),
+                new ButtonMethods.Options(),
+                new ButtonMethods.Options(),
                 output.data
         );
 
@@ -1015,9 +1008,10 @@ public class ButtonDefinitionReaderTests {
                 Z
         );
 
-        var output = reader.read(definition);
+        var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
+        assertEquals(definition.UUID, output.UUID);
         assertEquals(2, output.CONTENT.size());
 
         @SuppressWarnings("OptionalGetWithoutIsPresent") var atRectZ =
@@ -1050,7 +1044,7 @@ public class ButtonDefinitionReaderTests {
         assertNull(textLineDef.italicIndices);
         assertNull(textLineDef.boldIndices);
 
-        @SuppressWarnings("unchecked") var expectedOptions = new ButtonMethods.RenderableOptions(
+        @SuppressWarnings("unchecked") var expectedOptions = new ButtonMethods.Options(
                 mockRectDimensFuncProviderDefault,
                 mockNullProvider,
                 mockNullProvider,
@@ -1080,8 +1074,8 @@ public class ButtonDefinitionReaderTests {
         assertMapsEqualWithOptions(
                 expectedData,
                 expectedOptions,
-                new ButtonMethods.RenderableOptions(),
-                new ButtonMethods.RenderableOptions(),
+                new ButtonMethods.Options(),
+                new ButtonMethods.Options(),
                 output.data
         );
 
@@ -1091,24 +1085,24 @@ public class ButtonDefinitionReaderTests {
 
     private void assertMapsEqualWithOptions(
             Map<String, Object> expected,
-            ButtonMethods.RenderableOptions expectedDefaultOptions,
-            ButtonMethods.RenderableOptions expectedHoverOptions,
-            ButtonMethods.RenderableOptions expectedPressedOptions,
+            ButtonMethods.Options expectedDefaultOptions,
+            ButtonMethods.Options expectedHoverOptions,
+            ButtonMethods.Options expectedPressedOptions,
             Map<String, Object> actual
     ) {
         assertEquals(expected.size() + 3, actual.size());
         expected.forEach((key, value) -> assertEquals(value, actual.get(key)));
         assertOptionsEqual(expectedDefaultOptions,
-                (ButtonMethods.RenderableOptions) actual.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY));
+                (ButtonMethods.Options) actual.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY));
         assertOptionsEqual(expectedHoverOptions,
-                (ButtonMethods.RenderableOptions) actual.get(HOVER_RENDERABLE_OPTIONS_DATA_KEY));
+                (ButtonMethods.Options) actual.get(HOVER_RENDERABLE_OPTIONS_DATA_KEY));
         assertOptionsEqual(expectedPressedOptions,
-                (ButtonMethods.RenderableOptions) actual.get(PRESSED_RENDERABLE_OPTIONS_DATA_KEY));
+                (ButtonMethods.Options) actual.get(PRESSED_RENDERABLE_OPTIONS_DATA_KEY));
     }
 
     private void assertOptionsEqual(
-            ButtonMethods.RenderableOptions expected,
-            ButtonMethods.RenderableOptions actual
+            ButtonMethods.Options expected,
+            ButtonMethods.Options actual
     ) {
         assertSame(expected.rectDimens, actual.rectDimens);
         assertSame(expected.bgColorTopLeft, actual.bgColorTopLeft);
@@ -1206,42 +1200,10 @@ public class ButtonDefinitionReaderTests {
 
     @Test
     public void testReadWithInvalidArgs() {
-        assertThrows(IllegalArgumentException.class, () -> reader.read(null));
+        assertThrows(IllegalArgumentException.class, () -> reader.read(null, randomLong()));
     }
 
     private <T> T extractStaticVal(AbstractProviderDefinition<T> provider) {
         return ((StaticProviderDefinition<T>) provider).VALUE;
-    }
-
-    // NB: This matcher doesn't verify whether the same type parameters were provided to
-    // functionalProvider(), but if incorrect type parameters were provided in the
-    // implementation, it would fail to compile, so this doesn't need testing
-    @SuppressWarnings("rawtypes")
-    private static class FunctionalProviderDefMatcher
-            implements ArgumentMatcher<AbstractProviderDefinition> {
-        private final String METHOD;
-        private final Map<String, Object> DATA;
-
-        private FunctionalProviderDefMatcher(String method, Map<String, Object> data) {
-            METHOD = method;
-            DATA = data;
-        }
-
-        @Override
-        public boolean matches(AbstractProviderDefinition definition) {
-            if (!(definition instanceof FunctionalProviderDefinition<?>)) {
-                return false;
-            }
-
-            var functionalDef = (FunctionalProviderDefinition) definition;
-
-            if (METHOD != null || DATA != null) {
-                return Objects.equals(METHOD, functionalDef.PROVIDE_FUNCTION_ID) &&
-                        Objects.equals(DATA, functionalDef.data);
-            }
-            else {
-                return true;
-            }
-        }
     }
 }

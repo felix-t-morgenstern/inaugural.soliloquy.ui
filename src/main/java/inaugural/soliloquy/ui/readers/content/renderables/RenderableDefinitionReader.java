@@ -14,6 +14,7 @@ import soliloquy.specs.ui.definitions.content.*;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
 
     @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
     @SuppressWarnings("rawtypes")
-    private final Map<Class, Function<AbstractContentDefinition, ComponentDefinition>>
+    private final Map<Class, BiFunction<AbstractContentDefinition, Long, ComponentDefinition>>
             CUSTOM_READERS;
     private final ProviderAtTime<FloatBox> WHOLE_SCREEN_PROVIDER;
     private final int DEFAULT_KEY_EVENT_PRIORITY;
@@ -121,7 +122,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                     "ContentDefinitionReader.read: Unexpected definition type (" +
                             definition.getClass().getCanonicalName() + ")");
         }
-        var componentDef = reader.apply(definition);
+        var componentDef = reader.apply(definition, timestamp);
         return readComponentDef(componentDef, containingComponent, timestamp);
     }
 
@@ -131,7 +132,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             long timestamp
     ) {
         @SuppressWarnings("unchecked") var readComponent = COMPONENT_FACTORY.make(
-                randomUUID(),
+                d.UUID,
                 d.Z,
                 defaultIfNull(d.bindings, setOf(), bindingDefs -> Arrays.stream(bindingDefs)
                         .map(bindingDef -> keyBinding(
@@ -157,7 +158,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
 
     public <T extends AbstractContentDefinition> void addCustomComponentReader(
             Class<T> aClass,
-            Function<AbstractContentDefinition, ComponentDefinition> reader
+            BiFunction<AbstractContentDefinition, Long, ComponentDefinition> reader
     ) {
         CUSTOM_READERS.put(Check.ifNull(aClass, "aClass"), Check.ifNull(reader, "reader"));
     }

@@ -54,30 +54,33 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 any())).thenReturn(mockRenderable);
 
         reader = new SpriteRenderableDefinitionReader(mockFactory, MOCK_GET_SPRITE, MOCK_GET_ACTION,
-                mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider);
+                mockProviderDefinitionReader, mockColorShiftDefinitionReader, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new SpriteRenderableDefinitionReader(null, MOCK_GET_SPRITE, MOCK_GET_ACTION,
-                        mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
+                        mockProviderDefinitionReader, mockColorShiftDefinitionReader,
+                        mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new SpriteRenderableDefinitionReader(mockFactory, null, MOCK_GET_ACTION,
-                        mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
+                        mockProviderDefinitionReader, mockColorShiftDefinitionReader,
+                        mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new SpriteRenderableDefinitionReader(mockFactory, MOCK_GET_SPRITE, null,
-                        mockProviderDefinitionReader, mockShiftDefinitionReader, mockNullProvider));
+                        mockProviderDefinitionReader, mockColorShiftDefinitionReader,
+                        mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new SpriteRenderableDefinitionReader(mockFactory, MOCK_GET_SPRITE,
-                        MOCK_GET_ACTION, null, mockShiftDefinitionReader, mockNullProvider));
+                        MOCK_GET_ACTION, null, mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new SpriteRenderableDefinitionReader(mockFactory, MOCK_GET_SPRITE,
                         MOCK_GET_ACTION, mockProviderDefinitionReader, null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new SpriteRenderableDefinitionReader(mockFactory, MOCK_GET_SPRITE,
-                        MOCK_GET_ACTION, mockProviderDefinitionReader, mockShiftDefinitionReader,
-                        null));
+                        MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        mockColorShiftDefinitionReader, null));
     }
 
     @Test
@@ -101,7 +104,8 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(mockBorderColorDefinition),
                 eq(TIMESTAMP));
-        verify(mockShiftDefinitionReader, once()).read(same(mockShiftDefinition), eq(TIMESTAMP));
+        verify(mockColorShiftDefinitionReader, once()).read(same(mockShiftDefinition),
+                eq(TIMESTAMP));
         verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
@@ -130,7 +134,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
 
         reader.read(mockComponent, definition, TIMESTAMP);
 
-        verify(mockShiftDefinitionReader, never()).read(any(), anyLong());
+        verify(mockColorShiftDefinitionReader, never()).read(any(), anyLong());
         verify(mockFactory, once()).make(
                 any(),
                 any(), any(),

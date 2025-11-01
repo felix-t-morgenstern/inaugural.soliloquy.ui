@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.button;
+package inaugural.soliloquy.ui.test.integration.display.components.button;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.ui.UIModule;
@@ -12,10 +12,10 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
-public class ButtonFromRectDimensEventsDisplayTest extends ButtonDisplayTest {
+public class ButtonFromRectDimensSimpleDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition from rect dimens events display test",
+                "Button definition from rect dimens simple display test",
                 new AssetDefinitionsDTO(
                         arrayOf(),
                         arrayOf(),
@@ -27,35 +27,18 @@ public class ButtonFromRectDimensEventsDisplayTest extends ButtonDisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition from rect dimens events", 8000),
-                ButtonFromRectDimensEventsDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Button definition from rect dimens simple", 4000),
+                ButtonFromRectDimensSimpleDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var buttonDef = button(
-                floatBoxOf(0.4f, 0.4f, 0.6f, 0.6f),
+                floatBoxOf(0.45f, 0.45f, 0.55f, 0.55f),
                 0
         )
-                .withBgColors(
-                        new Color(255, 0, 127),
-                        Color.RED,
-                        Color.RED,
-                        new Color(255, 127, 0)
-                )
-                .withBgColorsHover(
-                        new Color(127, 255, 0),
-                        Color.GREEN,
-                        Color.GREEN,
-                        new Color(0, 255, 127)
-                )
-                .withBgColorsPressed(
-                        new Color(0, 127, 255),
-                        Color.BLUE,
-                        Color.BLUE,
-                        new Color(127, 0, 255)
-                );
+                .withBgColor(Color.RED);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

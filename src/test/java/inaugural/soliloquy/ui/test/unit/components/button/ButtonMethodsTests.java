@@ -121,8 +121,8 @@ public class ButtonMethodsTests {
                 pairOf(MOUSE_LEAVE_SOUND_ID_DATA_KEY, MOUSE_LEAVE_SOUND_ID),
                 pairOf(RELEASE_SOUND_ID_DATA_KEY, RELEASE_SOUND_ID),
                 pairOf(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY, options(SPRITE_ID_DEFAULT)),
-                pairOf(HOVER_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.RenderableOptions()),
-                pairOf(PRESSED_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.RenderableOptions())
+                pairOf(HOVER_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.Options()),
+                pairOf(PRESSED_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.Options())
         );
 
         lenient().when(mockRectDimens.provide(anyLong())).thenReturn(RECT_DIMENS);
@@ -403,7 +403,7 @@ public class ButtonMethodsTests {
     @Test
     public void testMouseOverSetsRenderableOptionsToHoverWhenNotAlreadyHovering() {
         when(mockData.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY))
-                .thenReturn(new ButtonMethods.RenderableOptions());
+                .thenReturn(new ButtonMethods.Options());
         when(mockData.get(HOVER_RENDERABLE_OPTIONS_DATA_KEY))
                 .thenReturn(options(SPRITE_ID_HOVER));
         buttonMethods.mouseOver_Button(
@@ -417,7 +417,7 @@ public class ButtonMethodsTests {
     @Test
     public void testMouseOverSetsRenderableOptionsToPressedWhenNotAlreadyHoveringAndButtonIsPressed() {
         when(mockData.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY))
-                .thenReturn(new ButtonMethods.RenderableOptions());
+                .thenReturn(new ButtonMethods.Options());
         when(mockData.get(PRESSED_RENDERABLE_OPTIONS_DATA_KEY))
                 .thenReturn(options(SPRITE_ID_PRESSED));
         when(mockData.get(PRESS_STATE_DATA_KEY)).thenReturn(true);
@@ -445,7 +445,7 @@ public class ButtonMethodsTests {
     @Test
     public void testPressMouseButtonSetsRenderableOptionsToPressed() {
         when(mockData.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY))
-                .thenReturn(new ButtonMethods.RenderableOptions());
+                .thenReturn(new ButtonMethods.Options());
         when(mockData.get(PRESSED_RENDERABLE_OPTIONS_DATA_KEY))
                 .thenReturn(options(SPRITE_ID_PRESSED));
 
@@ -460,7 +460,7 @@ public class ButtonMethodsTests {
     @Test
     public void testPressKeyButtonSetsRenderableOptionsToPressed() {
         when(mockData.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY))
-                .thenReturn(new ButtonMethods.RenderableOptions());
+                .thenReturn(new ButtonMethods.Options());
         when(mockData.get(PRESSED_RENDERABLE_OPTIONS_DATA_KEY))
                 .thenReturn(options(SPRITE_ID_PRESSED));
 
@@ -537,7 +537,7 @@ public class ButtonMethodsTests {
     @Test
     public void testSetHoverRenderableOptionsSetToDefaultWhenNull() {
         when(mockData.get(HOVER_RENDERABLE_OPTIONS_DATA_KEY))
-                .thenReturn(new ButtonMethods.RenderableOptions());
+                .thenReturn(new ButtonMethods.Options());
         buttonMethods.mouseOver_Button(
                 eventInputs(randomLong())
                         .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
@@ -562,7 +562,7 @@ public class ButtonMethodsTests {
 
     @Test
     public void testWhenNoShiftsInOptionsShiftIsNotAdded() {
-        var optionsWithoutShift = new ButtonMethods.RenderableOptions(mockRectDimens,
+        var optionsWithoutShift = new ButtonMethods.Options(mockRectDimens,
                 mockBgTopLeft,
                 mockBgTopRight,
                 mockBgBottomLeft,
@@ -606,8 +606,8 @@ public class ButtonMethodsTests {
         verify(mockTextLineRenderable, never()).setRenderingLocationProvider(any());
     }
 
-    private ButtonMethods.RenderableOptions options(String spriteId) {
-        return new ButtonMethods.RenderableOptions(mockRectDimens,
+    private ButtonMethods.Options options(String spriteId) {
+        return new ButtonMethods.Options(mockRectDimens,
                 mockBgTopLeft,
                 mockBgTopRight,
                 mockBgBottomLeft,

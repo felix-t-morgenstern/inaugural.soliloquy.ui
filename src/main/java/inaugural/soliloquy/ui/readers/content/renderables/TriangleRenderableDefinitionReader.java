@@ -12,6 +12,8 @@ import soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+
 public class TriangleRenderableDefinitionReader
         extends AbstractMouseEventsComponentDefinitionReader {
     private final TriangleRenderableFactory FACTORY;
@@ -32,19 +34,19 @@ public class TriangleRenderableDefinitionReader
         Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 
-        var vector1 =
-                provider(Check.ifNull(definition.VERTEX_1_PROVIDER, "definition.VERTEX_1_PROVIDER"),
-                        timestamp);
-        var vector2 =
-                provider(Check.ifNull(definition.VERTEX_2_PROVIDER, "definition.VERTEX_2_PROVIDER"),
-                        timestamp);
-        var vector3 =
-                provider(Check.ifNull(definition.VERTEX_3_PROVIDER, "definition.VERTEX_3_PROVIDER"),
-                        timestamp);
+        var vector1 = definition.VERTEX_1_PROVIDER != null ? definition.VERTEX_1_PROVIDER :
+                provider(Check.ifNull(definition.VERTEX_1_PROVIDER_DEF,
+                        "definition.VERTEX_1_PROVIDER_DEF"), timestamp);
+        var vector2 = definition.VERTEX_2_PROVIDER != null ? definition.VERTEX_2_PROVIDER :
+                provider(Check.ifNull(definition.VERTEX_2_PROVIDER_DEF,
+                        "definition.VERTEX_2_PROVIDER_DEF"), timestamp);
+        var vector3 = definition.VERTEX_3_PROVIDER != null ? definition.VERTEX_3_PROVIDER :
+                provider(Check.ifNull(definition.VERTEX_3_PROVIDER_DEF,
+                        "definition.VERTEX_3_PROVIDER_DEF"), timestamp);
 
-        var vector1Color = provider(definition.vertex1ColorProvider, timestamp);
-        var vector2Color = provider(definition.vertex2ColorProvider, timestamp);
-        var vector3Color = provider(definition.vertex3ColorProvider, timestamp);
+        var vector1Color = defaultIfNull(definition.vertex1ColorProvider, provider(definition.vertex1ColorProviderDef, timestamp));
+        var vector2Color = defaultIfNull(definition.vertex2ColorProvider, provider(definition.vertex2ColorProviderDef, timestamp));
+        var vector3Color = defaultIfNull(definition.vertex3ColorProvider, provider(definition.vertex3ColorProviderDef, timestamp));
 
         var textureId = provider(definition.textureIdProvider, timestamp);
         var textureTileWidth = provider(definition.textureTileWidthProvider, timestamp);

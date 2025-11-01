@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.test.unit.readers.colorshifting;
 
-import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static soliloquy.specs.io.graphics.renderables.colorshifting.ColorCompone
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ShiftDefinitionReaderTests {
+public class ColorShiftDefinitionReaderTests {
     private final long TIMESTAMP = randomLong();
     private final boolean OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE = randomBoolean();
 
@@ -32,19 +32,19 @@ public class ShiftDefinitionReaderTests {
     @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
     @Mock private ProviderAtTime<Float> mockProvider;
 
-    private ShiftDefinitionReader reader;
+    private ColorShiftDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
         lenient().when(mockProviderDefinitionReader.read(same(mockProviderDefinition), anyLong()))
                 .thenReturn(mockProvider);
 
-        reader = new ShiftDefinitionReader(mockProviderDefinitionReader);
+        reader = new ColorShiftDefinitionReader(mockProviderDefinitionReader);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
-        assertThrows(IllegalArgumentException.class, () -> new ShiftDefinitionReader(null));
+        assertThrows(IllegalArgumentException.class, () -> new ColorShiftDefinitionReader(null));
     }
 
     @Test
@@ -56,22 +56,26 @@ public class ShiftDefinitionReaderTests {
         assertNotNull(shift);
         assertInstanceOf(BrightnessShift.class, shift);
         assertSame(mockProvider, shift.AMOUNT_PROVIDER);
-        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
+        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE,
+                shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
         verify(mockProviderDefinitionReader, once())
                 .read(same(mockProviderDefinition), eq(TIMESTAMP));
     }
 
     @Test
     public void testReadComponentIntensityShift() {
-        var definition = componentIntensity(mockProviderDefinition, OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, RED);
+        var definition =
+                componentIntensity(mockProviderDefinition, OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE,
+                        RED);
 
         var shift = reader.read(definition, TIMESTAMP);
 
         assertNotNull(shift);
         assertInstanceOf(ColorComponentIntensityShift.class, shift);
         assertSame(mockProvider, shift.AMOUNT_PROVIDER);
-        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
-        assertSame(RED, ((ColorComponentIntensityShift)shift).COLOR_COMPONENT);
+        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE,
+                shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
+        assertSame(RED, ((ColorComponentIntensityShift) shift).COLOR_COMPONENT);
         verify(mockProviderDefinitionReader, once())
                 .read(same(mockProviderDefinition), eq(TIMESTAMP));
     }
@@ -85,7 +89,8 @@ public class ShiftDefinitionReaderTests {
         assertNotNull(shift);
         assertInstanceOf(ColorRotationShift.class, shift);
         assertSame(mockProvider, shift.AMOUNT_PROVIDER);
-        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE, shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
+        assertEquals(OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE,
+                shift.OVERRIDES_PRIOR_SHIFTS_OF_SAME_TYPE);
         verify(mockProviderDefinitionReader, once())
                 .read(same(mockProviderDefinition), eq(TIMESTAMP));
     }
@@ -93,9 +98,14 @@ public class ShiftDefinitionReaderTests {
     @Test
     public void testReadWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class, () -> reader.read(null, TIMESTAMP));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(brightness(null, randomBoolean()), TIMESTAMP));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(componentIntensity(null, randomBoolean(), RED), TIMESTAMP));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(componentIntensity(mockProviderDefinition, randomBoolean(), null), TIMESTAMP));
-        assertThrows(IllegalArgumentException.class, () -> reader.read(rotation(null, randomBoolean()), TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(brightness(null, randomBoolean()), TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(componentIntensity(null, randomBoolean(), RED), TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(componentIntensity(mockProviderDefinition, randomBoolean(), null),
+                        TIMESTAMP));
+        assertThrows(IllegalArgumentException.class,
+                () -> reader.read(rotation(null, randomBoolean()), TIMESTAMP));
     }
 }

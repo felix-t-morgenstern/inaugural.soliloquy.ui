@@ -16,8 +16,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 
-import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +25,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TextMarkupParserImplTests {
-    private final String PRESET_COLOR_NAME = randomString();
+    private final String PRESET_COLOR_NAME_1 = randomString();
+    private final String PRESET_COLOR_NAME_2 = randomString();
     private final Color PRESET_COLOR = randomColor();
     private final Color DEFAULT_COLOR = randomColor();
     private final Map<Integer, Color> DEFAULT_COLOR_INDICES = mapOf(0, DEFAULT_COLOR);
@@ -57,20 +57,27 @@ public class TextMarkupParserImplTests {
         lenient().when(mockFont.bold()).thenReturn(mockBold);
         lenient().when(mockFont.boldItalic()).thenReturn(mockBoldItalic);
 
-        parser = new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(PRESET_COLOR_NAME, PRESET_COLOR),
+        parser = new TextMarkupParserImpl(DEFAULT_COLOR,
+                mapOf(setOf(PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2), PRESET_COLOR),
                 mockTextLineRenderer);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(null, mapOf(PRESET_COLOR_NAME, PRESET_COLOR),
-                        mockTextLineRenderer));
+                () -> new TextMarkupParserImpl(null, mapOf(), mockTextLineRenderer));
         assertThrows(IllegalArgumentException.class,
                 () -> new TextMarkupParserImpl(DEFAULT_COLOR, null, mockTextLineRenderer));
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(DEFAULT_COLOR,
-                        mapOf(PRESET_COLOR_NAME, PRESET_COLOR), null));
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(null, PRESET_COLOR), mockTextLineRenderer));
+        assertThrows(IllegalArgumentException.class,
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(setOf(null, PRESET_COLOR_NAME_2), PRESET_COLOR), mockTextLineRenderer));
+        assertThrows(IllegalArgumentException.class,
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(setOf(PRESET_COLOR_NAME_1, null), PRESET_COLOR), mockTextLineRenderer));
+        assertThrows(IllegalArgumentException.class,
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(setOf(PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2), null), mockTextLineRenderer));
+        assertThrows(IllegalArgumentException.class,
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(), null));
     }
 
     @Test
@@ -194,11 +201,11 @@ public class TextMarkupParserImplTests {
 
     @Test
     public void testColorFromPreset() {
-        var rawText = String.format("plain [color=%s]color[/color] plain", PRESET_COLOR_NAME);
+        var rawText = String.format("plain [color=%s]color1[/color] [color=%s]color2[/color] plain", PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2);
 
         var formatting = parser.formatSingleLine(rawText);
 
-        var expectedText = "plain color plain";
+        var expectedText = "plain color1 color2 plain";
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals(expectedText, formatting.text());
@@ -209,7 +216,11 @@ public class TextMarkupParserImplTests {
                         DEFAULT_COLOR,
                         6,
                         PRESET_COLOR,
-                        11,
+                        12,
+                        DEFAULT_COLOR,
+                        13,
+                        PRESET_COLOR,
+                        19,
                         DEFAULT_COLOR
                 ),
                 formatting.colorIndices()
@@ -559,7 +570,7 @@ public class TextMarkupParserImplTests {
                 });
         var rawText = String.format(
                 "wordNumber1 wo***[color=%s]rdNumber2 wordNumber***[/color]3 wordNumber4",
-                PRESET_COLOR_NAME);
+                PRESET_COLOR_NAME_1);
         // It places the line break in the middle of wordNumber2
         var lineCharLength = 20;
         // (The small multiplicand at the end is to avoid rounding errors)
@@ -626,7 +637,7 @@ public class TextMarkupParserImplTests {
     public void testFormattingPreservedAcrossLinesWhenUsingCarriageReturn() {
         var rawText = String.format(
                 "wordNumber1\nwo***[color=%s]rdNumber2\nwordNumber***[/color]3\nwordNumber4",
-                PRESET_COLOR_NAME);
+                PRESET_COLOR_NAME_1);
 
         var formatting = parser.formatMultiline(
                 rawText,
@@ -675,7 +686,7 @@ public class TextMarkupParserImplTests {
                 wo***[color=%s]rdNumber2
                 wordNumber***[/color]3
                 wordNumber4""",
-                PRESET_COLOR_NAME);
+                PRESET_COLOR_NAME_1);
 
         var formatting = parser.formatMultiline(
                 rawText,

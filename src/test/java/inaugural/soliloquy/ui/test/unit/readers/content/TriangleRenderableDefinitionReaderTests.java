@@ -36,9 +36,13 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
     @Mock private AbstractProviderDefinition<Vertex> mockVector1Definition;
     @Mock private AbstractProviderDefinition<Vertex> mockVector2Definition;
     @Mock private AbstractProviderDefinition<Vertex> mockVector3Definition;
+
     @Mock private ProviderAtTime<Vertex> mockVector1;
     @Mock private ProviderAtTime<Vertex> mockVector2;
     @Mock private ProviderAtTime<Vertex> mockVector3;
+    @Mock private ProviderAtTime<Color> mockVector1Color;
+    @Mock private ProviderAtTime<Color> mockVector2Color;
+    @Mock private ProviderAtTime<Color> mockVector3Color;
 
     private TriangleRenderableDefinitionReader reader;
 
@@ -85,26 +89,20 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
     }
 
     @Test
-    public void testRead() {
+    public void testReadFromDefsWithMaximalArgs() {
         @SuppressWarnings({"unchecked"}) var vector1ColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector2ColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
         @SuppressWarnings({"unchecked"}) var vector3ColorDefinition =
                 (AbstractProviderDefinition<Color>) mock(AbstractProviderDefinition.class);
-        @SuppressWarnings({"unchecked"}) var vector1Color =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings({"unchecked"}) var vector2Color =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
-        @SuppressWarnings({"unchecked"}) var vector3Color =
-                (ProviderAtTime<Color>) mock(ProviderAtTime.class);
 
         when(mockProviderDefinitionReader.read(same(vector1ColorDefinition), anyLong())).thenReturn(
-                vector1Color);
+                mockVector1Color);
         when(mockProviderDefinitionReader.read(same(vector2ColorDefinition), anyLong())).thenReturn(
-                vector2Color);
+                mockVector2Color);
         when(mockProviderDefinitionReader.read(same(vector3ColorDefinition), anyLong())).thenReturn(
-                vector3Color);
+                mockVector3Color);
 
         var definition = triangle(mockVector1Definition, mockVector2Definition,
                 mockVector3Definition, Z)
@@ -150,9 +148,9 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
         verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_LEAVE_ID);
         //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(mockVector1), same(vector1Color),
-                same(mockVector2), same(vector2Color),
-                same(mockVector3), same(vector3Color),
+                same(mockVector1), same(mockVector1Color),
+                same(mockVector2), same(mockVector2Color),
+                same(mockVector3), same(mockVector3Color),
                 same(mockTextureIdProvider), same(mockTextureWidthProvider), same(
                         mockTextureHeightProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
@@ -173,6 +171,7 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
+        verify(mockProviderDefinitionReader, times(3)).read(any(), anyLong());
         verify(mockProviderDefinitionReader, once()).read(same(mockVector1Definition),
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(mockVector2Definition),
@@ -184,6 +183,39 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockVector1), same(mockNullProvider),
                 same(mockVector2), same(mockNullProvider),
                 same(mockVector3), same(mockNullProvider),
+                same(mockNullProvider), same(mockNullProvider), same(mockNullProvider),
+                eq(mapOf()),
+                eq(mapOf()),
+                isNull(),
+                isNull(),
+                eq(Z),
+                isNotNull(),
+                same(mockComponent));
+    }
+
+    @Test
+    public void testReadFromProviders() {
+        var definition = triangle(mockVector1, mockVector2, mockVector3, Z)
+                .withColors(
+                        mockVector1Color,
+                        mockVector2Color,
+                        mockVector3Color);
+
+        var renderable = reader.read(mockComponent, definition, TIMESTAMP);
+
+        assertNotNull(renderable);
+        assertSame(mockRenderable, renderable);
+        verify(mockProviderDefinitionReader, never()).read(same(mockVector1Definition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, never()).read(same(mockVector2Definition),
+                eq(TIMESTAMP));
+        verify(mockProviderDefinitionReader, never()).read(same(mockVector3Definition),
+                eq(TIMESTAMP));
+        //noinspection unchecked
+        verify(mockFactory, once()).make(
+                same(mockVector1), same(mockVector1Color),
+                same(mockVector2), same(mockVector2Color),
+                same(mockVector3), same(mockVector3Color),
                 same(mockNullProvider), same(mockNullProvider), same(mockNullProvider),
                 eq(mapOf()),
                 eq(mapOf()),

@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.test.unit.readers.content;
 
 import inaugural.soliloquy.tools.testing.Mock;
-import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
@@ -45,7 +45,7 @@ public abstract class AbstractContentDefinitionTests {
     protected final long TIMESTAMP = randomLong();
 
     @org.mockito.Mock protected ProviderDefinitionReader mockProviderDefinitionReader;
-    @org.mockito.Mock protected ShiftDefinitionReader mockShiftDefinitionReader;
+    @org.mockito.Mock protected ColorShiftDefinitionReader mockColorShiftDefinitionReader;
     @org.mockito.Mock protected Component mockComponent;
     @SuppressWarnings("rawtypes") @org.mockito.Mock protected ProviderAtTime mockNullProvider;
 
@@ -70,25 +70,29 @@ public abstract class AbstractContentDefinitionTests {
     @org.mockito.Mock protected ProviderAtTime<Float> mockTextureHeightProvider;
 
     protected void setUp() {
-        lenient().when(mockShiftDefinitionReader.read(any(), anyLong())).thenReturn(mockShift);
+        lenient().when(mockColorShiftDefinitionReader.read(any(), anyLong())).thenReturn(mockShift);
 
-        lenient().when(mockProviderDefinitionReader
-                .read(same(mockAreaProviderDefinition), anyLong())).thenReturn(mockAreaProvider);
+        lenient().when(
+                        mockProviderDefinitionReader.read(same(mockAreaProviderDefinition),
+                                anyLong()))
+                .thenReturn(mockAreaProvider);
 
-        lenient().when(mockProviderDefinitionReader
-                .read(same(mockTextureIdProviderDefinition), anyLong()))
+        lenient().when(
+                        mockProviderDefinitionReader.read(same(mockTextureIdProviderDefinition),
+                                anyLong()))
                 .thenReturn(mockTextureIdProvider);
-        lenient().when(mockProviderDefinitionReader
-                .read(same(mockTextureWidthProviderDefinition), anyLong()))
-                .thenReturn(mockTextureWidthProvider);
-        lenient().when(mockProviderDefinitionReader
-                .read(same(mockTextureHeightProviderDefinition), anyLong()))
-                .thenReturn(mockTextureHeightProvider);
+        lenient().when(mockProviderDefinitionReader.read(same(mockTextureWidthProviderDefinition),
+                anyLong())).thenReturn(mockTextureWidthProvider);
+        lenient().when(mockProviderDefinitionReader.read(same(mockTextureHeightProviderDefinition),
+                anyLong())).thenReturn(mockTextureHeightProvider);
 
-        lenient().when(mockProviderDefinitionReader
-                .read(same(mockBorderThicknessDefinition), anyLong()))
+        lenient().when(
+                        mockProviderDefinitionReader.read(same(mockBorderThicknessDefinition),
+                                anyLong()))
                 .thenReturn(mockBorderThickness);
-        lenient().when(mockProviderDefinitionReader
-                .read(same(mockBorderColorDefinition), anyLong())).thenReturn(mockBorderColor);
+        lenient().when(
+                        mockProviderDefinitionReader.read(same(mockBorderColorDefinition),
+                                anyLong()))
+                .thenReturn(mockBorderColor);
     }
 }

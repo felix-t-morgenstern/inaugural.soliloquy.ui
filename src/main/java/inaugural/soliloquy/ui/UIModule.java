@@ -3,10 +3,13 @@ package inaugural.soliloquy.ui;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.tools.module.AbstractModule;
+import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition;
+import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinitionReader;
+import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import inaugural.soliloquy.ui.components.button.ButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.button.ButtonMethods;
-import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.content.renderables.*;
 import inaugural.soliloquy.ui.readers.providers.*;
 import org.apache.commons.lang3.function.TriConsumer;
@@ -26,6 +29,7 @@ import soliloquy.specs.ui.definitions.providers.*;
 
 import java.awt.*;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -64,7 +68,7 @@ public class UIModule extends AbstractModule {
         // Definition Readers
         // ==================
 
-        // Provider Definition Reader
+        // >>> Provider Definition Reader
 
         var finiteLinearMovingColorProviderDefReader =
                 new FiniteLinearMovingColorProviderDefinitionReader(
@@ -121,11 +125,11 @@ public class UIModule extends AbstractModule {
                         )
                 ));
 
-        // Color Shift Definition Reader
+        // >>> Color Shift Definition Reader
 
-        var shiftDefinitionReader = new ShiftDefinitionReader(providerDefinitionReader);
+        var shiftDefinitionReader = new ColorShiftDefinitionReader(providerDefinitionReader);
 
-        // Renderable Definition Readers
+        // >>> Renderable Definition Readers
 
         var defaultKeyBindingPriority =
                 (int) (getSetting.apply(DEFAULT_KEY_BINDING_PRIORITY_SETTING_ID).getValue());
@@ -188,11 +192,11 @@ public class UIModule extends AbstractModule {
                 defaultKeyBindingPriority
         ));
 
-        // Custom component readers
+        // >>> Custom component readers
 
         var defaultTextColor = (Color) (getSetting.apply(DEFAULT_TEXT_COLOR_SETTING_ID).getValue());
         @SuppressWarnings("unchecked") var defaultColorPresets =
-                (Map<String, Color>) (getSetting.apply(COLOR_PRESETS_SETTING_ID).getValue());
+                (Map<Set<String>, Color>) (getSetting.apply(COLOR_PRESETS_SETTING_ID).getValue());
         andRegister(new TextMarkupParserImpl(
                 defaultTextColor,
                 defaultColorPresets,
@@ -201,11 +205,11 @@ public class UIModule extends AbstractModule {
 
         var customComponentMethods = Collections.setOf();
 
+        // Button
         var buttonReader = new ButtonDefinitionReader(
                 providerDefinitionReader,
                 shiftDefinitionReader,
                 nullProvider,
-                clock::globalTimestamp,
                 textLineRenderer,
                 actions::get,
                 graphics::getFont,
@@ -218,10 +222,18 @@ public class UIModule extends AbstractModule {
                 subscribeToNextMouseEvent,
                 graphics::getSprite
         ));
-
         renderableDefinitionReader.addCustomComponentReader(
                 ButtonDefinition.class,
-                d -> buttonReader.read((ButtonDefinition) d)
+                (d, t) -> buttonReader.read((ButtonDefinition) d, t)
+        );
+
+        // Beveled Button
+        var beveledButtonReader =
+                new BeveledButtonDefinitionReader(buttonReader, providerDefinitionReader);
+        customComponentMethods.add(new BeveledButtonMethods(graphics::getComponent));
+        renderableDefinitionReader.addCustomComponentReader(
+                BeveledButtonDefinition.class,
+                (d, t) -> beveledButtonReader.read((BeveledButtonDefinition) d, t)
         );
 
         customComponentMethods.forEach(methods -> {

@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.readers.content.renderables;
 
 import inaugural.soliloquy.tools.Check;
-import inaugural.soliloquy.ui.readers.colorshifting.ShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.io.graphics.assets.ImageAssetSet;
@@ -30,7 +30,7 @@ public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetD
                                                    @SuppressWarnings("rawtypes")
                                                    Function<String, Action> getAction,
                                                    ProviderDefinitionReader providerReader,
-                                                   ShiftDefinitionReader shiftReader,
+                                                   ColorShiftDefinitionReader shiftReader,
                                                    @SuppressWarnings("rawtypes")
                                                    ProviderAtTime nullProvider) {
         super(providerReader, nullProvider, getAction, shiftReader);

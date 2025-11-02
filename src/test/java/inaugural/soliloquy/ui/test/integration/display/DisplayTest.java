@@ -233,9 +233,9 @@ public class DisplayTest {
                 AUDIO_FILETYPES_ID,
                 generateMockSetting(setOf("wav", "mp3")),
                 PERIODS_PER_FRAME_RATE_REPORT_AGGREGATE_ID,
-                generateMockSetting(10),
+                generateMockSetting(1),
                 FRAME_TIMER_POLLING_INTERVAL_ID,
-                generateMockSetting(100),
+                generateMockSetting(-1),
                 FRAME_EXECUTOR_SEMAPHORE_PERMISSIONS_ID,
                 generateMockSetting(3),
                 SHADER_FILENAME_PREFIX_ID,
@@ -281,7 +281,15 @@ public class DisplayTest {
                 settings::get,
                 actions,
                 functions,
-                listOf(),
+                mapOf(
+                        pairOf(
+                                CONSOLE_FRAME_RATE_REPORTER,
+                                a -> System.out.printf(
+                                        "FPS >> [%s] target = %s, actual = %s%n",
+                                        a.periodStart(), a.targetFps(), a.actualFps()
+                                )
+                        )
+                ),
                 testName,
                 mapOf(
                         "JDSherbert - Ultimate UI SFX Pack - Cursor - 5.wav",

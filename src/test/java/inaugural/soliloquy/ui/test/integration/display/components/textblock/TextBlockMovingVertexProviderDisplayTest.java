@@ -36,7 +36,7 @@ public class TextBlockMovingVertexProviderDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Text block moving vertex provider", 800000),
+                () -> DisplayTest.runThenClose("Text block moving vertex provider", 4000),
                 TextBlockMovingVertexProviderDisplayTest::populateTopLevelComponent
         );
     }
@@ -71,9 +71,8 @@ public class TextBlockMovingVertexProviderDisplayTest extends DisplayTest {
                 lineHeight,
                 0.5f,
                 finiteSinusoidMoving(
-                        arrayFloats(1f),
-                        pairOf(0, vertexOf(0.25f, 1f)),
-                        pairOf(4000, vertexOf(0.25f, 0f))
+                        pairOf(1000, vertexOf(0.25f, 1f)),
+                        pairOf(2000, vertexOf(0.25f, 0f))
                 ),
                 glyphPadding,
                 lineSpacing,

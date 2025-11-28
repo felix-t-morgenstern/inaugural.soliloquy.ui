@@ -3,7 +3,7 @@ package inaugural.soliloquy.ui.readers.content.renderables;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.io.graphics.assets.Animation;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.FiniteAnimationRenderable;
@@ -27,12 +27,12 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
     public FiniteAnimationRenderableDefinitionReader(FiniteAnimationRenderableFactory factory,
                                                      Function<String, Animation> getAnimation,
                                                      @SuppressWarnings("rawtypes")
-                                                     Function<String, Action> getAction,
+                                                     Function<String, Consumer> getConsumer,
                                                      ProviderDefinitionReader providerReader,
                                                      ColorShiftDefinitionReader shiftReader,
                                                      @SuppressWarnings("rawtypes")
                                                      ProviderAtTime nullProvider) {
-        super(providerReader, nullProvider, getAction, shiftReader);
+        super(providerReader, nullProvider, getConsumer, shiftReader);
         FACTORY = Check.ifNull(factory, "factory");
         GET_ANIMATION = Check.ifNull(getAnimation, "getAnimation");
     }
@@ -52,10 +52,10 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
                         .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList()),
                 d -> Arrays.stream(d).toList());
 
-        var onPress = getActionPerButton(definition.onPressIds);
-        var onRelease = getActionPerButton(definition.onReleaseIds);
-        var onMouseOver = getAction(definition.onMouseOverId);
-        var onMouseLeave = getAction(definition.onMouseLeaveId);
+        var onPress = getConsumerPerButton(definition.onPressIds);
+        var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onMouseOver = getConsumer(definition.onMouseOverId);
+        var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         var startTimestamp = timestamp + definition.startTimestampOffset;
 

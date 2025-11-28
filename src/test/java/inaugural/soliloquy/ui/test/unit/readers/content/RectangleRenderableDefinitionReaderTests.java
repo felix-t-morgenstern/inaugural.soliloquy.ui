@@ -49,24 +49,24 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
 
         reader =
-                new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_ACTION,
+                new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
                         mockProviderDefinitionReader, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(null, MOCK_GET_ACTION,
+                () -> new RectangleRenderableDefinitionReader(null, MOCK_GET_CONSUMER,
                         mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(mockFactory, null,
                         mockProviderDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_ACTION, null, mockNullProvider));
+                        MOCK_GET_CONSUMER, null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_ACTION, mockProviderDefinitionReader, null));
+                        MOCK_GET_CONSUMER, mockProviderDefinitionReader, null));
     }
 
     @Test
@@ -126,10 +126,10 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(mockProviderDefinitionReader, once()).read(same(mockTextureHeightProviderDefinition),
                 eq(TIMESTAMP));
         verify(mockRenderable, once()).setCapturesMouseEvents(true);
-        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_LEAVE_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_RELEASE_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_MOUSE_OVER_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_MOUSE_LEAVE_ID);
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(mockTopLeftColor), same(mockTopRightColor),

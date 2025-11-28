@@ -1,5 +1,6 @@
 package inaugural.soliloquy.ui.components.button;
 
+import inaugural.soliloquy.ui.components.ComponentMethods;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Sprite;
@@ -20,7 +21,7 @@ import soliloquy.specs.io.input.mouse.MouseEventHandler;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
@@ -29,6 +30,7 @@ import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.assertFloatBoxesEqual;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.*;
+import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -100,13 +102,18 @@ public class ButtonMethodsTests {
     @Mock private TriConsumer<Integer, MouseEventHandler.EventType, Runnable>
             mockSubscribeToMouseEvents;
 
-    @SuppressWarnings("rawtypes") @Mock private Action mockPressAction;
+    @SuppressWarnings("rawtypes") @Mock private Consumer mockPress;
     @Mock private RectangleRenderable mockRectangleRenderable;
     @Mock private List<ColorShift> mockSpriteShifts;
     @Mock private SpriteRenderable mockSpriteRenderable;
     @Mock private TextLineRenderable mockTextLineRenderable;
     @Mock private Component mockComponent;
     @Mock private RenderableWithMouseEvents mockRenderable;
+
+    @Mock private ComponentMethods mockComponentMethods;
+
+    @Mock private Map<UUID, ProviderAtTime<FloatBox>> mockOrigContentDimensProviders;
+    @Mock private Map<UUID, ProviderAtTime<Vertex>> mockOrigContentLocProviders;
 
     private Map<String, Object> mockData;
 
@@ -115,14 +122,16 @@ public class ButtonMethodsTests {
     @BeforeEach
     public void setUp() {
         mockData = generateMockMap(
-                pairOf(PRESS_ACTION_DATA_KEY, mockPressAction),
+                pairOf(PRESS_ACTION_DATA_KEY, mockPress),
                 pairOf(PRESS_SOUND_ID_DATA_KEY, PRESS_SOUND_ID),
                 pairOf(MOUSE_OVER_SOUND_ID_DATA_KEY, MOUSE_OVER_SOUND_ID),
                 pairOf(MOUSE_LEAVE_SOUND_ID_DATA_KEY, MOUSE_LEAVE_SOUND_ID),
                 pairOf(RELEASE_SOUND_ID_DATA_KEY, RELEASE_SOUND_ID),
                 pairOf(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY, options(SPRITE_ID_DEFAULT)),
                 pairOf(HOVER_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.Options()),
-                pairOf(PRESSED_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.Options())
+                pairOf(PRESSED_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.Options()),
+                pairOf(ORIG_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
+                pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders)
         );
 
         lenient().when(mockRectDimens.provide(anyLong())).thenReturn(RECT_DIMENS);
@@ -140,19 +149,98 @@ public class ButtonMethodsTests {
         ));
         lenient().when(mockComponent.data()).thenReturn(mockData);
         lenient().when(mockRenderable.containingComponent()).thenReturn(mockComponent);
+        lenient().when(mockRectangleRenderable.getRenderingDimensionsProvider()).thenReturn(mockRectDimens);
+        lenient().when(mockSpriteRenderable.getRenderingDimensionsProvider()).thenReturn(mockSpriteDimens);
 
         buttonMethods =
-                new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE);
+                new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
+                        mockComponentMethods);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new ButtonMethods(null, mockSubscribeToMouseEvents, MOCK_GET_SPRITE));
+                () -> new ButtonMethods(null, mockSubscribeToMouseEvents, MOCK_GET_SPRITE, mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
-                () -> new ButtonMethods(mockPlaySound, null, MOCK_GET_SPRITE));
+                () -> new ButtonMethods(mockPlaySound, null, MOCK_GET_SPRITE, mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
-                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, null));
+                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, null, mockComponentMethods));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE, null));
+    }
+
+    @Test
+    public void testButton_setDimensForComponentAndContent_updateDefault() {
+        var options = options(randomString());
+        when(mockData.get(DEFAULT_RENDERABLE_OPTIONS)).thenReturn(options);
+
+        buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+
+        assertSame(mockRectDimens, options.rectDimens);
+        assertSame(mockSpriteDimens, options.spriteDimens);
+        verify(mockData, once()).get(LAST_TIMESTAMP);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        verify(mockData, once()).get(PRESS_STATE);
+        verify(mockData, once()).get(RECT_HOVER_STATE);
+        verify(mockData, once()).get(SPRITE_HOVER_STATE);
+        verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_DEFAULT);
+        verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
+        verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
+        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT, mockOrigContentDimensProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_DEFAULT, mockOrigContentLocProviders);
+        verify(mockComponent, once()).contentsRepresentation();
+        verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
+        verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
+        verify(mockData, once()).put(ORIG_CONTENT_IS_LOADED_DEFAULT, true);
+    }
+
+    @Test
+    public void testButton_setDimensForComponentAndContent_updateHover() {
+        var options = options(randomString());
+        when(mockData.get(HOVER_RENDERABLE_OPTIONS)).thenReturn(options);
+        when(mockData.get(RECT_HOVER_STATE)).thenReturn(true);
+
+        buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+
+        assertSame(mockRectDimens, options.rectDimens);
+        assertSame(mockSpriteDimens, options.spriteDimens);
+        verify(mockData, once()).get(LAST_TIMESTAMP);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        verify(mockData, once()).get(PRESS_STATE);
+        verify(mockData, once()).get(RECT_HOVER_STATE);
+        verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_HOVER);
+        verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
+        verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
+        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_HOVER, mockOrigContentDimensProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_HOVER, mockOrigContentLocProviders);
+        verify(mockComponent, once()).contentsRepresentation();
+        verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
+        verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
+        verify(mockData, once()).put(ORIG_CONTENT_IS_LOADED_HOVER, true);
+    }
+
+    @Test
+    public void testButton_setDimensForComponentAndContent_updatePressed() {
+        var options = options(randomString());
+        when(mockData.get(PRESSED_RENDERABLE_OPTIONS)).thenReturn(options);
+        when(mockData.get(PRESS_STATE)).thenReturn(true);
+
+        buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+
+        assertSame(mockRectDimens, options.rectDimens);
+        assertSame(mockSpriteDimens, options.spriteDimens);
+        verify(mockData, once()).get(LAST_TIMESTAMP);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        verify(mockData, once()).get(PRESS_STATE);
+        verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_PRESSED);
+        verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
+        verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
+        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED, mockOrigContentDimensProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_PRESSED, mockOrigContentLocProviders);
+        verify(mockComponent, once()).contentsRepresentation();
+        verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
+        verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
+        verify(mockData, once()).put(ORIG_CONTENT_IS_LOADED_PRESSED, true);
     }
 
     @Test
@@ -163,7 +251,7 @@ public class ButtonMethodsTests {
         );
 
         var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockSubscribeToMouseEvents,
-                mockPressAction);
+                mockPress);
         inOrder.verify(mockComponent, once()).data();
         inOrder.verify(mockData, once()).get(PRESS_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESS_STATE_DATA_KEY, true);
@@ -189,7 +277,7 @@ public class ButtonMethodsTests {
         inOrder.verify(mockPlaySound, once()).accept(RELEASE_SOUND_ID);
         inOrder.verify(mockData, once()).get(PRESS_ACTION_DATA_KEY);
         //noinspection unchecked
-        inOrder.verify(mockPressAction, once()).accept(null);
+        inOrder.verify(mockPress, once()).accept(null);
     }
 
     @Test
@@ -305,7 +393,7 @@ public class ButtonMethodsTests {
         runnableCaptor.getValue().run();
 
         //noinspection unchecked
-        verify(mockPressAction, never()).accept(any());
+        verify(mockPress, never()).accept(any());
         verify(mockData, once()).put(PRESS_STATE_DATA_KEY, false);
     }
 
@@ -333,7 +421,7 @@ public class ButtonMethodsTests {
     }
 
     @Test
-    public void testPressMouse_ButtonWhenNoPressAction() {
+    public void testPressMouse_ButtonWhenNoPressConsumer() {
         when(mockData.get(PRESS_ACTION_DATA_KEY)).thenReturn(null);
 
         buttonMethods.pressMouse_Button(
@@ -353,7 +441,7 @@ public class ButtonMethodsTests {
         runnableCaptor.getValue().run();
 
         //noinspection unchecked
-        verify(mockPressAction, never()).accept(any());
+        verify(mockPress, never()).accept(any());
     }
 
     @Test
@@ -643,13 +731,16 @@ public class ButtonMethodsTests {
     }
 
     private void verifyRenderableOptionsSet() {
-        verify(mockRectangleRenderable, atLeastOnce()).setRenderingDimensionsProvider(mockRectDimens);
+        verify(mockRectangleRenderable, atLeastOnce()).setRenderingDimensionsProvider(
+                mockRectDimens);
         verify(mockRectangleRenderable, atLeastOnce()).setTopLeftColorProvider(mockBgTopLeft);
         verify(mockRectangleRenderable, atLeastOnce()).setTopRightColorProvider(mockBgTopRight);
         verify(mockRectangleRenderable, atLeastOnce()).setBottomLeftColorProvider(mockBgBottomLeft);
-        verify(mockRectangleRenderable, atLeastOnce()).setBottomRightColorProvider(mockBgBottomRight);
+        verify(mockRectangleRenderable, atLeastOnce()).setBottomRightColorProvider(
+                mockBgBottomRight);
         verify(mockRectangleRenderable, atLeastOnce()).setTextureIdProvider(mockBgTexProvider);
-        verify(mockSpriteRenderable, atLeastOnce()).setRenderingDimensionsProvider(mockSpriteDimens);
+        verify(mockSpriteRenderable, atLeastOnce()).setRenderingDimensionsProvider(
+                mockSpriteDimens);
         verify(mockSpriteRenderable, atLeastOnce()).colorShifts();
         verify(mockSpriteShifts, atLeastOnce()).clear();
         verify(mockSpriteShifts, atLeastOnce()).add(mockSpriteShift);
@@ -698,7 +789,7 @@ public class ButtonMethodsTests {
                         .withKeyEvent(randomChar(), mockComponent)
         );
 
-        var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockPressAction);
+        var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockPress);
         inOrder.verify(mockComponent, once()).data();
         inOrder.verify(mockData, once()).get(PRESS_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESS_STATE_DATA_KEY, true);
@@ -743,7 +834,7 @@ public class ButtonMethodsTests {
                         .withKeyEvent(key, mockComponent)
         );
 
-        var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockPressAction);
+        var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockPress);
         inOrder.verify(mockComponent, once()).data();
         inOrder.verify(mockData, once()).get(PRESSED_KEY_DATA_KEY);
         inOrder.verify(mockData, once()).get(PRESS_STATE_DATA_KEY);
@@ -754,7 +845,7 @@ public class ButtonMethodsTests {
         inOrder.verify(mockPlaySound, once()).accept(RELEASE_SOUND_ID);
         inOrder.verify(mockData, once()).get(PRESS_ACTION_DATA_KEY);
         //noinspection unchecked
-        inOrder.verify(mockPressAction, once()).accept(null);
+        inOrder.verify(mockPress, once()).accept(null);
     }
 
     @Test
@@ -839,7 +930,7 @@ public class ButtonMethodsTests {
                 mockInputsData
         ));
 
-        var distFromCenterHoriz = PADDING_HORIZ + (LINE_LENGTH/2f);
+        var distFromCenterHoriz = PADDING_HORIZ + (LINE_LENGTH / 2f);
         var expected = floatBoxOf(
                 textRenderingLoc.X - distFromCenterHoriz,
                 textRenderingLoc.Y - PADDING_VERT,

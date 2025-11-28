@@ -9,8 +9,7 @@ import inaugural.soliloquy.io.api.dto.FontStyleDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.FontStyleDefinitionGlyphPropertyDTO;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
-import soliloquy.specs.common.entities.Action;
-import soliloquy.specs.common.entities.Function;
+import soliloquy.specs.common.entities.Methods;
 import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.gamestate.entities.Setting;
 import soliloquy.specs.io.bootstrap.CoreLoop;
@@ -45,17 +44,16 @@ import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class DisplayTest {
-    protected static final String ON_MOUSE_OVER_ACTION_ID = "onMouseOver";
-    protected static final String ON_MOUSE_LEAVE_ACTION_ID = "onMouseLeave";
-    protected static final String ON_MOUSE_PRESS_ACTION_ID = "onMousePress";
-    protected static final String ON_MOUSE_RELEASE_ACTION_ID = "onMouseRelease";
+    protected static final String ON_MOUSE_OVER_CONSUMER_ID = "onMouseOver";
+    protected static final String ON_MOUSE_LEAVE_CONSUMER_ID = "onMouseLeave";
+    protected static final String ON_MOUSE_PRESS_CONSUMER_ID = "onMousePress";
+    protected static final String ON_MOUSE_RELEASE_CONSUMER_ID = "onMouseRelease";
 
     protected final static WindowResolution DEFAULT_RES = WindowResolution.RES_1680x1050;
     private final static String SHADER_FILENAME_PREFIX =
             "./src/main/resources/shaders/defaultShader";
 
-    @SuppressWarnings("rawtypes") private final Map<String, Action> ACTIONS;
-    @SuppressWarnings("rawtypes") private final Map<String, Function> FUNCTIONS;
+    private final Methods METHODS;
 
     private final static Set<String> AUDIO_DIR_RELATIVE_PATHS = setOf(
             "\\src\\test\\resources\\sounds\\ui\\button\\"
@@ -169,13 +167,7 @@ public class DisplayTest {
     public Component topLevelComponent;
 
     public DisplayTest() {
-        ACTIONS = mapOf();
-        FUNCTIONS = mapOf();
-
-        var methods = readMethods(DisplayTestMethods.class);
-
-        methods.FIRST.forEach(a -> ACTIONS.put(a.id(), a));
-        methods.SECOND.forEach(f -> FUNCTIONS.put(f.id(), f));
+        METHODS = readMethods(DisplayTestMethods.class);
     }
 
     public void runTest(
@@ -185,8 +177,7 @@ public class DisplayTest {
             BiConsumer<UIModule, Component> populateTopLevelComponent
     ) {
         var modules = getModules(
-                ACTIONS,
-                FUNCTIONS,
+                METHODS,
                 testName,
                 assetDefinitionsDTO
         );
@@ -205,8 +196,8 @@ public class DisplayTest {
         var wholeScreenProvider = staticProviderFactory.apply(randomUUID(), WHOLE_SCREEN);
         //noinspection unchecked
         topLevelComponent =
-                componentFactory.make(randomUUID(), 0, setOf(), false, 0, wholeScreenProvider, null,
-                        mapOf());
+                componentFactory.make(randomUUID(), 0, setOf(), false, 0, wholeScreenProvider,
+                        wholeScreenProvider, null,  null, null, mapOf());
         frameExecutor.setTopLevelComponent(topLevelComponent);
 
         coreLoop.startup(() -> {
@@ -219,8 +210,7 @@ public class DisplayTest {
     }
 
     protected static Pair<UIModule, IOModule> getModules(
-            @SuppressWarnings("rawtypes") Map<String, Action> actions,
-            @SuppressWarnings("rawtypes") Map<String, Function> functions,
+            Methods methods,
             String testName,
             AssetDefinitionsDTO assetDefinitionsDTO
     ) {
@@ -279,8 +269,7 @@ public class DisplayTest {
         var ioModule = new IOModule(
                 commonModule,
                 settings::get,
-                actions,
-                functions,
+                methods,
                 mapOf(
                         pairOf(
                                 CONSOLE_FRAME_RATE_REPORTER,
@@ -305,8 +294,7 @@ public class DisplayTest {
         var uiModule = new UIModule(
                 ioModule,
                 settings::get,
-                actions,
-                functions
+                methods
         );
 
         return pairOf(uiModule, ioModule);

@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.components.textblock;
 
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.Constants;
+import inaugural.soliloquy.ui.components.ComponentMethods;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionTest;
 import inaugural.soliloquy.ui.test.unit.components.FunctionalProviderDefMatcher;
@@ -20,7 +20,6 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.TextBlock_blockUpperLeftProvider;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.TextBlock_topOffset;
@@ -157,40 +156,36 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
         inOrder.verify(mockParser, once()).formatMultiline(eq(PARAGRAPH_2), same(MOCK_FONT), eq(GLYPH_PADDING),
                 eq(LINE_HEIGHT), eq(MAX_LINE_LENGTH));
         var upperLeftProvider = providersRead.getFirst();
-        //noinspection unchecked
         inOrder.verify(mockProviderDefinitionReader, once()).read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_RENDERING_LOC_METHOD,
+                argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                Constants.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_ID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
                                 TextBlock_topOffset, 0f))), eq(TIMESTAMP));
-        //noinspection unchecked
         inOrder.verify(mockProviderDefinitionReader, once()).read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_RENDERING_LOC_METHOD,
+                argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                Constants.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_ID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
                                 TextBlock_topOffset, LINE_HEIGHT + LINE_SPACING))), eq(TIMESTAMP));
-        //noinspection unchecked
         inOrder.verify(mockProviderDefinitionReader, once()).read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_RENDERING_LOC_METHOD,
+                argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                Constants.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_ID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
                                 TextBlock_topOffset,
                                 LINE_HEIGHT + LINE_SPACING + LINE_HEIGHT + PARAGRAPH_SPACING))),
                 eq(TIMESTAMP));
-        //noinspection unchecked
         inOrder.verify(mockProviderDefinitionReader, once()).read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_RENDERING_LOC_METHOD,
+                argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                Constants.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_ID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,

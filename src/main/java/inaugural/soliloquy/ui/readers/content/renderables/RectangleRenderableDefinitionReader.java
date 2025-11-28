@@ -2,7 +2,7 @@ package inaugural.soliloquy.ui.readers.content.renderables;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFactory;
@@ -20,11 +20,11 @@ public class RectangleRenderableDefinitionReader
 
     public RectangleRenderableDefinitionReader(RectangleRenderableFactory factory,
                                                @SuppressWarnings("rawtypes")
-                                               Function<String, Action> getAction,
+                                               Function<String, Consumer> getConsumer,
                                                ProviderDefinitionReader providerReader,
                                                @SuppressWarnings("rawtypes")
                                                ProviderAtTime nullProvider) {
-        super(providerReader, nullProvider, getAction);
+        super(providerReader, nullProvider, getConsumer);
         FACTORY = Check.ifNull(factory, "factory");
     }
 
@@ -61,10 +61,10 @@ public class RectangleRenderableDefinitionReader
         var textureTileWidth = definition.textureTileWidthProvider != null ? definition.textureTileWidthProvider : provider(definition.textureTileWidthProviderDef, timestamp);
         var textureTileHeight = definition.textureTileHeightProvider != null ? definition.textureTileHeightProvider : provider(definition.textureTileHeightProviderDef, timestamp);
 
-        var onPress = getActionPerButton(definition.onPressIds);
-        var onRelease = getActionPerButton(definition.onReleaseIds);
-        var onMouseOver = getAction(definition.onMouseOverId);
-        var onMouseLeave = getAction(definition.onMouseLeaveId);
+        var onPress = getConsumerPerButton(definition.onPressIds);
+        var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onMouseOver = getConsumer(definition.onMouseOverId);
+        var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         var renderable = FACTORY.make(topLeft, topRight, bottomLeft, bottomRight, textureId,
                 textureTileWidth, textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave,

@@ -67,14 +67,14 @@ public class TriangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 )
                 .onPress(mapOf(
                         GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_PRESS_ACTION_ID
+                        ON_MOUSE_PRESS_CONSUMER_ID
                 ))
                 .onRelease(mapOf(
                         GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_RELEASE_ACTION_ID
+                        ON_MOUSE_RELEASE_CONSUMER_ID
                 ))
-                .onMouseOver(ON_MOUSE_OVER_ACTION_ID)
-                .onMouseLeave(ON_MOUSE_LEAVE_ACTION_ID);
+                .onMouseOver(ON_MOUSE_OVER_CONSUMER_ID)
+                .onMouseLeave(ON_MOUSE_LEAVE_CONSUMER_ID);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

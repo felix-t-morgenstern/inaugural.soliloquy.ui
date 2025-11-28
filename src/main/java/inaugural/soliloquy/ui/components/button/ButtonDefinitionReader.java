@@ -4,7 +4,7 @@ import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -21,6 +21,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.*;
+import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.CENTER;
@@ -61,7 +63,7 @@ public class ButtonDefinitionReader {
     private final ColorShiftDefinitionReader SHIFT_DEF_READER;
     @SuppressWarnings("rawtypes") private final ProviderAtTime NULL_PROVIDER;
     private final TextLineRenderer TEXT_LINE_RENDERER;
-    @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
+    @SuppressWarnings("rawtypes") private final Function<String, Consumer> GET_CONSUMER;
     private final Function<String, Font> GET_FONT;
     private final Function<String, Integer> GET_TEX_ID;
     private final Supplier<Float> GET_WIDTH_TO_HEIGHT_RATIO;
@@ -70,7 +72,8 @@ public class ButtonDefinitionReader {
                                   ColorShiftDefinitionReader shiftDefReader,
                                   @SuppressWarnings("rawtypes") ProviderAtTime nullProvider,
                                   TextLineRenderer textLineRenderer,
-                                  @SuppressWarnings("rawtypes") Function<String, Action> getAction,
+                                  @SuppressWarnings("rawtypes")
+                                  Function<String, Consumer> getConsumer,
                                   Function<String, Font> getFont,
                                   Function<String, Integer> getTexId,
                                   Supplier<Float> getWidthToHeightRatio) {
@@ -78,7 +81,7 @@ public class ButtonDefinitionReader {
         SHIFT_DEF_READER = Check.ifNull(shiftDefReader, "shiftDefReader");
         NULL_PROVIDER = Check.ifNull(nullProvider, "nullProvider");
         TEXT_LINE_RENDERER = Check.ifNull(textLineRenderer, "textLineRenderer");
-        GET_ACTION = Check.ifNull(getAction, "getAction");
+        GET_CONSUMER = Check.ifNull(getConsumer, "getConsumer");
         GET_FONT = Check.ifNull(getFont, "getFont");
         GET_TEX_ID = Check.ifNull(getTexId, "getTexId");
         GET_WIDTH_TO_HEIGHT_RATIO = Check.ifNull(getWidthToHeightRatio, "getWidthToHeightRatio");
@@ -111,14 +114,27 @@ public class ButtonDefinitionReader {
                 content,
                 definition.UUID
         )
+                .withDimensions(functionalProvider(
+                                Component_setAndRetrieveDimensForComponentAndContentForProvider,
+                                FloatBox.class
+                        )
+                                .withData(mapOf(
+                                        COMPONENT_ID,
+                                        definition.UUID
+                                ))
+                )
                 .withBindings(
                         false,
                         definition.keyEventPriority,
                         bindings
                 )
+                .withPrerenderHook(Button_setDimensForComponentAndContent)
                 .withData(mapOf(
+                        ORIGIN_OVERRIDE_PROVIDER,
+                        defaultIfNull(definition.originOverrideProviderDef, null,
+                                d -> PROVIDER_DEF_READER.read(d, timestamp)),
                         PRESS_ACTION,
-                        definition.onPressId != null ? GET_ACTION.apply(definition.onPressId) :
+                        definition.onPressId != null ? GET_CONSUMER.apply(definition.onPressId) :
                                 null,
                         PRESS_SOUND_ID,
                         definition.pressSoundId,
@@ -154,8 +170,10 @@ public class ButtonDefinitionReader {
             ProviderAtTime<Vertex> textRenderingLoc;
             var font = GET_FONT.apply(definition.fontId);
             var paddingHoriz = definition.textPaddingVertical / GET_WIDTH_TO_HEIGHT_RATIO.get();
-            List<Integer> textItalicIndicesDefault = defaultIfNull(definition.textItalicIndicesDefault, listOf());
-            List<Integer> textBoldIndicesDefault = defaultIfNull(definition.textBoldIndicesDefault, listOf());
+            List<Integer> textItalicIndicesDefault =
+                    defaultIfNull(definition.textItalicIndicesDefault, listOf());
+            List<Integer> textBoldIndicesDefault =
+                    defaultIfNull(definition.textBoldIndicesDefault, listOf());
             var textLineLengthDefault = TEXT_LINE_RENDERER.textLineLength(
                     definition.text,
                     font,

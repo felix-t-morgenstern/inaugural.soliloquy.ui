@@ -8,8 +8,6 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
 
 public class Constants {
-    public final static String COMPONENT_ID = "COMPONENT_ID";
-
     private final static String BLACK = "black";
     private final static String DARK_GREY = "darkgrey";
     private final static String GREY = "grey";
@@ -147,6 +145,5 @@ public class Constants {
             new Color(255, 127, 255),
             setOf(LIGHT_HOTPINK),
             new Color(255, 127, 191)
-
     );
 }

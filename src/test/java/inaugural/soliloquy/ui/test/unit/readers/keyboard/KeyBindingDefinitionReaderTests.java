@@ -24,7 +24,7 @@ public class KeyBindingDefinitionReaderTests extends AbstractContentDefinitionTe
     public void setUp() {
         super.setUp();
 
-        reader = new KeyBindingDefinitionReader(MOCK_GET_ACTION);
+        reader = new KeyBindingDefinitionReader(MOCK_GET_CONSUMER);
     }
 
     @Test

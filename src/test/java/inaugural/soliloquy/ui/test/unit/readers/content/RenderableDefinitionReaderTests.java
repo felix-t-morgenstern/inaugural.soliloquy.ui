@@ -33,6 +33,8 @@ import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.bindi
 @ExtendWith(MockitoExtension.class)
 public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTests {
     private final int DEFAULT_KEY_BINDING_PRIORITY = randomInt();
+    private final String PRERENDER_HOOK_ID = randomString();
+    private final String ADD_HOOK_ID = randomString();
     private final int Z = randomInt();
     private final long TIMESTAMP = randomLong();
 
@@ -72,9 +74,11 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
 
     @Mock private ProviderAtTime<FloatBox> mockWholeScreenProvider;
 
-    @Mock private AbstractProviderDefinition<FloatBox> mockComponentDimensDef;
+    @Mock private AbstractProviderDefinition<FloatBox> mockComponentDimensionsDef;
+    @Mock private AbstractProviderDefinition<FloatBox> mockComponentRenderingBoundariesDef;
     @Mock private ProviderDefinitionReader mockProviderReader;
-    @Mock private ProviderAtTime<FloatBox> mockComponentDimens;
+    @Mock private ProviderAtTime<FloatBox> mockComponentDimensions;
+    @Mock private ProviderAtTime<FloatBox> mockComponentRenderingBoundaries;
 
     @Mock private Component mockContainingComponent;
 
@@ -101,10 +105,12 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
 
         lenient().when(
                 mockComponentFactory.make(any(), anyInt(), any(), anyBoolean(), anyInt(), any(),
-                        any(), any())).thenReturn(mockComponent);
+                        any(), any(), any(), any(), anyMap())).thenReturn(mockComponent);
 
-        lenient().when(mockProviderReader.read(same(mockComponentDimensDef), anyLong()))
-                .thenReturn(mockComponentDimens);
+        lenient().when(mockProviderReader.read(same(mockComponentDimensionsDef), anyLong()))
+                .thenReturn(mockComponentDimensions);
+        lenient().when(mockProviderReader.read(same(mockComponentRenderingBoundariesDef), anyLong()))
+                .thenReturn(mockComponentRenderingBoundaries);
 
         reader = new RenderableDefinitionReader(
                 mockRasterizedLineReader,
@@ -117,7 +123,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         );
@@ -136,7 +142,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -151,7 +157,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -166,7 +172,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -181,7 +187,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -196,7 +202,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -211,7 +217,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -226,7 +232,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -241,7 +247,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 null,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -256,7 +262,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 null,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -271,7 +277,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 null,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 mockWholeScreenProvider,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -301,7 +307,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTextLineReader,
                 mockComponentFactory,
                 mockProviderReader,
-                MOCK_GET_ACTION,
+                MOCK_GET_CONSUMER,
                 null,
                 DEFAULT_KEY_BINDING_PRIORITY
         ));
@@ -317,6 +323,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockRasterizedLineDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockRasterizedLineRenderable);
     }
 
     @Test
@@ -329,6 +336,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockAntialiasedLineDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockAntialiasedLineRenderable);
     }
 
     @Test
@@ -341,6 +349,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockRectangleDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockRectangleRenderable);
     }
 
     @Test
@@ -353,6 +362,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockTriangleDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockTriangleRenderable);
     }
 
     @Test
@@ -365,6 +375,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockSpriteDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockSpriteRenderable);
     }
 
     @Test
@@ -377,6 +388,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockImageAssetSetDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockImageAssetSetRenderable);
     }
 
     @Test
@@ -389,6 +401,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockFiniteAnimationDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockFiniteAnimationRenderable);
     }
 
     @Test
@@ -401,6 +414,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 same(mockTextLineDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockTextLineRenderable);
     }
 
     @Test
@@ -411,7 +425,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         var dataKey = randomString();
         var dataVal = randomInt();
         var data = Collections.<String, Object>mapOf(dataKey, dataVal);
-        var definition = component(Z, mockComponentDimensDef)
+        var definition = component(Z, mockComponentRenderingBoundariesDef)
                 .withContent(mockRasterizedLineDefinition)
                 .withBindings(
                         overrides,
@@ -422,6 +436,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                                 key
                         )
                 )
+                .withDimensions(mockComponentDimensionsDef)
+                .withPrerenderHook(PRERENDER_HOOK_ID)
+                .withAddHook(ADD_HOOK_ID)
                 .withData(data);
 
         var output = reader.read(mockContainingComponent, definition, TIMESTAMP);
@@ -435,7 +452,10 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 bindingsCaptor.capture(),
                 eq(overrides),
                 eq(priority),
-                same(mockComponentDimens),
+                same(mockComponentDimensions),
+                same(mockComponentRenderingBoundaries),
+                eq(PRERENDER_HOOK_ID),
+                eq(ADD_HOOK_ID),
                 same(mockContainingComponent),
                 eq(data)
         );
@@ -446,20 +466,21 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         assertArrayEquals(arrayInts(key), binding.BOUND_CODEPOINTS);
         assertSame(MOCK_ON_PRESS, binding.ON_PRESS);
         assertSame(MOCK_ON_RELEASE, binding.ON_RELEASE);
-        verify(MOCK_GET_ACTION, times(2)).apply(anyString());
-        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
+        verify(MOCK_GET_CONSUMER, times(2)).apply(anyString());
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_RELEASE_ID);
 
         verify(mockRasterizedLineReader, once()).read(
                 same((Component) output),
                 same(mockRasterizedLineDefinition),
                 eq(TIMESTAMP)
         );
+        verify(mockContainingComponent, once()).add(mockComponent);
     }
 
     @Test
     public void testReadComponentDefinitionWithMinimalArgs() {
-        var definition = component(Z, mockComponentDimensDef);
+        var definition = component(Z, mockComponentRenderingBoundariesDef);
 
         var output = reader.read(mockContainingComponent, definition, TIMESTAMP);
 
@@ -472,18 +493,21 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 bindingsCaptor.capture(),
                 eq(false),
                 eq(DEFAULT_KEY_BINDING_PRIORITY),
-                same(mockComponentDimens),
+                same(mockWholeScreenProvider),
+                same(mockComponentRenderingBoundaries),
+                isNull(),
+                isNull(),
                 same(mockContainingComponent),
                 eq(mapOf())
         );
         @SuppressWarnings("unchecked") var bindings = (Set<KeyBinding>) bindingsCaptor.getValue();
         assertTrue(bindings.isEmpty());
-        verify(MOCK_GET_ACTION, never()).apply(anyString());
+        verify(MOCK_GET_CONSUMER, never()).apply(anyString());
     }
 
     @Test
     public void testReadComponentDefinitionWithDimensProvider() {
-        var definition = component(Z, mockComponentDimens);
+        var definition = component(Z, mockComponentRenderingBoundaries);
 
         var output = reader.read(mockContainingComponent, definition, TIMESTAMP);
 
@@ -494,7 +518,10 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 any(),
                 eq(false),
                 eq(DEFAULT_KEY_BINDING_PRIORITY),
-                same(mockComponentDimens),
+                same(mockWholeScreenProvider),
+                same(mockComponentRenderingBoundaries),
+                isNull(),
+                isNull(),
                 same(mockContainingComponent),
                 eq(mapOf())
         );
@@ -515,6 +542,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 anyInt(),
                 same(mockWholeScreenProvider),
                 any(),
+                any(),
+                any(),
+                any(),
                 anyMap()
         );
     }
@@ -527,7 +557,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         var dataKey = randomString();
         var dataVal = randomInt();
         var data = Collections.<String, Object>mapOf(dataKey, dataVal);
-        var componentDef = component(Z, mockComponentDimensDef)
+        var componentDef = component(Z, mockComponentRenderingBoundariesDef)
                 .withContent(mockRasterizedLineDefinition)
                 .withBindings(
                         overrides,
@@ -538,6 +568,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                                 key
                         )
                 )
+                .withDimensions(mockComponentDimensionsDef)
+                .withAddHook(ADD_HOOK_ID)
+                .withPrerenderHook(PRERENDER_HOOK_ID)
                 .withData(data);
         when(mockCustomReader.apply(any(), anyLong())).thenReturn(componentDef);
 
@@ -553,7 +586,10 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 bindingsCaptor.capture(),
                 eq(overrides),
                 eq(priority),
-                same(mockComponentDimens),
+                same(mockComponentDimensions),
+                same(mockComponentRenderingBoundaries),
+                eq(PRERENDER_HOOK_ID),
+                eq(ADD_HOOK_ID),
                 same(mockContainingComponent),
                 eq(data)
         );
@@ -564,9 +600,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         assertArrayEquals(arrayInts(key), binding.BOUND_CODEPOINTS);
         assertSame(MOCK_ON_PRESS, binding.ON_PRESS);
         assertSame(MOCK_ON_RELEASE, binding.ON_RELEASE);
-        verify(MOCK_GET_ACTION, times(2)).apply(anyString());
-        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
+        verify(MOCK_GET_CONSUMER, times(2)).apply(anyString());
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_RELEASE_ID);
 
         verify(mockRasterizedLineReader, once()).read(
                 same((Component) output),

@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.test.unit.components;
 
 import inaugural.soliloquy.tools.testing.Mock;
-import inaugural.soliloquy.ui.Constants;
+import inaugural.soliloquy.ui.components.ComponentMethods;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import java.util.Map;
@@ -13,7 +13,7 @@ import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionW
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.lenient;
 
-public class ComponentMethodsTest {
+public abstract class AbstractComponentMethodsTest {
     protected final long TIMESTAMP = randomLong();
 
     protected final UUID COMPONENT_ID = randomUUID();
@@ -25,7 +25,7 @@ public class ComponentMethodsTest {
     @org.mockito.Mock protected Map<String, Object> mockComponentData;
 
     protected void setUp() {
-        lenient().when(mockComponentData.get(Constants.COMPONENT_ID)).thenReturn(COMPONENT_ID);
+        lenient().when(mockComponentData.get(ComponentMethods.COMPONENT_ID)).thenReturn(COMPONENT_ID);
         lenient().when(MOCK_COMPONENT.data()).thenReturn(mockComponentData);
     }
 }

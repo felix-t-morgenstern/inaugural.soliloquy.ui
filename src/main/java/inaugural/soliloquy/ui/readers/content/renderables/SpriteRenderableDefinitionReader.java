@@ -5,7 +5,7 @@ import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.io.graphics.assets.Sprite;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.SpriteRenderable;
@@ -28,12 +28,12 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
     public SpriteRenderableDefinitionReader(SpriteRenderableFactory factory,
                                             Function<String, Sprite> getSprite,
                                             @SuppressWarnings("rawtypes")
-                                            Function<String, Action> getAction,
+                                            Function<String, Consumer> getConsumer,
                                             ProviderDefinitionReader providerReader,
                                             ColorShiftDefinitionReader shiftReader,
                                             @SuppressWarnings("rawtypes")
                                             ProviderAtTime nullProvider) {
-        super(providerReader, nullProvider, getAction, shiftReader);
+        super(providerReader, nullProvider, getConsumer, shiftReader);
         FACTORY = Check.ifNull(factory, "factory");
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");
     }
@@ -53,10 +53,10 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
                         c -> listOf(shiftDef -> SHIFT_READER.read(shiftDef, timestamp), c)),
                 Collections::listOf);
 
-        var onPress = getActionPerButton(definition.onPressIds);
-        var onRelease = getActionPerButton(definition.onReleaseIds);
-        var onMouseOver = getAction(definition.onMouseOverId);
-        var onMouseLeave = getAction(definition.onMouseLeaveId);
+        var onPress = getConsumerPerButton(definition.onPressIds);
+        var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onMouseOver = getConsumer(definition.onMouseOverId);
+        var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         var renderable =
                 FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease, onMouseOver,

@@ -12,7 +12,7 @@ import java.util.Objects;
 // functionalProvider(), but if incorrect type parameters were provided in the
 // implementation, it would fail to compile, so this doesn't need testing
 @SuppressWarnings("rawtypes")
-public class FunctionalProviderDefMatcher implements ArgumentMatcher<AbstractProviderDefinition> {
+public class FunctionalProviderDefMatcher<T extends AbstractProviderDefinition> implements ArgumentMatcher<T> {
     private final String METHOD;
     private final Map<String, Object> DATA;
 
@@ -22,7 +22,7 @@ public class FunctionalProviderDefMatcher implements ArgumentMatcher<AbstractPro
     }
 
     @Override
-    public boolean matches(AbstractProviderDefinition definition) {
+    public boolean matches(T definition) {
         if (!(definition instanceof FunctionalProviderDefinition<?>)) {
             return false;
         }

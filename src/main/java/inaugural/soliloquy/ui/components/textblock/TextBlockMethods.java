@@ -10,11 +10,11 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.LAST_TIMESTAMP;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
 public class TextBlockMethods {
-    final static String LAST_TIMESTAMP = "LAST_TIMESTAMP";
     final static String BLOCK_UPPER_LEFT = "BLOCK_UPPER_LEFT";
 
     private final Function<UUID, Component> GET_COMPONENT;

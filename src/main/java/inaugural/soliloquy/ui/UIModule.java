@@ -3,6 +3,7 @@ package inaugural.soliloquy.ui;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.tools.module.AbstractModule;
+import inaugural.soliloquy.ui.components.ComponentMethods;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
@@ -16,8 +17,7 @@ import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.content.renderables.*;
 import inaugural.soliloquy.ui.readers.providers.*;
 import org.apache.commons.lang3.function.TriConsumer;
-import soliloquy.specs.common.entities.Action;
-import soliloquy.specs.common.entities.Function;
+import soliloquy.specs.common.entities.Methods;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.gamestate.entities.Setting;
 import soliloquy.specs.io.graphics.Graphics;
@@ -47,8 +47,7 @@ public class UIModule extends AbstractModule {
             IOModule ioModule,
             @SuppressWarnings("rawtypes")
             java.util.function.Function<String, Setting> getSetting,
-            @SuppressWarnings("rawtypes") Map<String, Action> actions,
-            @SuppressWarnings("rawtypes") Map<String, Function> functions
+            Methods methods
     ) {
         // ====
         // Prep
@@ -148,20 +147,20 @@ public class UIModule extends AbstractModule {
                 ),
                 new RectangleRenderableDefinitionReader(
                         ioModule.provide(RectangleRenderableFactory.class),
-                        actions::get,
+                        methods.CONSUMERS::get,
                         providerDefinitionReader,
                         nullProvider
                 ),
                 new TriangleRenderableDefinitionReader(
                         ioModule.provide(TriangleRenderableFactory.class),
-                        actions::get,
+                        methods.CONSUMERS::get,
                         providerDefinitionReader,
                         nullProvider
                 ),
                 new SpriteRenderableDefinitionReader(
                         ioModule.provide(SpriteRenderableFactory.class),
                         graphics::getSprite,
-                        actions::get,
+                        methods.CONSUMERS::get,
                         providerDefinitionReader,
                         shiftDefinitionReader,
                         nullProvider
@@ -169,7 +168,7 @@ public class UIModule extends AbstractModule {
                 new ImageAssetSetRenderableDefinitionReader(
                         ioModule.provide(ImageAssetSetRenderableFactory.class),
                         graphics::getImageAssetSet,
-                        actions::get,
+                        methods.CONSUMERS::get,
                         providerDefinitionReader,
                         shiftDefinitionReader,
                         nullProvider
@@ -177,7 +176,7 @@ public class UIModule extends AbstractModule {
                 new FiniteAnimationRenderableDefinitionReader(
                         ioModule.provide(FiniteAnimationRenderableFactory.class),
                         graphics::getAnimation,
-                        actions::get,
+                        methods.CONSUMERS::get,
                         providerDefinitionReader,
                         shiftDefinitionReader,
                         nullProvider
@@ -190,7 +189,7 @@ public class UIModule extends AbstractModule {
                 ),
                 ioModule.provide(ComponentFactory.class),
                 providerDefinitionReader,
-                actions::get,
+                methods.CONSUMERS::get,
                 wholeScreenProvider,
                 defaultKeyBindingPriority
         ));
@@ -208,22 +207,27 @@ public class UIModule extends AbstractModule {
 
         var customComponentMethods = Collections.setOf();
 
+        // Component general methods
+        var componentMethods = new ComponentMethods(graphics::getComponent, functionalProviderDefReader);
+        customComponentMethods.add(componentMethods);
+
         // Button
         var buttonReader = new ButtonDefinitionReader(
                 providerDefinitionReader,
                 shiftDefinitionReader,
                 nullProvider,
                 textLineRenderer,
-                actions::get,
+                methods.CONSUMERS::get,
                 graphics::getFont,
                 imgRelLoc -> graphics.getImage(imgRelLoc).textureId(),
                 resManager::windowWidthToHeightRatio
         );
         //noinspection unchecked
         customComponentMethods.add(new ButtonMethods(
-                id -> functions.get(PLAY_SOUND_METHOD_NAME).apply(id),
+                id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
                 subscribeToNextMouseEvent,
-                graphics::getSprite
+                graphics::getSprite,
+                componentMethods
         ));
         renderableDefinitionReader.addCustomComponentReader(
                 ButtonDefinition.class,
@@ -246,10 +250,6 @@ public class UIModule extends AbstractModule {
         renderableDefinitionReader.addCustomComponentReader(TextBlockDefinition.class,
                 (d, t) -> textBlockReader.read((TextBlockDefinition) d, t));
 
-        customComponentMethods.forEach(methods -> {
-            var fromMethods = readMethods(methods);
-            fromMethods.FIRST.forEach(a -> actions.put(a.id(), a));
-            fromMethods.SECOND.forEach(f -> functions.put(f.id(), f));
-        });
+        customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));
     }
 }

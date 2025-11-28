@@ -16,11 +16,14 @@ import java.util.Map;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ButtonDefinition extends AbstractContentDefinition {
     public int[] keyCodepoints;
     public int keyEventPriority;
+
+    public AbstractProviderDefinition<Vertex> originOverrideProviderDef;
 
     public final AbstractProviderDefinition<FloatBox> RECT_DIMENS_DEF;
     public final AbstractProviderDefinition<Vertex> TEXT_RENDERING_LOC_DEF;
@@ -201,11 +204,37 @@ public class ButtonDefinition extends AbstractContentDefinition {
 
     /**
      * @param keyCodepoint The keyCodepoint which activates the button when pressed
-     * @param priority The priority of the KeyBinding for this button (c.f.
-     *                 {@link soliloquy.specs.io.input.keyboard.KeyEventHandler#addComponent})
+     * @param priority     The priority of the KeyBinding for this button (c.f.
+     *                     {@link soliloquy.specs.io.input.keyboard.KeyEventHandler#addComponent})
      */
     public ButtonDefinition withKey(int keyCodepoint, int priority) {
         return this.withKeys(priority, keyCodepoint);
+    }
+
+    /**
+     * @param originOverrideProviderDef Defines a provider, which provides an override of the origin
+     *                                  (i.e., upper-left corner) of the Button
+     */
+    public ButtonDefinition withOriginOverride(
+            AbstractProviderDefinition<Vertex> originOverrideProviderDef) {
+        this.originOverrideProviderDef = originOverrideProviderDef;
+
+        return this;
+    }
+
+    /**
+     * @param originOverride An override of the origin (i.e., upper-left corner) of the Button
+     */
+    public ButtonDefinition withOriginOverride(Vertex originOverride) {
+        return this.withOriginOverride(staticVal(originOverride));
+    }
+
+    /**
+     * @param originOverrideX The x coordinate of the override of the origin (i.e., upper-left corner) of the Button
+     * @param originOverrideY The y coordinate of the override of the origin (i.e., upper-left corner) of the Button
+     */
+    public ButtonDefinition withOriginOverride(float originOverrideX, float originOverrideY) {
+        return this.withOriginOverride(vertexOf(originOverrideX, originOverrideY));
     }
 
     /**
@@ -326,11 +355,14 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * <u>This property operates differently based on whether the dimensions have been set
      * manually.</u>
      * <p>
-     * <i>If the dimensions have been set manually,</i> this property determines the distance of the
+     * <i>If the dimensions have been set manually,</i> this property determines the distance of
+     * the
      * text from the left or right edge. When {@link #withHorizontalAlignment} is set to
-     * {@link HorizontalAlignment#LEFT}, this property determines how far the left end of the text is
+     * {@link HorizontalAlignment#LEFT}, this property determines how far the left end of the text
+     * is
      * from the left edge of the button. Conversely, when alignment is set to
-     * {@link HorizontalAlignment#RIGHT}, it's how far the end of the text line is from the right edge
+     * {@link HorizontalAlignment#RIGHT}, it's how far the end of the text line is from the right
+     * edge
      * of the button. When the alignment is {@link HorizontalAlignment#CENTER}, this property has
      * no effect.
      * <p>

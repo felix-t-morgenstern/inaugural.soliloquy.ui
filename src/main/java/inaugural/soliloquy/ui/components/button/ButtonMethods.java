@@ -2,8 +2,8 @@ package inaugural.soliloquy.ui.components.button;
 
 import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.ui.components.ComponentMethods;
 import org.apache.commons.lang3.function.TriConsumer;
-import soliloquy.specs.common.entities.Action;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Sprite;
@@ -16,14 +16,15 @@ import soliloquy.specs.io.input.mouse.MouseEventHandler;
 import soliloquy.specs.ui.EventInputs;
 
 import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
+import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
@@ -45,17 +46,102 @@ public class ButtonMethods {
     final static String HOVER_RENDERABLE_OPTIONS = "hoverRenderableOptions";
     final static String PRESSED_RENDERABLE_OPTIONS = "pressedRenderableOptions";
 
+    public final static String ORIG_CONTENT_IS_LOADED_DEFAULT = "ORIG_CONTENT_IS_LOADED_DEFAULT";
+    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT =
+            "ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT";
+    public final static String ORIG_CONTENT_LOC_PROVIDERS_DEFAULT =
+            "ORIG_CONTENT_LOC_PROVIDERS_DEFAULT";
+
+    public final static String ORIG_CONTENT_IS_LOADED_HOVER = "ORIG_CONTENT_IS_LOADED_HOVER";
+    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_HOVER =
+            "ORIG_CONTENT_DIMENS_PROVIDERS_HOVER";
+    public final static String ORIG_CONTENT_LOC_PROVIDERS_HOVER =
+            "ORIG_CONTENT_LOC_PROVIDERS_HOVER";
+
+    public final static String ORIG_CONTENT_IS_LOADED_PRESSED = "ORIG_CONTENT_IS_LOADED_PRESSED";
+    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED =
+            "ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED";
+    public final static String ORIG_CONTENT_LOC_PROVIDERS_PRESSED =
+            "ORIG_CONTENT_LOC_PROVIDERS_PRESSED";
+
     private final Consumer<String> PLAY_SOUND;
     private final TriConsumer<Integer, MouseEventHandler.EventType, Runnable>
             SUBSCRIBE_TO_MOUSE_EVENTS;
     private final Function<String, Sprite> GET_SPRITE;
+    private final ComponentMethods COMPONENT_METHODS;
 
     public ButtonMethods(Consumer<String> playSound,
                          TriConsumer<Integer, MouseEventHandler.EventType, Runnable> subscribeToMouseEvents,
-                         Function<String, Sprite> getSprite) {
+                         Function<String, Sprite> getSprite, ComponentMethods componentMethods) {
         PLAY_SOUND = Check.ifNull(playSound, "playSound");
         SUBSCRIBE_TO_MOUSE_EVENTS = Check.ifNull(subscribeToMouseEvents, "subscribeToMouseEvents");
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");
+        COMPONENT_METHODS = Check.ifNull(componentMethods, "componentMethods");
+    }
+
+    public final static String Button_setDimensForComponentAndContent =
+            "Button_setDimensForComponentAndContent";
+
+    public FloatBox Button_setDimensForComponentAndContent(Component component, long timestamp) {
+        Long lastTimestamp = getFromData(component.data(), LAST_TIMESTAMP);
+
+        var componentDimens =
+                COMPONENT_METHODS.Component_setDimensForComponentAndContent(component, timestamp);
+
+        if (lastTimestamp == null || timestamp != lastTimestamp) {
+            if (getPressedState(component.data()) && !falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_PRESSED))) {
+                updateProviders(
+                        component,
+                        ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED,
+                        ORIG_CONTENT_LOC_PROVIDERS_PRESSED,
+                        PRESSED_RENDERABLE_OPTIONS,
+                        ORIG_CONTENT_IS_LOADED_PRESSED
+                );
+            }
+            else if (getHoverState(component.data()) && !falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_HOVER))) {
+                updateProviders(
+                        component,
+                        ORIG_CONTENT_DIMENS_PROVIDERS_HOVER,
+                        ORIG_CONTENT_LOC_PROVIDERS_HOVER,
+                        HOVER_RENDERABLE_OPTIONS,
+                        ORIG_CONTENT_IS_LOADED_HOVER
+                );
+            }
+            else if(!falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_DEFAULT))) {
+                updateProviders(
+                        component,
+                        ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT,
+                        ORIG_CONTENT_LOC_PROVIDERS_DEFAULT,
+                        DEFAULT_RENDERABLE_OPTIONS,
+                        ORIG_CONTENT_IS_LOADED_DEFAULT
+                );
+            }
+        }
+
+        return componentDimens;
+    }
+
+    private void updateProviders(Component component,
+                                 String origDimensProvidersForStateKey,
+                                 String origLocProvidersForStateKey,
+                                 String optionsKey,
+                                 String origContentIsLoadedForStateKey) {
+
+        Map<UUID, ProviderAtTime<FloatBox>> origContentDimensProviders =
+                getFromData(component.data(), ORIG_CONTENT_DIMENS_PROVIDERS);
+        Map<UUID, ProviderAtTime<Vertex>> origContentLocProviders =
+                getFromData(component.data(), ORIG_CONTENT_LOC_PROVIDERS);
+        component.data()
+                .put(origDimensProvidersForStateKey, origContentDimensProviders);
+        component.data().put(origLocProvidersForStateKey, origContentLocProviders);
+
+        var content = component.contentsRepresentation();
+        var rect = getRect(content);
+        var sprite = getSprite(content);
+        ((Options)component.data().get(optionsKey)).rectDimens = rect.getRenderingDimensionsProvider();
+        ((Options)component.data().get(optionsKey)).spriteDimens = sprite.getRenderingDimensionsProvider();
+
+        component.data().put(origContentIsLoadedForStateKey, true);
     }
 
     public void pressMouse_Button(EventInputs e) {
@@ -70,7 +156,7 @@ public class ButtonMethods {
         var isHovering = getHoverState(e.component.data());
         e.component.data().put(getHoverStateDataKey(e), true);
         if (!isHovering && isNotPressedByKey(e.component.data())) {
-            if (falseIfNull(getFromData(e.component.data(), PRESS_STATE))) {
+            if (getPressedState(e.component.data())) {
                 setRenderablesPressed(e);
             }
             else {
@@ -89,7 +175,7 @@ public class ButtonMethods {
     }
 
     private boolean isNotPressedByKey(Map<String, Object> data) {
-        var isPressed = falseIfNull(getFromData(data, PRESS_STATE));
+        var isPressed = getPressedState(data);
         Integer pressedKey = getFromData(data, PRESSED_KEY);
         return !isPressed || pressedKey == null;
     }
@@ -101,6 +187,10 @@ public class ButtonMethods {
     private boolean getHoverState(Map<String, Object> data) {
         return falseIfNull(getFromData(data, RECT_HOVER_STATE)) ||
                 falseIfNull(getFromData(data, SPRITE_HOVER_STATE));
+    }
+
+    private boolean getPressedState(Map<String, Object> data) {
+        return falseIfNull(getFromData(data, PRESS_STATE));
     }
 
     public void pressKey_Button(EventInputs e) {
@@ -161,7 +251,7 @@ public class ButtonMethods {
             }
             var pressAction = data.get(PRESS_ACTION);
             //noinspection rawtypes
-            if (pressAction instanceof Action pressActionCast) {
+            if (pressAction instanceof Consumer pressActionCast) {
                 //noinspection unchecked
                 pressActionCast.accept(null);
             }
@@ -189,18 +279,11 @@ public class ButtonMethods {
                 getFromData(e.component.data(), DEFAULT_RENDERABLE_OPTIONS);
 
         var content = e.component.contentsRepresentation();
-        var rectResult =
-                content.stream().filter(c -> c instanceof RectangleRenderable && c.getZ() == RECT_Z)
-                        .findFirst();
-        var spriteResult =
-                content.stream().filter(c -> c instanceof SpriteRenderable && c.getZ() == SPRITE_Z)
-                        .findFirst();
-        var textResult =
-                content.stream().filter(c -> c instanceof TextLineRenderable && c.getZ() == TEXT_Z)
-                        .findFirst();
+        var rect = getRect(content);
+        var sprite = getSprite(content);
+        var text = getText(content);
 
-        if (rectResult.isPresent()) {
-            var rect = (RectangleRenderable) rectResult.get();
+        if (rect != null) {
             rect.setRenderingDimensionsProvider(
                     optionOrDefault(options, defaultOptions, o -> o.rectDimens));
             rect.setTopLeftColorProvider(
@@ -214,8 +297,7 @@ public class ButtonMethods {
             rect.setTextureIdProvider(
                     optionOrDefault(options, defaultOptions, o -> o.bgTexProvider));
         }
-        if (spriteResult.isPresent()) {
-            var sprite = (SpriteRenderable) spriteResult.get();
+        if (sprite != null) {
             sprite.setSprite(
                     GET_SPRITE.apply(optionOrDefault(options, defaultOptions, o -> o.spriteId)));
             sprite.setRenderingDimensionsProvider(
@@ -227,8 +309,7 @@ public class ButtonMethods {
                 sprite.colorShifts().add(shift);
             }
         }
-        if (textResult.isPresent()) {
-            var text = (TextLineRenderable) textResult.get();
+        if (text != null) {
             text.colorProviderIndices().clear();
             text.colorProviderIndices()
                     .putAll(optionOrDefault(options, defaultOptions, o -> o.textColors));
@@ -237,6 +318,27 @@ public class ButtonMethods {
             text.boldIndices().clear();
             text.boldIndices().addAll(optionOrDefault(options, defaultOptions, o -> o.bolds));
         }
+    }
+
+    private RectangleRenderable getRect(Set<Renderable> content) {
+        var fromContent =
+                content.stream().filter(c -> c instanceof RectangleRenderable && c.getZ() == RECT_Z)
+                        .findFirst();
+        return (RectangleRenderable) fromContent.orElse(null);
+    }
+
+    private TextLineRenderable getText(Set<Renderable> content) {
+        var fromContent =
+                content.stream().filter(c -> c instanceof TextLineRenderable && c.getZ() == TEXT_Z)
+                        .findFirst();
+        return (TextLineRenderable) fromContent.orElse(null);
+    }
+
+    private SpriteRenderable getSprite(Set<Renderable> content) {
+        var fromContent =
+                content.stream().filter(c -> c instanceof SpriteRenderable && c.getZ() == SPRITE_Z)
+                        .findFirst();
+        return (SpriteRenderable) fromContent.orElse(null);
     }
 
     private <T> T optionOrDefault(Options options, Options defaults,

@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_ID;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.RECT_Z;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;

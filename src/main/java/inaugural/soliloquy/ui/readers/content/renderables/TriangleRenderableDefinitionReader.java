@@ -2,7 +2,7 @@ package inaugural.soliloquy.ui.readers.content.renderables;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
 import soliloquy.specs.io.graphics.renderables.factories.TriangleRenderableFactory;
@@ -20,11 +20,11 @@ public class TriangleRenderableDefinitionReader
 
     public TriangleRenderableDefinitionReader(TriangleRenderableFactory factory,
                                               @SuppressWarnings("rawtypes")
-                                              Function<String, Action> getAction,
+                                              Function<String, Consumer> getConsumer,
                                               ProviderDefinitionReader providerReader,
                                               @SuppressWarnings("rawtypes")
                                               ProviderAtTime nullProvider) {
-        super(providerReader, nullProvider, getAction);
+        super(providerReader, nullProvider, getConsumer);
         FACTORY = Check.ifNull(factory, "factory");
     }
 
@@ -52,10 +52,10 @@ public class TriangleRenderableDefinitionReader
         var textureTileWidth = provider(definition.textureTileWidthProvider, timestamp);
         var textureTileHeight = provider(definition.textureTileHeightProvider, timestamp);
 
-        var onPress = getActionPerButton(definition.onPressIds);
-        var onRelease = getActionPerButton(definition.onReleaseIds);
-        var onMouseOver = getAction(definition.onMouseOverId);
-        var onMouseLeave = getAction(definition.onMouseLeaveId);
+        var onPress = getConsumerPerButton(definition.onPressIds);
+        var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onMouseOver = getConsumer(definition.onMouseOverId);
+        var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         var renderable =
                 FACTORY.make(vector1, vector1Color, vector2, vector2Color, vector3, vector3Color,

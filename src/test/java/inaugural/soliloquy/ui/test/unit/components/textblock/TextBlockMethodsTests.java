@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.components.textblock;
 
-import inaugural.soliloquy.ui.Constants;
-import inaugural.soliloquy.ui.test.unit.components.ComponentMethodsTest;
+import inaugural.soliloquy.ui.components.ComponentMethods;
+import inaugural.soliloquy.ui.test.unit.components.AbstractComponentMethodsTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +14,7 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomFloat;
 import static inaugural.soliloquy.tools.random.Random.randomVertex;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
+import static inaugural.soliloquy.ui.components.ComponentMethods.LAST_TIMESTAMP;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,7 +24,7 @@ import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider.Inputs.providerInputs;
 
 @ExtendWith(MockitoExtension.class)
-public class TextBlockMethodsTests extends ComponentMethodsTest {
+public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
     private final Vertex LOC = randomVertex();
     private final float TOP_OFFSET = randomFloat();
 
@@ -49,7 +50,7 @@ public class TextBlockMethodsTests extends ComponentMethodsTest {
         when(mockUpperLeftProvider.provide(anyLong())).thenReturn(LOC);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_ID,
+                ComponentMethods.COMPONENT_ID,
                 COMPONENT_ID,
                 TextBlock_blockUpperLeftProvider,
                 mockUpperLeftProvider,
@@ -73,7 +74,7 @@ public class TextBlockMethodsTests extends ComponentMethodsTest {
         when(mockComponentData.get(BLOCK_UPPER_LEFT)).thenReturn(LOC);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_ID,
+                ComponentMethods.COMPONENT_ID,
                 COMPONENT_ID,
                 TextBlock_blockUpperLeftProvider,
                 mockUpperLeftProvider,

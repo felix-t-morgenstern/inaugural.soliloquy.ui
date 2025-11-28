@@ -62,7 +62,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 any())).thenReturn(mockRenderable);
 
         reader = new ImageAssetSetRenderableDefinitionReader(mockFactory, MOCK_GET_IMAGE_ASSET_SET,
-                MOCK_GET_ACTION, mockProviderDefinitionReader, mockColorShiftDefinitionReader,
+                MOCK_GET_CONSUMER, mockProviderDefinitionReader, mockColorShiftDefinitionReader,
                 mockNullProvider);
     }
 
@@ -70,11 +70,11 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(null, MOCK_GET_IMAGE_ASSET_SET,
-                        MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        MOCK_GET_CONSUMER, mockProviderDefinitionReader,
                         mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory, null,
-                        MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        MOCK_GET_CONSUMER, mockProviderDefinitionReader,
                         mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
@@ -82,15 +82,15 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                         mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, null,
+                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_CONSUMER, null,
                         mockColorShiftDefinitionReader, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_CONSUMER, mockProviderDefinitionReader,
                         null, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAssetSetRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_ACTION, mockProviderDefinitionReader,
+                        MOCK_GET_IMAGE_ASSET_SET, MOCK_GET_CONSUMER, mockProviderDefinitionReader,
                         mockColorShiftDefinitionReader, null));
     }
 
@@ -117,10 +117,10 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 eq(TIMESTAMP));
         verify(mockColorShiftDefinitionReader, once()).read(same(mockShiftDefinition),
                 eq(TIMESTAMP));
-        verify(MOCK_GET_ACTION, once()).apply(ON_PRESS_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_RELEASE_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_OVER_ID);
-        verify(MOCK_GET_ACTION, once()).apply(ON_MOUSE_LEAVE_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_RELEASE_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_MOUSE_OVER_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_MOUSE_LEAVE_ID);
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(MOCK_IMAGE_ASSET_SET),

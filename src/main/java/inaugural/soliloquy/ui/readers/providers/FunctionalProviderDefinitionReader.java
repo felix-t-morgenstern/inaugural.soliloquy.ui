@@ -22,8 +22,8 @@ public class FunctionalProviderDefinitionReader {
         return FACTORY.make(
                 defaultIfNull(definition.uuid, randomUUID()),
                 definition.PROVIDE_FUNCTION_ID,
-                definition.pauseActionId,
-                definition.unpauseActionId,
+                definition.pauseConsumerId,
+                definition.unpauseConsumerId,
                 definition.pauseTimestamp,
                 defaultIfNull(definition.data, mapOf())
         );

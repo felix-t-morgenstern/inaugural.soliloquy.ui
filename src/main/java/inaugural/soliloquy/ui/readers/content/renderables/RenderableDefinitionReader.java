@@ -4,7 +4,7 @@ import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.content.AbstractContentDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.Renderable;
@@ -22,7 +22,6 @@ import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
-import static java.util.UUID.randomUUID;
 import static soliloquy.specs.io.input.keyboard.KeyBinding.keyBinding;
 
 public class RenderableDefinitionReader extends AbstractContentDefinitionReader {
@@ -37,7 +36,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
 
     private final ComponentFactory COMPONENT_FACTORY;
 
-    @SuppressWarnings("rawtypes") private final Function<String, Action> GET_ACTION;
+    @SuppressWarnings("rawtypes") private final Function<String, Consumer> GET_CONSUMER;
     @SuppressWarnings("rawtypes")
     private final Map<Class, BiFunction<AbstractContentDefinition, Long, ComponentDefinition>>
             CUSTOM_READERS;
@@ -55,7 +54,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             TextLineRenderableDefinitionReader textLineReader,
             ComponentFactory componentFactory,
             ProviderDefinitionReader providerReader,
-            @SuppressWarnings("rawtypes") Function<String, Action> getAction,
+            @SuppressWarnings("rawtypes") Function<String, Consumer> getConsumer,
             ProviderAtTime<FloatBox> wholeScreenProvider, int defaultKeyEventPriority) {
         super(providerReader);
         RASTERIZED_LINE_READER = Check.ifNull(rasterizedLineReader, "rasterizedLineReader");
@@ -67,7 +66,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         FINITE_ANIMATION_READER = Check.ifNull(finiteAnimationReader, "finiteAnimationReader");
         TEXT_LINE_READER = Check.ifNull(textLineReader, "textLineReader");
         COMPONENT_FACTORY = Check.ifNull(componentFactory, "componentFactory");
-        GET_ACTION = Check.ifNull(getAction, "getAction");
+        GET_CONSUMER = Check.ifNull(getConsumer, "getConsumer");
         CUSTOM_READERS = mapOf();
         WHOLE_SCREEN_PROVIDER = Check.ifNull(wholeScreenProvider, "wholeScreenProvider");
         DEFAULT_KEY_EVENT_PRIORITY = defaultKeyEventPriority;
@@ -80,7 +79,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
     ) {
         Check.ifNull(containingComponent, "containingComponent");
         Check.ifNull(definition, "definition");
-        return switch (definition) {
+        TRend renderable = switch (definition) {
             case RasterizedLineSegmentRenderableDefinition d ->
                 //noinspection unchecked
                     (TRend) RASTERIZED_LINE_READER.read(containingComponent, d, timestamp);
@@ -109,6 +108,8 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             default -> //noinspection unchecked
                     (TRend) readCustomDef(definition, containingComponent, timestamp);
         };
+        containingComponent.add(renderable);
+        return renderable;
     }
 
     private <T extends AbstractContentDefinition> Component readCustomDef(
@@ -127,29 +128,34 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
     }
 
     private <T extends Component> T readComponentDef(
-            ComponentDefinition d,
+            ComponentDefinition definition,
             Component containingComponent,
             long timestamp
     ) {
         @SuppressWarnings("unchecked") var readComponent = COMPONENT_FACTORY.make(
-                d.UUID,
-                d.Z,
-                defaultIfNull(d.bindings, setOf(), bindingDefs -> Arrays.stream(bindingDefs)
-                        .map(bindingDef -> keyBinding(
-                                bindingDef.KEY_CODEPOINTS,
-                                GET_ACTION.apply(bindingDef.PRESS_ACTION_ID),
-                                GET_ACTION.apply(bindingDef.RELEASE_ACTION_ID)))
-                        .collect(Collectors.toSet())),
-                falseIfNull(d.blocksLowerBindings),
-                defaultIfNull(d.keyBindingPriority, DEFAULT_KEY_EVENT_PRIORITY),
-                d.DIMENSIONS_PROVIDER != null ? d.DIMENSIONS_PROVIDER :
-                        d.DIMENSIONS_PROVIDER_DEF != null ?
-                                PROVIDER_READER.read(d.DIMENSIONS_PROVIDER_DEF, timestamp) :
-                                WHOLE_SCREEN_PROVIDER,
+                definition.UUID,
+                definition.Z,
+                defaultIfNull(definition.bindings, setOf(),
+                        bindingDefs -> Arrays.stream(bindingDefs)
+                                .map(bindingDef -> keyBinding(
+                                        bindingDef.KEY_CODEPOINTS,
+                                        GET_CONSUMER.apply(bindingDef.PRESS_CONSUMER_ID),
+                                        GET_CONSUMER.apply(bindingDef.RELEASE_CONSUMER_ID)))
+                                .collect(Collectors.toSet())),
+                falseIfNull(definition.blocksLowerBindings),
+                defaultIfNull(definition.keyBindingPriority, DEFAULT_KEY_EVENT_PRIORITY),
+                defaultIfNull(definition.dimensionsProvider,
+                        defaultIfNull(definition.dimensionsProviderDef, WHOLE_SCREEN_PROVIDER,
+                                d -> PROVIDER_READER.read(d, timestamp))),
+                defaultIfNull(definition.RENDERING_BOUNDARIES_PROVIDER,
+                        defaultIfNull(definition.RENDERING_BOUNDARIES_PROVIDER_DEF, WHOLE_SCREEN_PROVIDER,
+                                d -> PROVIDER_READER.read(d, timestamp))),
+                definition.prerenderHookId,
+                definition.addHookId,
                 containingComponent,
-                defaultIfNull(d.data, mapOf(), Collections::mapOf)
+                defaultIfNull(definition.data, mapOf(), Collections::mapOf)
         );
-        for (var contentDef : d.CONTENT) {
+        for (var contentDef : definition.CONTENT) {
             read(readComponent, contentDef, timestamp);
         }
         //noinspection unchecked

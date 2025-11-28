@@ -8,9 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import soliloquy.specs.common.entities.Action;
+import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
+import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -22,6 +23,7 @@ import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 import soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition;
 import soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
+import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
 
 import java.awt.*;
@@ -35,6 +37,7 @@ import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
+import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,13 +81,13 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     private static final int SPRITE_Z = 1;
     private static final int TEXT_Z = 2;
 
-    private final String PRESS_ACTION_ID = randomString();
-    @SuppressWarnings("rawtypes") private final LookupAndEntitiesWithId<Action>
+    private final String PRESS_CONSUMER_ID = randomString();
+    @SuppressWarnings("rawtypes") private final LookupAndEntitiesWithId<Consumer>
             MOCK_ACTION_AND_LOOKUP =
-            generateMockLookupFunctionWithId(Action.class, PRESS_ACTION_ID);
-    @SuppressWarnings("unchecked") private final Action<EventInputs> MOCK_PRESS_ACTION =
+            generateMockLookupFunctionWithId(Consumer.class, PRESS_CONSUMER_ID);
+    @SuppressWarnings("unchecked") private final Consumer<EventInputs> MOCK_PRESS_ACTION =
             MOCK_ACTION_AND_LOOKUP.entities.getFirst();
-    @SuppressWarnings("rawtypes") private final Function<String, Action> MOCK_GET_ACTION =
+    @SuppressWarnings("rawtypes") private final Function<String, Consumer> MOCK_GET_CONSUMER =
             MOCK_ACTION_AND_LOOKUP.lookup;
 
     private final float WIDTH_TO_HEIGHT_RATIO = randomFloat();
@@ -120,6 +123,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     private final String MOUSE_LEAVE_SOUND_ID = randomString();
     private final String RELEASE_SOUND_ID = randomString();
 
+    @Mock private AbstractProviderDefinition<Vertex> mockOriginOverrideProviderDef;
+
     @Mock private AbstractProviderDefinition<FloatBox> mockRectDimensProviderDef;
 
     @Mock private AbstractProviderDefinition<Color> mockBgColorTopLeftDefaultDef;
@@ -154,6 +159,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     @Mock private AbstractProviderDefinition<Color> mockTextColorDefaultDef;
     @Mock private AbstractProviderDefinition<Color> mockTextColorHoverDef;
     @Mock private AbstractProviderDefinition<Color> mockTextColorPressedDef;
+
+    @Mock private ProviderAtTime<Vertex> mockOriginOverrideProvider;
 
     @Mock private ProviderAtTime<FloatBox> mockRectDimensProvider;
 
@@ -214,6 +221,9 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
     @BeforeEach
     public void setUp() {
+        lenient().when(mockProviderDefReader.read(same(mockOriginOverrideProviderDef), anyLong()))
+                .thenReturn(mockOriginOverrideProvider);
+
         lenient().when(mockProviderDefReader.read(same(mockRectDimensProviderDef), anyLong()))
                 .thenReturn(mockRectDimensProvider);
 
@@ -304,9 +314,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 anyFloat())
         ).thenReturn(TEXT_LINE_LENGTH_PRESSED);
 
-        //noinspection unchecked
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
+                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
                                         provideRectDimensFromText_Button_textRenderingLocProvider,
                                         mockTextRenderingLoc,
@@ -320,9 +329,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                                         TEXT_PADDING_HORIZ
                                 ))), anyLong()))
                 .thenReturn(mockRectDimensFuncProviderDefault);
-        //noinspection unchecked
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
+                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
                                         provideRectDimensFromText_Button_textRenderingLocProvider,
                                         mockTextRenderingLoc,
@@ -336,9 +344,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                                         TEXT_PADDING_HORIZ
                                 ))), anyLong()))
                 .thenReturn(mockRectDimensFuncProviderHover);
-        //noinspection unchecked
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
+                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
                                         provideRectDimensFromText_Button_textRenderingLocProvider,
                                         mockTextRenderingLoc,
@@ -353,17 +360,15 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                                 ))), anyLong()))
                 .thenReturn(mockRectDimensFuncProviderPressed);
 
-        //noinspection unchecked
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
+                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
                                         provideTexTileDimens_Button_rectDimensProvider,
                                         mockRectDimensProvider
                                 ))), anyLong())).
                 thenReturn(mockTexTileWidthProvider);
-        //noinspection unchecked
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
+                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
                                         provideTexTileDimens_Button_rectDimensProvider,
                                         mockRectDimensProvider
@@ -381,7 +386,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
         reader =
                 new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader, mockNullProvider,
-                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockTextLineRenderer, MOCK_GET_CONSUMER, MOCK_GET_FONT, mockGetTexId,
                         mockGetWidthToHeightRatio);
     }
 
@@ -389,19 +394,19 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(null, mockShiftReader, mockNullProvider,
-                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockTextLineRenderer, MOCK_GET_CONSUMER, MOCK_GET_FONT, mockGetTexId,
                         mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, null, mockNullProvider,
-                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockTextLineRenderer, MOCK_GET_CONSUMER, MOCK_GET_FONT, mockGetTexId,
                         mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader, null,
-                        mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockTextLineRenderer, MOCK_GET_CONSUMER, MOCK_GET_FONT, mockGetTexId,
                         mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, null, MOCK_GET_ACTION, MOCK_GET_FONT, mockGetTexId,
+                        mockNullProvider, null, MOCK_GET_CONSUMER, MOCK_GET_FONT, mockGetTexId,
                         mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
@@ -409,23 +414,22 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                         mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockTextLineRenderer, MOCK_GET_ACTION, null, mockGetTexId,
+                        mockNullProvider, mockTextLineRenderer, MOCK_GET_CONSUMER, null, mockGetTexId,
                         mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
+                        mockNullProvider, mockTextLineRenderer, MOCK_GET_CONSUMER, MOCK_GET_FONT,
                         null, mockGetWidthToHeightRatio));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonDefinitionReader(mockProviderDefReader, mockShiftReader,
-                        mockNullProvider, mockTextLineRenderer, MOCK_GET_ACTION, MOCK_GET_FONT,
+                        mockNullProvider, mockTextLineRenderer, MOCK_GET_CONSUMER, MOCK_GET_FONT,
                         mockGetTexId, null));
     }
 
     @Test
     public void testReadFromRectDimensAndDefsWithMaximalArgs() {
-        //noinspection unchecked
         when(mockProviderDefReader.read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
+                argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
                         provideTextRenderingLocFromRect_Button_horizontalAlignment,
                         ALIGNMENT,
                         provideTextRenderingLocFromRect_Button_rectDimensProvider,
@@ -445,12 +449,18 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         assertEquals(definition.UUID, output.UUID);
         assertEquals(Z, output.Z);
         assertEquals(3, output.CONTENT.size());
+        assertNotNull(output.dimensionsProviderDef);
+        @SuppressWarnings("rawtypes") var functionalDimensionsProviderDef =
+                (FunctionalProviderDefinition) output.dimensionsProviderDef;
+        assertEquals(Component_setAndRetrieveDimensForComponentAndContentForProvider,
+                functionalDimensionsProviderDef.PROVIDE_FUNCTION_ID);
+        assertEquals(mapOf(COMPONENT_ID, definition.UUID), functionalDimensionsProviderDef.data);
         assertEquals(1, output.bindings.length);
         var binding = output.bindings[0];
         assertArrayEquals(arrayInts(KEY), binding.KEY_CODEPOINTS);
         assertEquals(KEY_BINDING_PRIORITY, output.keyBindingPriority);
-        assertEquals(PRESS_KEY_METHOD, binding.PRESS_ACTION_ID);
-        assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_ACTION_ID);
+        assertEquals(PRESS_KEY_METHOD, binding.PRESS_CONSUMER_ID);
+        assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_CONSUMER_ID);
 
         @SuppressWarnings("OptionalGetWithoutIsPresent") var atRectZ =
                 output.CONTENT.stream().filter(d -> d.Z == RECT_Z).findFirst().get();
@@ -515,6 +525,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 listInts(BOLD_INDEX_PRESSED)
         );
         var expectedData = Collections.<String, Object>mapOf(
+                ORIGIN_OVERRIDE_PROVIDER,
+                mockOriginOverrideProvider,
                 PRESS_ACTION_DATA_KEY,
                 MOCK_PRESS_ACTION,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -534,7 +546,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 output.data
         );
 
-        verify(MOCK_GET_ACTION, once()).apply(PRESS_ACTION_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(PRESS_CONSUMER_ID);
         verify(mockProviderDefReader, once()).read(mockRectDimensProviderDef, TIMESTAMP);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
         verify(mockGetWidthToHeightRatio, once()).get();
@@ -577,17 +589,15 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         when(mockProviderDefReader.read(mockTextRenderingLocDef, TIMESTAMP))
                 .thenReturn(mockTextRenderingLoc);
 
-        //noinspection unchecked
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
+                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
                                         provideTexTileDimens_Button_rectDimensProvider,
                                         mockRectDimensFuncProviderDefault
                                 ))), anyLong())).
                 thenReturn(mockTexTileWidthProvider);
-        //noinspection unchecked
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
+                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
                                         provideTexTileDimens_Button_rectDimensProvider,
                                         mockRectDimensFuncProviderDefault
@@ -606,8 +616,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         var binding = output.bindings[0];
         assertArrayEquals(arrayInts(KEY), binding.KEY_CODEPOINTS);
         assertEquals(KEY_BINDING_PRIORITY, output.keyBindingPriority);
-        assertEquals(PRESS_KEY_METHOD, binding.PRESS_ACTION_ID);
-        assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_ACTION_ID);
+        assertEquals(PRESS_KEY_METHOD, binding.PRESS_CONSUMER_ID);
+        assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_CONSUMER_ID);
 
         @SuppressWarnings("OptionalGetWithoutIsPresent") var atRectZ =
                 output.CONTENT.stream().filter(d -> d.Z == RECT_Z).findFirst().get();
@@ -688,6 +698,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         );
 
         var expectedData = Collections.<String, Object>mapOf(
+                ORIGIN_OVERRIDE_PROVIDER,
+                mockOriginOverrideProvider,
                 PRESS_ACTION_DATA_KEY,
                 MOCK_PRESS_ACTION,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -707,7 +719,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 output.data
         );
 
-        verify(MOCK_GET_ACTION, once()).apply(PRESS_ACTION_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(PRESS_CONSUMER_ID);
         verify(mockProviderDefReader, once()).read(mockTexProviderDefaultDef, TIMESTAMP);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
         verify(mockGetWidthToHeightRatio, once()).get();
@@ -747,9 +759,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
     @Test
     public void testReadFromRectDimensAndMaximalArgsForDefaultOnly() {
-        //noinspection unchecked
         when(mockProviderDefReader.read(
-                argThat(new FunctionalProviderDefMatcher(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
+                argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
                         provideTextRenderingLocFromRect_Button_horizontalAlignment,
                         ALIGNMENT,
                         provideTextRenderingLocFromRect_Button_rectDimensProvider,
@@ -773,8 +784,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         var binding = output.bindings[0];
         assertArrayEquals(arrayInts(KEY), binding.KEY_CODEPOINTS);
         assertEquals(KEY_BINDING_PRIORITY, output.keyBindingPriority);
-        assertEquals(PRESS_KEY_METHOD, binding.PRESS_ACTION_ID);
-        assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_ACTION_ID);
+        assertEquals(PRESS_KEY_METHOD, binding.PRESS_CONSUMER_ID);
+        assertEquals(RELEASE_KEY_METHOD, binding.RELEASE_CONSUMER_ID);
 
         @SuppressWarnings("OptionalGetWithoutIsPresent") var atRectZ =
                 output.CONTENT.stream().filter(d -> d.Z == RECT_Z).findFirst().get();
@@ -811,6 +822,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 listInts(BOLD_INDEX_DEFAULT)
         );
         var expectedData = Collections.<String, Object>mapOf(
+                ORIGIN_OVERRIDE_PROVIDER,
+                mockOriginOverrideProvider,
                 PRESS_ACTION_DATA_KEY,
                 MOCK_PRESS_ACTION,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -830,7 +843,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 output.data
         );
 
-        verify(MOCK_GET_ACTION, once()).apply(PRESS_ACTION_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(PRESS_CONSUMER_ID);
         verify(mockProviderDefReader, once()).read(mockRectDimensProviderDef, TIMESTAMP);
         verify(MOCK_GET_FONT, once()).apply(FONT_ID);
         verify(mockGetWidthToHeightRatio, once()).get();
@@ -950,6 +963,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
         );
         var expectedData = Collections.<String, Object>mapOf(
+                ORIGIN_OVERRIDE_PROVIDER,
+                null,
                 PRESS_ACTION_DATA_KEY,
                 null,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -983,8 +998,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 any(),
                 anyFloat())
         ).thenReturn(TEXT_LINE_LENGTH_DEFAULT);
-        //noinspection unchecked
-        when(mockProviderDefReader.read(argThat(new FunctionalProviderDefMatcher(null, null)),
+        when(mockProviderDefReader.read(argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(null, null)),
                 anyLong())).thenReturn(mockRectDimensFuncProviderDefault);
 
         var definition = button(
@@ -1047,6 +1061,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
         );
         var expectedData = Collections.<String, Object>mapOf(
+                ORIGIN_OVERRIDE_PROVIDER,
+                null,
                 PRESS_ACTION_DATA_KEY,
                 null,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -1135,6 +1151,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
     private ButtonDefinition withMaximalArgsFromDefs(ButtonDefinition definition) {
         return withMaximalDefaultArgs(definition)
+                .withOriginOverride(mockOriginOverrideProviderDef)
                 .withBgColorsHover(
                         mockBgColorTopLeftHoverDef,
                         mockBgColorTopRightHoverDef,
@@ -1163,6 +1180,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
     private ButtonDefinition withMaximalDefaultArgs(ButtonDefinition definition) {
         return definition
+                .withOriginOverride(mockOriginOverrideProviderDef)
                 .withKeys(KEY_BINDING_PRIORITY, arrayInts(KEY))
                 .withTextPadding(TEXT_PADDING_VERT)
                 .withGlyphPadding(TEXT_GLYPH_PADDING)
@@ -1178,7 +1196,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 .withTextColorIndices(textColorsDefaultDefs)
                 .withTextItalicIndices(listOf(ITALIC_INDEX_DEFAULT))
                 .withTextBoldIndices(listOf(BOLD_INDEX_DEFAULT))
-                .onPress(PRESS_ACTION_ID)
+                .onPress(PRESS_CONSUMER_ID)
                 .withPressSound(PRESS_SOUND_ID)
                 .withMouseOverSound(MOUSE_OVER_SOUND_ID)
                 .withMouseLeaveSound(MOUSE_LEAVE_SOUND_ID)

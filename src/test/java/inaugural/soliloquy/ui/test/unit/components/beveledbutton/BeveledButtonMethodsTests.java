@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.components.beveledbutton;
 
-import inaugural.soliloquy.ui.test.unit.components.ComponentMethodsTest;
+import inaugural.soliloquy.ui.test.unit.components.AbstractComponentMethodsTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,7 @@ import static org.mockito.Mockito.lenient;
 import static soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider.Inputs.providerInputs;
 
 @ExtendWith(MockitoExtension.class)
-public class BeveledButtonMethodsTests extends ComponentMethodsTest {
+public class BeveledButtonMethodsTests extends AbstractComponentMethodsTest {
     private BeveledButtonMethods methods;
 
     @BeforeEach

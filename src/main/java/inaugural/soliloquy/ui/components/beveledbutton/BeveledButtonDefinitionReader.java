@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.RECT_Z;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
@@ -167,7 +167,7 @@ public class BeveledButtonDefinitionReader {
         return PROVIDER_DEF_READER.read(
                 functionalProvider(PROVIDE_VERTEX_METHOD, Vertex.class)
                         .withData(mapOf(
-                                COMPONENT_ID,
+                                COMPONENT_UUID,
                                 definition.UUID,
                                 BeveledButton_rectDimensProvider,
                                 rectDimensProvider,
@@ -193,7 +193,7 @@ public class BeveledButtonDefinitionReader {
         return PROVIDER_DEF_READER.read(
                 functionalProvider(PROVIDE_BOX_METHOD, FloatBox.class)
                         .withData(mapOf(
-                                COMPONENT_ID,
+                                COMPONENT_UUID,
                                 definition.UUID,
                                 BeveledButton_rectDimensProvider,
                                 rectDimensProvider,
@@ -219,7 +219,7 @@ public class BeveledButtonDefinitionReader {
         return PROVIDER_DEF_READER.read(
                 functionalProvider(PROVIDE_COLOR_METHOD, Color.class)
                         .withData(mapOf(
-                                COMPONENT_ID,
+                                COMPONENT_UUID,
                                 definition.UUID,
                                 provideColor_BeveledButton_isLitByDefault,
                                 isLitByDefault,

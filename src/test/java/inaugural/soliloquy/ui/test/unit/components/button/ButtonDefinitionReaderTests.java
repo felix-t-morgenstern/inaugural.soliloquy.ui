@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.colorshifting.ColorShift;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -454,7 +453,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 (FunctionalProviderDefinition) output.dimensionsProviderDef;
         assertEquals(Component_setAndRetrieveDimensForComponentAndContentForProvider,
                 functionalDimensionsProviderDef.PROVIDE_FUNCTION_ID);
-        assertEquals(mapOf(COMPONENT_ID, definition.UUID), functionalDimensionsProviderDef.data);
+        assertEquals(mapOf(COMPONENT_UUID, definition.UUID), functionalDimensionsProviderDef.data);
         assertEquals(1, output.bindings.length);
         var binding = output.bindings[0];
         assertArrayEquals(arrayInts(KEY), binding.KEY_CODEPOINTS);

@@ -55,7 +55,8 @@ public class ButtonOriginOverrideDisplayTest extends ButtonDisplayTest {
                         SPRITE_DIMENS
                 )
                 .withSpriteColorShiftHover(brightness(SPRITE_PRESS_SHADING, false))
-                .withSpriteColorShiftPressed(brightness(-SPRITE_PRESS_SHADING, false));
+                .withSpriteColorShiftPressed(brightness(-SPRITE_PRESS_SHADING, false))
+                .onPress("printComponentDimens");
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

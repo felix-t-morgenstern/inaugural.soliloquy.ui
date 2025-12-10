@@ -253,7 +253,7 @@ public class ButtonMethods {
             //noinspection rawtypes
             if (pressAction instanceof Consumer pressActionCast) {
                 //noinspection unchecked
-                pressActionCast.accept(null);
+                pressActionCast.accept(e);
             }
             setRenderablesDefault(e);
         }

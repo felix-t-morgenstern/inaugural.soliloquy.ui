@@ -27,7 +27,7 @@ import static inaugural.soliloquy.tools.collections.Collections.listInts;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -150,7 +150,7 @@ public class BeveledButtonDefinitionReaderTests {
                 //noinspection unchecked,rawtypes
                 inOrder.verify(mockProviderDefinitionReader, once()).read(
                         argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition>(PROVIDE_VERTEX_METHOD, mapOf(
-                                COMPONENT_ID,
+                                COMPONENT_UUID,
                                 definition.UUID,
                                 BeveledButton_rectDimensProvider,
                                 mockRectDimens,
@@ -166,7 +166,7 @@ public class BeveledButtonDefinitionReaderTests {
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition>(PROVIDE_BOX_METHOD, mapOf(
-                        COMPONENT_ID,
+                        COMPONENT_UUID,
                         definition.UUID,
                         BeveledButton_rectDimensProvider,
                         mockRectDimens,
@@ -182,7 +182,7 @@ public class BeveledButtonDefinitionReaderTests {
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition>(PROVIDE_BOX_METHOD, mapOf(
-                        COMPONENT_ID,
+                        COMPONENT_UUID,
                         definition.UUID,
                         BeveledButton_rectDimensProvider,
                         mockRectDimens,
@@ -198,7 +198,7 @@ public class BeveledButtonDefinitionReaderTests {
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition>(PROVIDE_BOX_METHOD, mapOf(
-                        COMPONENT_ID,
+                        COMPONENT_UUID,
                         definition.UUID,
                         BeveledButton_rectDimensProvider,
                         mockRectDimens,
@@ -214,7 +214,7 @@ public class BeveledButtonDefinitionReaderTests {
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition>(PROVIDE_BOX_METHOD, mapOf(
-                        COMPONENT_ID,
+                        COMPONENT_UUID,
                         definition.UUID,
                         BeveledButton_rectDimensProvider,
                         mockRectDimens,
@@ -230,7 +230,7 @@ public class BeveledButtonDefinitionReaderTests {
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition>(PROVIDE_COLOR_METHOD, mapOf(
-                        COMPONENT_ID,
+                        COMPONENT_UUID,
                         definition.UUID,
                         provideColor_BeveledButton_isLitByDefault,
                         true,
@@ -240,7 +240,7 @@ public class BeveledButtonDefinitionReaderTests {
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition>(PROVIDE_COLOR_METHOD, mapOf(
-                        COMPONENT_ID,
+                        COMPONENT_UUID,
                         definition.UUID,
                         provideColor_BeveledButton_isLitByDefault,
                         false,

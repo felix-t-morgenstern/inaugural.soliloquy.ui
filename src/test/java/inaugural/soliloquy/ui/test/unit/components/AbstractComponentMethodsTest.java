@@ -16,16 +16,17 @@ import static org.mockito.Mockito.lenient;
 public abstract class AbstractComponentMethodsTest {
     protected final long TIMESTAMP = randomLong();
 
-    protected final UUID COMPONENT_ID = randomUUID();
+    protected final UUID COMPONENT_UUID = randomUUID();
     protected final Mock.LookupAndEntitiesWithUuid<Component> MOCK_COMPONENT_AND_LOOKUP =
-            generateMockLookupFunctionWithUuid(Component.class, COMPONENT_ID);
+            generateMockLookupFunctionWithUuid(Component.class, COMPONENT_UUID);
     protected final Component MOCK_COMPONENT = MOCK_COMPONENT_AND_LOOKUP.entities.getFirst();
     protected final Function<UUID, Component> MOCK_GET_COMPONENT = MOCK_COMPONENT_AND_LOOKUP.lookup;
 
     @org.mockito.Mock protected Map<String, Object> mockComponentData;
 
     protected void setUp() {
-        lenient().when(mockComponentData.get(ComponentMethods.COMPONENT_ID)).thenReturn(COMPONENT_ID);
+        lenient().when(mockComponentData.get(ComponentMethods.COMPONENT_UUID)).thenReturn(
+                COMPONENT_UUID);
         lenient().when(MOCK_COMPONENT.data()).thenReturn(mockComponentData);
     }
 }

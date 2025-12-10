@@ -26,8 +26,8 @@ import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
 public class ComponentMethods {
-    public final static String COMPONENT_ID = "COMPONENT_ID";
-    public final static String CONTAINING_COMPONENT_ID = "CONTAINING_COMPONENT_ID";
+    public final static String COMPONENT_UUID = "COMPONENT_UUID";
+    public final static String CONTAINING_COMPONENT_UUID = "CONTAINING_COMPONENT_UUID";
     public final static String LAST_TIMESTAMP = "LAST_TIMESTAMP";
     public final static String COMPONENT_DIMENS = "COMPONENT_DIMENS";
     public final static String ORIGIN_OVERRIDE_PROVIDER = "ORIGIN_OVERRIDE_PROVIDER";
@@ -124,7 +124,7 @@ public class ComponentMethods {
         if (originOverrideProvider != null) {
             var originOverride = originOverrideProvider.provide(timestamp);
 
-            var componentOrigin = componentNetDimens.upperLeft();
+            var componentOrigin = componentNetDimens.topLeft();
             var originOverrideAdjust = difference(componentOrigin, originOverride);
             component.data().put(ORIGIN_OVERRIDE_ADJUST, originOverrideAdjust);
             component.data().put(COMPONENT_DIMENS, componentNetDimens = floatBoxOf(
@@ -133,6 +133,9 @@ public class ComponentMethods {
                     originOverride.X + componentNetDimens.width(),
                     originOverride.Y + componentNetDimens.height()
             ));
+        }
+        else {
+            component.data().put(COMPONENT_DIMENS, componentNetDimens);
         }
 
         component.data().put(LAST_TIMESTAMP, timestamp);
@@ -145,7 +148,7 @@ public class ComponentMethods {
 
     public FloatBox Component_setAndRetrieveDimensForComponentAndContentForProvider(
             FunctionalProvider.Inputs inputs) {
-        UUID componentId = getFromData(inputs.data(), COMPONENT_ID);
+        UUID componentId = getFromData(inputs.data(), COMPONENT_UUID);
         var component = GET_COMPONENT.apply(componentId);
         return Component_setDimensForComponentAndContent(component, inputs.timestamp());
     }
@@ -170,9 +173,9 @@ public class ComponentMethods {
                 functionalProvider(Component_innerContentDimensWithOverrideCalculation,
                         FloatBox.class)
                         .withData(mapOf(
-                                COMPONENT_ID,
+                                COMPONENT_UUID,
                                 content.uuid(),
-                                CONTAINING_COMPONENT_ID,
+                                CONTAINING_COMPONENT_UUID,
                                 content.containingComponent().uuid()
                         )));
 
@@ -196,9 +199,9 @@ public class ComponentMethods {
                 functionalProvider(Component_innerContentRenderingLocWithOverrideCalculation,
                         Vertex.class)
                         .withData(mapOf(
-                                COMPONENT_ID,
+                                COMPONENT_UUID,
                                 content.uuid(),
-                                CONTAINING_COMPONENT_ID,
+                                CONTAINING_COMPONENT_UUID,
                                 content.containingComponent().uuid()
                         )));
 
@@ -212,15 +215,15 @@ public class ComponentMethods {
 
     public FloatBox Component_innerContentDimensWithOverrideCalculation(
             FunctionalProvider.Inputs inputs) {
-        UUID containingComponentId = getFromData(inputs.data(), CONTAINING_COMPONENT_ID);
+        UUID containingComponentId = getFromData(inputs.data(), CONTAINING_COMPONENT_UUID);
         var containingComponent = GET_COMPONENT.apply(containingComponentId);
 
         // This will ensure that unadjusted contentDimens are up-to-date with the provided timestamp
         Component_setDimensForComponentAndContent(containingComponent, inputs.timestamp());
 
         Map<UUID, FloatBox> contentDimens = getFromData(containingComponent.data(), CONTENT_DIMENS);
-        UUID componentId = getFromData(inputs.data(), COMPONENT_ID);
-        var unadjustedDimens = contentDimens.get(componentId);
+        @SuppressWarnings("SuspiciousMethodCalls") var unadjustedDimens =
+                contentDimens.get(getFromData(inputs.data(), COMPONENT_UUID));
         Vertex originOverrideAdjust =
                 getFromData(containingComponent.data(), ORIGIN_OVERRIDE_ADJUST);
         if (originOverrideAdjust != null) {
@@ -236,14 +239,14 @@ public class ComponentMethods {
 
     public Vertex Component_innerContentRenderingLocWithOverrideCalculation(
             FunctionalProvider.Inputs inputs) {
-        UUID containingComponentId = getFromData(inputs.data(), CONTAINING_COMPONENT_ID);
+        UUID containingComponentId = getFromData(inputs.data(), CONTAINING_COMPONENT_UUID);
         var containingComponent = GET_COMPONENT.apply(containingComponentId);
 
         // This will ensure that unadjusted contentLocs are up-to-date with the provided timestamp
         Component_setDimensForComponentAndContent(containingComponent, inputs.timestamp());
 
         Map<UUID, Vertex> contentLocs = getFromData(containingComponent.data(), CONTENT_LOCS);
-        UUID componentId = getFromData(inputs.data(), COMPONENT_ID);
+        UUID componentId = getFromData(inputs.data(), COMPONENT_UUID);
         var unadjustedLoc = contentLocs.get(componentId);
         Vertex originOverrideAdjust =
                 getFromData(containingComponent.data(), ORIGIN_OVERRIDE_ADJUST);
@@ -257,7 +260,7 @@ public class ComponentMethods {
     }
 
     private static <T> T getFromComponentDataOrDefault(Component component, String key,
-                                                Supplier<T> getDefault) {
+                                                       Supplier<T> getDefault) {
         T val = getFromData(component.data(), key);
         if (val == null) {
             val = getDefault.get();

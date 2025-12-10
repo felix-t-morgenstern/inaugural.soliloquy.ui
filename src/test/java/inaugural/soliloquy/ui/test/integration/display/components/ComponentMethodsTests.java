@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
+import static inaugural.soliloquy.tools.random.Random.randomFloatBox;
 import static inaugural.soliloquy.tools.random.Random.randomVertex;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.encompassing;
@@ -37,21 +38,23 @@ import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+import static soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider.Inputs.providerInputs;
 
 @ExtendWith(MockitoExtension.class)
 public class ComponentMethodsTests extends AbstractComponentMethodsTest {
     private final UUID TEXT_LINE_RENDERABLE_UUID = randomUUID();
     private final Vertex TEXT_LINE_ORIG_LOC = randomVertex();
     private final UUID RENDERABLE_WITH_DIMENS_UUID = randomUUID();
-    private final FloatBox RENDERABLE_WITH_DIMENS_ORIG_DIMENS = floatBoxOf(1f,2f);//randomFloatBox();
+    private final FloatBox RENDERABLE_WITH_DIMENS_ORIG_DIMENS = floatBoxOf(1f, 2f);
+    //randomFloatBox();
     private final UUID INNER_COMPONENT_UUID = randomUUID();
-    private final FloatBox INNER_COMPONENT_ORIG_DIMENS = floatBoxOf(5f,8f);//randomFloatBox();
+    private final FloatBox INNER_COMPONENT_ORIG_DIMENS = floatBoxOf(5f, 8f);//randomFloatBox();
     private final FloatBox EXPECTED_NET_ORIG_DIMENS =
             encompassing(RENDERABLE_WITH_DIMENS_ORIG_DIMENS, INNER_COMPONENT_ORIG_DIMENS);
 
-    private final Vertex ORIGIN_OVERRIDE = vertexOf(10f,100f);//randomVertex();
+    private final Vertex ORIGIN_OVERRIDE = vertexOf(10f, 100f);//randomVertex();
     private final Vertex EXPECTED_ORIGIN_ADJUST =
-            difference(EXPECTED_NET_ORIG_DIMENS.upperLeft(), ORIGIN_OVERRIDE);
+            difference(EXPECTED_NET_ORIG_DIMENS.topLeft(), ORIGIN_OVERRIDE);
 
     @Mock private Map<UUID, ProviderAtTime<FloatBox>> mockOrigContentDimensProviders;
     @Mock private Map<UUID, FloatBox> mockContentDimens;
@@ -94,10 +97,10 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
 
         lenient().when(mockContentComponentOriginalDimensProvider.provide(anyLong()))
                 .thenReturn(INNER_COMPONENT_ORIG_DIMENS);
-        lenient().when(mockContentComponent.uuid()).thenReturn(INNER_COMPONENT_UUID);
-        lenient().when(mockContentComponent.containingComponent()).thenReturn(MOCK_COMPONENT);
         lenient().when(mockContentComponent.getDimensionsProvider())
                 .thenReturn(mockContentComponentOriginalDimensProvider);
+        lenient().when(mockContentComponent.uuid()).thenReturn(INNER_COMPONENT_UUID);
+        lenient().when(mockContentComponent.containingComponent()).thenReturn(MOCK_COMPONENT);
 
         lenient().when(mockOriginOverrideProvider.provide(anyLong())).thenReturn(ORIGIN_OVERRIDE);
 
@@ -106,42 +109,34 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                         mockTextLineRenderable,
                         mockRenderableWithDimens,
                         mockContentComponent));
-        setOf(
-                pairOf(ORIG_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
-                pairOf(CONTENT_DIMENS, mockContentDimens),
-                pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
-                pairOf(CONTENT_LOCS, mockContentLocs)
-        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
         lenient().when(mockFunctionalProviderDefReader.read(argThat(
                 new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
                         Component_innerContentRenderingLocWithOverrideCalculation,
                         mapOf(
-                                ComponentMethods.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_UUID,
                                 TEXT_LINE_RENDERABLE_UUID,
-                                CONTAINING_COMPONENT_ID,
-                                COMPONENT_ID
+                                CONTAINING_COMPONENT_UUID,
+                                COMPONENT_UUID
                         ))))).thenReturn(mockTextLineNewLocProvider);
         lenient().when(mockFunctionalProviderDefReader.read(argThat(
                 new FunctionalProviderDefMatcher<FunctionalProviderDefinition<FloatBox>>(
                         Component_innerContentDimensWithOverrideCalculation,
                         mapOf(
-                                ComponentMethods.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_UUID,
                                 RENDERABLE_WITH_DIMENS_UUID,
-                                CONTAINING_COMPONENT_ID,
-                                COMPONENT_ID
+                                CONTAINING_COMPONENT_UUID,
+                                COMPONENT_UUID
                         ))))).thenReturn(mockRenderableWithDimensNewDimensProvider);
         lenient().when(mockFunctionalProviderDefReader.read(argThat(
                 new FunctionalProviderDefMatcher<FunctionalProviderDefinition<FloatBox>>(
                         Component_innerContentDimensWithOverrideCalculation,
                         mapOf(
-                                ComponentMethods.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_UUID,
                                 INNER_COMPONENT_UUID,
-                                CONTAINING_COMPONENT_ID,
-                                COMPONENT_ID
+                                CONTAINING_COMPONENT_UUID,
+                                COMPONENT_UUID
                         ))))).thenReturn(mockContentComponentNewDimensProvider);
-
-        lenient().when(mockComponentData.get(ORIGIN_OVERRIDE_PROVIDER)).thenReturn(mockOriginOverrideProvider);
 
         componentMethods =
                 new ComponentMethods(MOCK_GET_COMPONENT, mockFunctionalProviderDefReader);
@@ -157,11 +152,43 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
 
     @Test
     public void testComponent_setDimensForComponentAndContent() {
+        setOf(
+                pairOf(ORIG_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
+                pairOf(CONTENT_DIMENS, mockContentDimens),
+                pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
+                pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIGIN_OVERRIDE_PROVIDER, mockOriginOverrideProvider)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
         var output = componentMethods.Component_setDimensForComponentAndContent(MOCK_COMPONENT,
                 TIMESTAMP);
 
         assertEquals(translate(EXPECTED_NET_ORIG_DIMENS, EXPECTED_ORIGIN_ADJUST), output);
 
+        verifyCalledSetDimensForComponentAndContent();
+    }
+
+    @Test
+    public void testComponent_setAndRetrieveDimensForComponentAndContentForProvider() {
+        setOf(
+                pairOf(ORIG_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
+                pairOf(CONTENT_DIMENS, mockContentDimens),
+                pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
+                pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIGIN_OVERRIDE_PROVIDER, mockOriginOverrideProvider)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output =
+                componentMethods.Component_setAndRetrieveDimensForComponentAndContentForProvider(
+                        providerInputs(TIMESTAMP,
+                                mapOf(ComponentMethods.COMPONENT_UUID, super.COMPONENT_UUID)));
+
+        assertEquals(translate(EXPECTED_NET_ORIG_DIMENS, EXPECTED_ORIGIN_ADJUST), output);
+
+        verifyCalledSetDimensForComponentAndContent();
+    }
+
+    private void verifyCalledSetDimensForComponentAndContent() {
         verify(MOCK_COMPONENT, atLeastOnce()).data();
         verify(MOCK_COMPONENT, atLeastOnce()).uuid();
         verify(mockComponentData, once()).get(LAST_TIMESTAMP);
@@ -185,10 +212,10 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                         new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
                                 Component_innerContentRenderingLocWithOverrideCalculation,
                                 mapOf(
-                                        ComponentMethods.COMPONENT_ID,
+                                        ComponentMethods.COMPONENT_UUID,
                                         TEXT_LINE_RENDERABLE_UUID,
-                                        CONTAINING_COMPONENT_ID,
-                                        COMPONENT_ID
+                                        CONTAINING_COMPONENT_UUID,
+                                        COMPONENT_UUID
                                 ))));
         verify(mockTextLineRenderable, once()).setRenderingLocationProvider(
                 mockTextLineNewLocProvider);
@@ -206,10 +233,10 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                         new FunctionalProviderDefMatcher<FunctionalProviderDefinition<FloatBox>>(
                                 Component_innerContentDimensWithOverrideCalculation,
                                 mapOf(
-                                        ComponentMethods.COMPONENT_ID,
+                                        ComponentMethods.COMPONENT_UUID,
                                         RENDERABLE_WITH_DIMENS_UUID,
-                                        CONTAINING_COMPONENT_ID,
-                                        COMPONENT_ID
+                                        CONTAINING_COMPONENT_UUID,
+                                        COMPONENT_UUID
                                 ))));
         verify(mockRenderableWithDimens, once()).setRenderingDimensionsProvider(
                 mockRenderableWithDimensNewDimensProvider);
@@ -228,10 +255,10 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                         new FunctionalProviderDefMatcher<FunctionalProviderDefinition<FloatBox>>(
                                 Component_innerContentDimensWithOverrideCalculation,
                                 mapOf(
-                                        ComponentMethods.COMPONENT_ID,
+                                        ComponentMethods.COMPONENT_UUID,
                                         INNER_COMPONENT_UUID,
-                                        CONTAINING_COMPONENT_ID,
-                                        COMPONENT_ID
+                                        CONTAINING_COMPONENT_UUID,
+                                        COMPONENT_UUID
                                 ))));
         verify(mockContentComponent, once()).setDimensionsProvider(
                 mockContentComponentNewDimensProvider);
@@ -268,12 +295,120 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
 
     @Test
     public void testComponent_setDimensForComponentAndContent_AlreadyTornOutAndReplaced() {
+        setOf(
+                pairOf(ORIG_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
+                pairOf(CONTENT_DIMENS, mockContentDimens),
+                pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
+                pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIGIN_OVERRIDE_PROVIDER, mockOriginOverrideProvider)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+        //noinspection SuspiciousMethodCalls
+        when(mockOrigContentDimensProviders.get(any())).thenReturn(
+                mockRenderableWithDimensOriginalDimensProvider);
         //noinspection SuspiciousMethodCalls
         when(mockOrigContentLocProviders.get(any())).thenReturn(mockTextLineOriginalLocProvider);
 
         componentMethods.Component_setDimensForComponentAndContent(MOCK_COMPONENT,
                 TIMESTAMP);
 
+        verify(mockRenderableWithDimens, never()).getRenderingDimensionsProvider();
         verify(mockTextLineRenderable, never()).getRenderingLocationProvider();
+    }
+
+    @Test
+    public void testComponent_setDimensForComponentAndContent_NoOriginOverride() {
+        setOf(
+                pairOf(ORIG_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
+                pairOf(CONTENT_DIMENS, mockContentDimens),
+                pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
+                pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIGIN_OVERRIDE_PROVIDER, null)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output = componentMethods.Component_setDimensForComponentAndContent(MOCK_COMPONENT,
+                TIMESTAMP);
+
+        assertEquals(EXPECTED_NET_ORIG_DIMENS, output);
+    }
+
+    @Test
+    public void testComponent_innerContentDimensWithOverrideCalculation() {
+        var contentDimens = randomFloatBox();
+        //noinspection SuspiciousMethodCalls
+        when(mockContentDimens.get(any())).thenReturn(contentDimens);
+        setOf(
+                pairOf(CONTENT_DIMENS, mockContentDimens),
+                pairOf(ORIGIN_OVERRIDE_ADJUST, EXPECTED_ORIGIN_ADJUST)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output = componentMethods.Component_innerContentDimensWithOverrideCalculation(
+                providerInputs(TIMESTAMP, mapOf(
+                        CONTAINING_COMPONENT_UUID,
+                        super.COMPONENT_UUID,
+                        ComponentMethods.COMPONENT_UUID,
+                        INNER_COMPONENT_UUID)));
+
+        assertEquals(translate(contentDimens, EXPECTED_ORIGIN_ADJUST), output);
+    }
+
+    @Test
+    public void testComponent_innerContentDimensWithOverrideCalculationWithNoOriginOverride() {
+        var contentDimens = randomFloatBox();
+        //noinspection SuspiciousMethodCalls
+        when(mockContentDimens.get(any())).thenReturn(contentDimens);
+        setOf(
+                pairOf(CONTENT_DIMENS, mockContentDimens),
+                pairOf(ORIGIN_OVERRIDE_ADJUST, null)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output = componentMethods.Component_innerContentDimensWithOverrideCalculation(
+                providerInputs(TIMESTAMP, mapOf(
+                        CONTAINING_COMPONENT_UUID,
+                        super.COMPONENT_UUID,
+                        ComponentMethods.COMPONENT_UUID,
+                        INNER_COMPONENT_UUID)));
+
+        assertEquals(contentDimens, output);
+    }
+
+    @Test
+    public void testComponent_innerContentRenderingLocWithOverrideCalculation() {
+        var contentLocs = randomVertex();
+        //noinspection SuspiciousMethodCalls
+        when(mockContentLocs.get(any())).thenReturn(contentLocs);
+        setOf(
+                pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIGIN_OVERRIDE_ADJUST, EXPECTED_ORIGIN_ADJUST)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output = componentMethods.Component_innerContentRenderingLocWithOverrideCalculation(
+                providerInputs(TIMESTAMP, mapOf(
+                        CONTAINING_COMPONENT_UUID,
+                        super.COMPONENT_UUID,
+                        ComponentMethods.COMPONENT_UUID,
+                        INNER_COMPONENT_UUID)));
+
+        assertEquals(inaugural.soliloquy.tools.valueobjects.Vertex.translate(contentLocs,
+                EXPECTED_ORIGIN_ADJUST), output);
+    }
+
+    @Test
+    public void testComponent_innerContentRenderingLocWithOverrideCalculationWithNoOriginOverride() {
+        var contentLocs = randomVertex();
+        //noinspection SuspiciousMethodCalls
+        when(mockContentLocs.get(any())).thenReturn(contentLocs);
+        setOf(
+                pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIGIN_OVERRIDE_ADJUST, null)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output = componentMethods.Component_innerContentRenderingLocWithOverrideCalculation(
+                providerInputs(TIMESTAMP, mapOf(
+                        CONTAINING_COMPONENT_UUID,
+                        super.COMPONENT_UUID,
+                        ComponentMethods.COMPONENT_UUID,
+                        INNER_COMPONENT_UUID)));
+
+        assertEquals(contentLocs, output);
     }
 }

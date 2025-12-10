@@ -159,7 +159,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
@@ -167,7 +167,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
@@ -175,7 +175,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
@@ -185,7 +185,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_ID,
+                                ComponentMethods.COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,

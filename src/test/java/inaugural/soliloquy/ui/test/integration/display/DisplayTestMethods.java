@@ -2,6 +2,9 @@ package inaugural.soliloquy.ui.test.integration.display;
 
 import soliloquy.specs.ui.EventInputs;
 
+import static inaugural.soliloquy.tools.collections.Collections.getFromData;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_DIMENS;
+
 public class DisplayTestMethods {
     public void onMouseOver(EventInputs e) {
         System.out.println("MOUSE OVER");
@@ -17,5 +20,9 @@ public class DisplayTestMethods {
 
     public void onMouseRelease(EventInputs e) {
         System.out.println("MOUSE RELEASE");
+    }
+
+    public void printComponentDimens(EventInputs e) {
+        System.out.println("Dimens = " + getFromData(e.component.data(), COMPONENT_DIMENS));
     }
 }

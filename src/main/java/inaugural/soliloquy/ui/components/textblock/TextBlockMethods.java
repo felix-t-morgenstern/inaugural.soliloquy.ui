@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.ComponentMethods.LAST_TIMESTAMP;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
@@ -28,7 +28,7 @@ public class TextBlockMethods {
 
     public Vertex provideTextRenderingLoc_TextBlock(FunctionalProvider.Inputs inputs) {
         Vertex blockUpperLeft;
-        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_ID));
+        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_UUID));
         long lastTimestamp = getFromData(component.data(), LAST_TIMESTAMP);
         if (lastTimestamp == inputs.timestamp()) {
             blockUpperLeft = getFromData(component.data(), BLOCK_UPPER_LEFT);

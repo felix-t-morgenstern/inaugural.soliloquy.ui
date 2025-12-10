@@ -50,8 +50,8 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         when(mockUpperLeftProvider.provide(anyLong())).thenReturn(LOC);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                ComponentMethods.COMPONENT_ID,
-                COMPONENT_ID,
+                ComponentMethods.COMPONENT_UUID,
+                COMPONENT_UUID,
                 TextBlock_blockUpperLeftProvider,
                 mockUpperLeftProvider,
                 TextBlock_topOffset,
@@ -61,7 +61,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         var output = methods.provideTextRenderingLoc_TextBlock(inputs);
 
         assertEquals(vertexOf(LOC.X, LOC.Y + TOP_OFFSET), output);
-        verify(MOCK_GET_COMPONENT, once()).apply(COMPONENT_ID);
+        verify(MOCK_GET_COMPONENT, once()).apply(COMPONENT_UUID);
         verify(mockComponentData, once()).get(LAST_TIMESTAMP);
         verify(mockUpperLeftProvider, once()).provide(TIMESTAMP);
         verify(mockComponentData, once()).put(LAST_TIMESTAMP, TIMESTAMP);
@@ -74,8 +74,8 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         when(mockComponentData.get(BLOCK_UPPER_LEFT)).thenReturn(LOC);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                ComponentMethods.COMPONENT_ID,
-                COMPONENT_ID,
+                ComponentMethods.COMPONENT_UUID,
+                COMPONENT_UUID,
                 TextBlock_blockUpperLeftProvider,
                 mockUpperLeftProvider,
                 TextBlock_topOffset,
@@ -85,7 +85,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         var output = methods.provideTextRenderingLoc_TextBlock(inputs);
 
         assertEquals(vertexOf(LOC.X, LOC.Y + TOP_OFFSET), output);
-        verify(MOCK_GET_COMPONENT, once()).apply(COMPONENT_ID);
+        verify(MOCK_GET_COMPONENT, once()).apply(COMPONENT_UUID);
         verify(mockComponentData, once()).get(LAST_TIMESTAMP);
         verify(mockComponentData, once()).get(BLOCK_UPPER_LEFT);
         verify(mockComponentData, never()).put(anyString(), any());

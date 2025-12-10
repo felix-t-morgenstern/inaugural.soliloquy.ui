@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
@@ -104,7 +104,7 @@ public class BeveledButtonMethods {
         FloatBox rectDimens;
         Vertex innerTransformsUpperLeft;
 
-        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_ID));
+        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_UUID));
         long lastTimestamp = getFromData(component.data(), BEVEL_LAST_TIMESTAMP);
         if (lastTimestamp == inputs.timestamp()) {
             rectDimens = getFromData(component.data(), BEVEL_LAST_RECT_DIMENS);
@@ -140,7 +140,7 @@ public class BeveledButtonMethods {
     public Color provideColor_BeveledButton(FunctionalProvider.Inputs inputs) {
         boolean isLitByDefault =
                 getFromData(inputs.data(), provideColor_BeveledButton_isLitByDefault);
-        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_ID));
+        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_UUID));
         boolean isPressed = falseIfNull(getFromData(component.data(), ButtonMethods.PRESS_STATE));
         Color renderableColor;
         // If it's lit by default XOR it's pressed, return the lit color

@@ -15,7 +15,7 @@ import java.util.function.Function;
 import static inaugural.soliloquy.tools.Tools.provideIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapVals;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_ID;
+import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.ComponentMethods.LAST_TIMESTAMP;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
@@ -109,7 +109,7 @@ public class TextBlockDefinitionReader {
         return PROVIDER_DEF_READER.read(functionalProvider(
                 TEXT_RENDERING_LOC_METHOD, Vertex.class
         ).withData(mapOf(
-                COMPONENT_ID,
+                COMPONENT_UUID,
                 componentId,
                 TextBlock_blockUpperLeftProvider,
                 blockUpperLeft,

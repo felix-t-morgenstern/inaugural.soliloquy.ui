@@ -85,6 +85,8 @@ public class ButtonMethodsTests {
             (RECT_DIMENS.TOP_Y + RECT_DIMENS.BOTTOM_Y - TEXT_HEIGHT) / 2f;
     private final long TIMESTAMP = randomLong();
 
+    private final FloatBox COMPONENT_DIMENS = randomFloatBox();
+
     @Mock private ProviderAtTime<FloatBox> mockRectDimens;
     @Mock private ProviderAtTime<Color> mockBgTopLeft;
     @Mock private ProviderAtTime<Color> mockBgTopRight;
@@ -149,8 +151,15 @@ public class ButtonMethodsTests {
         ));
         lenient().when(mockComponent.data()).thenReturn(mockData);
         lenient().when(mockRenderable.containingComponent()).thenReturn(mockComponent);
-        lenient().when(mockRectangleRenderable.getRenderingDimensionsProvider()).thenReturn(mockRectDimens);
-        lenient().when(mockSpriteRenderable.getRenderingDimensionsProvider()).thenReturn(mockSpriteDimens);
+        lenient().when(mockRectangleRenderable.getRenderingDimensionsProvider())
+                .thenReturn(mockRectDimens);
+        lenient().when(mockSpriteRenderable.getRenderingDimensionsProvider())
+                .thenReturn(mockSpriteDimens);
+
+        lenient().when(
+                        mockComponentMethods.Component_setDimensForComponentAndContent(any(),
+                                anyLong()))
+                .thenReturn(COMPONENT_DIMENS);
 
         buttonMethods =
                 new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
@@ -160,13 +169,17 @@ public class ButtonMethodsTests {
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new ButtonMethods(null, mockSubscribeToMouseEvents, MOCK_GET_SPRITE, mockComponentMethods));
+                () -> new ButtonMethods(null, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
+                        mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
-                () -> new ButtonMethods(mockPlaySound, null, MOCK_GET_SPRITE, mockComponentMethods));
+                () -> new ButtonMethods(mockPlaySound, null, MOCK_GET_SPRITE,
+                        mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
-                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, null, mockComponentMethods));
+                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, null,
+                        mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
-                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE, null));
+                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
+                        null));
     }
 
     @Test
@@ -174,20 +187,26 @@ public class ButtonMethodsTests {
         var options = options(randomString());
         when(mockData.get(DEFAULT_RENDERABLE_OPTIONS)).thenReturn(options);
 
-        buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        var output = buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
 
+        assertEquals(COMPONENT_DIMENS, output);
         assertSame(mockRectDimens, options.rectDimens);
         assertSame(mockSpriteDimens, options.spriteDimens);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
+                mockComponent, TIMESTAMP);
         verify(mockData, once()).get(LAST_TIMESTAMP);
-        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
+                mockComponent, TIMESTAMP);
         verify(mockData, once()).get(PRESS_STATE);
         verify(mockData, once()).get(RECT_HOVER_STATE);
         verify(mockData, once()).get(SPRITE_HOVER_STATE);
         verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_DEFAULT);
         verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
         verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
-        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT, mockOrigContentDimensProviders);
-        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_DEFAULT, mockOrigContentLocProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT,
+                mockOrigContentDimensProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_DEFAULT,
+                mockOrigContentLocProviders);
         verify(mockComponent, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
@@ -200,18 +219,23 @@ public class ButtonMethodsTests {
         when(mockData.get(HOVER_RENDERABLE_OPTIONS)).thenReturn(options);
         when(mockData.get(RECT_HOVER_STATE)).thenReturn(true);
 
-        buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        var output = buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
 
+        assertEquals(COMPONENT_DIMENS, output);
         assertSame(mockRectDimens, options.rectDimens);
         assertSame(mockSpriteDimens, options.spriteDimens);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
+                mockComponent, TIMESTAMP);
         verify(mockData, once()).get(LAST_TIMESTAMP);
-        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
+                mockComponent, TIMESTAMP);
         verify(mockData, once()).get(PRESS_STATE);
         verify(mockData, once()).get(RECT_HOVER_STATE);
         verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_HOVER);
         verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
         verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
-        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_HOVER, mockOrigContentDimensProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_HOVER,
+                mockOrigContentDimensProviders);
         verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_HOVER, mockOrigContentLocProviders);
         verify(mockComponent, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
@@ -225,18 +249,24 @@ public class ButtonMethodsTests {
         when(mockData.get(PRESSED_RENDERABLE_OPTIONS)).thenReturn(options);
         when(mockData.get(PRESS_STATE)).thenReturn(true);
 
-        buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        var output = buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
 
+        assertEquals(COMPONENT_DIMENS, output);
         assertSame(mockRectDimens, options.rectDimens);
         assertSame(mockSpriteDimens, options.spriteDimens);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
+                mockComponent, TIMESTAMP);
         verify(mockData, once()).get(LAST_TIMESTAMP);
-        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
+                mockComponent, TIMESTAMP);
         verify(mockData, once()).get(PRESS_STATE);
         verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_PRESSED);
         verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
         verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
-        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED, mockOrigContentDimensProviders);
-        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_PRESSED, mockOrigContentLocProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED,
+                mockOrigContentDimensProviders);
+        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_PRESSED,
+                mockOrigContentLocProviders);
         verify(mockComponent, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();

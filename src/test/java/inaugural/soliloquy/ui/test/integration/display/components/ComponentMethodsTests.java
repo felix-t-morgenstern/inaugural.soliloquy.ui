@@ -15,21 +15,23 @@ import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.RenderableWithMutableDimensions;
 import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
+import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
 import soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
-import static inaugural.soliloquy.tools.collections.Collections.setOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.randomFloatBox;
 import static inaugural.soliloquy.tools.random.Random.randomVertex;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.encompassing;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.translate;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.difference;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.polygonDimens;
 import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,22 +39,25 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
-import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider.Inputs.providerInputs;
 
 @ExtendWith(MockitoExtension.class)
 public class ComponentMethodsTests extends AbstractComponentMethodsTest {
     private final UUID TEXT_LINE_RENDERABLE_UUID = randomUUID();
     private final Vertex TEXT_LINE_ORIG_LOC = randomVertex();
+    private final UUID TRIANGLE_RENDERABLE_UUID = randomUUID();
+    private final Vertex TRIANGLE_ORIG_VERTEX_1 = randomVertex();
+    private final Vertex TRIANGLE_ORIG_VERTEX_2 = randomVertex();
+    private final Vertex TRIANGLE_ORIG_VERTEX_3 = randomVertex();
     private final UUID RENDERABLE_WITH_DIMENS_UUID = randomUUID();
-    private final FloatBox RENDERABLE_WITH_DIMENS_ORIG_DIMENS = floatBoxOf(1f, 2f);
-    //randomFloatBox();
+    private final FloatBox RENDERABLE_WITH_DIMENS_ORIG_DIMENS = randomFloatBox();
     private final UUID INNER_COMPONENT_UUID = randomUUID();
-    private final FloatBox INNER_COMPONENT_ORIG_DIMENS = floatBoxOf(5f, 8f);//randomFloatBox();
-    private final FloatBox EXPECTED_NET_ORIG_DIMENS =
-            encompassing(RENDERABLE_WITH_DIMENS_ORIG_DIMENS, INNER_COMPONENT_ORIG_DIMENS);
+    private final FloatBox INNER_COMPONENT_ORIG_DIMENS = randomFloatBox();
+    private final FloatBox EXPECTED_NET_ORIG_DIMENS = encompassing(
+            polygonDimens(TRIANGLE_ORIG_VERTEX_1, TRIANGLE_ORIG_VERTEX_2, TRIANGLE_ORIG_VERTEX_3),
+            encompassing(RENDERABLE_WITH_DIMENS_ORIG_DIMENS, INNER_COMPONENT_ORIG_DIMENS));
 
-    private final Vertex ORIGIN_OVERRIDE = vertexOf(10f, 100f);//randomVertex();
+    private final Vertex ORIGIN_OVERRIDE = randomVertex();
     private final Vertex EXPECTED_ORIGIN_ADJUST =
             difference(EXPECTED_NET_ORIG_DIMENS.topLeft(), ORIGIN_OVERRIDE);
 
@@ -60,10 +65,19 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
     @Mock private Map<UUID, FloatBox> mockContentDimens;
     @Mock private Map<UUID, ProviderAtTime<Vertex>> mockOrigContentLocProviders;
     @Mock private Map<UUID, Vertex> mockContentLocs;
+    @Mock private Map<UUID, List<ProviderAtTime<Vertex>>> mockOrigContentVerticesProviders;
+    @Mock private Map<UUID, List<Vertex>> mockContentVertices;
 
     @Mock private ProviderAtTime<Vertex> mockTextLineOriginalLocProvider;
     @Mock private FunctionalProvider<Vertex> mockTextLineNewLocProvider;
     @Mock private TextLineRenderable mockTextLineRenderable;
+    @Mock private ProviderAtTime<Vertex> mockTriangleOriginalVertex1Provider;
+    @Mock private ProviderAtTime<Vertex> mockTriangleOriginalVertex2Provider;
+    @Mock private ProviderAtTime<Vertex> mockTriangleOriginalVertex3Provider;
+    @Mock private FunctionalProvider<Vertex> mockTriangleNewVertex1Provider;
+    @Mock private FunctionalProvider<Vertex> mockTriangleNewVertex2Provider;
+    @Mock private FunctionalProvider<Vertex> mockTriangleNewVertex3Provider;
+    @Mock private TriangleRenderable mockTriangleRenderable;
     @Mock private ProviderAtTime<FloatBox> mockRenderableWithDimensOriginalDimensProvider;
     @Mock private FunctionalProvider<FloatBox> mockRenderableWithDimensNewDimensProvider;
     @Mock private RenderableWithMutableDimensions mockRenderableWithDimens;
@@ -87,6 +101,21 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         lenient().when(mockTextLineRenderable.getRenderingLocationProvider()).thenReturn(
                 mockTextLineOriginalLocProvider);
 
+        lenient().when(mockTriangleOriginalVertex1Provider.provide(anyLong()))
+                .thenReturn(TRIANGLE_ORIG_VERTEX_1);
+        lenient().when(mockTriangleOriginalVertex2Provider.provide(anyLong()))
+                .thenReturn(TRIANGLE_ORIG_VERTEX_2);
+        lenient().when(mockTriangleOriginalVertex3Provider.provide(anyLong()))
+                .thenReturn(TRIANGLE_ORIG_VERTEX_3);
+        lenient().when(mockTriangleRenderable.uuid()).thenReturn(TRIANGLE_RENDERABLE_UUID);
+        lenient().when(mockTriangleRenderable.containingComponent()).thenReturn(MOCK_COMPONENT);
+        lenient().when(mockTriangleRenderable.getVertex1Provider())
+                .thenReturn(mockTriangleOriginalVertex1Provider);
+        lenient().when(mockTriangleRenderable.getVertex2Provider())
+                .thenReturn(mockTriangleOriginalVertex2Provider);
+        lenient().when(mockTriangleRenderable.getVertex3Provider())
+                .thenReturn(mockTriangleOriginalVertex3Provider);
+
         lenient().when(mockRenderableWithDimensOriginalDimensProvider.provide(anyLong()))
                 .thenReturn(RENDERABLE_WITH_DIMENS_ORIG_DIMENS);
         lenient().when(mockRenderableWithDimens.uuid())
@@ -107,6 +136,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         lenient().when(MOCK_COMPONENT.contentsRepresentation())
                 .thenReturn(setOf(
                         mockTextLineRenderable,
+                        mockTriangleRenderable,
                         mockRenderableWithDimens,
                         mockContentComponent));
 
@@ -119,6 +149,39 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                                 CONTAINING_COMPONENT_UUID,
                                 COMPONENT_UUID
                         ))))).thenReturn(mockTextLineNewLocProvider);
+        lenient().when(mockFunctionalProviderDefReader.read(argThat(
+                new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                        Component_innerContentVertexWithOverrideCalculation,
+                        mapOf(
+                                ComponentMethods.COMPONENT_UUID,
+                                TRIANGLE_RENDERABLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COMPONENT_UUID,
+                                VERTICES_INDEX,
+                                0
+                        ))))).thenReturn(mockTriangleNewVertex1Provider);
+        lenient().when(mockFunctionalProviderDefReader.read(argThat(
+                new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                        Component_innerContentVertexWithOverrideCalculation,
+                        mapOf(
+                                ComponentMethods.COMPONENT_UUID,
+                                TRIANGLE_RENDERABLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COMPONENT_UUID,
+                                VERTICES_INDEX,
+                                1
+                        ))))).thenReturn(mockTriangleNewVertex2Provider);
+        lenient().when(mockFunctionalProviderDefReader.read(argThat(
+                new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                        Component_innerContentVertexWithOverrideCalculation,
+                        mapOf(
+                                ComponentMethods.COMPONENT_UUID,
+                                TRIANGLE_RENDERABLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COMPONENT_UUID,
+                                VERTICES_INDEX,
+                                2
+                        ))))).thenReturn(mockTriangleNewVertex3Provider);
         lenient().when(mockFunctionalProviderDefReader.read(argThat(
                 new FunctionalProviderDefMatcher<FunctionalProviderDefinition<FloatBox>>(
                         Component_innerContentDimensWithOverrideCalculation,
@@ -157,6 +220,8 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                 pairOf(CONTENT_DIMENS, mockContentDimens),
                 pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
                 pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIG_CONTENT_VERTICES_PROVIDERS, mockOrigContentVerticesProviders),
+                pairOf(CONTENT_VERTICES, mockContentVertices),
                 pairOf(ORIGIN_OVERRIDE_PROVIDER, mockOriginOverrideProvider)
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
@@ -175,6 +240,8 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                 pairOf(CONTENT_DIMENS, mockContentDimens),
                 pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
                 pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIG_CONTENT_VERTICES_PROVIDERS, mockOrigContentVerticesProviders),
+                pairOf(CONTENT_VERTICES, mockContentVertices),
                 pairOf(ORIGIN_OVERRIDE_PROVIDER, mockOriginOverrideProvider)
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
@@ -205,7 +272,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         verify(mockTextLineRenderable, once()).getRenderingLocationProvider();
         var functionalDefCaptor = ArgumentCaptor.forClass(FunctionalProviderDefinition.class);
         //noinspection unchecked
-        verify(mockFunctionalProviderDefReader, times(3)).read(functionalDefCaptor.capture());
+        verify(mockFunctionalProviderDefReader, times(6)).read(functionalDefCaptor.capture());
         verify(mockTextLineRenderable, once()).containingComponent();
         verify(mockFunctionalProviderDefReader, once()).read(
                 argThat(
@@ -223,6 +290,64 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                 mockTextLineOriginalLocProvider);
         verify(mockTextLineOriginalLocProvider, once()).provide(TIMESTAMP);
         verify(mockContentLocs, once()).put(TEXT_LINE_RENDERABLE_UUID, TEXT_LINE_ORIG_LOC);
+
+        verify(mockTriangleRenderable, atLeastOnce()).uuid();
+        verify(mockOrigContentVerticesProviders, once()).get(TRIANGLE_RENDERABLE_UUID);
+        verify(mockTriangleRenderable, once()).getVertex1Provider();
+        verify(mockTriangleRenderable, once()).getVertex2Provider();
+        verify(mockTriangleRenderable, once()).getVertex3Provider();
+        verify(mockTriangleRenderable, atLeastOnce()).containingComponent();
+        verify(mockFunctionalProviderDefReader, once()).read(
+                argThat(
+                        new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                                Component_innerContentVertexWithOverrideCalculation,
+                                mapOf(
+                                        ComponentMethods.COMPONENT_UUID,
+                                        TRIANGLE_RENDERABLE_UUID,
+                                        CONTAINING_COMPONENT_UUID,
+                                        COMPONENT_UUID,
+                                        VERTICES_INDEX,
+                                        0
+                                ))));
+        verify(mockFunctionalProviderDefReader, once()).read(
+                argThat(
+                        new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                                Component_innerContentVertexWithOverrideCalculation,
+                                mapOf(
+                                        ComponentMethods.COMPONENT_UUID,
+                                        TRIANGLE_RENDERABLE_UUID,
+                                        CONTAINING_COMPONENT_UUID,
+                                        COMPONENT_UUID,
+                                        VERTICES_INDEX,
+                                        1
+                                ))));
+        verify(mockFunctionalProviderDefReader, once()).read(
+                argThat(
+                        new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                                Component_innerContentVertexWithOverrideCalculation,
+                                mapOf(
+                                        ComponentMethods.COMPONENT_UUID,
+                                        TRIANGLE_RENDERABLE_UUID,
+                                        CONTAINING_COMPONENT_UUID,
+                                        COMPONENT_UUID,
+                                        VERTICES_INDEX,
+                                        2
+                                ))));
+        verify(mockTriangleRenderable, once()).setVertex1Provider(mockTriangleNewVertex1Provider);
+        verify(mockTriangleRenderable, once()).setVertex2Provider(mockTriangleNewVertex2Provider);
+        verify(mockTriangleRenderable, once()).setVertex3Provider(mockTriangleNewVertex3Provider);
+        verify(mockOrigContentVerticesProviders, once()).put(TRIANGLE_RENDERABLE_UUID,
+                listOf(mockTriangleOriginalVertex1Provider,
+                        mockTriangleOriginalVertex2Provider,
+                        mockTriangleOriginalVertex3Provider));
+        verify(mockTriangleOriginalVertex1Provider, once()).provide(TIMESTAMP);
+        verify(mockTriangleOriginalVertex2Provider, once()).provide(TIMESTAMP);
+        verify(mockTriangleOriginalVertex3Provider, once()).provide(TIMESTAMP);
+        verify(mockContentVertices, once()).put(TRIANGLE_RENDERABLE_UUID, listOf(
+                TRIANGLE_ORIG_VERTEX_1,
+                TRIANGLE_ORIG_VERTEX_2,
+                TRIANGLE_ORIG_VERTEX_3
+        ));
 
         verify(mockRenderableWithDimens, atLeastOnce()).uuid();
         verify(mockOrigContentDimensProviders, once()).get(RENDERABLE_WITH_DIMENS_UUID);
@@ -300,6 +425,8 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                 pairOf(CONTENT_DIMENS, mockContentDimens),
                 pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
                 pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIG_CONTENT_VERTICES_PROVIDERS, mockOrigContentVerticesProviders),
+                pairOf(CONTENT_VERTICES, mockContentVertices),
                 pairOf(ORIGIN_OVERRIDE_PROVIDER, mockOriginOverrideProvider)
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
         //noinspection SuspiciousMethodCalls
@@ -322,6 +449,8 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                 pairOf(CONTENT_DIMENS, mockContentDimens),
                 pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders),
                 pairOf(CONTENT_LOCS, mockContentLocs),
+                pairOf(ORIG_CONTENT_VERTICES_PROVIDERS, mockOrigContentVerticesProviders),
+                pairOf(CONTENT_VERTICES, mockContentVertices),
                 pairOf(ORIGIN_OVERRIDE_PROVIDER, null)
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
@@ -410,5 +539,50 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
                         INNER_COMPONENT_UUID)));
 
         assertEquals(contentLocs, output);
+    }
+
+    @Test
+    public void testComponent_innerContentVertexWithOverrideCalculation() {
+        var vertex = randomVertex();
+        //noinspection SuspiciousMethodCalls
+        when(mockContentVertices.get(any())).thenReturn(listOf(randomVertex(), vertex, randomVertex()));
+        setOf(
+                pairOf(CONTENT_VERTICES, mockContentVertices),
+                pairOf(ORIGIN_OVERRIDE_ADJUST, EXPECTED_ORIGIN_ADJUST)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output = componentMethods.Component_innerContentVertexWithOverrideCalculation(
+                providerInputs(TIMESTAMP, mapOf(
+                        CONTAINING_COMPONENT_UUID,
+                        super.COMPONENT_UUID,
+                        ComponentMethods.COMPONENT_UUID,
+                        INNER_COMPONENT_UUID,
+                        VERTICES_INDEX,
+                        1)));
+
+        assertEquals(inaugural.soliloquy.tools.valueobjects.Vertex.translate(vertex,
+                EXPECTED_ORIGIN_ADJUST), output);
+    }
+
+    @Test
+    public void testComponent_innerContentVertexWithOverrideCalculationWithNoOriginOverride() {
+        var vertex = randomVertex();
+        //noinspection SuspiciousMethodCalls
+        when(mockContentVertices.get(any())).thenReturn(listOf(randomVertex(), vertex, randomVertex()));
+        setOf(
+                pairOf(CONTENT_VERTICES, mockContentVertices),
+                pairOf(ORIGIN_OVERRIDE_ADJUST, null)
+        ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
+
+        var output = componentMethods.Component_innerContentVertexWithOverrideCalculation(
+                providerInputs(TIMESTAMP, mapOf(
+                        CONTAINING_COMPONENT_UUID,
+                        super.COMPONENT_UUID,
+                        ComponentMethods.COMPONENT_UUID,
+                        INNER_COMPONENT_UUID,
+                        VERTICES_INDEX,
+                        1)));
+
+        assertEquals(vertex, output);
     }
 }

@@ -25,8 +25,6 @@ import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinit
 public class TextBlockDefinitionReader {
     private final static String HEIGHT = "HEIGHT";
 
-    private final static String TEXT_RENDERING_LOC_METHOD = "provideTextRenderingLoc_TextBlock";
-
     private final TextMarkupParser PARSER;
     private final Function<String, Font> GET_FONT;
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
@@ -107,7 +105,7 @@ public class TextBlockDefinitionReader {
                                                           float topOffset,
                                                           long timestamp) {
         return PROVIDER_DEF_READER.read(functionalProvider(
-                TEXT_RENDERING_LOC_METHOD, Vertex.class
+                TextBlock_provideTextRenderingLoc, Vertex.class
         ).withData(mapOf(
                 COMPONENT_UUID,
                 componentId,

@@ -44,22 +44,22 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
-    private static final String PRESS_MOUSE_METHOD = "pressMouse_Button";
-    private static final String MOUSE_OVER_METHOD = "mouseOver_Button";
-    private static final String MOUSE_LEAVE_METHOD = "mouseLeave_Button";
-    private static final String PRESS_KEY_METHOD = "pressKey_Button";
-    private static final String RELEASE_KEY_METHOD = "releaseKey_Button";
+    private static final String PRESS_MOUSE_METHOD = "Button_pressMouse";
+    private static final String MOUSE_OVER_METHOD = "Button_mouseOver";
+    private static final String MOUSE_LEAVE_METHOD = "Button_mouseLeave";
+    private static final String PRESS_KEY_METHOD = "Button_pressKey";
+    private static final String RELEASE_KEY_METHOD = "Button_releaseKey";
 
     private static final String TEXT_LOC_FROM_RECT_DIMENS_METHOD =
-            "provideTextRenderingLocFromRect_Button";
+            "Button_provideTextRenderingLocFromRect";
     private static final String RECT_DIMENS_FROM_TEXT_LOC_METHOD =
-            "provideRectDimensFromText_Button";
-    private static final String TEX_WIDTH_FROM_RECT_DIMENS_METHOD = "provideTexTileWidth_Button";
-    private static final String TEX_HEIGHT_FROM_RECT_DIMENS_METHOD = "provideTexTileHeight_Button";
+            "Button_provideRectDimensFromText";
+    private static final String TEX_WIDTH_FROM_RECT_DIMENS_METHOD = "Button_provideTexTileWidth";
+    private static final String TEX_HEIGHT_FROM_RECT_DIMENS_METHOD = "Button_provideTexTileHeight";
 
     private final static String PRESS_ACTION_DATA_KEY = "pressAction";
     private final static String PRESS_SOUND_ID_DATA_KEY = "pressSoundId";
-    private final static String MOUSE_OVER_SOUND_ID_DATA_KEY = "mouseOverSoundId";
+    private final static String MOUSE_OVER_SOUND_ID_DATA_KEY = "Button_mouseOverSoundId";
     private final static String MOUSE_LEAVE_SOUND_ID_DATA_KEY = "mouseLeaveSoundId";
     private final static String RELEASE_SOUND_ID_DATA_KEY = "releaseSoundId";
 
@@ -67,14 +67,14 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     private final static String HOVER_RENDERABLE_OPTIONS_DATA_KEY = "hoverRenderableOptions";
     private final static String PRESSED_RENDERABLE_OPTIONS_DATA_KEY = "pressedRenderableOptions";
 
-    private final static String provideTextRenderingLocFromRect_Button_horizontalAlignment =
-            "provideTextRenderingLocFromRect_Button_horizontalAlignment";
-    private final static String provideTextRenderingLocFromRect_Button_rectDimensProvider =
-            "provideTextRenderingLocFromRect_Button_rectDimensProvider";
-    private final static String provideTextRenderingLocFromRect_Button_paddingHoriz =
-            "provideTextRenderingLocFromRect_Button_paddingHoriz";
-    private final static String provideTextRenderingLocFromRect_Button_textHeight =
-            "provideTextRenderingLocFromRect_Button_textHeight";
+    private final static String Button_provideTextRenderingLocFromRect_horizontalAlignment =
+            "Button_provideTextRenderingLocFromRect_horizontalAlignment";
+    private final static String Button_provideTextRenderingLocFromRect_rectDimensProvider =
+            "Button_provideTextRenderingLocFromRect_rectDimensProvider";
+    private final static String Button_provideTextRenderingLocFromRect_paddingHoriz =
+            "Button_provideTextRenderingLocFromRect_paddingHoriz";
+    private final static String Button_provideTextRenderingLocFromRect_textHeight =
+            "Button_provideTextRenderingLocFromRect_textHeight";
 
     private static final int RECT_Z = 0;
     private static final int SPRITE_Z = 1;
@@ -122,8 +122,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     private final String MOUSE_LEAVE_SOUND_ID = randomString();
     private final String RELEASE_SOUND_ID = randomString();
 
-    @Mock private AbstractProviderDefinition<Vertex> mockOriginOverrideProviderDef;
-
     @Mock private AbstractProviderDefinition<FloatBox> mockRectDimensProviderDef;
 
     @Mock private AbstractProviderDefinition<Color> mockBgColorTopLeftDefaultDef;
@@ -158,8 +156,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     @Mock private AbstractProviderDefinition<Color> mockTextColorDefaultDef;
     @Mock private AbstractProviderDefinition<Color> mockTextColorHoverDef;
     @Mock private AbstractProviderDefinition<Color> mockTextColorPressedDef;
-
-    @Mock private ProviderAtTime<Vertex> mockOriginOverrideProvider;
 
     @Mock private ProviderAtTime<FloatBox> mockRectDimensProvider;
 
@@ -220,9 +216,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
     @BeforeEach
     public void setUp() {
-        lenient().when(mockProviderDefReader.read(same(mockOriginOverrideProviderDef), anyLong()))
-                .thenReturn(mockOriginOverrideProvider);
-
         lenient().when(mockProviderDefReader.read(same(mockRectDimensProviderDef), anyLong()))
                 .thenReturn(mockRectDimensProvider);
 
@@ -316,45 +309,45 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
-                                        provideRectDimensFromText_Button_textRenderingLocProvider,
+                                        Button_provideRectDimensFromText_textRenderingLocProvider,
                                         mockTextRenderingLoc,
-                                        provideRectDimensFromText_Button_lineLength,
+                                        Button_provideRectDimensFromText_lineLength,
                                         TEXT_LINE_LENGTH_DEFAULT,
-                                        provideRectDimensFromText_Button_textHeight,
+                                        Button_provideRectDimensFromText_textHeight,
                                         TEXT_HEIGHT,
-                                        provideRectDimensFromText_Button_textPaddingVert,
+                                        Button_provideRectDimensFromText_textPaddingVert,
                                         TEXT_PADDING_VERT,
-                                        provideRectDimensFromText_Button_textPaddingHoriz,
+                                        Button_provideRectDimensFromText_textPaddingHoriz,
                                         TEXT_PADDING_HORIZ
                                 ))), anyLong()))
                 .thenReturn(mockRectDimensFuncProviderDefault);
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
-                                        provideRectDimensFromText_Button_textRenderingLocProvider,
+                                        Button_provideRectDimensFromText_textRenderingLocProvider,
                                         mockTextRenderingLoc,
-                                        provideRectDimensFromText_Button_lineLength,
+                                        Button_provideRectDimensFromText_lineLength,
                                         TEXT_LINE_LENGTH_HOVER,
-                                        provideRectDimensFromText_Button_textHeight,
+                                        Button_provideRectDimensFromText_textHeight,
                                         TEXT_HEIGHT,
-                                        provideRectDimensFromText_Button_textPaddingVert,
+                                        Button_provideRectDimensFromText_textPaddingVert,
                                         TEXT_PADDING_VERT,
-                                        provideRectDimensFromText_Button_textPaddingHoriz,
+                                        Button_provideRectDimensFromText_textPaddingHoriz,
                                         TEXT_PADDING_HORIZ
                                 ))), anyLong()))
                 .thenReturn(mockRectDimensFuncProviderHover);
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
-                                        provideRectDimensFromText_Button_textRenderingLocProvider,
+                                        Button_provideRectDimensFromText_textRenderingLocProvider,
                                         mockTextRenderingLoc,
-                                        provideRectDimensFromText_Button_lineLength,
+                                        Button_provideRectDimensFromText_lineLength,
                                         TEXT_LINE_LENGTH_PRESSED,
-                                        provideRectDimensFromText_Button_textHeight,
+                                        Button_provideRectDimensFromText_textHeight,
                                         TEXT_HEIGHT,
-                                        provideRectDimensFromText_Button_textPaddingVert,
+                                        Button_provideRectDimensFromText_textPaddingVert,
                                         TEXT_PADDING_VERT,
-                                        provideRectDimensFromText_Button_textPaddingHoriz,
+                                        Button_provideRectDimensFromText_textPaddingHoriz,
                                         TEXT_PADDING_HORIZ
                                 ))), anyLong()))
                 .thenReturn(mockRectDimensFuncProviderPressed);
@@ -429,13 +422,13 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     public void testReadFromRectDimensAndDefsWithMaximalArgs() {
         when(mockProviderDefReader.read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
-                        provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                        Button_provideTextRenderingLocFromRect_horizontalAlignment,
                         ALIGNMENT,
-                        provideTextRenderingLocFromRect_Button_rectDimensProvider,
+                        Button_provideTextRenderingLocFromRect_rectDimensProvider,
                         mockRectDimensProvider,
-                        provideTextRenderingLocFromRect_Button_paddingHoriz,
+                        Button_provideTextRenderingLocFromRect_paddingHoriz,
                         TEXT_PADDING_HORIZ,
-                        provideTextRenderingLocFromRect_Button_textHeight,
+                        Button_provideTextRenderingLocFromRect_textHeight,
                         TEXT_HEIGHT
                 ))), anyLong()))
                 .thenReturn(mockTextRenderingLoc);
@@ -524,8 +517,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 listInts(BOLD_INDEX_PRESSED)
         );
         var expectedData = Collections.<String, Object>mapOf(
-                ORIGIN_OVERRIDE_PROVIDER,
-                mockOriginOverrideProvider,
                 PRESS_ACTION_DATA_KEY,
                 MOCK_PRESS_ACTION,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -697,8 +688,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         );
 
         var expectedData = Collections.<String, Object>mapOf(
-                ORIGIN_OVERRIDE_PROVIDER,
-                mockOriginOverrideProvider,
                 PRESS_ACTION_DATA_KEY,
                 MOCK_PRESS_ACTION,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -760,13 +749,13 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     public void testReadFromRectDimensAndMaximalArgsForDefaultOnly() {
         when(mockProviderDefReader.read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(TEXT_LOC_FROM_RECT_DIMENS_METHOD, mapOf(
-                        provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                        Button_provideTextRenderingLocFromRect_horizontalAlignment,
                         ALIGNMENT,
-                        provideTextRenderingLocFromRect_Button_rectDimensProvider,
+                        Button_provideTextRenderingLocFromRect_rectDimensProvider,
                         mockRectDimensProvider,
-                        provideTextRenderingLocFromRect_Button_paddingHoriz,
+                        Button_provideTextRenderingLocFromRect_paddingHoriz,
                         TEXT_PADDING_HORIZ,
-                        provideTextRenderingLocFromRect_Button_textHeight,
+                        Button_provideTextRenderingLocFromRect_textHeight,
                         TEXT_HEIGHT
                 ))), anyLong()))
                 .thenReturn(mockTextRenderingLoc);
@@ -821,8 +810,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 listInts(BOLD_INDEX_DEFAULT)
         );
         var expectedData = Collections.<String, Object>mapOf(
-                ORIGIN_OVERRIDE_PROVIDER,
-                mockOriginOverrideProvider,
                 PRESS_ACTION_DATA_KEY,
                 MOCK_PRESS_ACTION,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -962,8 +949,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
         );
         var expectedData = Collections.<String, Object>mapOf(
-                ORIGIN_OVERRIDE_PROVIDER,
-                null,
                 PRESS_ACTION_DATA_KEY,
                 null,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -1060,8 +1045,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
         );
         var expectedData = Collections.<String, Object>mapOf(
-                ORIGIN_OVERRIDE_PROVIDER,
-                null,
                 PRESS_ACTION_DATA_KEY,
                 null,
                 PRESS_SOUND_ID_DATA_KEY,
@@ -1150,7 +1133,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
     private ButtonDefinition withMaximalArgsFromDefs(ButtonDefinition definition) {
         return withMaximalDefaultArgs(definition)
-                .withOriginOverride(mockOriginOverrideProviderDef)
                 .withBgColorsHover(
                         mockBgColorTopLeftHoverDef,
                         mockBgColorTopRightHoverDef,
@@ -1179,7 +1161,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
 
     private ButtonDefinition withMaximalDefaultArgs(ButtonDefinition definition) {
         return definition
-                .withOriginOverride(mockOriginOverrideProviderDef)
                 .withKeys(KEY_BINDING_PRIORITY, arrayInts(KEY))
                 .withTextPadding(TEXT_PADDING_VERT)
                 .withGlyphPadding(TEXT_GLYPH_PADDING)

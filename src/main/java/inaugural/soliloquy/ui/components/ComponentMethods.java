@@ -5,23 +5,22 @@ import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.readers.providers.FunctionalProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.Renderable;
-import soliloquy.specs.io.graphics.renderables.RenderableWithMutableDimensions;
-import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
+import soliloquy.specs.io.graphics.renderables.*;
 import soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
-import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.encompassing;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.translate;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.difference;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.polygonDimens;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
@@ -34,8 +33,11 @@ public class ComponentMethods {
     public final static String ORIGIN_OVERRIDE_ADJUST = "ORIGIN_OVERRIDE_ADJUST";
     public final static String CONTENT_DIMENS = "CONTENT_DIMENS";
     public final static String CONTENT_LOCS = "CONTENT_LOCS";
+    public final static String CONTENT_VERTICES = "CONTENT_VERTICES";
     public final static String ORIG_CONTENT_DIMENS_PROVIDERS = "ORIG_CONTENT_DIMENS_PROVIDERS";
     public final static String ORIG_CONTENT_LOC_PROVIDERS = "ORIG_CONTENT_LOC_PROVIDERS";
+    public final static String ORIG_CONTENT_VERTICES_PROVIDERS = "ORIG_CONTENT_VERTICES_PROVIDERS";
+    public final static String VERTICES_INDEX = "VERTICES_INDEX";
 
     private final Function<UUID, Component> GET_COMPONENT;
     private final FunctionalProviderDefinitionReader FUNCTIONAL_PROVIDER_DEF_READER;
@@ -68,8 +70,14 @@ public class ComponentMethods {
                         Collections::mapOf);
         Map<UUID, Vertex> contentLocs =
                 getFromComponentDataOrDefault(component, CONTENT_LOCS, Collections::mapOf);
+        Map<UUID, List<ProviderAtTime<Vertex>>> origContentVerticesProviders =
+                getFromComponentDataOrDefault(component, ORIG_CONTENT_VERTICES_PROVIDERS,
+                        Collections::mapOf);
+        Map<UUID, List<Vertex>> contentVertices =
+                getFromComponentDataOrDefault(component, CONTENT_VERTICES, Collections::mapOf);
         contentDimens.clear();
         contentLocs.clear();
+        contentVertices.clear();
 
         // 1. Get all _original_ content dimens providers; if not stored in data already, rip and
         // replace, while populating data with those original content dimens providers
@@ -91,6 +99,26 @@ public class ComponentMethods {
                 // (Text line length isn't being added into net dimens, since line length is
                 // ideally dimensionless. Containing components should track text width instead,
                 // e.g., Button, TextBlock)
+            }
+
+            else if (content instanceof TriangleRenderable triangleRenderable) {
+                var origContentVerticesProvidersForRenderable =
+                        origContentVerticesProviders.get(triangleRenderable.uuid());
+                if (origContentVerticesProvidersForRenderable == null) {
+                    origContentVerticesProvidersForRenderable =
+                            Component_tearOutAndReplaceWithOriginOverrideForTriangle(
+                                    triangleRenderable);
+                    origContentVerticesProviders.put(triangleRenderable.uuid(),
+                            origContentVerticesProvidersForRenderable);
+                }
+
+                var providedOrigContentVertices = origContentVerticesProvidersForRenderable.stream()
+                        .map(p -> p.provide(timestamp)).toList();
+                contentVertices.put(triangleRenderable.uuid(), providedOrigContentVertices);
+                var triangleEncompassingDimens =
+                        polygonDimens(providedOrigContentVertices.toArray(Vertex[]::new));
+                componentNetDimens = componentNetDimens == null ? triangleEncompassingDimens :
+                        encompassing(componentNetDimens, triangleEncompassingDimens);
             }
 
             else {
@@ -210,6 +238,36 @@ public class ComponentMethods {
         return originalContentDimensProvider;
     }
 
+    private List<ProviderAtTime<Vertex>> Component_tearOutAndReplaceWithOriginOverrideForTriangle(
+            TriangleRenderable content) {
+        var originalContentVerticesProviders = listOf(
+                content.getVertex1Provider(),
+                content.getVertex2Provider(),
+                content.getVertex3Provider()
+        );
+
+        var newContentVerticesProviders =
+                IntStream.range(0, 3).mapToObj(i -> FUNCTIONAL_PROVIDER_DEF_READER.read(
+                                functionalProvider(
+                                        Component_innerContentVertexWithOverrideCalculation,
+                                        Vertex.class)
+                                        .withData(mapOf(
+                                                COMPONENT_UUID,
+                                                content.uuid(),
+                                                CONTAINING_COMPONENT_UUID,
+                                                content.containingComponent().uuid(),
+                                                VERTICES_INDEX,
+                                                i
+                                        ))))
+                        .toList();
+
+        content.setVertex1Provider(newContentVerticesProviders.get(0));
+        content.setVertex2Provider(newContentVerticesProviders.get(1));
+        content.setVertex3Provider(newContentVerticesProviders.get(2));
+
+        return originalContentVerticesProviders;
+    }
+
     public final static String Component_innerContentDimensWithOverrideCalculation =
             "Component_innerContentDimensWithOverrideCalculation";
 
@@ -259,8 +317,38 @@ public class ComponentMethods {
         }
     }
 
-    private static <T> T getFromComponentDataOrDefault(Component component, String key,
-                                                       Supplier<T> getDefault) {
+    public final static String Component_innerContentVertexWithOverrideCalculation =
+            "Component_innerContentVertexWithOverrideCalculation";
+
+    public Vertex Component_innerContentVertexWithOverrideCalculation(
+            FunctionalProvider.Inputs inputs) {
+        UUID containingComponentId = getFromData(inputs.data(), CONTAINING_COMPONENT_UUID);
+        var containingComponent = GET_COMPONENT.apply(containingComponentId);
+
+        // This will ensure that unadjusted contentVertices are up-to-date with the provided
+        // timestamp
+        Component_setDimensForComponentAndContent(containingComponent, inputs.timestamp());
+
+        Map<UUID, List<Vertex>> contentVertices =
+                getFromData(containingComponent.data(), CONTENT_VERTICES);
+        UUID componentId = getFromData(inputs.data(), COMPONENT_UUID);
+        var unadjustedVertices = contentVertices.get(componentId);
+        int vertexIndex = getFromData(inputs.data(), VERTICES_INDEX);
+        var unadjustedVertex = unadjustedVertices.get(vertexIndex);
+        Vertex originOverrideAdjust =
+                getFromData(containingComponent.data(), ORIGIN_OVERRIDE_ADJUST);
+        if (originOverrideAdjust != null) {
+            return inaugural.soliloquy.tools.valueobjects.Vertex.translate(unadjustedVertex,
+                    originOverrideAdjust);
+        }
+        else {
+            return unadjustedVertex;
+        }
+    }
+
+    protected static <T> T getFromComponentDataOrDefault(Component component,
+                                                         String key,
+                                                         Supplier<T> getDefault) {
         T val = getFromData(component.data(), key);
         if (val == null) {
             val = getDefault.get();

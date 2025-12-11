@@ -90,7 +90,7 @@ public class UIModule extends AbstractModule {
         var staticProviderDefReader = new StaticProviderDefinitionReader(staticProviderFactory);
 
         @SuppressWarnings({"rawtypes", "unchecked"}) var providerDefinitionReader =
-                new ProviderDefinitionReader(mapOf(
+                andRegister(new ProviderDefinitionReader(mapOf(
                         pairOf(
                                 FiniteLinearMovingColorProviderDefinition.class,
                                 (d, t) -> finiteLinearMovingColorProviderDefReader.read(
@@ -125,7 +125,7 @@ public class UIModule extends AbstractModule {
                                 StaticProviderDefinition.class,
                                 (d, _) -> staticProviderDefReader.read((StaticProviderDefinition) d)
                         )
-                ));
+                )));
 
         // >>> Color Shift Definition Reader
 

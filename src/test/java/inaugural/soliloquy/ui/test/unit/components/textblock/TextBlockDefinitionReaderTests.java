@@ -48,7 +48,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
     private final static String HEIGHT_DATA_KEY = "HEIGHT";
     private final static String LAST_TIMESTAMP_DATA_KEY = "LAST_TIMESTAMP";
 
-    private final static String TEXT_RENDERING_LOC_METHOD = "provideTextRenderingLoc_TextBlock";
+    private final static String TEXT_RENDERING_LOC_METHOD = "TextBlock_provideTextRenderingLoc";
 
     @Mock private TextMarkupParser mockParser;
     @Mock private TextMarkupParser.LineFormatting mockLine1;

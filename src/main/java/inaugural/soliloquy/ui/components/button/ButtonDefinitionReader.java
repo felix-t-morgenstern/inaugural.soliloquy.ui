@@ -41,22 +41,15 @@ import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinit
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ButtonDefinitionReader {
-    private static final String PRESS_MOUSE_METHOD = "pressMouse_Button";
-    private static final String MOUSE_OVER_METHOD = "mouseOver_Button";
-    private static final String MOUSE_LEAVE_METHOD = "mouseLeave_Button";
-    private static final String PRESS_KEY_METHOD = "pressKey_Button";
-    private static final String RELEASE_KEY_METHOD = "releaseKey_Button";
+    private static final String PRESS_MOUSE_METHOD = "Button_pressMouse";
+    private static final String MOUSE_OVER_METHOD = "Button_mouseOver";
+    private static final String MOUSE_LEAVE_METHOD = "Button_mouseLeave";
+    private static final String PRESS_KEY_METHOD = "Button_pressKey";
+    private static final String RELEASE_KEY_METHOD = "Button_releaseKey";
 
     public static final int RECT_Z = 0;
     static final int SPRITE_Z = 1;
     static final int TEXT_Z = 2;
-
-    private static final String TEXT_LOC_FROM_RECT_DIMENS_METHOD =
-            "provideTextRenderingLocFromRect_Button";
-    private static final String RECT_DIMENS_FROM_TEXT_LOC_METHOD =
-            "provideRectDimensFromText_Button";
-    private static final String TEX_WIDTH_FROM_RECT_DIMENS_METHOD = "provideTexTileWidth_Button";
-    private static final String TEX_HEIGHT_FROM_RECT_DIMENS_METHOD = "provideTexTileHeight_Button";
 
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
     private final ColorShiftDefinitionReader SHIFT_DEF_READER;
@@ -129,16 +122,13 @@ public class ButtonDefinitionReader {
                 )
                 .withPrerenderHook(Button_setDimensForComponentAndContent)
                 .withData(mapOf(
-                        ORIGIN_OVERRIDE_PROVIDER,
-                        defaultIfNull(definition.originOverrideProviderDef, null,
-                                d -> PROVIDER_DEF_READER.read(d, timestamp)),
                         PRESS_ACTION,
                         definition.onPressId != null ? GET_CONSUMER.apply(definition.onPressId) :
                                 null,
                         PRESS_SOUND_ID,
                         definition.pressSoundId,
                         MOUSE_OVER_SOUND_ID,
-                        definition.mouseOverSoundId,
+                        definition.Button_mouseOverSoundId,
                         MOUSE_LEAVE_SOUND_ID,
                         definition.mouseLeaveSoundId,
                         RELEASE_SOUND_ID,
@@ -380,47 +370,47 @@ public class ButtonDefinitionReader {
             long timestamp
     ) {
         var providerDefault = PROVIDER_DEF_READER.read(
-                functionalProvider(RECT_DIMENS_FROM_TEXT_LOC_METHOD, FloatBox.class)
+                functionalProvider(Button_provideRectDimensFromText, FloatBox.class)
                         .withData(mapOf(
-                                provideRectDimensFromText_Button_textRenderingLocProvider,
+                                Button_provideRectDimensFromText_textRenderingLocProvider,
                                 textRenderingLocProvider,
-                                provideRectDimensFromText_Button_lineLength,
+                                Button_provideRectDimensFromText_lineLength,
                                 lineLengthDefault,
-                                provideRectDimensFromText_Button_textHeight,
+                                Button_provideRectDimensFromText_textHeight,
                                 lineHeight,
-                                provideRectDimensFromText_Button_textPaddingVert,
+                                Button_provideRectDimensFromText_textPaddingVert,
                                 textPaddingVert,
-                                provideRectDimensFromText_Button_textPaddingHoriz,
+                                Button_provideRectDimensFromText_textPaddingHoriz,
                                 textPaddingHoriz
                         )), timestamp);
         var providerHover =
                 lineLengthHover == lineLengthDefault ? null : PROVIDER_DEF_READER.read(
-                        functionalProvider(RECT_DIMENS_FROM_TEXT_LOC_METHOD, FloatBox.class)
+                        functionalProvider(Button_provideRectDimensFromText, FloatBox.class)
                                 .withData(mapOf(
-                                        provideRectDimensFromText_Button_textRenderingLocProvider,
+                                        Button_provideRectDimensFromText_textRenderingLocProvider,
                                         textRenderingLocProvider,
-                                        provideRectDimensFromText_Button_lineLength,
+                                        Button_provideRectDimensFromText_lineLength,
                                         lineLengthHover,
-                                        provideRectDimensFromText_Button_textHeight,
+                                        Button_provideRectDimensFromText_textHeight,
                                         lineHeight,
-                                        provideRectDimensFromText_Button_textPaddingVert,
+                                        Button_provideRectDimensFromText_textPaddingVert,
                                         textPaddingVert,
-                                        provideRectDimensFromText_Button_textPaddingHoriz,
+                                        Button_provideRectDimensFromText_textPaddingHoriz,
                                         textPaddingHoriz
                                 )), timestamp);
         var providerPressed =
                 lineLengthPressed == lineLengthDefault ? null : PROVIDER_DEF_READER.read(
-                        functionalProvider(RECT_DIMENS_FROM_TEXT_LOC_METHOD, FloatBox.class)
+                        functionalProvider(Button_provideRectDimensFromText, FloatBox.class)
                                 .withData(mapOf(
-                                        provideRectDimensFromText_Button_textRenderingLocProvider,
+                                        Button_provideRectDimensFromText_textRenderingLocProvider,
                                         textRenderingLocProvider,
-                                        provideRectDimensFromText_Button_lineLength,
+                                        Button_provideRectDimensFromText_lineLength,
                                         lineLengthPressed,
-                                        provideRectDimensFromText_Button_textHeight,
+                                        Button_provideRectDimensFromText_textHeight,
                                         lineHeight,
-                                        provideRectDimensFromText_Button_textPaddingVert,
+                                        Button_provideRectDimensFromText_textPaddingVert,
                                         textPaddingVert,
-                                        provideRectDimensFromText_Button_textPaddingHoriz,
+                                        Button_provideRectDimensFromText_textPaddingHoriz,
                                         textPaddingHoriz
                                 )), timestamp);
 
@@ -441,11 +431,11 @@ public class ButtonDefinitionReader {
         );
 
         var texWidth = PROVIDER_DEF_READER.read(
-                functionalProvider(TEX_WIDTH_FROM_RECT_DIMENS_METHOD, Float.class)
+                functionalProvider(Button_provideTexTileWidth, Float.class)
                         .withData(data),
                 timestamp);
         var texHeight = PROVIDER_DEF_READER.read(
-                functionalProvider(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD, Float.class)
+                functionalProvider(Button_provideTexTileHeight, Float.class)
                         .withData(data),
                 timestamp);
 
@@ -573,15 +563,15 @@ public class ButtonDefinitionReader {
             long timestamp
     ) {
         var providerDef =
-                functionalProvider(TEXT_LOC_FROM_RECT_DIMENS_METHOD, Vertex.class)
+                functionalProvider(Button_provideTextRenderingLocFromRect, Vertex.class)
                         .withData(mapOf(
-                                provideTextRenderingLocFromRect_Button_horizontalAlignment,
+                                Button_provideTextRenderingLocFromRect_horizontalAlignment,
                                 horizontalAlignment,
-                                provideTextRenderingLocFromRect_Button_rectDimensProvider,
+                                Button_provideTextRenderingLocFromRect_rectDimensProvider,
                                 rectDimensProvider,
-                                provideTextRenderingLocFromRect_Button_paddingHoriz,
+                                Button_provideTextRenderingLocFromRect_paddingHoriz,
                                 paddingHoriz,
-                                provideTextRenderingLocFromRect_Button_textHeight,
+                                Button_provideTextRenderingLocFromRect_textHeight,
                                 textHeight
                         ));
 

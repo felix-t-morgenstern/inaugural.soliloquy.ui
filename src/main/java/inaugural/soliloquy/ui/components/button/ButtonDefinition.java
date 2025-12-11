@@ -16,14 +16,11 @@ import java.util.Map;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;
-import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ButtonDefinition extends AbstractContentDefinition {
     public int[] keyCodepoints;
     public int keyEventPriority;
-
-    public AbstractProviderDefinition<Vertex> originOverrideProviderDef;
 
     public final AbstractProviderDefinition<FloatBox> RECT_DIMENS_DEF;
     public final AbstractProviderDefinition<Vertex> TEXT_RENDERING_LOC_DEF;
@@ -86,7 +83,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public String onPressId;
 
     public String pressSoundId;
-    public String mouseOverSoundId;
+    public String Button_mouseOverSoundId;
     public String mouseLeaveSoundId;
     public String releaseSoundId;
 
@@ -209,32 +206,6 @@ public class ButtonDefinition extends AbstractContentDefinition {
      */
     public ButtonDefinition withKey(int keyCodepoint, int priority) {
         return this.withKeys(priority, keyCodepoint);
-    }
-
-    /**
-     * @param originOverrideProviderDef Defines a provider, which provides an override of the origin
-     *                                  (i.e., upper-left corner) of the Button
-     */
-    public ButtonDefinition withOriginOverride(
-            AbstractProviderDefinition<Vertex> originOverrideProviderDef) {
-        this.originOverrideProviderDef = originOverrideProviderDef;
-
-        return this;
-    }
-
-    /**
-     * @param originOverride An override of the origin (i.e., upper-left corner) of the Button
-     */
-    public ButtonDefinition withOriginOverride(Vertex originOverride) {
-        return this.withOriginOverride(staticVal(originOverride));
-    }
-
-    /**
-     * @param originOverrideX The x coordinate of the override of the origin (i.e., upper-left corner) of the Button
-     * @param originOverrideY The y coordinate of the override of the origin (i.e., upper-left corner) of the Button
-     */
-    public ButtonDefinition withOriginOverride(float originOverrideX, float originOverrideY) {
-        return this.withOriginOverride(vertexOf(originOverrideX, originOverrideY));
     }
 
     /**
@@ -822,7 +793,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * @param soundId The id of the sound played when the mouse starts hovering over this button
      */
     public ButtonDefinition withMouseOverSound(String soundId) {
-        mouseOverSoundId = soundId;
+        Button_mouseOverSoundId = soundId;
 
         return this;
     }

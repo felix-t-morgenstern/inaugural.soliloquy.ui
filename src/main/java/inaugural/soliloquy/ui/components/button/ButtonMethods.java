@@ -38,7 +38,7 @@ public class ButtonMethods {
 
     final static String PRESS_ACTION = "pressAction";
     final static String PRESS_SOUND_ID = "pressSoundId";
-    final static String MOUSE_OVER_SOUND_ID = "mouseOverSoundId";
+    final static String MOUSE_OVER_SOUND_ID = "Button_mouseOverSoundId";
     final static String MOUSE_LEAVE_SOUND_ID = "mouseLeaveSoundId";
     final static String RELEASE_SOUND_ID = "releaseSoundId";
 
@@ -138,13 +138,19 @@ public class ButtonMethods {
         var content = component.contentsRepresentation();
         var rect = getRect(content);
         var sprite = getSprite(content);
-        ((Options)component.data().get(optionsKey)).rectDimens = rect.getRenderingDimensionsProvider();
-        ((Options)component.data().get(optionsKey)).spriteDimens = sprite.getRenderingDimensionsProvider();
+        if (rect != null) {
+            ((Options) component.data().get(optionsKey)).rectDimens =
+                    rect.getRenderingDimensionsProvider();
+        }
+        if (sprite != null) {
+            ((Options) component.data().get(optionsKey)).spriteDimens =
+                    sprite.getRenderingDimensionsProvider();
+        }
 
         component.data().put(origContentIsLoadedForStateKey, true);
     }
 
-    public void pressMouse_Button(EventInputs e) {
+    public void Button_pressMouse(EventInputs e) {
         // When the button is pressed, it subscribes to the next release of the left mouse button.
         pressButton(e.component, null, e, () ->
                 SUBSCRIBE_TO_MOUSE_EVENTS.accept(LEFT_MOUSE_BUTTON,
@@ -152,7 +158,7 @@ public class ButtonMethods {
 
     }
 
-    public void mouseOver_Button(EventInputs e) {
+    public void Button_mouseOver(EventInputs e) {
         var isHovering = getHoverState(e.component.data());
         e.component.data().put(getHoverStateDataKey(e), true);
         if (!isHovering && isNotPressedByKey(e.component.data())) {
@@ -164,8 +170,8 @@ public class ButtonMethods {
             }
         }
     }
-
-    public void mouseLeave_Button(EventInputs e) {
+    
+    public void Button_mouseLeave(EventInputs e) {
         var isHoveringPrev = getHoverState(e.component.data());
         e.component.data().put(getHoverStateDataKey(e), false);
         var isHoveringNow = getHoverState(e.component.data());
@@ -193,11 +199,11 @@ public class ButtonMethods {
         return falseIfNull(getFromData(data, PRESS_STATE));
     }
 
-    public void pressKey_Button(EventInputs e) {
+    public void Button_pressKey(EventInputs e) {
         pressButton(e.component, e.keyCodepoint, e, null);
     }
 
-    public void releaseKey_Button(EventInputs e) {
+    public void Button_releaseKey(EventInputs e) {
         releaseButton(e, e.keyCodepoint);
     }
 
@@ -394,27 +400,28 @@ public class ButtonMethods {
         }
     }
 
-    final static String provideTextRenderingLocFromRect_Button_horizontalAlignment =
-            "provideTextRenderingLocFromRect_Button_horizontalAlignment";
-    final static String provideTextRenderingLocFromRect_Button_rectDimensProvider =
-            "provideTextRenderingLocFromRect_Button_rectDimensProvider";
-    final static String provideTextRenderingLocFromRect_Button_paddingHoriz =
-            "provideTextRenderingLocFromRect_Button_paddingHoriz";
-    final static String provideTextRenderingLocFromRect_Button_textHeight =
-            "provideTextRenderingLocFromRect_Button_textHeight";
+    final static String Button_provideTextRenderingLocFromRect = "Button_provideTextRenderingLocFromRect";
+    final static String Button_provideTextRenderingLocFromRect_horizontalAlignment =
+            "Button_provideTextRenderingLocFromRect_horizontalAlignment";
+    final static String Button_provideTextRenderingLocFromRect_rectDimensProvider =
+            "Button_provideTextRenderingLocFromRect_rectDimensProvider";
+    final static String Button_provideTextRenderingLocFromRect_paddingHoriz =
+            "Button_provideTextRenderingLocFromRect_paddingHoriz";
+    final static String Button_provideTextRenderingLocFromRect_textHeight =
+            "Button_provideTextRenderingLocFromRect_textHeight";
 
-    public Vertex provideTextRenderingLocFromRect_Button(FunctionalProvider.Inputs inputs) {
+    public Vertex Button_provideTextRenderingLocFromRect(FunctionalProvider.Inputs inputs) {
         HorizontalAlignment horizontalAlignment =
                 getFromData(inputs.data(),
-                        provideTextRenderingLocFromRect_Button_horizontalAlignment);
+                        Button_provideTextRenderingLocFromRect_horizontalAlignment);
         ProviderAtTime<FloatBox> rectDimensProvider =
                 getFromData(inputs.data(),
-                        provideTextRenderingLocFromRect_Button_rectDimensProvider);
+                        Button_provideTextRenderingLocFromRect_rectDimensProvider);
         var rectDimens = rectDimensProvider.provide(inputs.timestamp());
         float paddingHoriz =
-                getFromData(inputs.data(), provideTextRenderingLocFromRect_Button_paddingHoriz);
+                getFromData(inputs.data(), Button_provideTextRenderingLocFromRect_paddingHoriz);
         float textHeight =
-                getFromData(inputs.data(), provideTextRenderingLocFromRect_Button_textHeight);
+                getFromData(inputs.data(), Button_provideTextRenderingLocFromRect_textHeight);
 
         var texRenderingLocX = switch (horizontalAlignment) {
             case LEFT -> rectDimens.LEFT_X + paddingHoriz;
@@ -426,28 +433,29 @@ public class ButtonMethods {
 
         return vertexOf(texRenderingLocX, texRenderingLocY);
     }
+    
+    final static String Button_provideRectDimensFromText = "Button_provideRectDimensFromText";
+    final static String Button_provideRectDimensFromText_textRenderingLocProvider =
+            "Button_provideRectDimensFromText_textRenderingLocProvider";
+    final static String Button_provideRectDimensFromText_lineLength =
+            "Button_provideRectDimensFromText_lineLength";
+    final static String Button_provideRectDimensFromText_textHeight =
+            "Button_provideRectDimensFromText_textHeight";
+    final static String Button_provideRectDimensFromText_textPaddingVert =
+            "Button_provideRectDimensFromText_textPaddingVert";
+    final static String Button_provideRectDimensFromText_textPaddingHoriz =
+            "Button_provideRectDimensFromText_textPaddingHoriz";
 
-    final static String provideRectDimensFromText_Button_textRenderingLocProvider =
-            "provideRectDimensFromText_Button_textRenderingLocProvider";
-    final static String provideRectDimensFromText_Button_lineLength =
-            "provideRectDimensFromText_Button_lineLength";
-    final static String provideRectDimensFromText_Button_textHeight =
-            "provideRectDimensFromText_Button_textHeight";
-    final static String provideRectDimensFromText_Button_textPaddingVert =
-            "provideRectDimensFromText_Button_textPaddingVert";
-    final static String provideRectDimensFromText_Button_textPaddingHoriz =
-            "provideRectDimensFromText_Button_textPaddingHoriz";
-
-    public FloatBox provideRectDimensFromText_Button(FunctionalProvider.Inputs inputs) {
+    public FloatBox Button_provideRectDimensFromText(FunctionalProvider.Inputs inputs) {
         ProviderAtTime<Vertex> textRenderingLocProvider = getFromData(inputs.data(),
-                provideRectDimensFromText_Button_textRenderingLocProvider);
+                Button_provideRectDimensFromText_textRenderingLocProvider);
         var textRenderingLoc = textRenderingLocProvider.provide(inputs.timestamp());
-        float lineLength = getFromData(inputs.data(), provideRectDimensFromText_Button_lineLength);
-        float textHeight = getFromData(inputs.data(), provideRectDimensFromText_Button_textHeight);
+        float lineLength = getFromData(inputs.data(), Button_provideRectDimensFromText_lineLength);
+        float textHeight = getFromData(inputs.data(), Button_provideRectDimensFromText_textHeight);
         float textPaddingVert =
-                getFromData(inputs.data(), provideRectDimensFromText_Button_textPaddingVert);
+                getFromData(inputs.data(), Button_provideRectDimensFromText_textPaddingVert);
         float textPaddingHoriz =
-                getFromData(inputs.data(), provideRectDimensFromText_Button_textPaddingHoriz);
+                getFromData(inputs.data(), Button_provideRectDimensFromText_textPaddingHoriz);
         var distFromCenterHoriz = textPaddingHoriz + lineLength / 2f;
 
         return floatBoxOf(
@@ -458,17 +466,20 @@ public class ButtonMethods {
         );
     }
 
+    final static String Button_provideTexTileWidth = "Button_provideTexTileWidth";
     final static String provideTexTileDimens_Button_rectDimensProvider =
             "provideTexTileDimens_Button_rectDimensProvider";
 
-    public float provideTexTileWidth_Button(FunctionalProvider.Inputs inputs) {
+    public float Button_provideTexTileWidth(FunctionalProvider.Inputs inputs) {
         ProviderAtTime<FloatBox> rectDimensProvider =
                 getFromData(inputs.data(), provideTexTileDimens_Button_rectDimensProvider);
         var rectDimens = rectDimensProvider.provide(inputs.timestamp());
         return rectDimens.width();
     }
 
-    public float provideTexTileHeight_Button(FunctionalProvider.Inputs inputs) {
+    final static String Button_provideTexTileHeight = "Button_provideTexTileHeight";
+
+    public float Button_provideTexTileHeight(FunctionalProvider.Inputs inputs) {
         ProviderAtTime<FloatBox> rectDimensProvider =
                 getFromData(inputs.data(), provideTexTileDimens_Button_rectDimensProvider);
         var rectDimens = rectDimensProvider.provide(inputs.timestamp());

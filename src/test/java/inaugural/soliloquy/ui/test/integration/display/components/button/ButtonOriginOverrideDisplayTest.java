@@ -5,12 +5,14 @@ import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.SpriteDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
+import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_ADJUST;
+import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
@@ -47,7 +49,6 @@ public class ButtonOriginOverrideDisplayTest extends ButtonDisplayTest {
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var buttonDef = testFullDefFromText("Button", SCREEN_CENTER)
-                .withOriginOverride(0.1f, 0.5f)
                 .withTextItalicIndices(listOf(listOf(0, 1)))
                 .withKey(GLFW_KEY_B, 0)
                 .withSprite(
@@ -60,7 +61,6 @@ public class ButtonOriginOverrideDisplayTest extends ButtonDisplayTest {
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        Component component = reader.read(topLevelComponent, buttonDef, timestamp(uiModule));
-        component.data().put(ORIGIN_OVERRIDE_ADJUST, vertexOf(.1f, .1f));
+        reader.read(topLevelComponent, buttonDef, timestamp(uiModule));
     }
 }

@@ -15,6 +15,7 @@ import static inaugural.soliloquy.tools.random.Random.randomFloat;
 import static inaugural.soliloquy.tools.random.Random.randomVertex;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.ui.components.ComponentMethods.LAST_TIMESTAMP;
+import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,7 +46,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
     }
 
     @Test
-    public void testProvideTextRenderingLoc_TextBlockWithNewTimestamp() {
+    public void testTextBlock_provideTextRenderingLocWithNewTimestamp() {
         when(mockComponentData.get(LAST_TIMESTAMP)).thenReturn(TIMESTAMP - 1);
         when(mockUpperLeftProvider.provide(anyLong())).thenReturn(LOC);
 
@@ -58,7 +59,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
                 TOP_OFFSET
         ));
 
-        var output = methods.provideTextRenderingLoc_TextBlock(inputs);
+        var output = methods.TextBlock_provideTextRenderingLoc(inputs);
 
         assertEquals(vertexOf(LOC.X, LOC.Y + TOP_OFFSET), output);
         verify(MOCK_GET_COMPONENT, once()).apply(COMPONENT_UUID);
@@ -69,7 +70,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
     }
 
     @Test
-    public void testProvideTextRenderingLoc_TextBlockWithCurrentTimestamp() {
+    public void testTextBlock_provideTextRenderingLocWithCurrentTimestamp() {
         when(mockComponentData.get(LAST_TIMESTAMP)).thenReturn(TIMESTAMP);
         when(mockComponentData.get(BLOCK_UPPER_LEFT)).thenReturn(LOC);
 
@@ -82,12 +83,35 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
                 TOP_OFFSET
         ));
 
-        var output = methods.provideTextRenderingLoc_TextBlock(inputs);
+        var output = methods.TextBlock_provideTextRenderingLoc(inputs);
 
         assertEquals(vertexOf(LOC.X, LOC.Y + TOP_OFFSET), output);
         verify(MOCK_GET_COMPONENT, once()).apply(COMPONENT_UUID);
         verify(mockComponentData, once()).get(LAST_TIMESTAMP);
         verify(mockComponentData, once()).get(BLOCK_UPPER_LEFT);
         verify(mockComponentData, never()).put(anyString(), any());
+    }
+
+    @Test
+    public void testTextBlock_provideTextRenderingLoc_WithOverride() {
+        var originOverride = randomVertex();
+        @SuppressWarnings("unchecked") ProviderAtTime<Vertex> mockOriginOverrideProvider = mock(ProviderAtTime.class);
+        when(mockOriginOverrideProvider.provide(anyLong())).thenReturn(originOverride);
+        when(mockComponentData.get(LAST_TIMESTAMP)).thenReturn(TIMESTAMP - 1);
+        when(mockComponentData.get(ORIGIN_OVERRIDE_PROVIDER)).thenReturn(mockOriginOverrideProvider);
+
+        var inputs = providerInputs(TIMESTAMP, null, mapOf(
+                ComponentMethods.COMPONENT_UUID,
+                COMPONENT_UUID,
+                TextBlock_topOffset,
+                TOP_OFFSET
+        ));
+
+        var output = methods.TextBlock_provideTextRenderingLoc(inputs);
+
+        assertEquals(vertexOf(originOverride.X, originOverride.Y + TOP_OFFSET), output);
+        verify(mockComponentData, once()).get(ORIGIN_OVERRIDE_PROVIDER);
+        verify(mockComponentData, never()).get(TextBlock_blockUpperLeftProvider);
+        verify(mockOriginOverrideProvider, once()).provide(TIMESTAMP);
     }
 }

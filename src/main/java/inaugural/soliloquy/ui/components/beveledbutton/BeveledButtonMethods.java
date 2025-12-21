@@ -45,8 +45,8 @@ public class BeveledButtonMethods {
         var rectDimens = dimensAndTransforms.FIRST;
         var transformsUpperLeft = dimensAndTransforms.SECOND;
 
-        int xSlot = getFromData(inputs.data(), BeveledButton_xSlot);
-        int ySlot = getFromData(inputs.data(), BeveledButton_ySlot);
+        int xSlot = getFromData(inputs, BeveledButton_xSlot);
+        int ySlot = getFromData(inputs, BeveledButton_ySlot);
 
         float x = getXSlotVal(rectDimens, transformsUpperLeft, xSlot);
         float y = getYSlotVal(rectDimens, transformsUpperLeft, ySlot);
@@ -61,9 +61,9 @@ public class BeveledButtonMethods {
         var rectDimens = dimensAndTransforms.FIRST;
         var transformsUpperLeft = dimensAndTransforms.SECOND;
 
-        int xSlotLeft = getFromData(inputs.data(), BeveledButton_xSlot);
-        int ySlotTop = getFromData(inputs.data(), BeveledButton_ySlot);
-        int xSlotRight = getFromData(inputs.data(), provideBox_BeveledButton_xSlotRight);
+        int xSlotLeft = getFromData(inputs, BeveledButton_xSlot);
+        int ySlotTop = getFromData(inputs, BeveledButton_ySlot);
+        int xSlotRight = getFromData(inputs, provideBox_BeveledButton_xSlotRight);
         var ySlotBottom = ySlotTop + 1;
 
         var leftX = getXSlotVal(rectDimens, transformsUpperLeft, xSlotLeft);
@@ -104,19 +104,19 @@ public class BeveledButtonMethods {
         FloatBox rectDimens;
         Vertex innerTransformsUpperLeft;
 
-        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_UUID));
-        long lastTimestamp = getFromData(component.data(), BEVEL_LAST_TIMESTAMP);
+        var component = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        long lastTimestamp = getFromData(component, BEVEL_LAST_TIMESTAMP);
         if (lastTimestamp == inputs.timestamp()) {
-            rectDimens = getFromData(component.data(), BEVEL_LAST_RECT_DIMENS);
+            rectDimens = getFromData(component, BEVEL_LAST_RECT_DIMENS);
             innerTransformsUpperLeft =
-                    getFromData(component.data(), BEVEL_LAST_INNER_TRANSFORMS_UPPER_LEFT);
+                    getFromData(component, BEVEL_LAST_INNER_TRANSFORMS_UPPER_LEFT);
         }
         else {
             ProviderAtTime<FloatBox> rectDimensProvider =
-                    getFromData(inputs.data(), BeveledButton_rectDimensProvider);
+                    getFromData(inputs, BeveledButton_rectDimensProvider);
             rectDimens = rectDimensProvider.provide(inputs.timestamp());
             float bevelPercent =
-                    getFromData(inputs.data(), BeveledButton_bevelPercent);
+                    getFromData(inputs, BeveledButton_bevelPercent);
             innerTransformsUpperLeft = getInnerTransformsUpperLeft(rectDimens, bevelPercent);
 
             component.data().put(BEVEL_LAST_TIMESTAMP, inputs.timestamp());
@@ -139,24 +139,24 @@ public class BeveledButtonMethods {
 
     public Color provideColor_BeveledButton(FunctionalProvider.Inputs inputs) {
         boolean isLitByDefault =
-                getFromData(inputs.data(), provideColor_BeveledButton_isLitByDefault);
-        var component = GET_COMPONENT.apply(getFromData(inputs.data(), COMPONENT_UUID));
-        boolean isPressed = falseIfNull(getFromData(component.data(), ButtonMethods.PRESS_STATE));
+                getFromData(inputs, provideColor_BeveledButton_isLitByDefault);
+        var component = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        boolean isPressed = falseIfNull(getFromData(component, ButtonMethods.PRESS_STATE));
         Color renderableColor;
         // If it's lit by default XOR it's pressed, return the lit color
         if (isLitByDefault != isPressed) {
-            renderableColor = getFromData(component.data(), BEVEL_COLOR_LIT);
+            renderableColor = getFromData(component, BEVEL_COLOR_LIT);
             if (renderableColor == null) {
-                float bevelIntensity = getFromData(inputs.data(),
+                float bevelIntensity = getFromData(inputs,
                         provideColor_BeveledButton_bevelIntensity);
                 renderableColor = new Color(1f, 1f, 1f, bevelIntensity);
                 component.data().put(BEVEL_COLOR_LIT, renderableColor);
             }
         }
         else {
-            renderableColor = getFromData(component.data(), BEVEL_COLOR_UNLIT);
+            renderableColor = getFromData(component, BEVEL_COLOR_UNLIT);
             if (renderableColor == null) {
-                float bevelIntensity = getFromData(inputs.data(),
+                float bevelIntensity = getFromData(inputs,
                         provideColor_BeveledButton_bevelIntensity);
                 renderableColor = new Color(0f, 0f, 0f, bevelIntensity);
                 component.data().put(BEVEL_COLOR_UNLIT, renderableColor);

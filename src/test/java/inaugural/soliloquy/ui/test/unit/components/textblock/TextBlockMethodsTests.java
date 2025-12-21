@@ -14,8 +14,7 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomFloat;
 import static inaugural.soliloquy.tools.random.Random.randomVertex;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.ui.components.ComponentMethods.LAST_TIMESTAMP;
-import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
+import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -66,13 +65,13 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         verify(mockComponentData, once()).get(LAST_TIMESTAMP);
         verify(mockUpperLeftProvider, once()).provide(TIMESTAMP);
         verify(mockComponentData, once()).put(LAST_TIMESTAMP, TIMESTAMP);
-        verify(mockComponentData, once()).put(BLOCK_UPPER_LEFT, LOC);
+        verify(mockComponentData, once()).put(ORIGIN_OVERRIDE, LOC);
     }
 
     @Test
     public void testTextBlock_provideTextRenderingLocWithCurrentTimestamp() {
         when(mockComponentData.get(LAST_TIMESTAMP)).thenReturn(TIMESTAMP);
-        when(mockComponentData.get(BLOCK_UPPER_LEFT)).thenReturn(LOC);
+        when(mockComponentData.get(ORIGIN_OVERRIDE)).thenReturn(LOC);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
                 ComponentMethods.COMPONENT_UUID,
@@ -88,7 +87,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         assertEquals(vertexOf(LOC.X, LOC.Y + TOP_OFFSET), output);
         verify(MOCK_GET_COMPONENT, once()).apply(COMPONENT_UUID);
         verify(mockComponentData, once()).get(LAST_TIMESTAMP);
-        verify(mockComponentData, once()).get(BLOCK_UPPER_LEFT);
+        verify(mockComponentData, once()).get(ORIGIN_OVERRIDE);
         verify(mockComponentData, never()).put(anyString(), any());
     }
 

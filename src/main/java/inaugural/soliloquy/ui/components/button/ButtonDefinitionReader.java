@@ -106,7 +106,8 @@ public class ButtonDefinitionReader {
                 content,
                 definition.UUID
         )
-                .withDimensions(functionalProvider(
+                .withDimensions(
+                        functionalProvider(
                                 Component_setAndRetrieveDimensForComponentAndContentForProvider,
                                 FloatBox.class
                         )

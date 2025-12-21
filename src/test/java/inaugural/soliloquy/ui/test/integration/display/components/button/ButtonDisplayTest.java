@@ -12,10 +12,10 @@ import static inaugural.soliloquy.tools.valueobjects.Vertex.translate;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
-class ButtonDisplayTest extends DisplayTest {
-    protected static float BUTTON_TEXT_HEIGHT = 0.075f;
-    protected static float SPRITE_PRESS_SHADING = 0.2f;
-    protected static FloatBox SPRITE_DIMENS = floatBoxOf(0.45f, 0.4f, 0.55f, 0.6f);
+public class ButtonDisplayTest extends DisplayTest {
+    public static float BUTTON_TEXT_HEIGHT = 0.075f;
+    public static float SPRITE_PRESS_SHADING = 0.2f;
+    public static FloatBox SPRITE_DIMENS = floatBoxOf(0.45f, 0.4f, 0.55f, 0.6f);
 
     protected static ButtonDefinition testButtonFromRectDimens(
             FloatBox rectDimens,
@@ -74,7 +74,7 @@ class ButtonDisplayTest extends DisplayTest {
                 .withTextPadding(0.01f);
     }
 
-    protected static ButtonDefinition testFullDefFromText(
+    public static ButtonDefinition testFullDefFromText(
             String text,
             Vertex center
     ) {

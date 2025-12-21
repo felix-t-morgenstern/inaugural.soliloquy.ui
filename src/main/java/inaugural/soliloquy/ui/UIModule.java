@@ -10,6 +10,9 @@ import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import inaugural.soliloquy.ui.components.button.ButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.button.ButtonMethods;
+import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition;
+import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinitionReader;
+import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
 import inaugural.soliloquy.ui.components.textblock.TextBlockMethods;
@@ -208,7 +211,8 @@ public class UIModule extends AbstractModule {
         var customComponentMethods = Collections.setOf();
 
         // Component general methods
-        var componentMethods = new ComponentMethods(graphics::getComponent, functionalProviderDefReader);
+        var componentMethods =
+                new ComponentMethods(graphics::getComponent, functionalProviderDefReader);
         customComponentMethods.add(componentMethods);
 
         // Button
@@ -249,6 +253,13 @@ public class UIModule extends AbstractModule {
         customComponentMethods.add(new TextBlockMethods(graphics::getComponent));
         renderableDefinitionReader.addCustomComponentReader(TextBlockDefinition.class,
                 (d, t) -> textBlockReader.read((TextBlockDefinition) d, t));
+
+        // Column
+        var columnReader = new ContentColumnDefinitionReader(providerDefinitionReader);
+        customComponentMethods.add(
+                new ContentColumnMethods(graphics::getComponent, functionalProviderDefReader));
+        renderableDefinitionReader.addCustomComponentReader(ContentColumnDefinition.class,
+                (d, t) -> columnReader.read((ContentColumnDefinition) d, t));
 
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));
     }

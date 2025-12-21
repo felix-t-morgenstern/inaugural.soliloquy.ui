@@ -23,6 +23,6 @@ public class DisplayTestMethods {
     }
 
     public void printComponentDimens(EventInputs e) {
-        System.out.println("Dimens = " + getFromData(e.component.data(), COMPONENT_DIMENS));
+        System.out.println("Dimens = " + getFromData(e.component, COMPONENT_DIMENS));
     }
 }

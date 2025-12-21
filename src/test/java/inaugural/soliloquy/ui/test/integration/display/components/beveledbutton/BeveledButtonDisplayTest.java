@@ -11,6 +11,7 @@ import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
+import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
@@ -54,7 +55,7 @@ public class BeveledButtonDisplayTest extends DisplayTest {
         )
                 .withTextPadding(0.025f)
                 .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
-                .withBgColor(randomColor());
+                .withBgColor(randomHighSaturationColor());
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

@@ -11,11 +11,11 @@ import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_ADJUST;
 import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
+import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ButtonOriginOverrideDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
@@ -59,8 +59,13 @@ public class ButtonOriginOverrideDisplayTest extends ButtonDisplayTest {
                 .withSpriteColorShiftPressed(brightness(-SPRITE_PRESS_SHADING, false))
                 .onPress("printComponentDimens");
 
+        var timestamp = timestamp(uiModule);
         var reader = uiModule.provide(RenderableDefinitionReader.class);
+        var providerReader = uiModule.provide(ProviderDefinitionReader.class);
+        var originOverride = vertexOf(0.1f, 0.1f);
+        var originOverrideProvider = providerReader.read(staticVal(originOverride), timestamp);
 
-        reader.read(topLevelComponent, buttonDef, timestamp(uiModule));
+        Component button = reader.read(topLevelComponent, buttonDef, timestamp(uiModule));
+        button.data().put(ORIGIN_OVERRIDE_PROVIDER, originOverrideProvider);
     }
 }

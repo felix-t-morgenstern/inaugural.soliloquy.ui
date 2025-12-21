@@ -132,8 +132,8 @@ public class ButtonMethodsTests {
                 pairOf(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY, options(SPRITE_ID_DEFAULT)),
                 pairOf(HOVER_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.Options()),
                 pairOf(PRESSED_RENDERABLE_OPTIONS_DATA_KEY, new ButtonMethods.Options()),
-                pairOf(ORIG_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
-                pairOf(ORIG_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders)
+                pairOf(UNADJUSTED_CONTENT_DIMENS_PROVIDERS, mockOrigContentDimensProviders),
+                pairOf(UNADJUSTED_CONTENT_LOC_PROVIDERS, mockOrigContentLocProviders)
         );
 
         lenient().when(mockRectDimens.provide(anyLong())).thenReturn(RECT_DIMENS);
@@ -200,17 +200,17 @@ public class ButtonMethodsTests {
         verify(mockData, once()).get(PRESS_STATE);
         verify(mockData, once()).get(RECT_HOVER_STATE);
         verify(mockData, once()).get(SPRITE_HOVER_STATE);
-        verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_DEFAULT);
-        verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
-        verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
-        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT,
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_IS_LOADED_DEFAULT);
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_DIMENS_PROVIDERS);
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_LOC_PROVIDERS);
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_DIMENS_PROVIDERS_DEFAULT,
                 mockOrigContentDimensProviders);
-        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_DEFAULT,
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_LOC_PROVIDERS_DEFAULT,
                 mockOrigContentLocProviders);
         verify(mockComponent, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
-        verify(mockData, once()).put(ORIG_CONTENT_IS_LOADED_DEFAULT, true);
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_IS_LOADED_DEFAULT, true);
     }
 
     @Test
@@ -231,16 +231,16 @@ public class ButtonMethodsTests {
                 mockComponent, TIMESTAMP);
         verify(mockData, once()).get(PRESS_STATE);
         verify(mockData, once()).get(RECT_HOVER_STATE);
-        verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_HOVER);
-        verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
-        verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
-        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_HOVER,
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_IS_LOADED_HOVER);
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_DIMENS_PROVIDERS);
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_LOC_PROVIDERS);
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_DIMENS_PROVIDERS_HOVER,
                 mockOrigContentDimensProviders);
-        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_HOVER, mockOrigContentLocProviders);
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_LOC_PROVIDERS_HOVER, mockOrigContentLocProviders);
         verify(mockComponent, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
-        verify(mockData, once()).put(ORIG_CONTENT_IS_LOADED_HOVER, true);
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_IS_LOADED_HOVER, true);
     }
 
     @Test
@@ -260,17 +260,17 @@ public class ButtonMethodsTests {
         verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
                 mockComponent, TIMESTAMP);
         verify(mockData, once()).get(PRESS_STATE);
-        verify(mockData, once()).get(ORIG_CONTENT_IS_LOADED_PRESSED);
-        verify(mockData, once()).get(ORIG_CONTENT_DIMENS_PROVIDERS);
-        verify(mockData, once()).get(ORIG_CONTENT_LOC_PROVIDERS);
-        verify(mockData, once()).put(ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED,
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_IS_LOADED_PRESSED);
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_DIMENS_PROVIDERS);
+        verify(mockData, once()).get(UNADJUSTED_CONTENT_LOC_PROVIDERS);
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_DIMENS_PROVIDERS_PRESSED,
                 mockOrigContentDimensProviders);
-        verify(mockData, once()).put(ORIG_CONTENT_LOC_PROVIDERS_PRESSED,
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_LOC_PROVIDERS_PRESSED,
                 mockOrigContentLocProviders);
         verify(mockComponent, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
-        verify(mockData, once()).put(ORIG_CONTENT_IS_LOADED_PRESSED, true);
+        verify(mockData, once()).put(UNADJUSTED_CONTENT_IS_LOADED_PRESSED, true);
     }
 
     @Test

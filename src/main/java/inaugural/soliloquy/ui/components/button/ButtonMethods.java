@@ -46,23 +46,23 @@ public class ButtonMethods {
     final static String HOVER_RENDERABLE_OPTIONS = "hoverRenderableOptions";
     final static String PRESSED_RENDERABLE_OPTIONS = "pressedRenderableOptions";
 
-    public final static String ORIG_CONTENT_IS_LOADED_DEFAULT = "ORIG_CONTENT_IS_LOADED_DEFAULT";
-    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT =
-            "ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT";
-    public final static String ORIG_CONTENT_LOC_PROVIDERS_DEFAULT =
-            "ORIG_CONTENT_LOC_PROVIDERS_DEFAULT";
+    public final static String UNADJUSTED_CONTENT_IS_LOADED_DEFAULT = "UNADJUSTED_CONTENT_IS_LOADED_DEFAULT";
+    public final static String UNADJUSTED_CONTENT_DIMENS_PROVIDERS_DEFAULT =
+            "UNADJUSTED_CONTENT_DIMENS_PROVIDERS_DEFAULT";
+    public final static String UNADJUSTED_CONTENT_LOC_PROVIDERS_DEFAULT =
+            "UNADJUSTED_CONTENT_LOC_PROVIDERS_DEFAULT";
 
-    public final static String ORIG_CONTENT_IS_LOADED_HOVER = "ORIG_CONTENT_IS_LOADED_HOVER";
-    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_HOVER =
-            "ORIG_CONTENT_DIMENS_PROVIDERS_HOVER";
-    public final static String ORIG_CONTENT_LOC_PROVIDERS_HOVER =
-            "ORIG_CONTENT_LOC_PROVIDERS_HOVER";
+    public final static String UNADJUSTED_CONTENT_IS_LOADED_HOVER = "UNADJUSTED_CONTENT_IS_LOADED_HOVER";
+    public final static String UNADJUSTED_CONTENT_DIMENS_PROVIDERS_HOVER =
+            "UNADJUSTED_CONTENT_DIMENS_PROVIDERS_HOVER";
+    public final static String UNADJUSTED_CONTENT_LOC_PROVIDERS_HOVER =
+            "UNADJUSTED_CONTENT_LOC_PROVIDERS_HOVER";
 
-    public final static String ORIG_CONTENT_IS_LOADED_PRESSED = "ORIG_CONTENT_IS_LOADED_PRESSED";
-    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED =
-            "ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED";
-    public final static String ORIG_CONTENT_LOC_PROVIDERS_PRESSED =
-            "ORIG_CONTENT_LOC_PROVIDERS_PRESSED";
+    public final static String UNADJUSTED_CONTENT_IS_LOADED_PRESSED = "UNADJUSTED_CONTENT_IS_LOADED_PRESSED";
+    public final static String UNADJUSTED_CONTENT_DIMENS_PROVIDERS_PRESSED =
+            "UNADJUSTED_CONTENT_DIMENS_PROVIDERS_PRESSED";
+    public final static String UNADJUSTED_CONTENT_LOC_PROVIDERS_PRESSED =
+            "UNADJUSTED_CONTENT_LOC_PROVIDERS_PRESSED";
 
     private final Consumer<String> PLAY_SOUND;
     private final TriConsumer<Integer, MouseEventHandler.EventType, Runnable>
@@ -83,37 +83,39 @@ public class ButtonMethods {
             "Button_setDimensForComponentAndContent";
 
     public FloatBox Button_setDimensForComponentAndContent(Component component, long timestamp) {
-        Long lastTimestamp = getFromData(component.data(), LAST_TIMESTAMP);
+        Long lastTimestamp = getFromData(component, LAST_TIMESTAMP);
 
         var componentDimens =
                 COMPONENT_METHODS.Component_setDimensForComponentAndContent(component, timestamp);
 
         if (lastTimestamp == null || timestamp != lastTimestamp) {
-            if (getPressedState(component.data()) && !falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_PRESSED))) {
+            if (getPressedState(component.data()) &&
+                    !falseIfNull(getFromData(component, UNADJUSTED_CONTENT_IS_LOADED_PRESSED))) {
                 updateProviders(
                         component,
-                        ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED,
-                        ORIG_CONTENT_LOC_PROVIDERS_PRESSED,
+                        UNADJUSTED_CONTENT_DIMENS_PROVIDERS_PRESSED,
+                        UNADJUSTED_CONTENT_LOC_PROVIDERS_PRESSED,
                         PRESSED_RENDERABLE_OPTIONS,
-                        ORIG_CONTENT_IS_LOADED_PRESSED
+                        UNADJUSTED_CONTENT_IS_LOADED_PRESSED
                 );
             }
-            else if (getHoverState(component.data()) && !falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_HOVER))) {
+            else if (getHoverState(component.data()) &&
+                    !falseIfNull(getFromData(component, UNADJUSTED_CONTENT_IS_LOADED_HOVER))) {
                 updateProviders(
                         component,
-                        ORIG_CONTENT_DIMENS_PROVIDERS_HOVER,
-                        ORIG_CONTENT_LOC_PROVIDERS_HOVER,
+                        UNADJUSTED_CONTENT_DIMENS_PROVIDERS_HOVER,
+                        UNADJUSTED_CONTENT_LOC_PROVIDERS_HOVER,
                         HOVER_RENDERABLE_OPTIONS,
-                        ORIG_CONTENT_IS_LOADED_HOVER
+                        UNADJUSTED_CONTENT_IS_LOADED_HOVER
                 );
             }
-            else if(!falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_DEFAULT))) {
+            else if (!falseIfNull(getFromData(component, UNADJUSTED_CONTENT_IS_LOADED_DEFAULT))) {
                 updateProviders(
                         component,
-                        ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT,
-                        ORIG_CONTENT_LOC_PROVIDERS_DEFAULT,
+                        UNADJUSTED_CONTENT_DIMENS_PROVIDERS_DEFAULT,
+                        UNADJUSTED_CONTENT_LOC_PROVIDERS_DEFAULT,
                         DEFAULT_RENDERABLE_OPTIONS,
-                        ORIG_CONTENT_IS_LOADED_DEFAULT
+                        UNADJUSTED_CONTENT_IS_LOADED_DEFAULT
                 );
             }
         }
@@ -128,9 +130,9 @@ public class ButtonMethods {
                                  String origContentIsLoadedForStateKey) {
 
         Map<UUID, ProviderAtTime<FloatBox>> origContentDimensProviders =
-                getFromData(component.data(), ORIG_CONTENT_DIMENS_PROVIDERS);
+                getFromData(component, UNADJUSTED_CONTENT_DIMENS_PROVIDERS);
         Map<UUID, ProviderAtTime<Vertex>> origContentLocProviders =
-                getFromData(component.data(), ORIG_CONTENT_LOC_PROVIDERS);
+                getFromData(component, UNADJUSTED_CONTENT_LOC_PROVIDERS);
         component.data()
                 .put(origDimensProvidersForStateKey, origContentDimensProviders);
         component.data().put(origLocProvidersForStateKey, origContentLocProviders);
@@ -170,7 +172,7 @@ public class ButtonMethods {
             }
         }
     }
-    
+
     public void Button_mouseLeave(EventInputs e) {
         var isHoveringPrev = getHoverState(e.component.data());
         e.component.data().put(getHoverStateDataKey(e), false);
@@ -266,23 +268,22 @@ public class ButtonMethods {
     }
 
     private void setRenderablesDefault(EventInputs e) {
-        setRenderables(e, getFromData(e.component.data(), DEFAULT_RENDERABLE_OPTIONS));
+        setRenderables(e, getFromData(e.component, DEFAULT_RENDERABLE_OPTIONS));
     }
 
     private void setRenderablesHover(EventInputs e) {
-        setRenderables(e, getFromData(e.component.data(), HOVER_RENDERABLE_OPTIONS));
+        setRenderables(e, getFromData(e.component, HOVER_RENDERABLE_OPTIONS));
     }
 
     private void setRenderablesPressed(EventInputs e) {
-        setRenderables(e, getFromData(e.component.data(), PRESSED_RENDERABLE_OPTIONS));
+        setRenderables(e, getFromData(e.component, PRESSED_RENDERABLE_OPTIONS));
     }
 
     private void setRenderables(
             EventInputs e,
             Options options
     ) {
-        Options defaultOptions =
-                getFromData(e.component.data(), DEFAULT_RENDERABLE_OPTIONS);
+        Options defaultOptions = getFromData(e.component, DEFAULT_RENDERABLE_OPTIONS);
 
         var content = e.component.contentsRepresentation();
         var rect = getRect(content);
@@ -400,7 +401,8 @@ public class ButtonMethods {
         }
     }
 
-    final static String Button_provideTextRenderingLocFromRect = "Button_provideTextRenderingLocFromRect";
+    final static String Button_provideTextRenderingLocFromRect =
+            "Button_provideTextRenderingLocFromRect";
     final static String Button_provideTextRenderingLocFromRect_horizontalAlignment =
             "Button_provideTextRenderingLocFromRect_horizontalAlignment";
     final static String Button_provideTextRenderingLocFromRect_rectDimensProvider =
@@ -412,28 +414,24 @@ public class ButtonMethods {
 
     public Vertex Button_provideTextRenderingLocFromRect(FunctionalProvider.Inputs inputs) {
         HorizontalAlignment horizontalAlignment =
-                getFromData(inputs.data(),
-                        Button_provideTextRenderingLocFromRect_horizontalAlignment);
+                getFromData(inputs, Button_provideTextRenderingLocFromRect_horizontalAlignment);
         ProviderAtTime<FloatBox> rectDimensProvider =
-                getFromData(inputs.data(),
-                        Button_provideTextRenderingLocFromRect_rectDimensProvider);
+                getFromData(inputs, Button_provideTextRenderingLocFromRect_rectDimensProvider);
         var rectDimens = rectDimensProvider.provide(inputs.timestamp());
         float paddingHoriz =
-                getFromData(inputs.data(), Button_provideTextRenderingLocFromRect_paddingHoriz);
-        float textHeight =
-                getFromData(inputs.data(), Button_provideTextRenderingLocFromRect_textHeight);
+                getFromData(inputs, Button_provideTextRenderingLocFromRect_paddingHoriz);
+        float textHeight = getFromData(inputs, Button_provideTextRenderingLocFromRect_textHeight);
 
         var texRenderingLocX = switch (horizontalAlignment) {
             case LEFT -> rectDimens.LEFT_X + paddingHoriz;
             case CENTER -> (rectDimens.LEFT_X + rectDimens.RIGHT_X) / 2f;
             case RIGHT -> rectDimens.RIGHT_X - paddingHoriz;
-            default -> 0F;
         };
         var texRenderingLocY = (rectDimens.TOP_Y + rectDimens.BOTTOM_Y - textHeight) / 2f;
 
         return vertexOf(texRenderingLocX, texRenderingLocY);
     }
-    
+
     final static String Button_provideRectDimensFromText = "Button_provideRectDimensFromText";
     final static String Button_provideRectDimensFromText_textRenderingLocProvider =
             "Button_provideRectDimensFromText_textRenderingLocProvider";
@@ -447,15 +445,15 @@ public class ButtonMethods {
             "Button_provideRectDimensFromText_textPaddingHoriz";
 
     public FloatBox Button_provideRectDimensFromText(FunctionalProvider.Inputs inputs) {
-        ProviderAtTime<Vertex> textRenderingLocProvider = getFromData(inputs.data(),
+        ProviderAtTime<Vertex> textRenderingLocProvider = getFromData(inputs,
                 Button_provideRectDimensFromText_textRenderingLocProvider);
         var textRenderingLoc = textRenderingLocProvider.provide(inputs.timestamp());
-        float lineLength = getFromData(inputs.data(), Button_provideRectDimensFromText_lineLength);
-        float textHeight = getFromData(inputs.data(), Button_provideRectDimensFromText_textHeight);
+        float lineLength = getFromData(inputs, Button_provideRectDimensFromText_lineLength);
+        float textHeight = getFromData(inputs, Button_provideRectDimensFromText_textHeight);
         float textPaddingVert =
-                getFromData(inputs.data(), Button_provideRectDimensFromText_textPaddingVert);
+                getFromData(inputs, Button_provideRectDimensFromText_textPaddingVert);
         float textPaddingHoriz =
-                getFromData(inputs.data(), Button_provideRectDimensFromText_textPaddingHoriz);
+                getFromData(inputs, Button_provideRectDimensFromText_textPaddingHoriz);
         var distFromCenterHoriz = textPaddingHoriz + lineLength / 2f;
 
         return floatBoxOf(
@@ -472,7 +470,7 @@ public class ButtonMethods {
 
     public float Button_provideTexTileWidth(FunctionalProvider.Inputs inputs) {
         ProviderAtTime<FloatBox> rectDimensProvider =
-                getFromData(inputs.data(), provideTexTileDimens_Button_rectDimensProvider);
+                getFromData(inputs, provideTexTileDimens_Button_rectDimensProvider);
         var rectDimens = rectDimensProvider.provide(inputs.timestamp());
         return rectDimens.width();
     }
@@ -481,7 +479,7 @@ public class ButtonMethods {
 
     public float Button_provideTexTileHeight(FunctionalProvider.Inputs inputs) {
         ProviderAtTime<FloatBox> rectDimensProvider =
-                getFromData(inputs.data(), provideTexTileDimens_Button_rectDimensProvider);
+                getFromData(inputs, provideTexTileDimens_Button_rectDimensProvider);
         var rectDimens = rectDimensProvider.provide(inputs.timestamp());
         return rectDimens.height();
     }

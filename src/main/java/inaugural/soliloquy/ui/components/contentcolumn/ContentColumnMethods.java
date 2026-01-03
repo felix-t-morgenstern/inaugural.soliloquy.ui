@@ -89,6 +89,7 @@ public class ContentColumnMethods extends ComponentMethods {
         contentTopLeftLocs.clear();
 
         for (var item : contents) {
+            System.out.println("item.uuid = " + item.uuid);
             @SuppressWarnings("OptionalGetWithoutIsPresent")
             var contentFromUuid =
                     contentsFromComponent.stream().filter(c -> c.uuid().equals(item.uuid))

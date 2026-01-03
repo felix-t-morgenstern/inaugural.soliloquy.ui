@@ -231,6 +231,7 @@ public class UIModule extends AbstractModule {
                 id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
                 subscribeToNextMouseEvent,
                 graphics::getSprite,
+                graphics::getComponent,
                 componentMethods
         ));
         renderableDefinitionReader.addCustomComponentReader(

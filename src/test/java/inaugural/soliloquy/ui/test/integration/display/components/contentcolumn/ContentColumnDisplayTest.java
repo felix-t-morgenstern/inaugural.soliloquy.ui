@@ -69,21 +69,21 @@ public class ContentColumnDisplayTest extends DisplayTest {
                 0
         )
                 .withItems(
-                        itemOf(
-                                textBlock(
-                                        MERRIWEATHER_ID,
-                                        lineHeight,
-                                        0.5f,
-                                        vertexOf(0f, 0f),
-                                        glyphPadding,
-                                        lineSpacing,
-                                        paragraphSpacing,
-                                        HorizontalAlignment.LEFT,
-                                        paragraphs,
-                                        1
-                                ),
-                                0.1f
-                        ),
+//                        itemOf(
+//                                textBlock(
+//                                        MERRIWEATHER_ID,
+//                                        lineHeight,
+//                                        0.5f,
+//                                        vertexOf(0f, 0f),
+//                                        glyphPadding,
+//                                        lineSpacing,
+//                                        paragraphSpacing,
+//                                        HorizontalAlignment.LEFT,
+//                                        paragraphs,
+//                                        1
+//                                ),
+//                                0.1f
+//                        ),
                         itemOf(
                                 testFullDefFromText("Button", SCREEN_CENTER)
                                         .withTextItalicIndices(listOf(listOf(0, 1)))

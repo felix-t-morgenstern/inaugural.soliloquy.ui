@@ -21,6 +21,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -152,12 +153,13 @@ public class ButtonDefinitionReader {
     ) {
         var content = Collections.<AbstractContentDefinition>setOf();
 
-        ProviderAtTime<FloatBox> rectDimensProvider = null;
-        var rectDimensFromDef = defaultIfNull(definition.RECT_DIMENS_DEF, null,
+        var makeRect = false;
+        var unadjRectDimensFromDef = defaultIfNull(definition.RECT_DIMENS_DEF, null,
                 d -> PROVIDER_DEF_READER.read(d, timestamp));
         if (definition.text != null) {
+            makeRect = true;
             // it has both a rect and text, and loc is defined by rect dimens XOR text rendering loc
-            ProviderAtTime<Vertex> textRenderingLoc;
+            ProviderAtTime<Vertex> textUnadjRenderingLoc;
             var font = GET_FONT.apply(definition.fontId);
             var paddingHoriz = definition.textPaddingVertical / GET_WIDTH_TO_HEIGHT_RATIO.get();
             List<Integer> textItalicIndicesDefault =
@@ -200,23 +202,24 @@ public class ButtonDefinitionReader {
                                     definition.textHeight
                             )
                             : textLineLengthDefault;
-            if (rectDimensFromDef != null) {
+            if (unadjRectDimensFromDef != null) {
                 // define the locs by rect dimens
-                rectDimensProvider = rectDimensFromDef;
-                textRenderingLoc = textRenderingLocProviderFromRectDimensProvider(
-                        rectDimensProvider,
+                setUnadjTextLocProvidersFromUnadjRectDimensProvider(
                         definition.horizontalAlignment,
                         paddingHoriz,
                         definition.textHeight,
+                        defaultOptions,
+                        hoverOptions,
+                        pressedOptions,
                         timestamp
                 );
             }
             else {
                 // define the rect dimens by text rendering loc
-                textRenderingLoc =
+                textUnadjRenderingLoc =
                         PROVIDER_DEF_READER.read(definition.TEXT_RENDERING_LOC_DEF, timestamp);
-                rectDimensProvider = rectDimensProviderFromTextRenderingLocProvider(
-                        textRenderingLoc,
+                setUnadjRectFromUnadjTextLocProvider(
+                        textUnadjRenderingLoc,
                         textLineLengthDefault,
                         textLineLengthHover,
                         textLineLengthPressed,
@@ -231,21 +234,18 @@ public class ButtonDefinitionReader {
             }
             content.add(makeTextLineDef(
                     definition,
-                    textRenderingLoc,
                     defaultOptions,
                     hoverOptions,
                     pressedOptions,
                     timestamp
             ));
         }
-        if (rectDimensFromDef != null) {
-            // it has only a rect, no text
-            rectDimensProvider = rectDimensFromDef;
+        else if(definition.RECT_DIMENS_DEF != null) {
+            makeRect = true;
         }
 
-        if (rectDimensProvider != null) {
+        if (makeRect) {
             content.add(makeRectDef(
-                    rectDimensProvider,
                     definition,
                     defaultOptions,
                     hoverOptions,
@@ -268,7 +268,6 @@ public class ButtonDefinitionReader {
     }
 
     private RectangleRenderableDefinition makeRectDef(
-            ProviderAtTime<FloatBox> rectDimensProvider,
             ButtonDefinition definition,
             Options defaultOptions,
             Options hoverOptions,
@@ -289,7 +288,7 @@ public class ButtonDefinitionReader {
         ProviderAtTime<Float> texWidthProvider;
         ProviderAtTime<Float> texHeightProvider;
         if (bgTexProviderDefault != NULL_PROVIDER) {
-            var texDimensProviders = makeTexDimensProviders(rectDimensProvider, timestamp);
+            var texDimensProviders = makeTexDimensProviders(definition.UUID, timestamp);
             texWidthProvider = texDimensProviders.FIRST;
             texHeightProvider = texDimensProviders.SECOND;
         }
@@ -305,7 +304,6 @@ public class ButtonDefinitionReader {
                 getBgTexProviderDef(definition.bgTexProviderPressed, definition.bgTexRelLocHover),
                 null, d -> PROVIDER_DEF_READER.read(d, timestamp));
 
-        defaultOptions.rectDimens = rectDimensProvider;
         defaultOptions.bgColorTopLeft = bgColorTopLeftDefault;
         defaultOptions.bgColorTopRight = bgColorTopRightDefault;
         defaultOptions.bgColorBottomLeft = bgColorBottomLeftDefault;
@@ -340,7 +338,11 @@ public class ButtonDefinitionReader {
                         d -> PROVIDER_DEF_READER.read(d, timestamp));
         pressedOptions.bgTexProvider = bgTexProviderPressed;
 
-        return rectangle(rectDimensProvider, RECT_Z)
+        return rectangle(functionalProvider(Button_rectDimensWithAdj, FloatBox.class)
+                .withData(mapOf(
+                        COMPONENT_UUID,
+                        definition.UUID
+                )), RECT_Z)
                 .withColors(
                         bgColorTopLeftDefault,
                         bgColorTopRightDefault,
@@ -357,7 +359,7 @@ public class ButtonDefinitionReader {
                 .onMouseLeave(MOUSE_LEAVE_METHOD);
     }
 
-    private ProviderAtTime<FloatBox> rectDimensProviderFromTextRenderingLocProvider(
+    private void setUnadjRectFromUnadjTextLocProvider(
             ProviderAtTime<Vertex> textRenderingLocProvider,
             float lineLengthDefault,
             float lineLengthHover,
@@ -370,65 +372,59 @@ public class ButtonDefinitionReader {
             Options pressedOptions,
             long timestamp
     ) {
-        var providerDefault = PROVIDER_DEF_READER.read(
-                functionalProvider(Button_provideRectDimensFromText, FloatBox.class)
+        defaultOptions.unadjRectDimens = PROVIDER_DEF_READER.read(
+                functionalProvider(Button_provideUnadjRectDimensFromText, FloatBox.class)
                         .withData(mapOf(
-                                Button_provideRectDimensFromText_textRenderingLocProvider,
+                                Button_provideUnadjRectDimensFromText_textRenderingLocProvider,
                                 textRenderingLocProvider,
-                                Button_provideRectDimensFromText_lineLength,
+                                Button_provideUnadjRectDimensFromText_lineLength,
                                 lineLengthDefault,
-                                Button_provideRectDimensFromText_textHeight,
+                                Button_provideUnadjRectDimensFromText_textHeight,
                                 lineHeight,
-                                Button_provideRectDimensFromText_textPaddingVert,
+                                Button_provideUnadjRectDimensFromText_textPaddingVert,
                                 textPaddingVert,
-                                Button_provideRectDimensFromText_textPaddingHoriz,
+                                Button_provideUnadjRectDimensFromText_textPaddingHoriz,
                                 textPaddingHoriz
                         )), timestamp);
-        var providerHover =
-                lineLengthHover == lineLengthDefault ? null : PROVIDER_DEF_READER.read(
-                        functionalProvider(Button_provideRectDimensFromText, FloatBox.class)
+        hoverOptions.unadjRectDimens =
+                PROVIDER_DEF_READER.read(
+                        functionalProvider(Button_provideUnadjRectDimensFromText, FloatBox.class)
                                 .withData(mapOf(
-                                        Button_provideRectDimensFromText_textRenderingLocProvider,
+                                        Button_provideUnadjRectDimensFromText_textRenderingLocProvider,
                                         textRenderingLocProvider,
-                                        Button_provideRectDimensFromText_lineLength,
+                                        Button_provideUnadjRectDimensFromText_lineLength,
                                         lineLengthHover,
-                                        Button_provideRectDimensFromText_textHeight,
+                                        Button_provideUnadjRectDimensFromText_textHeight,
                                         lineHeight,
-                                        Button_provideRectDimensFromText_textPaddingVert,
+                                        Button_provideUnadjRectDimensFromText_textPaddingVert,
                                         textPaddingVert,
-                                        Button_provideRectDimensFromText_textPaddingHoriz,
+                                        Button_provideUnadjRectDimensFromText_textPaddingHoriz,
                                         textPaddingHoriz
                                 )), timestamp);
-        var providerPressed =
-                lineLengthPressed == lineLengthDefault ? null : PROVIDER_DEF_READER.read(
-                        functionalProvider(Button_provideRectDimensFromText, FloatBox.class)
+        pressedOptions.unadjRectDimens =
+                PROVIDER_DEF_READER.read(
+                        functionalProvider(Button_provideUnadjRectDimensFromText, FloatBox.class)
                                 .withData(mapOf(
-                                        Button_provideRectDimensFromText_textRenderingLocProvider,
+                                        Button_provideUnadjRectDimensFromText_textRenderingLocProvider,
                                         textRenderingLocProvider,
-                                        Button_provideRectDimensFromText_lineLength,
+                                        Button_provideUnadjRectDimensFromText_lineLength,
                                         lineLengthPressed,
-                                        Button_provideRectDimensFromText_textHeight,
+                                        Button_provideUnadjRectDimensFromText_textHeight,
                                         lineHeight,
-                                        Button_provideRectDimensFromText_textPaddingVert,
+                                        Button_provideUnadjRectDimensFromText_textPaddingVert,
                                         textPaddingVert,
-                                        Button_provideRectDimensFromText_textPaddingHoriz,
+                                        Button_provideUnadjRectDimensFromText_textPaddingHoriz,
                                         textPaddingHoriz
                                 )), timestamp);
-
-        defaultOptions.rectDimens = providerDefault;
-        hoverOptions.rectDimens = providerHover;
-        pressedOptions.rectDimens = providerPressed;
-
-        return providerDefault;
     }
 
     private Pair<ProviderAtTime<Float>, ProviderAtTime<Float>> makeTexDimensProviders(
-            ProviderAtTime<FloatBox> rectDimensProvider,
+            UUID buttonUuid,
             long timestamp
     ) {
-        var data = Collections.<String, Object>mapOf(
-                provideTexTileDimens_Button_rectDimensProvider,
-                rectDimensProvider
+        var data = Collections.<String,Object>mapOf(
+                COMPONENT_UUID,
+                buttonUuid
         );
 
         var texWidth = PROVIDER_DEF_READER.read(
@@ -450,15 +446,6 @@ public class ButtonDefinitionReader {
             Options pressedOptions,
             long timestamp
     ) {
-        var spriteDimensDefault =
-                PROVIDER_DEF_READER.read(definition.spriteDimensDefaultDef, timestamp);
-        var spriteDimensHover =
-                defaultIfNull(definition.spriteDimensHoverDef, null,
-                        d -> PROVIDER_DEF_READER.read(d, timestamp));
-        var spriteDimensPressed =
-                defaultIfNull(definition.spriteDimensPressedDef, null,
-                        d -> PROVIDER_DEF_READER.read(d, timestamp));
-
         var spriteShiftDefault = defaultIfNull(definition.spriteShiftDefaultDef, null,
                 d -> SHIFT_DEF_READER.read(d, timestamp));
         var spriteShiftHover = defaultIfNull(definition.spriteShiftHoverDef, null,
@@ -467,20 +454,29 @@ public class ButtonDefinitionReader {
                 d -> SHIFT_DEF_READER.read(d, timestamp));
 
         defaultOptions.spriteId = definition.spriteIdDefault;
-        defaultOptions.spriteDimens = spriteDimensDefault;
+        defaultOptions.unadjSpriteDimens =
+                PROVIDER_DEF_READER.read(definition.spriteDimensDefaultDef, timestamp);
         defaultOptions.spriteShift = spriteShiftDefault;
 
         hoverOptions.spriteId = defaultIfNull(definition.spriteIdHover, null);
-        hoverOptions.spriteDimens = spriteDimensHover;
+        hoverOptions.unadjSpriteDimens =
+                defaultIfNull(definition.spriteDimensHoverDef, null,
+                        d -> PROVIDER_DEF_READER.read(d, timestamp));
         hoverOptions.spriteShift = spriteShiftHover;
 
         pressedOptions.spriteId = defaultIfNull(definition.spriteIdPressed, null);
-        pressedOptions.spriteDimens = spriteDimensPressed;
+        pressedOptions.unadjSpriteDimens =
+                defaultIfNull(definition.spriteDimensPressedDef, null,
+                        d -> PROVIDER_DEF_READER.read(d, timestamp));
         pressedOptions.spriteShift = spriteShiftPressed;
 
         return sprite(
                 definition.spriteIdDefault,
-                definition.spriteDimensDefaultDef,
+                functionalProvider(Button_spriteDimensWithAdj, FloatBox.class)
+                        .withData(mapOf(
+                                COMPONENT_UUID,
+                                definition.UUID
+                        )),
                 SPRITE_Z
         )
                 .onPress(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD))
@@ -497,7 +493,6 @@ public class ButtonDefinitionReader {
 
     private TextLineRenderableDefinition makeTextLineDef(
             ButtonDefinition definition,
-            ProviderAtTime<Vertex> textRenderingLoc,
             Options defaultOptions,
             Options hoverOptions,
             Options pressedOptions,
@@ -536,7 +531,12 @@ public class ButtonDefinitionReader {
         return textLine(
                 definition.fontId,
                 staticVal(definition.text),
-                textRenderingLoc,
+                PROVIDER_DEF_READER.read(functionalProvider(
+                        Button_textLocWithAdj, Vertex.class
+                ).withData(mapOf(
+                        COMPONENT_UUID,
+                        definition.UUID
+                )), timestamp),
                 staticVal(definition.textHeight),
                 defaultIfNull(definition.horizontalAlignment, CENTER),
                 definition.textGlyphPadding,
@@ -556,27 +556,31 @@ public class ButtonDefinitionReader {
                         def -> PROVIDER_DEF_READER.read(def.getValue(), timestamp))));
     }
 
-    private ProviderAtTime<Vertex> textRenderingLocProviderFromRectDimensProvider(
-            ProviderAtTime<FloatBox> rectDimensProvider,
+    private void setUnadjTextLocProvidersFromUnadjRectDimensProvider(
             HorizontalAlignment horizontalAlignment,
             float paddingHoriz,
             float textHeight,
+            Options defaultOptions,
+            Options hoverOptions,
+            Options pressedOptions,
             long timestamp
     ) {
         var providerDef =
-                functionalProvider(Button_provideTextRenderingLocFromRect, Vertex.class)
+                functionalProvider(Button_provideUnadjTextLocFromRect, Vertex.class)
                         .withData(mapOf(
-                                Button_provideTextRenderingLocFromRect_horizontalAlignment,
+                                Button_provideUnadjTextLocFromRect_horizontalAlignment,
                                 horizontalAlignment,
-                                Button_provideTextRenderingLocFromRect_rectDimensProvider,
-                                rectDimensProvider,
-                                Button_provideTextRenderingLocFromRect_paddingHoriz,
+                                Button_provideUnadjTextLocFromRect_paddingHoriz,
                                 paddingHoriz,
-                                Button_provideTextRenderingLocFromRect_textHeight,
+                                Button_provideUnadjTextLocFromRect_textHeight,
                                 textHeight
                         ));
 
-        return PROVIDER_DEF_READER.read(providerDef, timestamp);
+        var provider = PROVIDER_DEF_READER.read(providerDef, timestamp);
+
+        defaultOptions.unadjTextLoc =
+                hoverOptions.unadjTextLoc =
+                        pressedOptions.unadjTextLoc = provider;
     }
 
     private <T> ProviderAtTime<T> getNullProviderIfNull(AbstractProviderDefinition<T> def,

@@ -329,7 +329,7 @@ public class ComponentMethods {
 
     protected FloatBox Component_innerContentDimensWithOverrideCalculation(
             FunctionalProvider.Inputs inputs,
-            BiFunction<Component, FunctionalProvider.Inputs, Vertex> getContentOrigin) {
+            BiFunction<Component, FunctionalProvider.Inputs, Vertex> getContentOriginOverride) {
         UUID containingComponentId = getFromData(inputs, CONTAINING_COMPONENT_UUID);
         var containingComponent = GET_COMPONENT.apply(containingComponentId);
 
@@ -341,7 +341,7 @@ public class ComponentMethods {
                 CONTENT_UNADJUSTED_DIMENS);
         @SuppressWarnings("SuspiciousMethodCalls") var unadjustedDimens =
                 contentUnadjustedDimens.get(getFromData(inputs, CONTENT_UUID));
-        Vertex contentOrigin = getContentOrigin.apply(containingComponent, inputs);
+        Vertex contentOrigin = getContentOriginOverride.apply(containingComponent, inputs);
         if (contentOrigin != null) {
             Vertex originalOrigin = getFromData(containingComponent, ORIGINAL_ORIGIN);
             var contentOriginAdjust = difference(originalOrigin, contentOrigin);
@@ -373,7 +373,7 @@ public class ComponentMethods {
 
     protected Vertex Component_innerContentRenderingLocWithOverrideCalculation(
             FunctionalProvider.Inputs inputs,
-            BiFunction<Component, FunctionalProvider.Inputs, Vertex> getContentOrigin) {
+            BiFunction<Component, FunctionalProvider.Inputs, Vertex> getContentOriginOverride) {
         UUID containingComponentId = getFromData(inputs, CONTAINING_COMPONENT_UUID);
         var containingComponent = GET_COMPONENT.apply(containingComponentId);
 
@@ -381,7 +381,7 @@ public class ComponentMethods {
                 getFromData(containingComponent, CONTENT_UNADJUSTED_LOCS);
         UUID contentUuid = getFromData(inputs, CONTENT_UUID);
         var unadjustedLoc = contentUnadjustedLocs.get(contentUuid);
-        Vertex contentOrigin = getContentOrigin.apply(containingComponent, inputs);
+        Vertex contentOrigin = getContentOriginOverride.apply(containingComponent, inputs);
         if (contentOrigin != null) {
             Vertex originalOrigin = getFromData(containingComponent, ORIGINAL_ORIGIN);
             if (originalOrigin != null) {
@@ -418,7 +418,7 @@ public class ComponentMethods {
 
     protected Vertex Component_innerContentVertexWithOverrideCalculation(
             FunctionalProvider.Inputs inputs,
-            BiFunction<Component, FunctionalProvider.Inputs, Vertex> getContentOrigin) {
+            BiFunction<Component, FunctionalProvider.Inputs, Vertex> getContentOriginOverride) {
         UUID containingComponentId = getFromData(inputs, CONTAINING_COMPONENT_UUID);
         var containingComponent = GET_COMPONENT.apply(containingComponentId);
 
@@ -428,7 +428,7 @@ public class ComponentMethods {
         var unadjustedVertices = contentUnadjustedVertices.get(contentUuid);
         int vertexIndex = getFromData(inputs, VERTICES_INDEX);
         var unadjustedVertex = unadjustedVertices.get(vertexIndex);
-        Vertex contentOrigin = getContentOrigin.apply(containingComponent, inputs);
+        Vertex contentOrigin = getContentOriginOverride.apply(containingComponent, inputs);
         if (contentOrigin != null) {
             Vertex originalOrigin = getFromData(containingComponent, ORIGINAL_ORIGIN);
             var contentOriginAdjust = difference(originalOrigin, contentOrigin);

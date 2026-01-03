@@ -141,7 +141,7 @@ public class BeveledButtonMethods {
         boolean isLitByDefault =
                 getFromData(inputs, provideColor_BeveledButton_isLitByDefault);
         var component = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
-        boolean isPressed = falseIfNull(getFromData(component, ButtonMethods.PRESS_STATE));
+        boolean isPressed = falseIfNull(getFromData(component, ButtonMethods.IS_PRESSED));
         Color renderableColor;
         // If it's lit by default XOR it's pressed, return the lit color
         if (isLitByDefault != isPressed) {

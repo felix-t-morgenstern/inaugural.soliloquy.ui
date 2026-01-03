@@ -33,6 +33,7 @@ import static inaugural.soliloquy.tools.testing.Mock.*;
 import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
@@ -76,6 +77,8 @@ public class ButtonMethodsTests {
     private final Sprite MOCK_SPRITE_PRESSED = MOCK_SPRITES_AND_LOOKUP.entities.get(2);
     private final Function<String, Sprite> MOCK_GET_SPRITE = MOCK_SPRITES_AND_LOOKUP.lookup;
 
+    private final UUID COMPONENT_UUID = randomUUID();
+
     private final FloatBox RECT_DIMENS = randomFloatBox();
     private final float PADDING_VERT = randomFloat();
     private final float PADDING_HORIZ = randomFloat();
@@ -109,8 +112,10 @@ public class ButtonMethodsTests {
     @Mock private List<ColorShift> mockSpriteShifts;
     @Mock private SpriteRenderable mockSpriteRenderable;
     @Mock private TextLineRenderable mockTextLineRenderable;
-    @Mock private Component mockComponent;
+    @Mock private Component mockButton;
     @Mock private RenderableWithMouseEvents mockRenderable;
+
+    @Mock private Function<UUID, Component> mockGetComponent;
 
     @Mock private ComponentMethods mockComponentMethods;
 
@@ -144,13 +149,13 @@ public class ButtonMethodsTests {
         lenient().when(mockTextLineRenderable.italicIndices()).thenReturn(mockItalics);
         lenient().when(mockTextLineRenderable.boldIndices()).thenReturn(mockBolds);
         lenient().when(mockTextLineRenderable.getZ()).thenReturn(TEXT_Z);
-        lenient().when(mockComponent.contentsRepresentation()).thenReturn(setOf(
+        lenient().when(mockButton.contentsRepresentation()).thenReturn(setOf(
                 mockRectangleRenderable,
                 mockSpriteRenderable,
                 mockTextLineRenderable
         ));
-        lenient().when(mockComponent.data()).thenReturn(mockData);
-        lenient().when(mockRenderable.containingComponent()).thenReturn(mockComponent);
+        lenient().when(mockButton.data()).thenReturn(mockData);
+        lenient().when(mockRenderable.containingComponent()).thenReturn(mockButton);
         lenient().when(mockRectangleRenderable.getRenderingDimensionsProvider())
                 .thenReturn(mockRectDimens);
         lenient().when(mockSpriteRenderable.getRenderingDimensionsProvider())
@@ -161,25 +166,30 @@ public class ButtonMethodsTests {
                                 anyLong()))
                 .thenReturn(COMPONENT_DIMENS);
 
+        lenient().when(mockGetComponent.apply(any())).thenReturn(mockButton);
+
         buttonMethods =
                 new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
-                        mockComponentMethods);
+                        mockGetComponent, mockComponentMethods);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonMethods(null, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
-                        mockComponentMethods));
+                        mockGetComponent, mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonMethods(mockPlaySound, null, MOCK_GET_SPRITE,
-                        mockComponentMethods));
+                        mockGetComponent, mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, null,
-                        mockComponentMethods));
+                        mockGetComponent, mockComponentMethods));
         assertThrows(IllegalArgumentException.class,
                 () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
-                        null));
+                        null, mockComponentMethods));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ButtonMethods(mockPlaySound, mockSubscribeToMouseEvents, MOCK_GET_SPRITE,
+                        mockGetComponent, null));
     }
 
     @Test
@@ -187,17 +197,17 @@ public class ButtonMethodsTests {
         var options = options(randomString());
         when(mockData.get(DEFAULT_RENDERABLE_OPTIONS)).thenReturn(options);
 
-        var output = buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
 
         assertEquals(COMPONENT_DIMENS, output);
         assertSame(mockRectDimens, options.rectDimens);
         assertSame(mockSpriteDimens, options.spriteDimens);
         verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
-                mockComponent, TIMESTAMP);
+                mockButton, TIMESTAMP);
         verify(mockData, once()).get(LAST_TIMESTAMP);
         verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
-                mockComponent, TIMESTAMP);
-        verify(mockData, once()).get(PRESS_STATE);
+                mockButton, TIMESTAMP);
+        verify(mockData, once()).get(IS_PRESSED);
         verify(mockData, once()).get(RECT_HOVER_STATE);
         verify(mockData, once()).get(SPRITE_HOVER_STATE);
         verify(mockData, once()).get(UNADJUSTED_CONTENT_IS_LOADED_DEFAULT);
@@ -207,7 +217,7 @@ public class ButtonMethodsTests {
                 mockOrigContentDimensProviders);
         verify(mockData, once()).put(UNADJUSTED_CONTENT_LOC_PROVIDERS_DEFAULT,
                 mockOrigContentLocProviders);
-        verify(mockComponent, once()).contentsRepresentation();
+        verify(mockButton, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
         verify(mockData, once()).put(UNADJUSTED_CONTENT_IS_LOADED_DEFAULT, true);
@@ -219,17 +229,17 @@ public class ButtonMethodsTests {
         when(mockData.get(HOVER_RENDERABLE_OPTIONS)).thenReturn(options);
         when(mockData.get(RECT_HOVER_STATE)).thenReturn(true);
 
-        var output = buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
 
         assertEquals(COMPONENT_DIMENS, output);
         assertSame(mockRectDimens, options.rectDimens);
         assertSame(mockSpriteDimens, options.spriteDimens);
         verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
-                mockComponent, TIMESTAMP);
+                mockButton, TIMESTAMP);
         verify(mockData, once()).get(LAST_TIMESTAMP);
         verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
-                mockComponent, TIMESTAMP);
-        verify(mockData, once()).get(PRESS_STATE);
+                mockButton, TIMESTAMP);
+        verify(mockData, once()).get(IS_PRESSED);
         verify(mockData, once()).get(RECT_HOVER_STATE);
         verify(mockData, once()).get(UNADJUSTED_CONTENT_IS_LOADED_HOVER);
         verify(mockData, once()).get(UNADJUSTED_CONTENT_DIMENS_PROVIDERS);
@@ -237,7 +247,7 @@ public class ButtonMethodsTests {
         verify(mockData, once()).put(UNADJUSTED_CONTENT_DIMENS_PROVIDERS_HOVER,
                 mockOrigContentDimensProviders);
         verify(mockData, once()).put(UNADJUSTED_CONTENT_LOC_PROVIDERS_HOVER, mockOrigContentLocProviders);
-        verify(mockComponent, once()).contentsRepresentation();
+        verify(mockButton, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
         verify(mockData, once()).put(UNADJUSTED_CONTENT_IS_LOADED_HOVER, true);
@@ -247,19 +257,19 @@ public class ButtonMethodsTests {
     public void testButton_setDimensForComponentAndContent_updatePressed() {
         var options = options(randomString());
         when(mockData.get(PRESSED_RENDERABLE_OPTIONS)).thenReturn(options);
-        when(mockData.get(PRESS_STATE)).thenReturn(true);
+        when(mockData.get(IS_PRESSED)).thenReturn(true);
 
-        var output = buttonMethods.Button_setDimensForComponentAndContent(mockComponent, TIMESTAMP);
+        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
 
         assertEquals(COMPONENT_DIMENS, output);
         assertSame(mockRectDimens, options.rectDimens);
         assertSame(mockSpriteDimens, options.spriteDimens);
         verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
-                mockComponent, TIMESTAMP);
+                mockButton, TIMESTAMP);
         verify(mockData, once()).get(LAST_TIMESTAMP);
         verify(mockComponentMethods, once()).Component_setDimensForComponentAndContent(
-                mockComponent, TIMESTAMP);
-        verify(mockData, once()).get(PRESS_STATE);
+                mockButton, TIMESTAMP);
+        verify(mockData, once()).get(IS_PRESSED);
         verify(mockData, once()).get(UNADJUSTED_CONTENT_IS_LOADED_PRESSED);
         verify(mockData, once()).get(UNADJUSTED_CONTENT_DIMENS_PROVIDERS);
         verify(mockData, once()).get(UNADJUSTED_CONTENT_LOC_PROVIDERS);
@@ -267,7 +277,7 @@ public class ButtonMethodsTests {
                 mockOrigContentDimensProviders);
         verify(mockData, once()).put(UNADJUSTED_CONTENT_LOC_PROVIDERS_PRESSED,
                 mockOrigContentLocProviders);
-        verify(mockComponent, once()).contentsRepresentation();
+        verify(mockButton, once()).contentsRepresentation();
         verify(mockSpriteRenderable, once()).getRenderingDimensionsProvider();
         verify(mockRectangleRenderable, once()).getRenderingDimensionsProvider();
         verify(mockData, once()).put(UNADJUSTED_CONTENT_IS_LOADED_PRESSED, true);
@@ -276,13 +286,13 @@ public class ButtonMethodsTests {
     @Test
     public void testMousePressOnRectAndReleaseOnRect() {
         var eventInputs = eventInputs(randomLong())
-                .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent);
+                .withMouseEvent(MOUSE_BUTTON, null, null, mockButton);
 
         buttonMethods.Button_pressMouse(eventInputs);
 
-        var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockSubscribeToMouseEvents,
+        var inOrder = inOrder(mockButton, mockData, mockPlaySound, mockSubscribeToMouseEvents,
                 mockPress);
-        inOrder.verify(mockComponent, once()).data();
+        inOrder.verify(mockButton, once()).data();
         inOrder.verify(mockData, once()).get(PRESS_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESS_STATE_DATA_KEY, true);
         inOrder.verify(mockData, once()).put(PRESSED_KEY_DATA_KEY, null);
@@ -314,7 +324,7 @@ public class ButtonMethodsTests {
     public void testMousePressOnRectAndReleaseOnSprite() {
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
         var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(mockSubscribeToMouseEvents, once()).accept(
@@ -337,7 +347,7 @@ public class ButtonMethodsTests {
     public void testMousePressOnSpriteAndReleaseOnRect() {
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockButton)
         );
         var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(mockSubscribeToMouseEvents, once()).accept(
@@ -360,7 +370,7 @@ public class ButtonMethodsTests {
     public void testMousePressOnSpriteAndReleaseOnSprite() {
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockButton)
         );
         var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(mockSubscribeToMouseEvents, once()).accept(
@@ -384,7 +394,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verify(mockData, once()).get(anyString());
@@ -398,7 +408,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verify(mockPlaySound, never()).accept(anyString());
@@ -408,7 +418,7 @@ public class ButtonMethodsTests {
     public void testPressMouse_ButtonReleaseWhenNotHovering() {
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -433,7 +443,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -456,7 +466,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -478,10 +488,10 @@ public class ButtonMethodsTests {
     public void testMouseOver_ButtonOnRectSetsHoverState() {
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
-        verify(mockComponent, atLeastOnce()).data();
+        verify(mockButton, atLeastOnce()).data();
         verify(mockData, once()).put(RECT_HOVER_STATE_DATA_KEY, true);
     }
 
@@ -489,10 +499,10 @@ public class ButtonMethodsTests {
     public void testMouseOver_ButtonOnSpriteSetsHoverState() {
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockButton)
         );
 
-        verify(mockComponent, atLeastOnce()).data();
+        verify(mockButton, atLeastOnce()).data();
         verify(mockData, once()).put(SPRITE_HOVER_STATE_DATA_KEY, true);
     }
 
@@ -500,10 +510,10 @@ public class ButtonMethodsTests {
     public void testMouseLeave_ButtonRectSetsHoverState() {
         buttonMethods.Button_mouseLeave(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
-        verify(mockComponent, atLeastOnce()).data();
+        verify(mockButton, atLeastOnce()).data();
         verify(mockData, once()).put(RECT_HOVER_STATE_DATA_KEY, false);
     }
 
@@ -511,10 +521,10 @@ public class ButtonMethodsTests {
     public void testMouseLeave_ButtonSpriteSetsHoverState() {
         buttonMethods.Button_mouseLeave(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, mockSpriteRenderable, mockButton)
         );
 
-        verify(mockComponent, atLeastOnce()).data();
+        verify(mockButton, atLeastOnce()).data();
         verify(mockData, once()).put(SPRITE_HOVER_STATE_DATA_KEY, false);
     }
 
@@ -526,7 +536,7 @@ public class ButtonMethodsTests {
                 .thenReturn(options(SPRITE_ID_HOVER));
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verifyHoverRenderableOptionsSet();
@@ -542,7 +552,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verifyPressedRenderableOptionsSet();
@@ -554,7 +564,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verifyNoRenderableOptionsSet();
@@ -569,7 +579,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verifyPressedRenderableOptionsSet();
@@ -584,7 +594,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressKey(
                 eventInputs(randomLong())
-                        .withKeyEvent(randomChar(), mockComponent)
+                        .withKeyEvent(randomChar(), mockButton)
         );
 
         verifyPressedRenderableOptionsSet();
@@ -598,7 +608,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseLeave(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verifyDefaultRenderableOptionsSet();
@@ -612,7 +622,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseLeave(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verifyNoRenderableOptionsSet();
@@ -626,7 +636,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseLeave(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verifyNoRenderableOptionsSet();
@@ -636,7 +646,7 @@ public class ButtonMethodsTests {
     public void testReleaseMouseButtonSetsRenderableOptionsToDefault() {
         buttonMethods.Button_pressMouse(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
         var runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(mockSubscribeToMouseEvents, once()).accept(
@@ -658,7 +668,7 @@ public class ButtonMethodsTests {
                 .thenReturn(new ButtonMethods.Options());
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verify(mockData, atLeastOnce()).get(HOVER_RENDERABLE_OPTIONS_DATA_KEY);
@@ -671,7 +681,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verify(mockData, atLeastOnce()).get(PRESSED_RENDERABLE_OPTIONS_DATA_KEY);
@@ -700,7 +710,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseLeave(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verify(mockSpriteShifts, once()).clear();
@@ -716,7 +726,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_mouseOver(
                 eventInputs(randomLong())
-                        .withMouseEvent(MOUSE_BUTTON, null, null, mockComponent)
+                        .withMouseEvent(MOUSE_BUTTON, null, null, mockButton)
         );
 
         verify(mockRectangleRenderable, never()).setRenderingDimensionsProvider(any());
@@ -816,11 +826,11 @@ public class ButtonMethodsTests {
     public void testButton_PressKey() {
         buttonMethods.Button_pressKey(
                 eventInputs(randomLong())
-                        .withKeyEvent(randomChar(), mockComponent)
+                        .withKeyEvent(randomChar(), mockButton)
         );
 
-        var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockPress);
-        inOrder.verify(mockComponent, once()).data();
+        var inOrder = inOrder(mockButton, mockData, mockPlaySound, mockPress);
+        inOrder.verify(mockButton, once()).data();
         inOrder.verify(mockData, once()).get(PRESS_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESS_STATE_DATA_KEY, true);
         inOrder.verify(mockData, once()).get(PRESS_SOUND_ID_DATA_KEY);
@@ -833,7 +843,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressKey(
                 eventInputs(randomLong())
-                        .withKeyEvent(randomChar(), mockComponent)
+                        .withKeyEvent(randomChar(), mockButton)
         );
 
         verify(mockData, once()).get(anyString());
@@ -847,7 +857,7 @@ public class ButtonMethodsTests {
 
         buttonMethods.Button_pressKey(
                 eventInputs(randomLong())
-                        .withKeyEvent(randomChar(), mockComponent)
+                        .withKeyEvent(randomChar(), mockButton)
         );
 
         verify(mockPlaySound, never()).accept(anyString());
@@ -859,12 +869,12 @@ public class ButtonMethodsTests {
         when(mockData.get(PRESS_STATE_DATA_KEY)).thenReturn(true);
         when(mockData.get(PRESSED_KEY_DATA_KEY)).thenReturn(key);
         var eventInputs = eventInputs(randomLong())
-                .withKeyEvent(key, mockComponent);
+                .withKeyEvent(key, mockButton);
 
         buttonMethods.Button_releaseKey(eventInputs);
 
-        var inOrder = inOrder(mockComponent, mockData, mockPlaySound, mockPress);
-        inOrder.verify(mockComponent, once()).data();
+        var inOrder = inOrder(mockButton, mockData, mockPlaySound, mockPress);
+        inOrder.verify(mockButton, once()).data();
         inOrder.verify(mockData, once()).get(PRESSED_KEY_DATA_KEY);
         inOrder.verify(mockData, once()).get(PRESS_STATE_DATA_KEY);
         inOrder.verify(mockData, once()).put(PRESS_STATE_DATA_KEY, false);
@@ -880,14 +890,14 @@ public class ButtonMethodsTests {
     @Test
     public void testProvideTextRenderingLocFromRect_ButtonLeftJustified() {
         var mockInputsData = generateMockMap(
-                pairOf(Button_provideTextRenderingLocFromRect_horizontalAlignment,
+                pairOf(Button_provideUnadjTextLocFromRect_horizontalAlignment,
                         HorizontalAlignment.LEFT),
-                pairOf(Button_provideTextRenderingLocFromRect_rectDimensProvider, mockRectDimens),
-                pairOf(Button_provideTextRenderingLocFromRect_paddingHoriz, PADDING_HORIZ),
-                pairOf(Button_provideTextRenderingLocFromRect_textHeight, TEXT_HEIGHT)
+                pairOf(Button_provideUnadjTextLocFromRect_rectDimensProvider, mockRectDimens),
+                pairOf(Button_provideUnadjTextLocFromRect_paddingHoriz, PADDING_HORIZ),
+                pairOf(Button_provideUnadjTextLocFromRect_textHeight, TEXT_HEIGHT)
         );
 
-        var output = buttonMethods.Button_provideTextRenderingLocFromRect(providerInputs(
+        var output = buttonMethods.Button_provideUnadjTextLocFromRect(providerInputs(
                 TIMESTAMP,
                 null,
                 mockInputsData
@@ -901,14 +911,14 @@ public class ButtonMethodsTests {
     @Test
     public void testProvideTextRenderingLocFromRect_ButtonCenterJustified() {
         var mockInputsData = generateMockMap(
-                pairOf(Button_provideTextRenderingLocFromRect_horizontalAlignment,
+                pairOf(Button_provideUnadjTextLocFromRect_horizontalAlignment,
                         HorizontalAlignment.CENTER),
-                pairOf(Button_provideTextRenderingLocFromRect_rectDimensProvider, mockRectDimens),
-                pairOf(Button_provideTextRenderingLocFromRect_paddingHoriz, PADDING_HORIZ),
-                pairOf(Button_provideTextRenderingLocFromRect_textHeight, TEXT_HEIGHT)
+                pairOf(Button_provideUnadjTextLocFromRect_rectDimensProvider, mockRectDimens),
+                pairOf(Button_provideUnadjTextLocFromRect_paddingHoriz, PADDING_HORIZ),
+                pairOf(Button_provideUnadjTextLocFromRect_textHeight, TEXT_HEIGHT)
         );
 
-        var output = buttonMethods.Button_provideTextRenderingLocFromRect(providerInputs(
+        var output = buttonMethods.Button_provideUnadjTextLocFromRect(providerInputs(
                 TIMESTAMP,
                 null,
                 mockInputsData
@@ -922,14 +932,14 @@ public class ButtonMethodsTests {
     @Test
     public void testProvideTextRenderingLocFromRect_ButtonRightJustified() {
         var mockInputsData = generateMockMap(
-                pairOf(Button_provideTextRenderingLocFromRect_horizontalAlignment,
+                pairOf(Button_provideUnadjTextLocFromRect_horizontalAlignment,
                         HorizontalAlignment.RIGHT),
-                pairOf(Button_provideTextRenderingLocFromRect_rectDimensProvider, mockRectDimens),
-                pairOf(Button_provideTextRenderingLocFromRect_paddingHoriz, PADDING_HORIZ),
-                pairOf(Button_provideTextRenderingLocFromRect_textHeight, TEXT_HEIGHT)
+                pairOf(Button_provideUnadjTextLocFromRect_rectDimensProvider, mockRectDimens),
+                pairOf(Button_provideUnadjTextLocFromRect_paddingHoriz, PADDING_HORIZ),
+                pairOf(Button_provideUnadjTextLocFromRect_textHeight, TEXT_HEIGHT)
         );
 
-        var output = buttonMethods.Button_provideTextRenderingLocFromRect(providerInputs(
+        var output = buttonMethods.Button_provideUnadjTextLocFromRect(providerInputs(
                 TIMESTAMP,
                 null,
                 mockInputsData
@@ -941,19 +951,19 @@ public class ButtonMethodsTests {
     }
 
     @Test
-    public void testButton_ProvideRectDimensFromText() {
+    public void testButton_provideUnadjRectDimensFromText() {
         var textRenderingLoc = randomVertex();
         when(mockTextRenderingLoc.provide(anyLong())).thenReturn(textRenderingLoc);
         var mockInputsData = generateMockMap(
-                pairOf(Button_provideRectDimensFromText_textRenderingLocProvider,
+                pairOf(Button_provideUnadjRectDimensFromText_textRenderingLocProvider,
                         mockTextRenderingLoc),
-                pairOf(Button_provideRectDimensFromText_lineLength, LINE_LENGTH),
-                pairOf(Button_provideRectDimensFromText_textHeight, TEXT_HEIGHT),
-                pairOf(Button_provideRectDimensFromText_textPaddingVert, PADDING_VERT),
-                pairOf(Button_provideRectDimensFromText_textPaddingHoriz, PADDING_HORIZ)
+                pairOf(Button_provideUnadjRectDimensFromText_lineLength, LINE_LENGTH),
+                pairOf(Button_provideUnadjRectDimensFromText_textHeight, TEXT_HEIGHT),
+                pairOf(Button_provideUnadjRectDimensFromText_textPaddingVert, PADDING_VERT),
+                pairOf(Button_provideUnadjRectDimensFromText_textPaddingHoriz, PADDING_HORIZ)
         );
 
-        var output = buttonMethods.Button_provideRectDimensFromText(providerInputs(
+        var output = buttonMethods.Button_provideUnadjRectDimensFromText(providerInputs(
                 TIMESTAMP,
                 null,
                 mockInputsData

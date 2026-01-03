@@ -15,7 +15,9 @@
       <w>darkyellow</w>
       <w>darkyellowgreen</w>
       <w>defs</w>
+      <w>dimens</w>
       <w>forestgreen</w>
+      <w>horiz</w>
       <w>hotpink</w>
       <w>lightblue</w>
       <w>lightcyan</w>
@@ -30,7 +32,9 @@
       <w>lightspringgreen</w>
       <w>lightyellow</w>
       <w>lightyellowgreen</w>
+      <w>locs</w>
       <w>springgreen</w>
+      <w>unadj</w>
       <w>yellowgreen</w>
     </words>
   </dictionary>

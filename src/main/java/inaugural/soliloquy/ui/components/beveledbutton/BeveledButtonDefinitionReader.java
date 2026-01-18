@@ -25,10 +25,6 @@ import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinit
 public class BeveledButtonDefinitionReader {
     private static final int BEVEL_Z = 3;
 
-    private static final String PROVIDE_VERTEX_METHOD = "provideVertex_BeveledButton";
-    private static final String PROVIDE_BOX_METHOD = "provideBox_BeveledButton";
-    private static final String PROVIDE_COLOR_METHOD = "provideColor_BeveledButton";
-
     private final ButtonDefinitionReader BUTTON_DEF_READER;
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
 
@@ -60,7 +56,7 @@ public class BeveledButtonDefinitionReader {
         slots.forEach(xSlot -> {
             points.put(xSlot, mapOf());
             var ySlots = points.get(xSlot);
-            slots.forEach(ySlot -> ySlots.put(ySlot, bevelPointProvider(
+            slots.forEach(ySlot -> ySlots.put(ySlot, bevelVertexProvider(
                     definition,
                     rectDimensProvider,
                     xSlot,
@@ -157,7 +153,7 @@ public class BeveledButtonDefinitionReader {
         );
     }
 
-    private ProviderAtTime<Vertex> bevelPointProvider(
+    private ProviderAtTime<Vertex> bevelVertexProvider(
             BeveledButtonDefinition definition,
             ProviderAtTime<FloatBox> rectDimensProvider,
             int xSlot,
@@ -165,7 +161,7 @@ public class BeveledButtonDefinitionReader {
             long timestamp
     ) {
         return PROVIDER_DEF_READER.read(
-                functionalProvider(PROVIDE_VERTEX_METHOD, Vertex.class)
+                functionalProvider(BeveledButton_provideVertex, Vertex.class)
                         .withData(mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
@@ -191,7 +187,7 @@ public class BeveledButtonDefinitionReader {
             long timestamp
     ) {
         return PROVIDER_DEF_READER.read(
-                functionalProvider(PROVIDE_BOX_METHOD, FloatBox.class)
+                functionalProvider(BeveledButton_provideBox, FloatBox.class)
                         .withData(mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
@@ -199,7 +195,7 @@ public class BeveledButtonDefinitionReader {
                                 rectDimensProvider,
                                 BeveledButton_xSlot,
                                 xSlotLeft,
-                                provideBox_BeveledButton_xSlotRight,
+                                BeveledButton_provideBox_xSlotRight,
                                 xSlotRight,
                                 BeveledButton_ySlot,
                                 ySlot,
@@ -217,13 +213,13 @@ public class BeveledButtonDefinitionReader {
             long timestamp
     ) {
         return PROVIDER_DEF_READER.read(
-                functionalProvider(PROVIDE_COLOR_METHOD, Color.class)
+                functionalProvider(BeveledButton_provideColor, Color.class)
                         .withData(mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                provideColor_BeveledButton_isLitByDefault,
+                                BeveledButton_provideColor_isLitByDefault,
                                 isLitByDefault,
-                                provideColor_BeveledButton_bevelIntensity,
+                                BeveledButton_provideColor_bevelIntensity,
                                 bevelIntensity
                         )),
                 timestamp

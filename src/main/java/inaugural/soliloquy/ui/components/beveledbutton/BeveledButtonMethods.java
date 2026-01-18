@@ -35,12 +35,13 @@ public class BeveledButtonMethods {
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
     }
 
+    final static String BeveledButton_provideVertex = "BeveledButton_provideVertex";
     final static String BeveledButton_rectDimensProvider = "BeveledButton_rectDimensProvider";
     final static String BeveledButton_bevelPercent = "BeveledButton_bevelPercent";
     final static String BeveledButton_xSlot = "BeveledButton_xSlot";
     final static String BeveledButton_ySlot = "BeveledButton_ySlot";
 
-    public Vertex provideVertex_BeveledButton(FunctionalProvider.Inputs inputs) {
+    public Vertex BeveledButton_provideVertex(FunctionalProvider.Inputs inputs) {
         var dimensAndTransforms = getRectDimensAndInnerTransformsUpperLeft(inputs);
         var rectDimens = dimensAndTransforms.FIRST;
         var transformsUpperLeft = dimensAndTransforms.SECOND;
@@ -54,16 +55,17 @@ public class BeveledButtonMethods {
         return vertexOf(x, y);
     }
 
-    final static String provideBox_BeveledButton_xSlotRight = "provideBox_BeveledButton_xSlotRight";
+    final static String BeveledButton_provideBox = "BeveledButton_provideBox";
+    final static String BeveledButton_provideBox_xSlotRight = "BeveledButton_provideBox_xSlotRight";
 
-    public FloatBox provideBox_BeveledButton(FunctionalProvider.Inputs inputs) {
+    public FloatBox BeveledButton_provideBox(FunctionalProvider.Inputs inputs) {
         var dimensAndTransforms = getRectDimensAndInnerTransformsUpperLeft(inputs);
         var rectDimens = dimensAndTransforms.FIRST;
         var transformsUpperLeft = dimensAndTransforms.SECOND;
 
         int xSlotLeft = getFromData(inputs, BeveledButton_xSlot);
         int ySlotTop = getFromData(inputs, BeveledButton_ySlot);
-        int xSlotRight = getFromData(inputs, provideBox_BeveledButton_xSlotRight);
+        int xSlotRight = getFromData(inputs, BeveledButton_provideBox_xSlotRight);
         var ySlotBottom = ySlotTop + 1;
 
         var leftX = getXSlotVal(rectDimens, transformsUpperLeft, xSlotLeft);
@@ -77,7 +79,7 @@ public class BeveledButtonMethods {
     private static float getXSlotVal(FloatBox rectDimens,
                                      Vertex transformsUpperLeft,
                                      int xSlot) {
-        return switch(xSlot) {
+        return switch (xSlot) {
             case 0 -> rectDimens.LEFT_X;
             case 1 -> rectDimens.LEFT_X + transformsUpperLeft.X;
             case 2 -> rectDimens.RIGHT_X - transformsUpperLeft.X;
@@ -89,7 +91,7 @@ public class BeveledButtonMethods {
     private static float getYSlotVal(FloatBox rectDimens,
                                      Vertex transformsUpperLeft,
                                      int ySlot) {
-        return switch(ySlot) {
+        return switch (ySlot) {
             case 0 -> rectDimens.TOP_Y;
             case 1 -> rectDimens.TOP_Y + transformsUpperLeft.Y;
             case 2 -> rectDimens.BOTTOM_Y - transformsUpperLeft.Y;
@@ -132,14 +134,15 @@ public class BeveledButtonMethods {
         return vertexOf(rectDimens.width() * bevelPercent, rectDimens.height() * bevelPercent);
     }
 
-    final static String provideColor_BeveledButton_bevelIntensity =
-            "provideColor_BeveledButton_bevelIntensity";
-    final static String provideColor_BeveledButton_isLitByDefault =
-            "provideColor_BeveledButton_isLitByDefault";
+    final static String BeveledButton_provideColor = "BeveledButton_provideColor";
+    final static String BeveledButton_provideColor_bevelIntensity =
+            "BeveledButton_provideColor_bevelIntensity";
+    final static String BeveledButton_provideColor_isLitByDefault =
+            "BeveledButton_provideColor_isLitByDefault";
 
-    public Color provideColor_BeveledButton(FunctionalProvider.Inputs inputs) {
+    public Color BeveledButton_provideColor(FunctionalProvider.Inputs inputs) {
         boolean isLitByDefault =
-                getFromData(inputs, provideColor_BeveledButton_isLitByDefault);
+                getFromData(inputs, BeveledButton_provideColor_isLitByDefault);
         var component = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
         boolean isPressed = falseIfNull(getFromData(component, ButtonMethods.IS_PRESSED));
         Color renderableColor;
@@ -148,7 +151,7 @@ public class BeveledButtonMethods {
             renderableColor = getFromData(component, BEVEL_COLOR_LIT);
             if (renderableColor == null) {
                 float bevelIntensity = getFromData(inputs,
-                        provideColor_BeveledButton_bevelIntensity);
+                        BeveledButton_provideColor_bevelIntensity);
                 renderableColor = new Color(1f, 1f, 1f, bevelIntensity);
                 component.data().put(BEVEL_COLOR_LIT, renderableColor);
             }
@@ -157,7 +160,7 @@ public class BeveledButtonMethods {
             renderableColor = getFromData(component, BEVEL_COLOR_UNLIT);
             if (renderableColor == null) {
                 float bevelIntensity = getFromData(inputs,
-                        provideColor_BeveledButton_bevelIntensity);
+                        BeveledButton_provideColor_bevelIntensity);
                 renderableColor = new Color(0f, 0f, 0f, bevelIntensity);
                 component.data().put(BEVEL_COLOR_UNLIT, renderableColor);
             }

@@ -63,9 +63,9 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
     private final static String MOUSE_LEAVE_SOUND_ID_DATA_KEY = "mouseLeaveSoundId";
     private final static String RELEASE_SOUND_ID_DATA_KEY = "releaseSoundId";
 
-    private final static String DEFAULT_RENDERABLE_OPTIONS_DATA_KEY = "defaultRenderableOptions";
-    private final static String HOVER_RENDERABLE_OPTIONS_DATA_KEY = "hoverRenderableOptions";
-    private final static String PRESSED_RENDERABLE_OPTIONS_DATA_KEY = "pressedRenderableOptions";
+    private final static String RENDERABLE_OPTIONS_DEFAULT_DATA_KEY = "defaultRenderableOptions";
+    private final static String RENDERABLE_OPTIONS_HOVER_DATA_KEY = "hoverRenderableOptions";
+    private final static String RENDERABLE_OPTIONS_PRESSED_DATA_KEY = "pressedRenderableOptions";
 
     private final static String Button_provideUnadjTextLocFromRect_horizontalAlignment =
             "Button_provideUnadjTextLocFromRect_horizontalAlignment";
@@ -309,7 +309,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
-                                        Button_provideUnadjRectDimensFromText_textRenderingLocProvider,
+                                        Button_provideUnadjRectDimensFromText_unadjTextLoc,
                                         mockTextRenderingLoc,
                                         Button_provideUnadjRectDimensFromText_lineLength,
                                         TEXT_LINE_LENGTH_DEFAULT,
@@ -324,7 +324,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
-                                        Button_provideUnadjRectDimensFromText_textRenderingLocProvider,
+                                        Button_provideUnadjRectDimensFromText_unadjTextLoc,
                                         mockTextRenderingLoc,
                                         Button_provideUnadjRectDimensFromText_lineLength,
                                         TEXT_LINE_LENGTH_HOVER,
@@ -339,7 +339,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(RECT_DIMENS_FROM_TEXT_LOC_METHOD,
                                 mapOf(
-                                        Button_provideUnadjRectDimensFromText_textRenderingLocProvider,
+                                        Button_provideUnadjRectDimensFromText_unadjTextLoc,
                                         mockTextRenderingLoc,
                                         Button_provideUnadjRectDimensFromText_lineLength,
                                         TEXT_LINE_LENGTH_PRESSED,
@@ -355,15 +355,15 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
-                                        provideTexTileDimens_Button_rectDimensProvider,
-                                        mockRectDimensProvider
+                                        eq(COMPONENT_UUID),
+                                        any()
                                 ))), anyLong())).
                 thenReturn(mockTexTileWidthProvider);
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
-                                        provideTexTileDimens_Button_rectDimensProvider,
-                                        mockRectDimensProvider
+                                        eq(COMPONENT_UUID),
+                                        any()
                                 ))), anyLong())).
                 thenReturn(mockTexTileHeightProvider);
 
@@ -484,6 +484,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 SPRITE_ID_DEFAULT,
                 mockSpriteDimensDefault,
                 mockSpriteShiftDefault,
+                mockTextRenderingLoc,
                 textColorsDefault,
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
@@ -498,6 +499,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 SPRITE_ID_HOVER,
                 mockSpriteDimensHover,
                 mockSpriteShiftHover,
+                mockTextRenderingLoc,
                 textColorsHover,
                 listInts(ITALIC_INDEX_HOVER),
                 listInts(BOLD_INDEX_HOVER)
@@ -512,6 +514,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 SPRITE_ID_PRESSED,
                 mockSpriteDimensPressed,
                 mockSpriteShiftPressed,
+                mockTextRenderingLoc,
                 textColorsPressed,
                 listInts(ITALIC_INDEX_PRESSED),
                 listInts(BOLD_INDEX_PRESSED)
@@ -582,15 +585,15 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_WIDTH_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
-                                        provideTexTileDimens_Button_rectDimensProvider,
-                                        mockRectDimensFuncProviderDefault
+                                        eq(COMPONENT_UUID),
+                                        any()
                                 ))), anyLong())).
                 thenReturn(mockTexTileWidthProvider);
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(TEX_HEIGHT_FROM_RECT_DIMENS_METHOD,
                                 mapOf(
-                                        provideTexTileDimens_Button_rectDimensProvider,
-                                        mockRectDimensFuncProviderDefault
+                                        eq(COMPONENT_UUID),
+                                        any()
                                 ))), anyLong())).
                 thenReturn(mockTexTileHeightProvider);
 
@@ -654,6 +657,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 SPRITE_ID_DEFAULT,
                 mockSpriteDimensDefault,
                 mockSpriteShiftDefault,
+                mockTextRenderingLoc,
                 textColorsDefault,
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
@@ -668,6 +672,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 SPRITE_ID_HOVER,
                 mockSpriteDimensHover,
                 mockSpriteShiftHover,
+                mockTextRenderingLoc,
                 textColorsHover,
                 listInts(ITALIC_INDEX_HOVER),
                 listInts(BOLD_INDEX_HOVER)
@@ -682,6 +687,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 SPRITE_ID_PRESSED,
                 mockSpriteDimensPressed,
                 mockSpriteShiftPressed,
+                mockTextRenderingLoc,
                 textColorsPressed,
                 listInts(ITALIC_INDEX_PRESSED),
                 listInts(BOLD_INDEX_PRESSED)
@@ -805,6 +811,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 SPRITE_ID_DEFAULT,
                 mockSpriteDimensDefault,
                 mockSpriteShiftDefault,
+                mockTextRenderingLoc,
                 textColorsDefault,
                 listInts(ITALIC_INDEX_DEFAULT),
                 listInts(BOLD_INDEX_DEFAULT)
@@ -945,6 +952,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 null,
                 null,
                 null,
+                null,
                 null
 
         );
@@ -1039,6 +1047,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
                 null,
                 null,
                 null,
+                null,
                 mapOf(),
                 listOf(),
                 listOf()
@@ -1078,26 +1087,27 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionTest {
         assertEquals(expected.size() + 3, actual.size());
         expected.forEach((key, value) -> assertEquals(value, actual.get(key)));
         assertOptionsEqual(expectedDefaultOptions,
-                (ButtonMethods.Options) actual.get(DEFAULT_RENDERABLE_OPTIONS_DATA_KEY));
+                (ButtonMethods.Options) actual.get(RENDERABLE_OPTIONS_DEFAULT_DATA_KEY));
         assertOptionsEqual(expectedHoverOptions,
-                (ButtonMethods.Options) actual.get(HOVER_RENDERABLE_OPTIONS_DATA_KEY));
+                (ButtonMethods.Options) actual.get(RENDERABLE_OPTIONS_HOVER_DATA_KEY));
         assertOptionsEqual(expectedPressedOptions,
-                (ButtonMethods.Options) actual.get(PRESSED_RENDERABLE_OPTIONS_DATA_KEY));
+                (ButtonMethods.Options) actual.get(RENDERABLE_OPTIONS_PRESSED_DATA_KEY));
     }
 
     private void assertOptionsEqual(
             ButtonMethods.Options expected,
             ButtonMethods.Options actual
     ) {
-        assertSame(expected.rectDimens, actual.rectDimens);
+        assertSame(expected.unadjRectDimens, actual.unadjRectDimens);
         assertSame(expected.bgColorTopLeft, actual.bgColorTopLeft);
         assertSame(expected.bgColorTopRight, actual.bgColorTopRight);
         assertSame(expected.bgColorBottomRight, actual.bgColorBottomRight);
         assertSame(expected.bgColorBottomLeft, actual.bgColorBottomLeft);
         assertSame(expected.bgTexProvider, actual.bgTexProvider);
         assertEquals(expected.spriteId, actual.spriteId);
-        assertSame(expected.spriteDimens, actual.spriteDimens);
+        assertSame(expected.unadjSpriteDimens, actual.unadjSpriteDimens);
         assertSame(expected.spriteShift, actual.spriteShift);
+        assertSame(expected.unadjTextLoc, actual.unadjTextLoc);
         assertEquals(expected.textColors, actual.textColors);
         assertEquals(expected.italics, actual.italics);
         assertEquals(expected.bolds, actual.bolds);

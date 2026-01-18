@@ -395,7 +395,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         verify(mockComponentData, once()).get(ORIGIN_OVERRIDE_PROVIDER);
         verify(mockOriginOverrideProvider, once()).provide(TIMESTAMP);
         verify(mockComponentData, once()).put(ComponentMethods.ORIGIN_OVERRIDE, ORIGIN_OVERRIDE);
-        verify(mockComponentData, once()).put(ORIGINAL_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft());
+        verify(mockComponentData, once()).put(UNADJUSTED_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft());
         verify(mockComponentData, once()).put(COMPONENT_DIMENS, floatBoxOf(
                 ORIGIN_OVERRIDE.X,
                 ORIGIN_OVERRIDE.Y,
@@ -469,7 +469,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         setOf(
                 pairOf(CONTENT_UNADJUSTED_DIMENS, mockContentDimens),
                 pairOf(ComponentMethods.ORIGIN_OVERRIDE, ORIGIN_OVERRIDE),
-                pairOf(ORIGINAL_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
+                pairOf(UNADJUSTED_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
         var output =
@@ -513,7 +513,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         setOf(
                 pairOf(CONTENT_UNADJUSTED_DIMENS, mockContentDimens),
                 pairOf(CONTENTS_TOP_LEFT_LOCS, mapOf(INNER_CONTENT_UUID, ORIGIN_OVERRIDE)),
-                pairOf(ORIGINAL_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
+                pairOf(UNADJUSTED_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
         var output =
@@ -556,7 +556,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         setOf(
                 pairOf(CONTENT_UNADJUSTED_LOCS, mockContentLocs),
                 pairOf(ComponentMethods.ORIGIN_OVERRIDE, ORIGIN_OVERRIDE),
-                pairOf(ORIGINAL_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
+                pairOf(UNADJUSTED_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
         var output =
@@ -600,7 +600,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         setOf(
                 pairOf(CONTENT_UNADJUSTED_LOCS, mockContentLocs),
                 pairOf(CONTENTS_TOP_LEFT_LOCS, mapOf(INNER_CONTENT_UUID, ORIGIN_OVERRIDE)),
-                pairOf(ORIGINAL_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
+                pairOf(UNADJUSTED_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
         var output =
@@ -645,7 +645,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         setOf(
                 pairOf(CONTENT_UNADJUSTED_VERTICES, mockContentVertices),
                 pairOf(ComponentMethods.ORIGIN_OVERRIDE, ORIGIN_OVERRIDE),
-                pairOf(ORIGINAL_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
+                pairOf(UNADJUSTED_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
         var output =
@@ -695,7 +695,7 @@ public class ComponentMethodsTests extends AbstractComponentMethodsTest {
         setOf(
                 pairOf(CONTENT_UNADJUSTED_VERTICES, mockContentVertices),
                 pairOf(CONTENTS_TOP_LEFT_LOCS, mapOf(INNER_CONTENT_UUID, ORIGIN_OVERRIDE)),
-                pairOf(ORIGINAL_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
+                pairOf(UNADJUSTED_ORIGIN, EXPECTED_NET_ORIG_DIMENS.topLeft())
         ).forEach(p -> lenient().when(mockComponentData.get(p.FIRST)).thenReturn(p.SECOND));
 
         var output =

@@ -23,6 +23,7 @@ import static inaugural.soliloquy.tools.valueobjects.FloatBox.translate;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.difference;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.polygonDimens;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
 public class ComponentMethods {
@@ -33,7 +34,8 @@ public class ComponentMethods {
     public final static String COMPONENT_DIMENS = "COMPONENT_DIMENS";
     public final static String ORIGIN_OVERRIDE_PROVIDER = "ORIGIN_OVERRIDE_PROVIDER";
     public final static String ORIGIN_OVERRIDE = "ORIGIN_OVERRIDE";
-    public final static String ORIGINAL_ORIGIN = "ORIGINAL_ORIGIN";
+    public final static String UNADJUSTED_ORIGIN = "ORIGINAL_ORIGIN";
+    public final static String ORIGIN_ADJUST = "ORIGIN_ADJUST";
     public final static String CONTENT_UNADJUSTED_DIMENS = "CONTENT_UNADJUSTED_DIMENS";
     public final static String CONTENT_UNADJUSTED_LOCS = "CONTENT_UNADJUSTED_LOCS";
     public final static String CONTENT_UNADJUSTED_VERTICES = "CONTENT_UNADJUSTED_VERTICES";
@@ -61,6 +63,7 @@ public class ComponentMethods {
 
     public FloatBox Component_setDimensForComponentAndContent(Component component,
                                                               long timestamp) {
+        System.out.println(">>> in Component_setDimensForComponentAndContent");
         Long lastTimestamp = getFromData(component, LAST_TIMESTAMP);
         // This makes calls to this method cheap, if dimens have already been calculated for the
         // provided timestamp
@@ -95,7 +98,7 @@ public class ComponentMethods {
         // 1. Get all _original_ content dimens providers; if not stored in data already, rip and
         // replace, while populating data with those original content dimens providers
 
-        FloatBox componentNetDimens = null;
+        FloatBox componentNetOrigDimens = null;
 
         for (var content : component.contentsRepresentation()) {
             // LOTS of duplicate code here
@@ -137,8 +140,10 @@ public class ComponentMethods {
                             providedOrigContentVertices);
                     var triangleEncompassingDimens =
                             polygonDimens(providedOrigContentVertices.toArray(Vertex[]::new));
-                    componentNetDimens = componentNetDimens == null ? triangleEncompassingDimens :
-                            encompassing(componentNetDimens, triangleEncompassingDimens);
+                    componentNetOrigDimens =
+                            componentNetOrigDimens == null ? triangleEncompassingDimens :
+                                    encompassing(componentNetOrigDimens,
+                                            triangleEncompassingDimens);
                 }
 
                 case RenderableWithMutableDimensions _ -> {
@@ -157,8 +162,9 @@ public class ComponentMethods {
                     // If these original content dimensions need translation, we will figure that
                     // out later, after we've calculated the component net dimensions
                     contentUnadjustedDimens.put(content.uuid(), providedOrigContentDimens);
-                    componentNetDimens = componentNetDimens == null ? providedOrigContentDimens :
-                            encompassing(componentNetDimens, providedOrigContentDimens);
+                    componentNetOrigDimens =
+                            componentNetOrigDimens == null ? providedOrigContentDimens :
+                                    encompassing(componentNetOrigDimens, providedOrigContentDimens);
                 }
                 case Component c -> {
                     var origContentDimensProvider =
@@ -176,12 +182,14 @@ public class ComponentMethods {
                     // If these original content dimensions need translation, we will figure that
                     // out later, after we've calculated the component net dimensions
                     contentUnadjustedDimens.put(content.uuid(), providedOrigContentDimens);
-                    componentNetDimens = componentNetDimens == null ? providedOrigContentDimens :
-                            encompassing(componentNetDimens, providedOrigContentDimens);
+                    componentNetOrigDimens =
+                            componentNetOrigDimens == null ? providedOrigContentDimens :
+                                    encompassing(componentNetOrigDimens, providedOrigContentDimens);
                 }
                 default -> throw new IllegalStateException("Unexpected content type: " + content);
             }
         }
+        System.out.println("done with the contents...");
 
         // 3. Determine and set origin translation
 
@@ -189,25 +197,30 @@ public class ComponentMethods {
                 getFromData(component, ORIGIN_OVERRIDE_PROVIDER);
 
         if (originOverrideProvider != null) {
+            System.out.println("ORIGIN OVERRIDE");
             var originOverride = originOverrideProvider.provide(timestamp);
 
             //noinspection DataFlowIssue
-            component.data().put(ORIGINAL_ORIGIN, componentNetDimens.topLeft());
+            component.data().put(UNADJUSTED_ORIGIN, componentNetOrigDimens.topLeft());
             component.data().put(ORIGIN_OVERRIDE, originOverride);
-            component.data().put(COMPONENT_DIMENS, componentNetDimens = floatBoxOf(
+            component.data().put(ORIGIN_ADJUST,
+                    difference(originOverride, componentNetOrigDimens.topLeft()));
+            component.data().put(COMPONENT_DIMENS, componentNetOrigDimens = floatBoxOf(
                     originOverride.X,
                     originOverride.Y,
-                    originOverride.X + componentNetDimens.width(),
-                    originOverride.Y + componentNetDimens.height()
+                    originOverride.X + componentNetOrigDimens.width(),
+                    originOverride.Y + componentNetOrigDimens.height()
             ));
         }
         else {
-            component.data().put(COMPONENT_DIMENS, componentNetDimens);
+            System.out.println("NO origin override!");
+            component.data().put(COMPONENT_DIMENS, componentNetOrigDimens);
+            component.data().put(ORIGIN_ADJUST, vertexOf(0f,0f));
         }
 
         component.data().put(LAST_TIMESTAMP, timestamp);
 
-        return componentNetDimens;
+        return componentNetOrigDimens;
     }
 
     public final static String Component_setAndRetrieveDimensForComponentAndContentForProvider =
@@ -343,7 +356,7 @@ public class ComponentMethods {
                 contentUnadjustedDimens.get(getFromData(inputs, CONTENT_UUID));
         Vertex contentOrigin = getContentOriginOverride.apply(containingComponent, inputs);
         if (contentOrigin != null) {
-            Vertex originalOrigin = getFromData(containingComponent, ORIGINAL_ORIGIN);
+            Vertex originalOrigin = getFromData(containingComponent, UNADJUSTED_ORIGIN);
             var contentOriginAdjust = difference(originalOrigin, contentOrigin);
             return translate(unadjustedDimens, contentOriginAdjust);
         }
@@ -383,7 +396,7 @@ public class ComponentMethods {
         var unadjustedLoc = contentUnadjustedLocs.get(contentUuid);
         Vertex contentOrigin = getContentOriginOverride.apply(containingComponent, inputs);
         if (contentOrigin != null) {
-            Vertex originalOrigin = getFromData(containingComponent, ORIGINAL_ORIGIN);
+            Vertex originalOrigin = getFromData(containingComponent, UNADJUSTED_ORIGIN);
             if (originalOrigin != null) {
                 var contentOriginAdjust = difference(originalOrigin, contentOrigin);
                 return inaugural.soliloquy.tools.valueobjects.Vertex.translate(unadjustedLoc,
@@ -430,7 +443,7 @@ public class ComponentMethods {
         var unadjustedVertex = unadjustedVertices.get(vertexIndex);
         Vertex contentOrigin = getContentOriginOverride.apply(containingComponent, inputs);
         if (contentOrigin != null) {
-            Vertex originalOrigin = getFromData(containingComponent, ORIGINAL_ORIGIN);
+            Vertex originalOrigin = getFromData(containingComponent, UNADJUSTED_ORIGIN);
             var contentOriginAdjust = difference(originalOrigin, contentOrigin);
             return inaugural.soliloquy.tools.valueobjects.Vertex.translate(unadjustedVertex,
                     contentOriginAdjust);

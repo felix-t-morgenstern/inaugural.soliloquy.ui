@@ -2,7 +2,6 @@ package inaugural.soliloquy.ui.components.button;
 
 import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
-import inaugural.soliloquy.ui.components.ComponentMethods;
 import org.apache.commons.lang3.function.TriConsumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -29,15 +28,16 @@ import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.encompassing;
-import static inaugural.soliloquy.tools.valueobjects.FloatBox.translate;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.difference;
-import static inaugural.soliloquy.ui.components.ComponentMethods.*;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
+import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
 public class ButtonMethods {
     public final static String BUTTON_DIMENS = "BUTTON_DIMENS";
+    public final static String BUTTON_RECT_DIMENS = "BUTTON_RECT_DIMENS";
 
     public final static String IS_PRESSED = "IS_PRESSED";
 
@@ -63,8 +63,7 @@ public class ButtonMethods {
 
     public ButtonMethods(Consumer<String> playSound,
                          TriConsumer<Integer, MouseEventHandler.EventType, Runnable> subscribeToMouseEvents,
-                         Function<String, Sprite> getSprite, Function<UUID, Component> getComponent,
-                         ComponentMethods componentMethods) {
+                         Function<String, Sprite> getSprite, Function<UUID, Component> getComponent) {
         PLAY_SOUND = Check.ifNull(playSound, "playSound");
         SUBSCRIBE_TO_MOUSE_EVENTS = Check.ifNull(subscribeToMouseEvents, "subscribeToMouseEvents");
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");
@@ -75,7 +74,6 @@ public class ButtonMethods {
             "Button_setDimensForComponentAndContent";
 
     public FloatBox Button_setDimensForComponentAndContent(Component button, long timestamp) {
-        System.out.println(">>> in Button_setDimensForComponentAndContent");
         Long lastTimestamp = getFromData(button, LAST_TIMESTAMP);
 
         FloatBox unadjButtonDimens;
@@ -89,18 +87,13 @@ public class ButtonMethods {
                 currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_HOVER);
             }
             else {
-                System.out.println("state is default");
                 currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
             }
 
-            System.out.println("getting unadjRectDimens...");
             var unadjRectDimens = defaultIfNull(currentStateOptions.unadjRectDimens, null,
                     dimens -> dimens.provide(timestamp));
-            System.out.println("unadjRectDimens = " + unadjRectDimens);
-            System.out.println("getting unadjSpriteDimens...");
             var unadjSpriteDimens = defaultIfNull(currentStateOptions.unadjSpriteDimens, null,
                     dimens -> dimens.provide(timestamp));
-            System.out.println("unadjSpriteDimens = " + unadjSpriteDimens);
 
             if (unadjRectDimens != null) {
                 if (unadjSpriteDimens != null) {
@@ -113,36 +106,50 @@ public class ButtonMethods {
             else {
                 unadjButtonDimens = unadjSpriteDimens;
             }
-            System.out.println("unadjButtonDimens = " + unadjButtonDimens);
+
+            ProviderAtTime<Vertex> originOverrideProvider =
+                    getFromData(button, ORIGIN_OVERRIDE_PROVIDER);
+            var originOverride = defaultIfNull(originOverrideProvider, null, p -> p.provide(timestamp));
+            FloatBox buttonDimens;
+            if (originOverride != null) {
+                var originAdjust = difference(unadjButtonDimens.topLeft(), originOverride);
+                button.data().put(ORIGIN_ADJUST, originAdjust);
+                if (unadjRectDimens != null) {
+                    button.data().put(BUTTON_RECT_DIMENS, floatBoxOf(
+                            translateVertex(unadjRectDimens.topLeft(), originAdjust),
+                            translateVertex(unadjRectDimens.bottomRight(), originAdjust)
+                    ));
+                }
+                else {
+                    button.data().put(BUTTON_RECT_DIMENS, null);
+                }
+                buttonDimens = floatBoxOf(
+                        originOverride,
+                        unadjButtonDimens.width(),
+                        unadjButtonDimens.height()
+                );
+            }
+            else {
+                button.data().put(ORIGIN_ADJUST, null);
+                button.data().put(BUTTON_RECT_DIMENS, unadjRectDimens);
+                buttonDimens = unadjButtonDimens;
+            }
+
+            button.data().put(BUTTON_DIMENS, buttonDimens);
+
+            return buttonDimens;
         }
         else {
             return getFromData(button, BUTTON_DIMENS);
         }
+    }
 
-        ProviderAtTime<Vertex> originOverrideProvider =
-                getFromData(button, ORIGIN_OVERRIDE_PROVIDER);
-        var originOverride = originOverrideProvider.provide(timestamp);
-        FloatBox buttonDimens;
-        System.out.println("originOverride = " + originOverride);
-        if (originOverride != null) {
-            var originAdjust = difference(unadjButtonDimens.topLeft(), originOverride);
-            System.out.println("originAdjust = " + originAdjust);
-            button.data().put(ORIGIN_ADJUST, originAdjust);
-            buttonDimens = floatBoxOf(
-                    originOverride,
-                    unadjButtonDimens.width(),
-                    unadjButtonDimens.height()
-            );
-        }
-        else {
-            button.data().put(ORIGIN_ADJUST, null);
-            buttonDimens = unadjButtonDimens;
-        }
-        
-        System.out.println("buttonDimens = " + buttonDimens);
-        button.data().put(BUTTON_DIMENS, buttonDimens);
+    public final static String Button_getDimens = "Button_getDimens";
 
-        return buttonDimens;
+    public FloatBox Button_getDimens(FunctionalProvider.Inputs inputs) {
+        UUID componentId = getFromData(inputs, COMPONENT_UUID);
+        var button = GET_COMPONENT.apply(componentId);
+        return Button_setDimensForComponentAndContent(button, inputs.timestamp());
     }
 
     public void Button_pressMouse(EventInputs e) {
@@ -353,6 +360,8 @@ public class ButtonMethods {
         ProviderAtTime<Color> bgColorBottomLeft;
         ProviderAtTime<Color> bgColorBottomRight;
         ProviderAtTime<Integer> bgTexProvider;
+        ProviderAtTime<Float> bgTexTileWidth;
+        ProviderAtTime<Float> bgTexTileHeight;
         String spriteId;
         ProviderAtTime<FloatBox> unadjSpriteDimens;
         ColorShift spriteShift;
@@ -437,12 +446,9 @@ public class ButtonMethods {
             "Button_provideUnadjRectDimensFromText_textPaddingHoriz";
 
     public FloatBox Button_provideUnadjRectDimensFromText(FunctionalProvider.Inputs inputs) {
-        System.out.println(">>> in Button_provideUnadjRectDimensFromText");
         ProviderAtTime<Vertex> unadjTextLocProvider = getFromData(inputs,
                 Button_provideUnadjRectDimensFromText_unadjTextLoc);
-        System.out.println("unadjTextLocProvider = " + unadjTextLocProvider);
         var textLoc = unadjTextLocProvider.provide(inputs.timestamp());
-        System.out.println("textLoc = " + textLoc);
         float lineLength = getFromData(inputs, Button_provideUnadjRectDimensFromText_lineLength);
         float textHeight = getFromData(inputs, Button_provideUnadjRectDimensFromText_textHeight);
         float textPaddingVert =
@@ -482,33 +488,30 @@ public class ButtonMethods {
     final static String Button_rectDimensWithAdj = "Button_rectDimensWithAdj";
 
     public FloatBox Button_rectDimensWithAdj(FunctionalProvider.Inputs inputs) {
-        System.out.println(">>> in Button_rectDimensWithAdj");
         return provideWithAdj(
                 inputs,
                 o -> o.unadjRectDimens,
-                inaugural.soliloquy.tools.valueobjects.FloatBox::translate
+                inaugural.soliloquy.tools.valueobjects.FloatBox::translateFloatBox
         );
     }
 
     final static String Button_spriteDimensWithAdj = "Button_spriteDimensWithAdj";
 
     public FloatBox Button_spriteDimensWithAdj(FunctionalProvider.Inputs inputs) {
-        System.out.println(">>> in Button_spriteDimensWithAdj");
         return provideWithAdj(
                 inputs,
                 o -> o.unadjSpriteDimens,
-                inaugural.soliloquy.tools.valueobjects.FloatBox::translate
+                inaugural.soliloquy.tools.valueobjects.FloatBox::translateFloatBox
         );
     }
 
     final static String Button_textLocWithAdj = "Button_textLocWithAdj";
 
     public Vertex Button_textLocWithAdj(FunctionalProvider.Inputs inputs) {
-        System.out.println(">>> in Button_textLocWithAdj");
         return provideWithAdj(
                 inputs,
                 o -> o.unadjTextLoc,
-                inaugural.soliloquy.tools.valueobjects.Vertex::translate
+                inaugural.soliloquy.tools.valueobjects.Vertex::translateVertex
         );
     }
 

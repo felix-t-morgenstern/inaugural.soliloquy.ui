@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.test.unit.components;
 
 import inaugural.soliloquy.tools.testing.Mock;
-import inaugural.soliloquy.ui.components.ComponentMethods;
+import inaugural.soliloquy.ui.Constants;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ public abstract class AbstractComponentMethodsTest {
     @org.mockito.Mock protected Map<String, Object> mockComponentData;
 
     protected void setUp() {
-        lenient().when(mockComponentData.get(ComponentMethods.COMPONENT_UUID)).thenReturn(
+        lenient().when(mockComponentData.get(Constants.COMPONENT_UUID)).thenReturn(
                 COMPONENT_UUID);
         lenient().when(MOCK_COMPONENT.data()).thenReturn(mockComponentData);
     }

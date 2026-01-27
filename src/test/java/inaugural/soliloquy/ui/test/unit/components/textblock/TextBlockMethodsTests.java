@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.components.textblock;
 
-import inaugural.soliloquy.ui.components.ComponentMethods;
+import inaugural.soliloquy.ui.Constants;
 import inaugural.soliloquy.ui.test.unit.components.AbstractComponentMethodsTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,8 +14,9 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomFloat;
 import static inaugural.soliloquy.tools.random.Random.randomVertex;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.ui.components.ComponentMethods.*;
-import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
+import static inaugural.soliloquy.ui.Constants.*;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.TextBlock_blockUpperLeftProvider;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.TextBlock_topOffset;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -50,7 +51,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         when(mockUpperLeftProvider.provide(anyLong())).thenReturn(LOC);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                ComponentMethods.COMPONENT_UUID,
+                Constants.COMPONENT_UUID,
                 COMPONENT_UUID,
                 TextBlock_blockUpperLeftProvider,
                 mockUpperLeftProvider,
@@ -74,7 +75,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         when(mockComponentData.get(ORIGIN_OVERRIDE)).thenReturn(LOC);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                ComponentMethods.COMPONENT_UUID,
+                Constants.COMPONENT_UUID,
                 COMPONENT_UUID,
                 TextBlock_blockUpperLeftProvider,
                 mockUpperLeftProvider,
@@ -100,7 +101,7 @@ public class TextBlockMethodsTests extends AbstractComponentMethodsTest {
         when(mockComponentData.get(ORIGIN_OVERRIDE_PROVIDER)).thenReturn(mockOriginOverrideProvider);
 
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                ComponentMethods.COMPONENT_UUID,
+                Constants.COMPONENT_UUID,
                 COMPONENT_UUID,
                 TextBlock_topOffset,
                 TOP_OFFSET

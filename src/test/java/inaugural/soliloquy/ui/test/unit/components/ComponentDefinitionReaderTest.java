@@ -7,15 +7,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.io.graphics.assets.Font;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
+import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
 
+import java.util.Map;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @ExtendWith(MockitoExtension.class)
-public class ComponentDefinitionTest {
+public class ComponentDefinitionReaderTest {
     protected final String FONT_ID = randomString();
     protected final Mock.LookupAndEntitiesWithId<Font> MOCK_FONT_AND_LOOKUP =
             generateMockLookupFunctionWithId(Font.class, FONT_ID);
@@ -31,5 +35,14 @@ public class ComponentDefinitionTest {
 
     protected <T> T extractStaticVal(AbstractProviderDefinition<T> provider) {
         return ((StaticProviderDefinition<T>) provider).VALUE;
+    }
+
+    protected <T> void assertIsFunctionalProviderWithData(AbstractProviderDefinition<T> providerDef,
+                                                          String expectedMethod,
+                                                          Map<Object, Object> expectedData) {
+        assertInstanceOf(FunctionalProviderDefinition.class, providerDef);
+        var funcProviderDef = (FunctionalProviderDefinition<T>) providerDef;
+        assertEquals(expectedMethod, funcProviderDef.PROVIDE_FUNCTION_ID);
+        assertEquals(expectedData, funcProviderDef.data);
     }
 }

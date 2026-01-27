@@ -12,6 +12,8 @@ import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
+import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
+import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.itemOf;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.column;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
@@ -51,17 +53,29 @@ public class ContentColumnDisplayTest extends DisplayTest {
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var lineHeight = 0.025f;
+        var spacingAfter = 0.05f;
+
+        var lineHeight = 0.02f;
         var lineSpacing = 0.005f;
         var paragraphSpacing = 0.02f;
         var glyphPadding = 0f;
 
-        var paragraphs = listOf(
+        var paragraphs1 = listOf(
                 """
                 A *spectre* is haunting Europe - the spectre of **[color=red]communism[/color]**. All the powers of old Europe have entered into a [color=orange]holy alliance[/color] to exorcise this spectre: Pope and Tsar, Metternich and Guizot, French Radicals and German police-spies.""",
                 """
                 Where is the party in opposition that has not been decried as [color=red]communistic[/color] by its opponents in power? Where is the opposition that has not hurled back the branding reproach of *communism*, against the more advanced opposition parties, as well as against its [color=162,201,129]reactionary[/color] adversaries?"""
         );
+        var paragraphs2 = listOf(
+                """
+                Two things result from this fact:""",
+                """
+                I. **[color=red]Communism[/color]** is already acknowledged by all European powers to be itself a power.""",
+                """
+                [color=127,0,0]II. It is high time that Communists should openly, in the face of the *whole world*,[/color] publish their views, their aims, their tendencies, and meet this nursery tale of the Spectre of Communism with a manifesto of the party itself."""
+        );
+
+        var beveledButtonLineHeight = 0.075f;
 
         var def = column(
                 staticVal(vertexOf(0.25f, 0f)),
@@ -69,21 +83,21 @@ public class ContentColumnDisplayTest extends DisplayTest {
                 0
         )
                 .withItems(
-//                        itemOf(
-//                                textBlock(
-//                                        MERRIWEATHER_ID,
-//                                        lineHeight,
-//                                        0.5f,
-//                                        vertexOf(0f, 0f),
-//                                        glyphPadding,
-//                                        lineSpacing,
-//                                        paragraphSpacing,
-//                                        HorizontalAlignment.LEFT,
-//                                        paragraphs,
-//                                        1
-//                                ),
-//                                0.1f
-//                        ),
+                        itemOf(
+                                textBlock(
+                                        MERRIWEATHER_ID,
+                                        lineHeight,
+                                        0.5f,
+                                        vertexOf(0f, 0f),
+                                        glyphPadding,
+                                        lineSpacing,
+                                        paragraphSpacing,
+                                        HorizontalAlignment.LEFT,
+                                        paragraphs1,
+                                        1
+                                ),
+                                spacingAfter
+                        ),
                         itemOf(
                                 testFullDefFromText("Button", SCREEN_CENTER)
                                         .withTextItalicIndices(listOf(listOf(0, 1)))
@@ -96,6 +110,36 @@ public class ContentColumnDisplayTest extends DisplayTest {
                                                 brightness(SPRITE_PRESS_SHADING, false))
                                         .withSpriteColorShiftPressed(
                                                 brightness(-SPRITE_PRESS_SHADING, false)),
+                                spacingAfter
+                        ),
+                        itemOf(
+                                textBlock(
+                                        MERRIWEATHER_ID,
+                                        lineHeight,
+                                        0.5f,
+                                        vertexOf(0f, 0f),
+                                        glyphPadding,
+                                        lineSpacing,
+                                        paragraphSpacing,
+                                        HorizontalAlignment.LEFT,
+                                        paragraphs2,
+                                        1
+                                ),
+                                spacingAfter
+                        ),
+                        itemOf(
+                                beveledButton(
+                                        "Button",
+                                        MERRIWEATHER_ID,
+                                        beveledButtonLineHeight,
+                                        vertexOf(0.5f, 0.5f - (lineHeight/2f)),
+                                        0.05f,
+                                        0.125f,
+                                        0
+                                )
+                                        .withTextPadding(0.025f)
+                                        .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
+                                        .withBgColor(randomHighSaturationColor()),
                                 0f
                         )
                 );

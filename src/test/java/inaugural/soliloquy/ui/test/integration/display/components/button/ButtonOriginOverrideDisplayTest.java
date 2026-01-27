@@ -11,7 +11,7 @@ import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
+import static inaugural.soliloquy.ui.Constants.ORIGIN_OVERRIDE_PROVIDER;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;

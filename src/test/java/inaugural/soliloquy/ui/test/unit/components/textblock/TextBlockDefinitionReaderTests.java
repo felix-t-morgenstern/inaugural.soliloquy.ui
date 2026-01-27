@@ -1,9 +1,8 @@
 package inaugural.soliloquy.ui.components.textblock;
 
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.components.ComponentMethods;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
-import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionTest;
+import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionReaderTest;
 import inaugural.soliloquy.ui.test.unit.components.FunctionalProviderDefMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,8 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.ui.components.ComponentMethods.LAST_TIMESTAMP;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.LAST_TIMESTAMP;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.HEIGHT;
@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
+public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTest {
     private final float LINE_HEIGHT = randomFloat();
     private final float MAX_LINE_LENGTH = randomFloat();
     private final float GLYPH_PADDING = randomFloat();
@@ -171,7 +171,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(
                         TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_UUID,
+                                COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
@@ -180,7 +180,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(
                         TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_UUID,
+                                COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
@@ -189,7 +189,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(
                         TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_UUID,
+                                COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,
@@ -200,7 +200,7 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionTest {
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(
                         TEXT_RENDERING_LOC_METHOD,
                         mapOf(
-                                ComponentMethods.COMPONENT_UUID,
+                                COMPONENT_UUID,
                                 output.UUID,
                                 TextBlock_blockUpperLeftProvider,
                                 upperLeftProvider,

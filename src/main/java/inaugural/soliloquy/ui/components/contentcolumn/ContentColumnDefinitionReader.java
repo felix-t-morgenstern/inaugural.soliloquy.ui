@@ -14,7 +14,8 @@ import java.util.UUID;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.CONTENTS_TOP_LEFT_LOCS;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
@@ -36,9 +37,8 @@ public class ContentColumnDefinitionReader {
             if (item.content() != null) {
                 content.add(item.content());
             }
-            //noinspection DataFlowIssue
             contents.add(new ContentColumnMethods.Content(
-                    defaultIfNull(item.itemUuid(), item.content().UUID),
+                    defaultIfNull(item.content(), item.itemUuid(), c -> c.UUID),
                     item.spacingAfter(),
                     item.alignment(),
                     item.indent()
@@ -51,7 +51,7 @@ public class ContentColumnDefinitionReader {
                 definition.UUID
         )
                 .withDimensions(functionalProvider(
-                        ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider,
+                                ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider,
                                 FloatBox.class
                         )
                                 .withData(mapOf(

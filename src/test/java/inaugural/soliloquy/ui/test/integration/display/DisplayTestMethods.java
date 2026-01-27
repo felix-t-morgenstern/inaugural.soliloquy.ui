@@ -3,7 +3,7 @@ package inaugural.soliloquy.ui.test.integration.display;
 import soliloquy.specs.ui.EventInputs;
 
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_DIMENS;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_DIMENS;
 
 public class DisplayTestMethods {
     public void onMouseOver(EventInputs e) {

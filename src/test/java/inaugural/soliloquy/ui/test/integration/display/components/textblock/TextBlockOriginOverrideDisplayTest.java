@@ -12,7 +12,7 @@ import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
+import static inaugural.soliloquy.ui.Constants.ORIGIN_OVERRIDE_PROVIDER;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;

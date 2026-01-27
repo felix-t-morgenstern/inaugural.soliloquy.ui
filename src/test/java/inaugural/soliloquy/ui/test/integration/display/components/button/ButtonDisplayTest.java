@@ -8,7 +8,7 @@ import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 
 import java.awt.*;
 
-import static inaugural.soliloquy.tools.valueobjects.Vertex.translate;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
@@ -80,7 +80,7 @@ public class ButtonDisplayTest extends DisplayTest {
     ) {
         return testButtonFromText(
                 text,
-                translate(center, 0, -(BUTTON_TEXT_HEIGHT / 2f))
+                translateVertex(center, 0, -(BUTTON_TEXT_HEIGHT / 2f))
         )
                 .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
                 .withPressSound(PRESS_SOUND_ID)

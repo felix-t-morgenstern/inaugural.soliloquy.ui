@@ -3,7 +3,6 @@ package inaugural.soliloquy.ui;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.tools.module.AbstractModule;
-import inaugural.soliloquy.ui.components.ComponentMethods;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
@@ -210,11 +209,6 @@ public class UIModule extends AbstractModule {
 
         var customComponentMethods = Collections.setOf();
 
-        // Component general methods
-        var componentMethods =
-                new ComponentMethods(graphics::getComponent, functionalProviderDefReader);
-        customComponentMethods.add(componentMethods);
-
         // Button
         var buttonReader = new ButtonDefinitionReader(
                 providerDefinitionReader,
@@ -231,8 +225,7 @@ public class UIModule extends AbstractModule {
                 id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
                 subscribeToNextMouseEvent,
                 graphics::getSprite,
-                graphics::getComponent,
-                componentMethods
+                graphics::getComponent
         ));
         renderableDefinitionReader.addCustomComponentReader(
                 ButtonDefinition.class,
@@ -258,7 +251,7 @@ public class UIModule extends AbstractModule {
         // Column
         var columnReader = new ContentColumnDefinitionReader(providerDefinitionReader);
         customComponentMethods.add(
-                new ContentColumnMethods(graphics::getComponent, functionalProviderDefReader));
+                new ContentColumnMethods(graphics::getComponent, functionalProviderDefReader::read));
         renderableDefinitionReader.addCustomComponentReader(ContentColumnDefinition.class,
                 (d, t) -> columnReader.read((ContentColumnDefinition) d, t));
 

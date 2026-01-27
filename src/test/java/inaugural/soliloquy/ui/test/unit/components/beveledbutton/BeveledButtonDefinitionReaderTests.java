@@ -25,7 +25,7 @@ import static inaugural.soliloquy.tools.collections.Collections.listInts;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +48,7 @@ public class BeveledButtonDefinitionReaderTests {
 
     private final static String BeveledButton_rectDimensProvider =
             "BeveledButton_rectDimensProvider";
-    private final static String BeveledButton_bevelPercent = "BeveledButton_bevelPercent";
+    private final static String BEVEL_PERCENT = "BEVEL_PERCENT";
     private final static String BeveledButton_xSlot = "BeveledButton_xSlot";
     private final static String BeveledButton_ySlot = "BeveledButton_ySlot";
     private final static String BeveledButton_provideBox_xSlotRight =
@@ -92,7 +92,6 @@ public class BeveledButtonDefinitionReaderTests {
 
     @Test
     public void testRead() {
-        var bevelLastTimestampDataKey = "BEVEL_LAST_TIMESTAMP";
         @SuppressWarnings("rawtypes") var providersRead = Collections.<ProviderAtTime>listOf();
         when(mockProviderDefinitionReader.read(any(), anyLong())).thenAnswer(_ -> {
             var provider = mock(ProviderAtTime.class);
@@ -137,7 +136,7 @@ public class BeveledButtonDefinitionReaderTests {
                         coordinate2dOf(0, 1), coordinate2dOf(1, 1), 21)));
 
         verify(mockButtonDefinitionReader, once()).read(definition, TIMESTAMP);
-        verify(mockComponentDefinitionData, once()).put(bevelLastTimestampDataKey, TIMESTAMP - 1);
+        verify(mockComponentDefinitionData, once()).put(BEVELED_BUTTON_LAST_TIMESTAMP, TIMESTAMP - 1);
 
         var inOrder = inOrder(mockProviderDefinitionReader);
         slots.forEach(xSlot -> {
@@ -149,14 +148,10 @@ public class BeveledButtonDefinitionReaderTests {
                                 mapOf(
                                         COMPONENT_UUID,
                                         definition.UUID,
-                                        BeveledButton_rectDimensProvider,
-                                        mockRectDimens,
                                         BeveledButton_xSlot,
                                         xSlot,
                                         BeveledButton_ySlot,
-                                        ySlot,
-                                        BeveledButton_bevelPercent,
-                                        definition.BEVEL_DIMENS_PERCENT
+                                        ySlot
                                 ))), eq(TIMESTAMP));
             });
         });
@@ -167,16 +162,12 @@ public class BeveledButtonDefinitionReaderTests {
                         mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                BeveledButton_rectDimensProvider,
-                                mockRectDimens,
                                 BeveledButton_xSlot,
                                 0,
                                 BeveledButton_provideBox_xSlotRight,
                                 1,
                                 BeveledButton_ySlot,
-                                1,
-                                BeveledButton_bevelPercent,
-                                definition.BEVEL_DIMENS_PERCENT
+                                1
                         ))), eq(TIMESTAMP));
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
@@ -185,16 +176,12 @@ public class BeveledButtonDefinitionReaderTests {
                         mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                BeveledButton_rectDimensProvider,
-                                mockRectDimens,
                                 BeveledButton_xSlot,
                                 1,
                                 BeveledButton_provideBox_xSlotRight,
                                 3,
                                 BeveledButton_ySlot,
-                                0,
-                                BeveledButton_bevelPercent,
-                                definition.BEVEL_DIMENS_PERCENT
+                                0
                         ))), eq(TIMESTAMP));
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
@@ -203,16 +190,12 @@ public class BeveledButtonDefinitionReaderTests {
                         mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                BeveledButton_rectDimensProvider,
-                                mockRectDimens,
                                 BeveledButton_xSlot,
                                 2,
                                 BeveledButton_provideBox_xSlotRight,
                                 3,
                                 BeveledButton_ySlot,
-                                1,
-                                BeveledButton_bevelPercent,
-                                definition.BEVEL_DIMENS_PERCENT
+                                1
                         ))), eq(TIMESTAMP));
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(
@@ -221,16 +204,12 @@ public class BeveledButtonDefinitionReaderTests {
                         mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                BeveledButton_rectDimensProvider,
-                                mockRectDimens,
                                 BeveledButton_xSlot,
                                 0,
                                 BeveledButton_provideBox_xSlotRight,
                                 2,
                                 BeveledButton_ySlot,
-                                2,
-                                BeveledButton_bevelPercent,
-                                definition.BEVEL_DIMENS_PERCENT
+                                2
                         ))), eq(TIMESTAMP));
         //noinspection unchecked,rawtypes
         inOrder.verify(mockProviderDefinitionReader, once()).read(

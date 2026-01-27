@@ -6,7 +6,6 @@ import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Consumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
-import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.assets.Font;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
@@ -29,9 +28,8 @@ import java.util.stream.Collectors;
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.components.ComponentMethods.*;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
-import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.CENTER;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
@@ -109,7 +107,7 @@ public class ButtonDefinitionReader {
         )
                 .withDimensions(
                         functionalProvider(
-                                Component_setAndRetrieveDimensForComponentAndContentForProvider,
+                                Button_getDimens,
                                 FloatBox.class
                         )
                                 .withData(mapOf(
@@ -157,7 +155,6 @@ public class ButtonDefinitionReader {
             Options pressedOptions,
             long timestamp
     ) {
-        System.out.println(">>> in makeContent");
         var content = Collections.<AbstractContentDefinition>setOf();
         UUID rectUuid = null;
         UUID spriteUuid = null;
@@ -166,9 +163,7 @@ public class ButtonDefinitionReader {
         var makeRect = false;
         var unadjRectDimensFromDef = defaultIfNull(definition.RECT_DIMENS_DEF, null,
                 d -> PROVIDER_DEF_READER.read(d, timestamp));
-        System.out.println("unadjRectDimensFromDef = " + unadjRectDimensFromDef);
         if (definition.text != null) {
-            System.out.println("(there is text...)");
             makeRect = true;
             // it has both a rect and text, and loc is defined by rect dimens XOR text rendering loc
             ProviderAtTime<Vertex> textUnadjRenderingLoc;
@@ -262,6 +257,9 @@ public class ButtonDefinitionReader {
             textUuid = textLineDef.UUID;
         }
         else if (definition.RECT_DIMENS_DEF != null) {
+            defaultOptions.unadjRectDimens =
+                    hoverOptions.unadjRectDimens =
+                            pressedOptions.unadjRectDimens = unadjRectDimensFromDef;
             makeRect = true;
         }
 
@@ -299,23 +297,24 @@ public class ButtonDefinitionReader {
             Options pressedOptions,
             long timestamp
     ) {
-        var bgColorTopLeftDefault =
-                getNullProviderIfNull(definition.bgColorTopLeftDefault, timestamp);
+        var bgColorTopLeftDefault = nullProviderIfNull(definition.bgColorTopLeftDefault, timestamp);
         var bgColorTopRightDefault =
-                getNullProviderIfNull(definition.bgColorTopRightDefault, timestamp);
+                nullProviderIfNull(definition.bgColorTopRightDefault, timestamp);
         var bgColorBottomLeftDefault =
-                getNullProviderIfNull(definition.bgColorBottomLeftDefault, timestamp);
+                nullProviderIfNull(definition.bgColorBottomLeftDefault, timestamp);
         var bgColorBottomRightDefault =
-                getNullProviderIfNull(definition.bgColorBottomRightDefault, timestamp);
-        var bgTexProviderDefault = getNullProviderIfNull(
+                nullProviderIfNull(definition.bgColorBottomRightDefault, timestamp);
+        var bgTexProviderDefault = nullProviderIfNull(
                 getBgTexProviderDef(definition.bgTexProviderDefault, definition.bgTexRelLocDefault),
                 timestamp);
+
         ProviderAtTime<Float> texWidthProvider;
         ProviderAtTime<Float> texHeightProvider;
         if (bgTexProviderDefault != NULL_PROVIDER) {
-            var texDimensProviders = makeTexDimensProviders(definition.UUID, timestamp);
-            texWidthProvider = texDimensProviders.FIRST;
-            texHeightProvider = texDimensProviders.SECOND;
+            texWidthProvider =
+                    makeTexDimensDef(Button_provideTexTileWidth, definition.UUID, timestamp);
+            texHeightProvider =
+                    makeTexDimensDef(Button_provideTexTileHeight, definition.UUID, timestamp);
         }
         else {
             //noinspection unchecked
@@ -382,6 +381,14 @@ public class ButtonDefinitionReader {
                 .onPress(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD))
                 .onMouseOver(MOUSE_OVER_METHOD)
                 .onMouseLeave(MOUSE_LEAVE_METHOD);
+    }
+
+    private <T> ProviderAtTime<T> nullProviderIfNull(
+            AbstractProviderDefinition<T> def,
+            long timestamp
+    ) {
+        //noinspection unchecked
+        return defaultIfNull(def, NULL_PROVIDER, d -> PROVIDER_DEF_READER.read(d, timestamp));
     }
 
     private void setUnadjRectDimensFromUnadjTextLoc(
@@ -452,25 +459,18 @@ public class ButtonDefinitionReader {
                         pressedOptions.unadjTextLoc = unadjTextRenderingLocProvider;
     }
 
-    private Pair<ProviderAtTime<Float>, ProviderAtTime<Float>> makeTexDimensProviders(
-            UUID buttonUuid,
-            long timestamp
-    ) {
+    private ProviderAtTime<Float> makeTexDimensDef(String method,
+                                                   UUID buttonUuid,
+                                                   long timestamp) {
         var data = Collections.<String, Object>mapOf(
                 COMPONENT_UUID,
                 buttonUuid
         );
 
-        var texWidth = PROVIDER_DEF_READER.read(
-                functionalProvider(Button_provideTexTileWidth, Float.class)
-                        .withData(data),
-                timestamp);
-        var texHeight = PROVIDER_DEF_READER.read(
-                functionalProvider(Button_provideTexTileHeight, Float.class)
-                        .withData(data),
-                timestamp);
-
-        return pairOf(texWidth, texHeight);
+        return PROVIDER_DEF_READER.read(
+                functionalProvider(method, Float.class).withData(data),
+                timestamp
+        );
     }
 
     private SpriteRenderableDefinition makeSpriteDef(
@@ -493,15 +493,15 @@ public class ButtonDefinitionReader {
         defaultOptions.spriteShift = spriteShiftDefault;
 
         hoverOptions.spriteId = defaultIfNull(definition.spriteIdHover, null);
-        hoverOptions.unadjSpriteDimens = defaultIfNull(defaultOptions.unadjSpriteDimens,
-                defaultIfNull(definition.spriteDimensHoverDef, null,
-                        d -> PROVIDER_DEF_READER.read(d, timestamp)));
+        hoverOptions.unadjSpriteDimens =
+                defaultIfNull(definition.spriteDimensHoverDef, defaultOptions.unadjSpriteDimens,
+                        d -> PROVIDER_DEF_READER.read(d, timestamp));
         hoverOptions.spriteShift = spriteShiftHover;
 
         pressedOptions.spriteId = defaultIfNull(definition.spriteIdPressed, null);
-        pressedOptions.unadjSpriteDimens = defaultIfNull(defaultOptions.unadjSpriteDimens,
-                defaultIfNull(definition.spriteDimensPressedDef, null,
-                        d -> PROVIDER_DEF_READER.read(d, timestamp)));
+        pressedOptions.unadjSpriteDimens =
+                defaultIfNull(definition.spriteDimensPressedDef, defaultOptions.unadjSpriteDimens,
+                        d -> PROVIDER_DEF_READER.read(d, timestamp));
         pressedOptions.spriteShift = spriteShiftPressed;
 
         return sprite(
@@ -565,12 +565,11 @@ public class ButtonDefinitionReader {
         return textLine(
                 definition.fontId,
                 staticVal(definition.text),
-                PROVIDER_DEF_READER.read(functionalProvider(
-                        Button_textLocWithAdj, Vertex.class
-                ).withData(mapOf(
-                        COMPONENT_UUID,
-                        definition.UUID
-                )), timestamp),
+                functionalProvider(Button_textLocWithAdj, Vertex.class)
+                        .withData(mapOf(
+                                COMPONENT_UUID,
+                                definition.UUID)
+                        ),
                 staticVal(definition.textHeight),
                 defaultIfNull(definition.horizontalAlignment, CENTER),
                 definition.textGlyphPadding,
@@ -599,7 +598,6 @@ public class ButtonDefinitionReader {
             Options pressedOptions,
             long timestamp
     ) {
-        System.out.println(">>> in setUnadjTextLocProvidersFromUnadjRectDimensProvider");
         var providerDef =
                 functionalProvider(Button_provideUnadjTextLocFromRect, Vertex.class)
                         .withData(mapOf(
@@ -627,15 +625,6 @@ public class ButtonDefinitionReader {
         defaultOptions.unadjRectDimens =
                 hoverOptions.unadjRectDimens =
                         pressedOptions.unadjRectDimens = unadjRectDimensFromDef;
-    }
-
-    private <T> ProviderAtTime<T> getNullProviderIfNull(AbstractProviderDefinition<T> def,
-                                                        long timestamp) {
-        if (def == null) {
-            //noinspection unchecked
-            return NULL_PROVIDER;
-        }
-        return PROVIDER_DEF_READER.read(def, timestamp);
     }
 
     private AbstractProviderDefinition<Integer> getBgTexProviderDef(

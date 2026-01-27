@@ -12,8 +12,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.tools.valueobjects.Vertex.translate;
-import static inaugural.soliloquy.ui.components.ComponentMethods.*;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
+import static inaugural.soliloquy.ui.Constants.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
@@ -47,8 +47,9 @@ public class TextBlockMethods {
     public FloatBox TextBlock_getDimens(FunctionalProvider.Inputs inputs) {
         var component = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
         var blockUpperLeft = TextBlock_getUpperLeft(component, inputs.timestamp(), inputs.data());
-        return floatBoxOf(blockUpperLeft, translate(blockUpperLeft,
-                getFromData(component, WIDTH), getFromData(component, HEIGHT)));
+        return floatBoxOf(blockUpperLeft,
+                translateVertex(blockUpperLeft, getFromData(component, WIDTH),
+                        getFromData(component, HEIGHT)));
     }
 
     private Vertex TextBlock_getUpperLeft(Component component,

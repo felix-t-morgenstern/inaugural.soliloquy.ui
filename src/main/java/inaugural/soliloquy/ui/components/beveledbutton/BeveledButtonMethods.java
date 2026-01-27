@@ -7,7 +7,6 @@ import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider;
-import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 
 import java.awt.*;
 import java.util.UUID;
@@ -15,17 +14,18 @@ import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.components.button.ButtonMethods.BUTTON_RECT_DIMENS;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
 public class BeveledButtonMethods {
-    final static String BEVEL_LAST_TIMESTAMP = "BEVEL_LAST_TIMESTAMP";
-    final static String BEVEL_LAST_RECT_DIMENS = "BEVEL_LAST_RECT_DIMENS";
-    final static String BEVEL_LAST_INNER_TRANSFORMS_UPPER_LEFT =
-            "BEVEL_LAST_INNER_TRANSFORMS_UPPER_LEFT";
+    final static String BEVELED_BUTTON_LAST_TIMESTAMP = "BEVELED_BUTTON_LAST_TIMESTAMP";
+    final static String BEVEL_LAST_INNER_TRANSFORMS_TOP_LEFT =
+            "BEVEL_LAST_INNER_TRANSFORMS_TOP_LEFT";
 
+    final static String BEVEL_PERCENT = "BEVEL_PERCENT";
     final static String BEVEL_COLOR_LIT = "BEVEL_COLOR_LIT";
     final static String BEVEL_COLOR_UNLIT = "BEVEL_COLOR_UNLIT";
 
@@ -36,8 +36,6 @@ public class BeveledButtonMethods {
     }
 
     final static String BeveledButton_provideVertex = "BeveledButton_provideVertex";
-    final static String BeveledButton_rectDimensProvider = "BeveledButton_rectDimensProvider";
-    final static String BeveledButton_bevelPercent = "BeveledButton_bevelPercent";
     final static String BeveledButton_xSlot = "BeveledButton_xSlot";
     final static String BeveledButton_ySlot = "BeveledButton_ySlot";
 
@@ -103,34 +101,28 @@ public class BeveledButtonMethods {
     private Pair<FloatBox, Vertex> getRectDimensAndInnerTransformsUpperLeft(
             FunctionalProvider.Inputs inputs
     ) {
-        FloatBox rectDimens;
         Vertex innerTransformsUpperLeft;
 
-        var component = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
-        long lastTimestamp = getFromData(component, BEVEL_LAST_TIMESTAMP);
+        var button = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        FloatBox rectDimens = getFromData(button, BUTTON_RECT_DIMENS);
+        long lastTimestamp = getFromData(button, BEVELED_BUTTON_LAST_TIMESTAMP);
         if (lastTimestamp == inputs.timestamp()) {
-            rectDimens = getFromData(component, BEVEL_LAST_RECT_DIMENS);
             innerTransformsUpperLeft =
-                    getFromData(component, BEVEL_LAST_INNER_TRANSFORMS_UPPER_LEFT);
+                    getFromData(button, BEVEL_LAST_INNER_TRANSFORMS_TOP_LEFT);
         }
         else {
-            ProviderAtTime<FloatBox> rectDimensProvider =
-                    getFromData(inputs, BeveledButton_rectDimensProvider);
-            rectDimens = rectDimensProvider.provide(inputs.timestamp());
-            float bevelPercent =
-                    getFromData(inputs, BeveledButton_bevelPercent);
-            innerTransformsUpperLeft = getInnerTransformsUpperLeft(rectDimens, bevelPercent);
+            float bevelPercent = getFromData(button, BEVEL_PERCENT);
+            innerTransformsUpperLeft = getInnerTransformsTopLeft(rectDimens, bevelPercent);
 
-            component.data().put(BEVEL_LAST_TIMESTAMP, inputs.timestamp());
-            component.data().put(BEVEL_LAST_RECT_DIMENS, rectDimens);
-            component.data().put(BEVEL_LAST_INNER_TRANSFORMS_UPPER_LEFT, innerTransformsUpperLeft);
+            button.data().put(BEVELED_BUTTON_LAST_TIMESTAMP, inputs.timestamp());
+            button.data().put(BEVEL_LAST_INNER_TRANSFORMS_TOP_LEFT, innerTransformsUpperLeft);
         }
 
         return pairOf(rectDimens, innerTransformsUpperLeft);
     }
 
-    private static Vertex getInnerTransformsUpperLeft(FloatBox rectDimens,
-                                                      float bevelPercent) {
+    private static Vertex getInnerTransformsTopLeft(FloatBox rectDimens,
+                                                    float bevelPercent) {
         return vertexOf(rectDimens.width() * bevelPercent, rectDimens.height() * bevelPercent);
     }
 

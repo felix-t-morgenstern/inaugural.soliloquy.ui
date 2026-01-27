@@ -6,11 +6,12 @@ import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
+import org.lwjgl.glfw.GLFW;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.random.Random.*;
-import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
+import static inaugural.soliloquy.ui.Constants.ORIGIN_OVERRIDE_PROVIDER;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
@@ -54,7 +55,8 @@ public class BeveledButtonOriginOverrideDisplayTest extends DisplayTest {
         )
                 .withTextPadding(0.025f)
                 .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
-                .withBgColor(randomHighSaturationColor());
+                .withBgColor(randomHighSaturationColor())
+                .withKey(GLFW.GLFW_KEY_B, 1);
 
         var timestamp = timestamp(uiModule);
         var reader = uiModule.provide(RenderableDefinitionReader.class);

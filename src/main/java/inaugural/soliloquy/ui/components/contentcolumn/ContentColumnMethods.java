@@ -59,7 +59,7 @@ public class ContentColumnMethods {
         Map<UUID, ProviderAtTime<FloatBox>> unadjContentDimensProviders =
                 getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_DIMENS_PROVIDERS,
                         Collections::mapOf);
-        
+
         Map<UUID, FloatBox> contentUnadjustedDimens =
                 getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_DIMENS,
                         Collections::mapOf);
@@ -68,12 +68,12 @@ public class ContentColumnMethods {
         Map<UUID, List<ProviderAtTime<Vertex>>> contentUnadjVerticesProviders =
                 getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_VERTICES_PROVIDERS,
                         Collections::mapOf);
-        
+
         Map<UUID, List<Vertex>> contentUnadjustedVertices =
                 getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_VERTICES,
                         Collections::mapOf);
         contentUnadjustedVertices.clear();
-        
+
         Map<UUID, Vertex> contentPolygonOffsets =
                 getFromComponentDataOrDefault(column, CONTENT_POLYGON_OFFSETS,
                         Collections::mapOf);
@@ -91,7 +91,7 @@ public class ContentColumnMethods {
         Set<UUID> registeredContentsInData =
                 getFromComponentDataOrDefault(column, REGISTERED_CONTENTS, Collections::setOf);
 
-        Map<UUID, Vertex> newContentSpecificOrigins = Collections.mapOf();
+        Map<UUID, Vertex> newContentSpecificOrigins = mapOf();
 
         for (var content : contents) {
             var contentFromUuid =
@@ -124,7 +124,13 @@ public class ContentColumnMethods {
 
                     newContentSpecificOrigins.put(
                             c.uuid(),
-                            vertexOf(renderingLoc.X, renderingLoc.Y + heightThusFar)
+                            vertexOf(midpoint(
+                                    renderingLoc.X,
+                                    colWidth,
+                                    dimens.width(),
+                                    content.indent,
+                                    content.alignment
+                            ), renderingLoc.Y + heightThusFar)
                     );
 
                     heightThusFar += dimens.height();
@@ -147,9 +153,17 @@ public class ContentColumnMethods {
                         registeredContentsInData.add(t.uuid());
                     }
 
+                    t.setAlignment(content.alignment);
+
+                    var xLoc = switch (content.alignment) {
+                        case LEFT -> renderingLoc.X + content.indent;
+                        case CENTER -> renderingLoc.X + (colWidth / 2f);
+                        case RIGHT -> renderingLoc.X + colWidth - content.indent;
+                    };
+
                     newContentSpecificOrigins.put(
                             t.uuid(),
-                            vertexOf(renderingLoc.X, renderingLoc.Y + heightThusFar)
+                            vertexOf(xLoc, renderingLoc.Y + heightThusFar)
                     );
 
                     heightThusFar += t.lineHeightProvider().provide(timestamp);
@@ -179,7 +193,13 @@ public class ContentColumnMethods {
 
                     newContentSpecificOrigins.put(
                             r.uuid(),
-                            vertexOf(renderingLoc.X, renderingLoc.Y + heightThusFar)
+                            vertexOf(midpoint(
+                                    renderingLoc.X,
+                                    colWidth,
+                                    origDimens.width(),
+                                    content.indent,
+                                    content.alignment
+                            ), renderingLoc.Y + heightThusFar)
                     );
 
                     heightThusFar += origDimens.height();
@@ -201,11 +221,13 @@ public class ContentColumnMethods {
                     var unadjPolygonDimens = polygonDimens(providedOrigContentVertices);
                     contentPolygonOffsets.put(
                             t.uuid(),
-                            translateVertex(
-                                    difference(unadjPolygonDimens.topLeft(), renderingLoc),
-                                    0f,
-                                    heightThusFar
-                            )
+                            vertexOf(midpoint(
+                                    renderingLoc.X,
+                                    colWidth,
+                                    unadjPolygonDimens.width(),
+                                    content.indent,
+                                    content.alignment
+                            ), renderingLoc.Y + heightThusFar)
                     );
 
                     var triangleEncompassingDimens = polygonDimens(providedOrigContentVertices);
@@ -222,7 +244,6 @@ public class ContentColumnMethods {
 
             heightThusFar += content.spacingAfter();
         }
-
 
         var componentDimens = floatBoxOf(
                 renderingLoc,
@@ -268,6 +289,15 @@ public class ContentColumnMethods {
         triangleRenderable.setVertex3Provider(newContentVerticesProviders.get(2));
 
         return originalContentVerticesProviders;
+    }
+
+    private float midpoint(float start, float colWidth, float contentWidth, float indent,
+                           HorizontalAlignment alignment) {
+        return switch(alignment) {
+            case LEFT -> start + indent;
+            case CENTER -> start + ((colWidth - contentWidth) / 2f);
+            case RIGHT -> start + colWidth - contentWidth - indent;
+        };
     }
 
     public final static String ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider =

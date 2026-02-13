@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.io.graphics.renderables.Component.Addend.addend;
 import static soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider.Inputs.providerInputs;
 
@@ -47,20 +48,29 @@ public class ContentColumnMethodsTests {
     private final UUID CONTENT_COMPONENT_UUID = randomUUID();
     private final FloatBox CONTENT_COMPONENT_UNADJ_DIMENS = randomFloatBox();
     private final float CONTENT_COMPONENT_SPACING_AFTER = randomFloat();
+    private final float CONTENT_COMPONENT_INDENT = randomFloat();
 
     private final UUID CONTENT_TEXT_LINE_UUID = randomUUID();
     private final float CONTENT_TEXT_LINE_HEIGHT = randomFloat();
     private final float CONTENT_TEXT_LINE_SPACING_AFTER = randomFloat();
+    private final float CONTENT_TEXT_LINE_INDENT = randomFloat();
 
     private final UUID CONTENT_WITH_DIMENS_UUID = randomUUID();
     private final FloatBox CONTENT_WITH_DIMENS_UNADJ_DIMENS = randomFloatBox();
     private final float CONTENT_WITH_DIMENS_SPACING_AFTER = randomFloat();
+    private final float CONTENT_WITH_DIMENS_INDENT = randomFloat();
 
     private final UUID CONTENT_TRIANGLE_UUID = randomUUID();
     private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_1 = randomVertex();
     private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_2 = randomVertex();
     private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_3 = randomVertex();
     private final float CONTENT_TRIANGLE_SPACING_AFTER = randomFloat();
+    private final FloatBox CONTENT_TRIANGLE_POLYGON_DIMENS = polygonDimens(
+            CONTENT_TRIANGLE_UNADJ_VERTEX_1,
+            CONTENT_TRIANGLE_UNADJ_VERTEX_2,
+            CONTENT_TRIANGLE_UNADJ_VERTEX_3
+    );
+    private final float CONTENT_TRIANGLE_INDENT = randomFloat();
 
     private final float EXPECTED_HEIGHT =
             CONTENT_COMPONENT_UNADJ_DIMENS.height() +
@@ -69,12 +79,16 @@ public class ContentColumnMethodsTests {
                     CONTENT_TEXT_LINE_SPACING_AFTER +
                     CONTENT_WITH_DIMENS_UNADJ_DIMENS.height() +
                     CONTENT_WITH_DIMENS_SPACING_AFTER +
-                    polygonDimens(
-                            CONTENT_TRIANGLE_UNADJ_VERTEX_1,
-                            CONTENT_TRIANGLE_UNADJ_VERTEX_2,
-                            CONTENT_TRIANGLE_UNADJ_VERTEX_3
-                    ).height() +
+                    CONTENT_TRIANGLE_POLYGON_DIMENS.height() +
                     CONTENT_TRIANGLE_SPACING_AFTER;
+    private final float EXPECTED_HEIGHT_TO_TEXT_LINE =
+            CONTENT_COMPONENT_UNADJ_DIMENS.height() + CONTENT_COMPONENT_SPACING_AFTER;
+    private final float EXPECTED_HEIGHT_TO_WITH_DIMENS =
+            EXPECTED_HEIGHT_TO_TEXT_LINE + CONTENT_TEXT_LINE_HEIGHT +
+                    CONTENT_TEXT_LINE_SPACING_AFTER;
+    private final float EXPECTED_HEIGHT_TO_TRIANGLE =
+            EXPECTED_HEIGHT_TO_WITH_DIMENS + CONTENT_WITH_DIMENS_UNADJ_DIMENS.height() +
+                    CONTENT_WITH_DIMENS_SPACING_AFTER;
     private final FloatBox EXPECTED_OUTPUT = floatBoxOf(
             COLUMN_RENDERING_LOC,
             COLUMN_WIDTH,
@@ -113,6 +127,7 @@ public class ContentColumnMethodsTests {
     @Mock private Function<UUID, Component> mockGetComponent;
 
     @Mock private ProviderAtTime<Vertex> mockColumnRenderingLocProvider;
+    @Mock private Map<UUID, Vertex> mockContentPolygonOffsets;
 
     private Map<String, Object> mockColumnData;
 
@@ -286,6 +301,9 @@ public class ContentColumnMethodsTests {
         verify(mockColumnData, once()).get(CONTENT_UNADJUSTED_VERTICES);
         verify(mockColumnData, once()).put(CONTENT_UNADJUSTED_VERTICES,
                 Collections.<String, Object>mapOf());
+        verify(mockColumnData, once()).get(CONTENT_POLYGON_OFFSETS);
+        verify(mockColumnData, once()).put(CONTENT_POLYGON_OFFSETS,
+                Collections.<UUID, Vertex>mapOf());
         verify(mockColumnData, once()).get(COMPONENT_RENDERING_LOC);
         verify(mockColumnRenderingLocProvider, once()).provide(TIMESTAMP);
         verify(mockColumnData, once()).get(COMPONENT_WIDTH);
@@ -296,12 +314,12 @@ public class ContentColumnMethodsTests {
     }
 
     @Test
-    public void testContentColumn_setDimensForComponentAndContentWithNewTimestampAndNewContent() {
+    public void testContentColumn_setDimensForComponentAndContentNewTimestampAndNewContentLeftAlignment() {
         when(mockColumn.contentsRepresentation()).thenReturn(setOf(
                 mockContentComponent,
                 mockContentTextLine,
-                mockContentTriangle,
-                mockContentWithDimens
+                mockContentWithDimens,
+                mockContentTriangle
         ));
         when(mockColumnData.get(CONTENTS)).thenReturn(listOf(
                 new ContentColumnMethods.Content(
@@ -321,6 +339,7 @@ public class ContentColumnMethodsTests {
                         HorizontalAlignment.LEFT, 0f
                 )
         ));
+        when(mockColumnData.get(CONTENT_POLYGON_OFFSETS)).thenReturn(mockContentPolygonOffsets);
 
         var output = methods.ContentColumn_setDimensForComponentAndContent(mockColumn, TIMESTAMP);
 
@@ -356,6 +375,7 @@ public class ContentColumnMethodsTests {
         verify(mockRegisteredComponents, once()).add(CONTENT_TEXT_LINE_UUID);
         verify(mockContentTextLine, once())
                 .setRenderingLocationProvider(mockContentTextLineOriginProvider);
+        verify(mockContentTextLine, once()).setAlignment(HorizontalAlignment.LEFT);
         verify(mockContentTextLineHeightProvider, once()).provide(TIMESTAMP);
 
         verify(mockContentWithDimens, once()).getRenderingDimensionsProvider();
@@ -392,10 +412,41 @@ public class ContentColumnMethodsTests {
         verify(mockContentTriangle, once()).setVertex1Provider(mockContentTriangleAdjVertex1);
         verify(mockContentTriangle, once()).setVertex2Provider(mockContentTriangleAdjVertex2);
         verify(mockContentTriangle, once()).setVertex3Provider(mockContentTriangleAdjVertex3);
+
+        verify(mockColumnData, once()).put(COMPONENT_DIMENS, output);
+
+        verify(mockColumnData, once()).put(CONTENT_SPECIFIC_ORIGINS, mapOf(
+                CONTENT_COMPONENT_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X,
+                        COLUMN_RENDERING_LOC.Y
+                ),
+                CONTENT_TEXT_LINE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TEXT_LINE
+                ),
+                CONTENT_WITH_DIMENS_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_WITH_DIMENS
+                )
+        ));
+
+        verify(mockContentPolygonOffsets, once()).clear();
+        verify(mockContentPolygonOffsets, once()).put(
+                CONTENT_TRIANGLE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TRIANGLE
+                )
+        );
+
+        verify(mockColumnData, once()).put(LAST_TIMESTAMP, TIMESTAMP);
     }
 
     @Test
-    public void testContentColumn_setDimensForComponentAndContentWithNewTimestampAndExistingContent() {
+    public void testContentColumn_setDimensForComponentAndContentNewTimestampAndExistingContent() {
         when(mockColumn.contentsRepresentation()).thenReturn(setOf(
                 mockContentComponent,
                 mockContentTextLine,
@@ -535,7 +586,7 @@ public class ContentColumnMethodsTests {
 
     @Test
     public void testContentColumn_addItem() {
-        var alignment = HorizontalAlignment.fromValue(randomIntInRange(1,3));
+        var alignment = HorizontalAlignment.fromValue(randomIntInRange(1, 3));
         var contentComponentIndent = randomFloat();
         Map<String, Object> mockAddendData = generateMockMap(
                 pairOf(SPACING_AFTER, CONTENT_COMPONENT_SPACING_AFTER),
@@ -559,6 +610,270 @@ public class ContentColumnMethodsTests {
                 alignment,
                 contentComponentIndent
         )));
+    }
+
+    @Test
+    public void testContentColumn_setDimensForComponentAndContentRightAlignment() {
+        when(mockColumn.contentsRepresentation()).thenReturn(setOf(
+                mockContentComponent,
+                mockContentTextLine,
+                mockContentTriangle,
+                mockContentWithDimens
+        ));
+
+        when(mockColumnData.get(CONTENT_POLYGON_OFFSETS)).thenReturn(mockContentPolygonOffsets);
+
+        when(mockColumnData.get(CONTENTS)).thenReturn(listOf(
+                new ContentColumnMethods.Content(
+                        CONTENT_COMPONENT_UUID, CONTENT_COMPONENT_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TEXT_LINE_UUID, CONTENT_TEXT_LINE_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_WITH_DIMENS_UUID, CONTENT_WITH_DIMENS_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TRIANGLE_UUID, CONTENT_TRIANGLE_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, 0f
+                )
+        ));
+
+        var output = methods.ContentColumn_setDimensForComponentAndContent(mockColumn, TIMESTAMP);
+
+        assertEquals(EXPECTED_OUTPUT, output);
+
+        verify(mockContentTextLine, once()).setAlignment(HorizontalAlignment.RIGHT);
+
+        verify(mockColumnData, once()).put(CONTENT_SPECIFIC_ORIGINS, mapOf(
+                CONTENT_COMPONENT_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + COLUMN_WIDTH -
+                                CONTENT_COMPONENT_UNADJ_DIMENS.width(),
+                        COLUMN_RENDERING_LOC.Y
+                ),
+                CONTENT_TEXT_LINE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + COLUMN_WIDTH,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TEXT_LINE
+                ),
+                CONTENT_WITH_DIMENS_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + COLUMN_WIDTH -
+                                CONTENT_WITH_DIMENS_UNADJ_DIMENS.width(),
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_WITH_DIMENS
+                )
+        ));
+
+        verify(mockContentPolygonOffsets, once()).put(
+                CONTENT_TRIANGLE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + COLUMN_WIDTH -
+                                CONTENT_TRIANGLE_POLYGON_DIMENS.width(),
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TRIANGLE
+                )
+        );
+    }
+
+    @Test
+    public void testContentColumn_setDimensForComponentAndContentCenterAlignment() {
+        when(mockColumn.contentsRepresentation()).thenReturn(setOf(
+                mockContentComponent,
+                mockContentTextLine,
+                mockContentTriangle,
+                mockContentWithDimens
+        ));
+
+        when(mockColumnData.get(CONTENT_POLYGON_OFFSETS)).thenReturn(mockContentPolygonOffsets);
+
+        when(mockColumnData.get(CONTENTS)).thenReturn(listOf(
+                new ContentColumnMethods.Content(
+                        CONTENT_COMPONENT_UUID, CONTENT_COMPONENT_SPACING_AFTER,
+                        HorizontalAlignment.CENTER, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TEXT_LINE_UUID, CONTENT_TEXT_LINE_SPACING_AFTER,
+                        HorizontalAlignment.CENTER, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_WITH_DIMENS_UUID, CONTENT_WITH_DIMENS_SPACING_AFTER,
+                        HorizontalAlignment.CENTER, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TRIANGLE_UUID, CONTENT_TRIANGLE_SPACING_AFTER,
+                        HorizontalAlignment.CENTER, 0f
+                )
+        ));
+
+        var output = methods.ContentColumn_setDimensForComponentAndContent(mockColumn, TIMESTAMP);
+
+        assertEquals(EXPECTED_OUTPUT, output);
+
+        verify(mockContentTextLine, once()).setAlignment(HorizontalAlignment.CENTER);
+
+        verify(mockColumnData, once()).put(CONTENT_SPECIFIC_ORIGINS, mapOf(
+                CONTENT_COMPONENT_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X +
+                                ((COLUMN_WIDTH - CONTENT_COMPONENT_UNADJ_DIMENS.width()) / 2f),
+                        COLUMN_RENDERING_LOC.Y
+                ),
+                CONTENT_TEXT_LINE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + (COLUMN_WIDTH / 2f),
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TEXT_LINE
+                ),
+                CONTENT_WITH_DIMENS_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X +
+                                ((COLUMN_WIDTH - CONTENT_WITH_DIMENS_UNADJ_DIMENS.width()) / 2f),
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_WITH_DIMENS
+                )
+        ));
+
+        verify(mockContentPolygonOffsets, once()).put(
+                CONTENT_TRIANGLE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X +
+                                ((COLUMN_WIDTH - CONTENT_TRIANGLE_POLYGON_DIMENS.width()) / 2),
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TRIANGLE
+                )
+        );
+    }
+
+    @Test
+    public void testContentColumn_setDimensForComponentAndContentLeftAlignmentWithIndent() {
+        when(mockColumn.contentsRepresentation()).thenReturn(setOf(
+                mockContentComponent,
+                mockContentTextLine,
+                mockContentTriangle,
+                mockContentWithDimens
+        ));
+
+        when(mockColumnData.get(CONTENT_POLYGON_OFFSETS)).thenReturn(mockContentPolygonOffsets);
+
+        when(mockColumnData.get(CONTENTS)).thenReturn(listOf(
+                new ContentColumnMethods.Content(
+                        CONTENT_COMPONENT_UUID, CONTENT_COMPONENT_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, CONTENT_COMPONENT_INDENT
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TEXT_LINE_UUID, CONTENT_TEXT_LINE_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, CONTENT_TEXT_LINE_INDENT
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_WITH_DIMENS_UUID, CONTENT_WITH_DIMENS_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, CONTENT_WITH_DIMENS_INDENT
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TRIANGLE_UUID, CONTENT_TRIANGLE_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, CONTENT_TRIANGLE_INDENT
+                )
+        ));
+
+        var output = methods.ContentColumn_setDimensForComponentAndContent(mockColumn, TIMESTAMP);
+
+        assertEquals(EXPECTED_OUTPUT, output);
+
+        verify(mockContentTextLine, once()).setAlignment(HorizontalAlignment.LEFT);
+
+        verify(mockColumnData, once()).put(CONTENT_SPECIFIC_ORIGINS, mapOf(
+                CONTENT_COMPONENT_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + CONTENT_COMPONENT_INDENT,
+                        COLUMN_RENDERING_LOC.Y
+                ),
+                CONTENT_TEXT_LINE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + CONTENT_TEXT_LINE_INDENT,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TEXT_LINE
+                ),
+                CONTENT_WITH_DIMENS_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + CONTENT_WITH_DIMENS_INDENT,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_WITH_DIMENS
+                )
+        ));
+
+        verify(mockContentPolygonOffsets, once()).put(
+                CONTENT_TRIANGLE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + CONTENT_TRIANGLE_INDENT,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TRIANGLE
+                )
+        );
+    }
+
+    @Test
+    public void testContentColumn_setDimensForComponentAndContentRightAlignmentWithIndent() {
+        when(mockColumn.contentsRepresentation()).thenReturn(setOf(
+                mockContentComponent,
+                mockContentTextLine,
+                mockContentTriangle,
+                mockContentWithDimens
+        ));
+
+        when(mockColumnData.get(CONTENT_POLYGON_OFFSETS)).thenReturn(mockContentPolygonOffsets);
+
+        when(mockColumnData.get(CONTENTS)).thenReturn(listOf(
+                new ContentColumnMethods.Content(
+                        CONTENT_COMPONENT_UUID, CONTENT_COMPONENT_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, CONTENT_COMPONENT_INDENT
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TEXT_LINE_UUID, CONTENT_TEXT_LINE_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, CONTENT_TEXT_LINE_INDENT
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_WITH_DIMENS_UUID, CONTENT_WITH_DIMENS_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, CONTENT_WITH_DIMENS_INDENT
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TRIANGLE_UUID, CONTENT_TRIANGLE_SPACING_AFTER,
+                        HorizontalAlignment.RIGHT, CONTENT_TRIANGLE_INDENT
+                )
+        ));
+
+        var output = methods.ContentColumn_setDimensForComponentAndContent(mockColumn, TIMESTAMP);
+
+        assertEquals(EXPECTED_OUTPUT, output);
+
+        verify(mockContentTextLine, once()).setAlignment(HorizontalAlignment.RIGHT);
+
+        verify(mockColumnData, once()).put(CONTENT_SPECIFIC_ORIGINS, mapOf(
+                CONTENT_COMPONENT_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X +
+                                (COLUMN_WIDTH - CONTENT_COMPONENT_UNADJ_DIMENS.width()) -
+                                CONTENT_COMPONENT_INDENT,
+                        COLUMN_RENDERING_LOC.Y
+                ),
+                CONTENT_TEXT_LINE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X + COLUMN_WIDTH - CONTENT_TEXT_LINE_INDENT,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TEXT_LINE
+                ),
+                CONTENT_WITH_DIMENS_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X +
+                                (COLUMN_WIDTH - CONTENT_WITH_DIMENS_UNADJ_DIMENS.width()) -
+                                CONTENT_WITH_DIMENS_INDENT,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_WITH_DIMENS
+                )
+        ));
+
+        verify(mockContentPolygonOffsets, once()).put(
+                CONTENT_TRIANGLE_UUID,
+                vertexOf(
+                        COLUMN_RENDERING_LOC.X +
+                                (COLUMN_WIDTH - CONTENT_TRIANGLE_POLYGON_DIMENS.width()) -
+                                CONTENT_TRIANGLE_INDENT,
+                        COLUMN_RENDERING_LOC.Y + EXPECTED_HEIGHT_TO_TRIANGLE
+                )
+        );
     }
 
     @Test

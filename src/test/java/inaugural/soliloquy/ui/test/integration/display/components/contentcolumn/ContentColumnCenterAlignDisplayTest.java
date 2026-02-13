@@ -31,10 +31,10 @@ import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinitio
 import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
+public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column left align display test",
+                "Content column center align display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -54,8 +54,8 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column left align", 16000),
-                ContentColumnLeftAlignDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content column center align", 16000),
+                ContentColumnCenterAlignDisplayTest::populateTopLevelComponent
         );
     }
 
@@ -100,10 +100,11 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                         "This is a text line!",
                                         ORIGIN,
                                         lineHeight * 1.5f,
-                                        HorizontalAlignment.LEFT,
+                                        HorizontalAlignment.CENTER,
                                         0f,
                                         0
                                 ),
+                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -125,6 +126,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         space(spacingAfter),
@@ -141,6 +143,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                         paragraphs1,
                                         1
                                 ),
+                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -155,8 +158,8 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                                 brightness(SPRITE_PRESS_SHADING, false))
                                         .withSpriteColorShiftPressed(
                                                 brightness(-SPRITE_PRESS_SHADING, false)),
-                                spacingAfter,
-                                0.05f
+                                HorizontalAlignment.CENTER,
+                                spacingAfter
                         ),
                         itemOf(
                                 textBlock(
@@ -171,6 +174,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                         paragraphs2,
                                         1
                                 ),
+                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -189,6 +193,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -204,6 +209,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                         .withTextPadding(0.025f)
                                         .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
                                         .withBgColor(randomHighSaturationColor()),
+                                HorizontalAlignment.CENTER,
                                 0f
                         )
                 );

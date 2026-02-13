@@ -104,8 +104,9 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         0f,
                                         0
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.CENTER,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 rectangle(
@@ -126,8 +127,9 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.CENTER,
-                                spacingAfter
+                                0f
                         ),
                         space(spacingAfter),
                         itemOf(
@@ -143,8 +145,9 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         paragraphs1,
                                         1
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.CENTER,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 testFullDefFromText("Button", SCREEN_CENTER)
@@ -158,8 +161,9 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                                 brightness(SPRITE_PRESS_SHADING, false))
                                         .withSpriteColorShiftPressed(
                                                 brightness(-SPRITE_PRESS_SHADING, false)),
+                                spacingAfter,
                                 HorizontalAlignment.CENTER,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 textBlock(
@@ -174,8 +178,9 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         paragraphs2,
                                         1
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.CENTER,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 triangle(
@@ -193,8 +198,9 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.CENTER,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 beveledButton(

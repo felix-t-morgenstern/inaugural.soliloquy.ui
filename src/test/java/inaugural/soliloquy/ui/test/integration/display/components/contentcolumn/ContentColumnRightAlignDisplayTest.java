@@ -104,8 +104,9 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                         0f,
                                         0
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.RIGHT,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 rectangle(
@@ -126,8 +127,9 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.RIGHT,
-                                spacingAfter
+                                0f
                         ),
                         space(spacingAfter),
                         itemOf(
@@ -143,8 +145,9 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                         paragraphs1,
                                         1
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.RIGHT,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 testFullDefFromText("Button", SCREEN_CENTER)
@@ -175,8 +178,9 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                         paragraphs2,
                                         1
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.RIGHT,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 triangle(
@@ -194,8 +198,9 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                spacingAfter,
                                 HorizontalAlignment.RIGHT,
-                                spacingAfter
+                                0f
                         ),
                         itemOf(
                                 beveledButton(
@@ -210,8 +215,7 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                         .withTextPadding(0.025f)
                                         .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
                                         .withBgColor(randomHighSaturationColor()),
-                                HorizontalAlignment.RIGHT,
-                                0f
+                                HorizontalAlignment.RIGHT
                         )
                 );
 

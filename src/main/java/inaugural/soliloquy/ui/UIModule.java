@@ -10,6 +10,9 @@ import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import inaugural.soliloquy.ui.components.button.ButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.button.ButtonMethods;
+import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition;
+import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinitionReader;
+import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
 import inaugural.soliloquy.ui.components.textblock.TextBlockMethods;
@@ -26,7 +29,6 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.*;
 import soliloquy.specs.io.graphics.rendering.WindowResolutionManager;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
-import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 import soliloquy.specs.io.input.mouse.MouseEventHandler;
 import soliloquy.specs.ui.definitions.providers.*;
 
@@ -60,7 +62,6 @@ public class UIModule extends AbstractModule {
                 staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
         @SuppressWarnings("rawtypes") ProviderAtTime nullProvider = ioModule.provide(NULL_PROVIDER);
         ProviderAtTime<FloatBox> wholeScreenProvider = ioModule.provide(WHOLE_SCREEN_PROVIDER);
-        var clock = ioModule.provide(GlobalClock.class);
         TextLineRenderer textLineRenderer = ioModule.provide(TEXT_LINE_RENDERER);
         var resManager = ioModule.provide(WindowResolutionManager.class);
         TriConsumer<Integer, MouseEventHandler.EventType, Runnable> subscribeToNextMouseEvent =
@@ -207,8 +208,7 @@ public class UIModule extends AbstractModule {
 
         var customComponentMethods = Collections.setOf();
 
-        // Component general methods
-        var componentMethods = new ComponentMethods(graphics::getComponent, functionalProviderDefReader);
+        var componentMethods = new ComponentMethods(graphics::getComponent);
         customComponentMethods.add(componentMethods);
 
         // Button
@@ -227,7 +227,7 @@ public class UIModule extends AbstractModule {
                 id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
                 subscribeToNextMouseEvent,
                 graphics::getSprite,
-                componentMethods
+                graphics::getComponent
         ));
         renderableDefinitionReader.addCustomComponentReader(
                 ButtonDefinition.class,
@@ -249,6 +249,13 @@ public class UIModule extends AbstractModule {
         customComponentMethods.add(new TextBlockMethods(graphics::getComponent));
         renderableDefinitionReader.addCustomComponentReader(TextBlockDefinition.class,
                 (d, t) -> textBlockReader.read((TextBlockDefinition) d, t));
+
+        // Column
+        var columnReader = new ContentColumnDefinitionReader(providerDefinitionReader);
+        customComponentMethods.add(
+                new ContentColumnMethods(graphics::getComponent, functionalProviderDefReader::read));
+        renderableDefinitionReader.addCustomComponentReader(ContentColumnDefinition.class,
+                (d, t) -> columnReader.read((ContentColumnDefinition) d, t));
 
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));
     }

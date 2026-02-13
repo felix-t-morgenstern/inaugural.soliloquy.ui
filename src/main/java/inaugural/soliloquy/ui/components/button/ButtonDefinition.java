@@ -18,6 +18,7 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
+@SuppressWarnings("unused")
 public class ButtonDefinition extends AbstractContentDefinition {
     public int[] keyCodepoints;
     public int keyEventPriority;
@@ -421,7 +422,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
 
     /**
      * @param boldIndices The indices which mark the starts and ends of boldface within the text
-     *                    (c.f. {@link TextLineRenderable#boldIndices()} ()})
+     *                    (c.f. {@link TextLineRenderable#boldIndices()})
      */
     public ButtonDefinition withTextBoldIndices(List<Integer> boldIndices) {
         this.textBoldIndicesDefault = boldIndices;

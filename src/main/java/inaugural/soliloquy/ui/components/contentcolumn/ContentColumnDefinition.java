@@ -1,21 +1,22 @@
 package inaugural.soliloquy.ui.components.contentcolumn;
 
-import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.common.valueobjects.Vertex;
+import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static java.util.UUID.randomUUID;
-import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 
+@SuppressWarnings("unused")
 public class ContentColumnDefinition extends AbstractContentDefinition {
     public final AbstractProviderDefinition<Vertex> RENDERING_LOC_DEF;
     public final float WIDTH;
-    public final List<Pair<AbstractContentDefinition, Float>> CONTENT_AND_SPACINGS;
+    public final List<Item> ITEMS;
 
     private ContentColumnDefinition(AbstractProviderDefinition<Vertex> renderingLocDef,
                                     float width,
@@ -24,7 +25,7 @@ public class ContentColumnDefinition extends AbstractContentDefinition {
         super(z, uuid);
         RENDERING_LOC_DEF = renderingLocDef;
         WIDTH = width;
-        CONTENT_AND_SPACINGS = listOf();
+        ITEMS = listOf();
     }
 
     public static ContentColumnDefinition column(
@@ -42,18 +43,54 @@ public class ContentColumnDefinition extends AbstractContentDefinition {
         return column(renderingLocDef, width, z, randomUUID());
     }
 
-    public ContentColumnDefinition withContent(AbstractContentDefinition content, float spacingAfter) {
-        CONTENT_AND_SPACINGS.add(pairOf(content, spacingAfter));
+    public ContentColumnDefinition withItem(Item item) {
+        ITEMS.add(item);
 
         return this;
     }
 
-    public ContentColumnDefinition withContent(
-            Pair<AbstractContentDefinition,Float>... contentAndSpacingAfter) {
-        for(var c : contentAndSpacingAfter) {
-            CONTENT_AND_SPACINGS.add(pairOf(c.FIRST, c.SECOND));
-        }
+    public ContentColumnDefinition withItems(Item... items) {
+        ITEMS.addAll(Arrays.asList(items));
 
         return this;
+    }
+
+    public record Item(AbstractContentDefinition content,
+                       UUID uuidForSpacingOnly,
+                       float spacingAfter,
+                       HorizontalAlignment alignment,
+                       float indent) {
+        public static Item itemOf(AbstractContentDefinition content,
+                                  float spacingAfter,
+                                  HorizontalAlignment alignment,
+                                  float indent) {
+            return new Item(content, null, spacingAfter, alignment, indent);
+        }
+
+        public static Item itemOf(AbstractContentDefinition content,
+                                  float spacingAfter,
+                                  float indent) {
+            return itemOf(content, spacingAfter, HorizontalAlignment.LEFT, indent);
+        }
+
+        public static Item itemOf(AbstractContentDefinition content,
+                                  HorizontalAlignment alignment,
+                                  float indent) {
+            return itemOf(content, 0f, alignment, indent);
+        }
+
+        public static Item itemOf(AbstractContentDefinition content,
+                                  HorizontalAlignment alignment) {
+            return itemOf(content, 0f, alignment, 0f);
+        }
+
+        public static Item itemOf(AbstractContentDefinition content,
+                                  float spacingAfter) {
+            return itemOf(content, spacingAfter, HorizontalAlignment.LEFT, 0f);
+        }
+
+        public static Item space(float spacing) {
+            return new Item(null, randomUUID(), spacing, null, 0f);
+        }
     }
 }

@@ -158,7 +158,7 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 eq(Z),
-                isNotNull(),
+                eq(definition.UUID),
                 same(mockComponent));
     }
 

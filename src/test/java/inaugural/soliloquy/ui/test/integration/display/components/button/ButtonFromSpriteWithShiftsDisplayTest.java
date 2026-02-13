@@ -9,7 +9,6 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
 
 public class ButtonFromSpriteWithShiftsDisplayTest extends ButtonDisplayTest {
@@ -40,7 +39,6 @@ public class ButtonFromSpriteWithShiftsDisplayTest extends ButtonDisplayTest {
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var buttonDef = testButtonFromSprite(
-                SHIELD_SPRITE_ID,
                 SPRITE_DIMENS
         )
                 .withSpriteColorShiftHover(brightness(SPRITE_PRESS_SHADING, false))

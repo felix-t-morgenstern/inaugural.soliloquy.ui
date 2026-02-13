@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.components.ComponentMethods.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.RECT_Z;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
@@ -24,10 +24,6 @@ import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinit
 
 public class BeveledButtonDefinitionReader {
     private static final int BEVEL_Z = 3;
-
-    private static final String PROVIDE_VERTEX_METHOD = "provideVertex_BeveledButton";
-    private static final String PROVIDE_BOX_METHOD = "provideBox_BeveledButton";
-    private static final String PROVIDE_COLOR_METHOD = "provideColor_BeveledButton";
 
     private final ButtonDefinitionReader BUTTON_DEF_READER;
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
@@ -41,9 +37,10 @@ public class BeveledButtonDefinitionReader {
     public ComponentDefinition read(BeveledButtonDefinition definition, long timestamp) {
         var componentDef = BUTTON_DEF_READER.read(definition, timestamp);
 
-        componentDef.data.put(BEVEL_LAST_TIMESTAMP, timestamp - 1L);
+        componentDef.data.put(BEVELED_BUTTON_LAST_TIMESTAMP, timestamp - 1L);
+        componentDef.data.put(BEVEL_PERCENT, definition.BEVEL_DIMENS_PERCENT);
 
-        @SuppressWarnings("OptionalGetWithoutIsPresent") RectangleRenderableDefinition rectDef =
+        @SuppressWarnings("OptionalGetWithoutIsPresent") var rectDef =
                 (RectangleRenderableDefinition) componentDef.CONTENT.stream()
                         .filter(c -> c.Z == RECT_Z).findFirst().get();
 
@@ -60,9 +57,8 @@ public class BeveledButtonDefinitionReader {
         slots.forEach(xSlot -> {
             points.put(xSlot, mapOf());
             var ySlots = points.get(xSlot);
-            slots.forEach(ySlot -> ySlots.put(ySlot, bevelPointProvider(
+            slots.forEach(ySlot -> ySlots.put(ySlot, bevelVertexProvider(
                     definition,
-                    rectDimensProvider,
                     xSlot,
                     ySlot,
                     timestamp
@@ -157,26 +153,21 @@ public class BeveledButtonDefinitionReader {
         );
     }
 
-    private ProviderAtTime<Vertex> bevelPointProvider(
+    private ProviderAtTime<Vertex> bevelVertexProvider(
             BeveledButtonDefinition definition,
-            ProviderAtTime<FloatBox> rectDimensProvider,
             int xSlot,
             int ySlot,
             long timestamp
     ) {
         return PROVIDER_DEF_READER.read(
-                functionalProvider(PROVIDE_VERTEX_METHOD, Vertex.class)
+                functionalProvider(BeveledButton_provideVertex, Vertex.class)
                         .withData(mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                BeveledButton_rectDimensProvider,
-                                rectDimensProvider,
                                 BeveledButton_xSlot,
                                 xSlot,
                                 BeveledButton_ySlot,
-                                ySlot,
-                                BeveledButton_bevelPercent,
-                                definition.BEVEL_DIMENS_PERCENT
+                                ySlot
                         )),
                 timestamp
         );
@@ -191,20 +182,16 @@ public class BeveledButtonDefinitionReader {
             long timestamp
     ) {
         return PROVIDER_DEF_READER.read(
-                functionalProvider(PROVIDE_BOX_METHOD, FloatBox.class)
+                functionalProvider(BeveledButton_provideBox, FloatBox.class)
                         .withData(mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                BeveledButton_rectDimensProvider,
-                                rectDimensProvider,
                                 BeveledButton_xSlot,
                                 xSlotLeft,
-                                provideBox_BeveledButton_xSlotRight,
+                                BeveledButton_provideBox_xSlotRight,
                                 xSlotRight,
                                 BeveledButton_ySlot,
-                                ySlot,
-                                BeveledButton_bevelPercent,
-                                definition.BEVEL_DIMENS_PERCENT
+                                ySlot
                         )),
                 timestamp
         );
@@ -217,13 +204,13 @@ public class BeveledButtonDefinitionReader {
             long timestamp
     ) {
         return PROVIDER_DEF_READER.read(
-                functionalProvider(PROVIDE_COLOR_METHOD, Color.class)
+                functionalProvider(BeveledButton_provideColor, Color.class)
                         .withData(mapOf(
                                 COMPONENT_UUID,
                                 definition.UUID,
-                                provideColor_BeveledButton_isLitByDefault,
+                                BeveledButton_provideColor_isLitByDefault,
                                 isLitByDefault,
-                                provideColor_BeveledButton_bevelIntensity,
+                                BeveledButton_provideColor_bevelIntensity,
                                 bevelIntensity
                         )),
                 timestamp

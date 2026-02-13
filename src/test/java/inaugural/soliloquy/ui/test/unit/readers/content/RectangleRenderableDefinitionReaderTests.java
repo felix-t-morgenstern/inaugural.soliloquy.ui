@@ -142,7 +142,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 same(MOCK_ON_MOUSE_LEAVE),
                 same(mockAreaProvider),
                 eq(Z),
-                isNotNull(),
+                eq(definition.UUID),
                 same(mockComponent));
     }
 

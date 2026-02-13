@@ -2,7 +2,6 @@ package inaugural.soliloquy.ui.components.button;
 
 import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
-import inaugural.soliloquy.ui.components.ComponentMethods;
 import org.apache.commons.lang3.function.TriConsumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -16,138 +15,141 @@ import soliloquy.specs.io.input.mouse.MouseEventHandler;
 import soliloquy.specs.ui.EventInputs;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
+import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
-import static inaugural.soliloquy.ui.components.ComponentMethods.*;
+import static inaugural.soliloquy.tools.valueobjects.FloatBox.encompassing;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.difference;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
+import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
 public class ButtonMethods {
-    public final static String PRESS_STATE = "isPressed";
+    public final static String BUTTON_DIMENS = "BUTTON_DIMENS";
+    public final static String BUTTON_RECT_DIMENS = "BUTTON_RECT_DIMENS";
 
-    final static String PRESSED_KEY = "pressedKey";
-    final static String RECT_HOVER_STATE = "isHoveringRect";
-    final static String SPRITE_HOVER_STATE = "isHoveringSprite";
+    public final static String IS_PRESSED = "IS_PRESSED";
 
-    final static String PRESS_ACTION = "pressAction";
-    final static String PRESS_SOUND_ID = "pressSoundId";
-    final static String MOUSE_OVER_SOUND_ID = "Button_mouseOverSoundId";
-    final static String MOUSE_LEAVE_SOUND_ID = "mouseLeaveSoundId";
-    final static String RELEASE_SOUND_ID = "releaseSoundId";
+    final static String PRESSED_KEY = "PRESSED_KEY";
+    final static String RECT_HOVER_STATE = "RECT_HOVER_STATE";
+    final static String SPRITE_HOVER_STATE = "SPRITE_HOVER_STATE";
 
-    final static String DEFAULT_RENDERABLE_OPTIONS = "defaultRenderableOptions";
-    final static String HOVER_RENDERABLE_OPTIONS = "hoverRenderableOptions";
-    final static String PRESSED_RENDERABLE_OPTIONS = "pressedRenderableOptions";
+    final static String PRESS_ACTION = "PRESS_ACTION";
+    final static String PRESS_SOUND_ID = "PRESS_SOUND_ID";
+    final static String MOUSE_OVER_SOUND_ID = "MOUSE_OVER_SOUND_ID";
+    final static String MOUSE_LEAVE_SOUND_ID = "MOUSE_LEAVE_SOUND_ID";
+    final static String RELEASE_SOUND_ID = "RELEASE_SOUND_ID";
 
-    public final static String ORIG_CONTENT_IS_LOADED_DEFAULT = "ORIG_CONTENT_IS_LOADED_DEFAULT";
-    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT =
-            "ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT";
-    public final static String ORIG_CONTENT_LOC_PROVIDERS_DEFAULT =
-            "ORIG_CONTENT_LOC_PROVIDERS_DEFAULT";
-
-    public final static String ORIG_CONTENT_IS_LOADED_HOVER = "ORIG_CONTENT_IS_LOADED_HOVER";
-    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_HOVER =
-            "ORIG_CONTENT_DIMENS_PROVIDERS_HOVER";
-    public final static String ORIG_CONTENT_LOC_PROVIDERS_HOVER =
-            "ORIG_CONTENT_LOC_PROVIDERS_HOVER";
-
-    public final static String ORIG_CONTENT_IS_LOADED_PRESSED = "ORIG_CONTENT_IS_LOADED_PRESSED";
-    public final static String ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED =
-            "ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED";
-    public final static String ORIG_CONTENT_LOC_PROVIDERS_PRESSED =
-            "ORIG_CONTENT_LOC_PROVIDERS_PRESSED";
+    final static String RENDERABLE_OPTIONS_DEFAULT = "RENDERABLE_OPTIONS_DEFAULT";
+    final static String RENDERABLE_OPTIONS_HOVER = "RENDERABLE_OPTIONS_HOVER";
+    final static String RENDERABLE_OPTIONS_PRESSED = "RENDERABLE_OPTIONS_PRESSED";
 
     private final Consumer<String> PLAY_SOUND;
     private final TriConsumer<Integer, MouseEventHandler.EventType, Runnable>
             SUBSCRIBE_TO_MOUSE_EVENTS;
     private final Function<String, Sprite> GET_SPRITE;
-    private final ComponentMethods COMPONENT_METHODS;
+    private final Function<UUID, Component> GET_COMPONENT;
 
     public ButtonMethods(Consumer<String> playSound,
                          TriConsumer<Integer, MouseEventHandler.EventType, Runnable> subscribeToMouseEvents,
-                         Function<String, Sprite> getSprite, ComponentMethods componentMethods) {
+                         Function<String, Sprite> getSprite, Function<UUID, Component> getComponent) {
         PLAY_SOUND = Check.ifNull(playSound, "playSound");
         SUBSCRIBE_TO_MOUSE_EVENTS = Check.ifNull(subscribeToMouseEvents, "subscribeToMouseEvents");
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");
-        COMPONENT_METHODS = Check.ifNull(componentMethods, "componentMethods");
+        GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
     }
 
     public final static String Button_setDimensForComponentAndContent =
             "Button_setDimensForComponentAndContent";
 
-    public FloatBox Button_setDimensForComponentAndContent(Component component, long timestamp) {
-        Long lastTimestamp = getFromData(component.data(), LAST_TIMESTAMP);
+    public FloatBox Button_setDimensForComponentAndContent(Component button, long timestamp) {
+        Long lastTimestamp = getFromData(button, LAST_TIMESTAMP);
 
-        var componentDimens =
-                COMPONENT_METHODS.Component_setDimensForComponentAndContent(component, timestamp);
+        FloatBox unadjButtonDimens;
 
         if (lastTimestamp == null || timestamp != lastTimestamp) {
-            if (getPressedState(component.data()) && !falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_PRESSED))) {
-                updateProviders(
-                        component,
-                        ORIG_CONTENT_DIMENS_PROVIDERS_PRESSED,
-                        ORIG_CONTENT_LOC_PROVIDERS_PRESSED,
-                        PRESSED_RENDERABLE_OPTIONS,
-                        ORIG_CONTENT_IS_LOADED_PRESSED
-                );
+            Options currentStateOptions;
+            if (getPressedState(button.data())) {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_PRESSED);
             }
-            else if (getHoverState(component.data()) && !falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_HOVER))) {
-                updateProviders(
-                        component,
-                        ORIG_CONTENT_DIMENS_PROVIDERS_HOVER,
-                        ORIG_CONTENT_LOC_PROVIDERS_HOVER,
-                        HOVER_RENDERABLE_OPTIONS,
-                        ORIG_CONTENT_IS_LOADED_HOVER
-                );
+            else if (getHoverState(button.data())) {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_HOVER);
             }
-            else if(!falseIfNull(getFromData(component.data(), ORIG_CONTENT_IS_LOADED_DEFAULT))) {
-                updateProviders(
-                        component,
-                        ORIG_CONTENT_DIMENS_PROVIDERS_DEFAULT,
-                        ORIG_CONTENT_LOC_PROVIDERS_DEFAULT,
-                        DEFAULT_RENDERABLE_OPTIONS,
-                        ORIG_CONTENT_IS_LOADED_DEFAULT
-                );
+            else {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
             }
-        }
 
-        return componentDimens;
+            var unadjRectDimens = defaultIfNull(currentStateOptions.unadjRectDimens,
+                    dimens -> dimens.provide(timestamp), null);
+            var unadjSpriteDimens = defaultIfNull(currentStateOptions.unadjSpriteDimens,
+                    dimens -> dimens.provide(timestamp), null);
+
+            if (unadjRectDimens != null) {
+                if (unadjSpriteDimens != null) {
+                    unadjButtonDimens = encompassing(unadjRectDimens, unadjSpriteDimens);
+                }
+                else {
+                    unadjButtonDimens = unadjRectDimens;
+                }
+            }
+            else {
+                unadjButtonDimens = unadjSpriteDimens;
+            }
+
+            ProviderAtTime<Vertex> originOverrideProvider =
+                    getFromData(button, ORIGIN_OVERRIDE_PROVIDER);
+            var originOverride = defaultIfNull(originOverrideProvider, p -> p.provide(timestamp), null);
+            FloatBox buttonDimens;
+            if (originOverride != null) {
+                var originAdjust = difference(unadjButtonDimens.topLeft(), originOverride);
+                button.data().put(ORIGIN_ADJUST, originAdjust);
+                if (unadjRectDimens != null) {
+                    button.data().put(BUTTON_RECT_DIMENS, floatBoxOf(
+                            translateVertex(unadjRectDimens.topLeft(), originAdjust),
+                            translateVertex(unadjRectDimens.bottomRight(), originAdjust)
+                    ));
+                }
+                else {
+                    button.data().put(BUTTON_RECT_DIMENS, null);
+                }
+                buttonDimens = floatBoxOf(
+                        originOverride,
+                        unadjButtonDimens.width(),
+                        unadjButtonDimens.height()
+                );
+            }
+            else {
+                button.data().put(ORIGIN_ADJUST, null);
+                button.data().put(BUTTON_RECT_DIMENS, unadjRectDimens);
+                buttonDimens = unadjButtonDimens;
+            }
+
+            button.data().put(BUTTON_DIMENS, buttonDimens);
+
+            return buttonDimens;
+        }
+        else {
+            return getFromData(button, BUTTON_DIMENS);
+        }
     }
 
-    private void updateProviders(Component component,
-                                 String origDimensProvidersForStateKey,
-                                 String origLocProvidersForStateKey,
-                                 String optionsKey,
-                                 String origContentIsLoadedForStateKey) {
+    public final static String Button_getDimens = "Button_getDimens";
 
-        Map<UUID, ProviderAtTime<FloatBox>> origContentDimensProviders =
-                getFromData(component.data(), ORIG_CONTENT_DIMENS_PROVIDERS);
-        Map<UUID, ProviderAtTime<Vertex>> origContentLocProviders =
-                getFromData(component.data(), ORIG_CONTENT_LOC_PROVIDERS);
-        component.data()
-                .put(origDimensProvidersForStateKey, origContentDimensProviders);
-        component.data().put(origLocProvidersForStateKey, origContentLocProviders);
-
-        var content = component.contentsRepresentation();
-        var rect = getRect(content);
-        var sprite = getSprite(content);
-        if (rect != null) {
-            ((Options) component.data().get(optionsKey)).rectDimens =
-                    rect.getRenderingDimensionsProvider();
-        }
-        if (sprite != null) {
-            ((Options) component.data().get(optionsKey)).spriteDimens =
-                    sprite.getRenderingDimensionsProvider();
-        }
-
-        component.data().put(origContentIsLoadedForStateKey, true);
+    public FloatBox Button_getDimens(FunctionalProvider.Inputs inputs) {
+        UUID componentId = getFromData(inputs, COMPONENT_UUID);
+        var button = GET_COMPONENT.apply(componentId);
+        return Button_setDimensForComponentAndContent(button, inputs.timestamp());
     }
 
     public void Button_pressMouse(EventInputs e) {
@@ -170,7 +172,7 @@ public class ButtonMethods {
             }
         }
     }
-    
+
     public void Button_mouseLeave(EventInputs e) {
         var isHoveringPrev = getHoverState(e.component.data());
         e.component.data().put(getHoverStateDataKey(e), false);
@@ -196,7 +198,7 @@ public class ButtonMethods {
     }
 
     private boolean getPressedState(Map<String, Object> data) {
-        return falseIfNull(getFromData(data, PRESS_STATE));
+        return falseIfNull(getFromData(data, IS_PRESSED));
     }
 
     public void Button_pressKey(EventInputs e) {
@@ -209,8 +211,8 @@ public class ButtonMethods {
 
     private void pressButton(Component c, Integer key, EventInputs e, Runnable afterFire) {
         var data = c.data();
-        if (!falseIfNull(data.get(PRESS_STATE))) {
-            data.put(PRESS_STATE, true);
+        if (!falseIfNull(data.get(IS_PRESSED))) {
+            data.put(IS_PRESSED, true);
             data.put(PRESSED_KEY, key);
             var pressSoundId = data.get(PRESS_SOUND_ID);
             if (pressSoundId instanceof String pressSoundIdStr &&
@@ -232,7 +234,7 @@ public class ButtonMethods {
         // If it's a key action, we need to make sure the button has already been pressed by the
         // key being released.
         if (keyCodepoint != null &&
-                falseIfNull(data.get(PRESS_STATE)) &&
+                falseIfNull(data.get(IS_PRESSED)) &&
                 keyCodepoint.equals(pressedKey)) {
             willFire = true;
         }
@@ -243,12 +245,12 @@ public class ButtonMethods {
                 willFire = true;
             }
             else {
-                data.put(PRESS_STATE, false);
+                data.put(IS_PRESSED, false);
             }
         }
 
         if (willFire) {
-            data.put(PRESS_STATE, false);
+            data.put(IS_PRESSED, false);
             data.put(PRESSED_KEY, null);
             var releaseSoundId = data.get(RELEASE_SOUND_ID);
             if (releaseSoundId instanceof String releaseSoundIdStr &&
@@ -266,23 +268,22 @@ public class ButtonMethods {
     }
 
     private void setRenderablesDefault(EventInputs e) {
-        setRenderables(e, getFromData(e.component.data(), DEFAULT_RENDERABLE_OPTIONS));
+        setRenderables(e, getFromData(e.component, RENDERABLE_OPTIONS_DEFAULT));
     }
 
     private void setRenderablesHover(EventInputs e) {
-        setRenderables(e, getFromData(e.component.data(), HOVER_RENDERABLE_OPTIONS));
+        setRenderables(e, getFromData(e.component, RENDERABLE_OPTIONS_HOVER));
     }
 
     private void setRenderablesPressed(EventInputs e) {
-        setRenderables(e, getFromData(e.component.data(), PRESSED_RENDERABLE_OPTIONS));
+        setRenderables(e, getFromData(e.component, RENDERABLE_OPTIONS_PRESSED));
     }
 
     private void setRenderables(
             EventInputs e,
             Options options
     ) {
-        Options defaultOptions =
-                getFromData(e.component.data(), DEFAULT_RENDERABLE_OPTIONS);
+        Options defaultOptions = getFromData(e.component, RENDERABLE_OPTIONS_DEFAULT);
 
         var content = e.component.contentsRepresentation();
         var rect = getRect(content);
@@ -290,8 +291,6 @@ public class ButtonMethods {
         var text = getText(content);
 
         if (rect != null) {
-            rect.setRenderingDimensionsProvider(
-                    optionOrDefault(options, defaultOptions, o -> o.rectDimens));
             rect.setTopLeftColorProvider(
                     optionOrDefault(options, defaultOptions, o -> o.bgColorTopLeft));
             rect.setTopRightColorProvider(
@@ -306,8 +305,6 @@ public class ButtonMethods {
         if (sprite != null) {
             sprite.setSprite(
                     GET_SPRITE.apply(optionOrDefault(options, defaultOptions, o -> o.spriteId)));
-            sprite.setRenderingDimensionsProvider(
-                    optionOrDefault(options, defaultOptions, o -> o.spriteDimens));
 
             sprite.colorShifts().clear();
             var shift = optionOrDefault(options, defaultOptions, o -> o.spriteShift);
@@ -357,15 +354,16 @@ public class ButtonMethods {
     }
 
     static class Options {
-        ProviderAtTime<FloatBox> rectDimens;
+        ProviderAtTime<FloatBox> unadjRectDimens;
         ProviderAtTime<Color> bgColorTopLeft;
         ProviderAtTime<Color> bgColorTopRight;
         ProviderAtTime<Color> bgColorBottomLeft;
         ProviderAtTime<Color> bgColorBottomRight;
         ProviderAtTime<Integer> bgTexProvider;
         String spriteId;
-        ProviderAtTime<FloatBox> spriteDimens;
+        ProviderAtTime<FloatBox> unadjSpriteDimens;
         ColorShift spriteShift;
+        ProviderAtTime<Vertex> unadjTextLoc;
         Map<Integer, ProviderAtTime<Color>> textColors;
         List<Integer> italics;
         List<Integer> bolds;
@@ -373,116 +371,173 @@ public class ButtonMethods {
         public Options() {
         }
 
-        public Options(ProviderAtTime<FloatBox> rectDimens,
-                       ProviderAtTime<Color> bgColorTopLeft,
-                       ProviderAtTime<Color> bgColorTopRight,
-                       ProviderAtTime<Color> bgColorBottomLeft,
-                       ProviderAtTime<Color> bgColorBottomRight,
-                       ProviderAtTime<Integer> bgTexProvider,
-                       String spriteId,
-                       ProviderAtTime<FloatBox> spriteDimens,
-                       ColorShift spriteShift,
-                       Map<Integer, ProviderAtTime<Color>> textColors,
-                       List<Integer> italics,
-                       List<Integer> bolds) {
-            this.rectDimens = rectDimens;
+        @SuppressWarnings("unused")
+        public Options(
+                ProviderAtTime<FloatBox> unadjRectDimens,
+                ProviderAtTime<Color> bgColorTopLeft,
+                ProviderAtTime<Color> bgColorTopRight,
+                ProviderAtTime<Color> bgColorBottomLeft,
+                ProviderAtTime<Color> bgColorBottomRight,
+                ProviderAtTime<Integer> bgTexProvider,
+                String spriteId,
+                ProviderAtTime<FloatBox> unadjSpriteDimens,
+                ColorShift spriteShift,
+                ProviderAtTime<Vertex> unadjTextLoc,
+                Map<Integer, ProviderAtTime<Color>> textColors,
+                List<Integer> italics,
+                List<Integer> bolds
+        ) {
+            this.unadjRectDimens = unadjRectDimens;
             this.bgColorTopLeft = bgColorTopLeft;
             this.bgColorTopRight = bgColorTopRight;
             this.bgColorBottomLeft = bgColorBottomLeft;
             this.bgColorBottomRight = bgColorBottomRight;
             this.bgTexProvider = bgTexProvider;
             this.spriteId = spriteId;
-            this.spriteDimens = spriteDimens;
+            this.unadjSpriteDimens = unadjSpriteDimens;
             this.spriteShift = spriteShift;
+            this.unadjTextLoc = unadjTextLoc;
             this.textColors = textColors;
             this.italics = italics;
             this.bolds = bolds;
         }
     }
 
-    final static String Button_provideTextRenderingLocFromRect = "Button_provideTextRenderingLocFromRect";
-    final static String Button_provideTextRenderingLocFromRect_horizontalAlignment =
-            "Button_provideTextRenderingLocFromRect_horizontalAlignment";
-    final static String Button_provideTextRenderingLocFromRect_rectDimensProvider =
-            "Button_provideTextRenderingLocFromRect_rectDimensProvider";
-    final static String Button_provideTextRenderingLocFromRect_paddingHoriz =
-            "Button_provideTextRenderingLocFromRect_paddingHoriz";
-    final static String Button_provideTextRenderingLocFromRect_textHeight =
-            "Button_provideTextRenderingLocFromRect_textHeight";
+    final static String Button_provideUnadjTextLocFromRect = "Button_provideUnadjTextLocFromRect";
+    final static String Button_provideUnadjTextLocFromRect_horizontalAlignment =
+            "Button_provideUnadjTextLocFromRect_horizontalAlignment";
+    final static String Button_provideUnadjTextLocFromRect_paddingHoriz =
+            "Button_provideUnadjTextLocFromRect_paddingHoriz";
+    final static String Button_provideUnadjTextLocFromRect_textHeight =
+            "Button_provideUnadjTextLocFromRect_textHeight";
 
-    public Vertex Button_provideTextRenderingLocFromRect(FunctionalProvider.Inputs inputs) {
+    public Vertex Button_provideUnadjTextLocFromRect(FunctionalProvider.Inputs inputs) {
         HorizontalAlignment horizontalAlignment =
-                getFromData(inputs.data(),
-                        Button_provideTextRenderingLocFromRect_horizontalAlignment);
-        ProviderAtTime<FloatBox> rectDimensProvider =
-                getFromData(inputs.data(),
-                        Button_provideTextRenderingLocFromRect_rectDimensProvider);
-        var rectDimens = rectDimensProvider.provide(inputs.timestamp());
+                getFromData(inputs, Button_provideUnadjTextLocFromRect_horizontalAlignment);
+        ProviderAtTime<FloatBox> unadjRectDimensProvider = getCurrentOptions(
+                GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID))).unadjRectDimens;
+        var unadjRectDimens = unadjRectDimensProvider.provide(inputs.timestamp());
         float paddingHoriz =
-                getFromData(inputs.data(), Button_provideTextRenderingLocFromRect_paddingHoriz);
-        float textHeight =
-                getFromData(inputs.data(), Button_provideTextRenderingLocFromRect_textHeight);
+                getFromData(inputs, Button_provideUnadjTextLocFromRect_paddingHoriz);
+        float textHeight = getFromData(inputs, Button_provideUnadjTextLocFromRect_textHeight);
 
-        var texRenderingLocX = switch (horizontalAlignment) {
-            case LEFT -> rectDimens.LEFT_X + paddingHoriz;
-            case CENTER -> (rectDimens.LEFT_X + rectDimens.RIGHT_X) / 2f;
-            case RIGHT -> rectDimens.RIGHT_X - paddingHoriz;
-            default -> 0F;
+        var unadjTextLocX = switch (horizontalAlignment) {
+            case LEFT -> unadjRectDimens.LEFT_X + paddingHoriz;
+            case CENTER -> (unadjRectDimens.LEFT_X + unadjRectDimens.RIGHT_X) / 2f;
+            case RIGHT -> unadjRectDimens.RIGHT_X - paddingHoriz;
         };
-        var texRenderingLocY = (rectDimens.TOP_Y + rectDimens.BOTTOM_Y - textHeight) / 2f;
+        var texRenderingLocY = (unadjRectDimens.TOP_Y + unadjRectDimens.BOTTOM_Y - textHeight) / 2f;
 
-        return vertexOf(texRenderingLocX, texRenderingLocY);
+        return vertexOf(unadjTextLocX, texRenderingLocY);
     }
-    
-    final static String Button_provideRectDimensFromText = "Button_provideRectDimensFromText";
-    final static String Button_provideRectDimensFromText_textRenderingLocProvider =
-            "Button_provideRectDimensFromText_textRenderingLocProvider";
-    final static String Button_provideRectDimensFromText_lineLength =
-            "Button_provideRectDimensFromText_lineLength";
-    final static String Button_provideRectDimensFromText_textHeight =
-            "Button_provideRectDimensFromText_textHeight";
-    final static String Button_provideRectDimensFromText_textPaddingVert =
-            "Button_provideRectDimensFromText_textPaddingVert";
-    final static String Button_provideRectDimensFromText_textPaddingHoriz =
-            "Button_provideRectDimensFromText_textPaddingHoriz";
 
-    public FloatBox Button_provideRectDimensFromText(FunctionalProvider.Inputs inputs) {
-        ProviderAtTime<Vertex> textRenderingLocProvider = getFromData(inputs.data(),
-                Button_provideRectDimensFromText_textRenderingLocProvider);
-        var textRenderingLoc = textRenderingLocProvider.provide(inputs.timestamp());
-        float lineLength = getFromData(inputs.data(), Button_provideRectDimensFromText_lineLength);
-        float textHeight = getFromData(inputs.data(), Button_provideRectDimensFromText_textHeight);
+    final static String Button_provideUnadjRectDimensFromText =
+            "Button_provideUnadjRectDimensFromText";
+    final static String Button_provideUnadjRectDimensFromText_unadjTextLoc =
+            "Button_provideUnadjRectDimensFromText_unadjTextLoc";
+    final static String Button_provideUnadjRectDimensFromText_lineLength =
+            "Button_provideUnadjRectDimensFromText_lineLength";
+    final static String Button_provideUnadjRectDimensFromText_textHeight =
+            "Button_provideUnadjRectDimensFromText_textHeight";
+    final static String Button_provideUnadjRectDimensFromText_textPaddingVert =
+            "Button_provideUnadjRectDimensFromText_textPaddingVert";
+    final static String Button_provideUnadjRectDimensFromText_textPaddingHoriz =
+            "Button_provideUnadjRectDimensFromText_textPaddingHoriz";
+
+    public FloatBox Button_provideUnadjRectDimensFromText(FunctionalProvider.Inputs inputs) {
+        ProviderAtTime<Vertex> unadjTextLocProvider = getFromData(inputs,
+                Button_provideUnadjRectDimensFromText_unadjTextLoc);
+        var textLoc = unadjTextLocProvider.provide(inputs.timestamp());
+        float lineLength = getFromData(inputs, Button_provideUnadjRectDimensFromText_lineLength);
+        float textHeight = getFromData(inputs, Button_provideUnadjRectDimensFromText_textHeight);
         float textPaddingVert =
-                getFromData(inputs.data(), Button_provideRectDimensFromText_textPaddingVert);
+                getFromData(inputs, Button_provideUnadjRectDimensFromText_textPaddingVert);
         float textPaddingHoriz =
-                getFromData(inputs.data(), Button_provideRectDimensFromText_textPaddingHoriz);
+                getFromData(inputs, Button_provideUnadjRectDimensFromText_textPaddingHoriz);
         var distFromCenterHoriz = textPaddingHoriz + lineLength / 2f;
 
         return floatBoxOf(
-                textRenderingLoc.X - distFromCenterHoriz,
-                textRenderingLoc.Y - textPaddingVert,
-                textRenderingLoc.X + distFromCenterHoriz,
-                textRenderingLoc.Y + textHeight + textPaddingVert
+                textLoc.X - distFromCenterHoriz,
+                textLoc.Y - textPaddingVert,
+                textLoc.X + distFromCenterHoriz,
+                textLoc.Y + textHeight + textPaddingVert
         );
     }
 
     final static String Button_provideTexTileWidth = "Button_provideTexTileWidth";
-    final static String provideTexTileDimens_Button_rectDimensProvider =
-            "provideTexTileDimens_Button_rectDimensProvider";
 
     public float Button_provideTexTileWidth(FunctionalProvider.Inputs inputs) {
-        ProviderAtTime<FloatBox> rectDimensProvider =
-                getFromData(inputs.data(), provideTexTileDimens_Button_rectDimensProvider);
-        var rectDimens = rectDimensProvider.provide(inputs.timestamp());
-        return rectDimens.width();
+        return Button_provideTexTileDimensComponent(inputs, FloatBox::width);
     }
 
     final static String Button_provideTexTileHeight = "Button_provideTexTileHeight";
 
     public float Button_provideTexTileHeight(FunctionalProvider.Inputs inputs) {
-        ProviderAtTime<FloatBox> rectDimensProvider =
-                getFromData(inputs.data(), provideTexTileDimens_Button_rectDimensProvider);
-        var rectDimens = rectDimensProvider.provide(inputs.timestamp());
-        return rectDimens.height();
+        return Button_provideTexTileDimensComponent(inputs, FloatBox::height);
+    }
+
+    private float Button_provideTexTileDimensComponent(FunctionalProvider.Inputs inputs,
+                                                       Function<FloatBox, Float> getDimensComponent) {
+        var button = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        var currentOptions = getCurrentOptions(button);
+        var rectDimens = currentOptions.unadjRectDimens.provide(inputs.timestamp());
+        return getDimensComponent.apply(rectDimens);
+    }
+
+    final static String Button_rectDimensWithAdj = "Button_rectDimensWithAdj";
+
+    public FloatBox Button_rectDimensWithAdj(FunctionalProvider.Inputs inputs) {
+        return provideWithAdj(
+                inputs,
+                o -> o.unadjRectDimens,
+                inaugural.soliloquy.tools.valueobjects.FloatBox::translateFloatBox
+        );
+    }
+
+    final static String Button_spriteDimensWithAdj = "Button_spriteDimensWithAdj";
+
+    public FloatBox Button_spriteDimensWithAdj(FunctionalProvider.Inputs inputs) {
+        return provideWithAdj(
+                inputs,
+                o -> o.unadjSpriteDimens,
+                inaugural.soliloquy.tools.valueobjects.FloatBox::translateFloatBox
+        );
+    }
+
+    final static String Button_textLocWithAdj = "Button_textLocWithAdj";
+
+    public Vertex Button_textLocWithAdj(FunctionalProvider.Inputs inputs) {
+        return provideWithAdj(
+                inputs,
+                o -> o.unadjTextLoc,
+                inaugural.soliloquy.tools.valueobjects.Vertex::translateVertex
+        );
+    }
+
+    private <T> T provideWithAdj(FunctionalProvider.Inputs inputs,
+                                 Function<Options, ProviderAtTime<T>> provideUnadj,
+                                 BiFunction<T, Vertex, T> adjustment) {
+        var button = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        var currentOptions = getCurrentOptions(button);
+        var unadj = provideUnadj.apply(currentOptions).provide(inputs.timestamp());
+        Vertex originAdjust = getFromData(button, ORIGIN_ADJUST);
+        if (originAdjust != null) {
+            return adjustment.apply(unadj, originAdjust);
+        }
+        else {
+            return unadj;
+        }
+    }
+
+    private Options getCurrentOptions(Component button) {
+        if (getPressedState(button.data())) {
+            return getFromData(button, RENDERABLE_OPTIONS_PRESSED);
+        }
+        else if (getHoverState(button.data())) {
+            return getFromData(button, RENDERABLE_OPTIONS_HOVER);
+        }
+        else {
+            return getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
+        }
     }
 }

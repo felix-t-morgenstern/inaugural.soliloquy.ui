@@ -10,7 +10,8 @@ import java.util.UUID;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 
-public class LoopingLinearMovingColorProviderDefinitionReader {
+public class
+LoopingLinearMovingColorProviderDefinitionReader {
     private final LoopingLinearMovingColorProviderFactory FACTORY;
 
     public LoopingLinearMovingColorProviderDefinitionReader(

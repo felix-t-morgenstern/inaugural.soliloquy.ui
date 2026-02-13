@@ -13,13 +13,13 @@ import soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition;
 
 import java.awt.*;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.Tools.provideIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static java.util.UUID.randomUUID;
 
 public class TextLineRenderableDefinitionReader extends AbstractContentDefinitionReader {
     private final TextLineRenderableFactory FACTORY;
@@ -70,7 +70,7 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
                 borderThickness, borderColor,
                 dropShadowSize, dropShadowOffset, dropShadowColor,
                 definition.Z,
-                UUID.randomUUID(),
+                defaultIfNull(definition.UUID, randomUUID()),
                 component);
     }
 }

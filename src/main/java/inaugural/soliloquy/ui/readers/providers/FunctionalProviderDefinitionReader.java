@@ -5,8 +5,6 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.FunctionalProviderFactory;
 import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 
-import java.util.UUID;
-
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;

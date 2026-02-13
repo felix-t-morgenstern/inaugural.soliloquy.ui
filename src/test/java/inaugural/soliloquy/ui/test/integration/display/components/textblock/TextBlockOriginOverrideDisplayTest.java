@@ -1,21 +1,18 @@
 package inaugural.soliloquy.ui.test.integration.display.components.textblock;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
-import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
-import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_ADJUST;
-import static inaugural.soliloquy.ui.components.ComponentMethods.ORIGIN_OVERRIDE_PROVIDER;
+import static inaugural.soliloquy.ui.Constants.ORIGIN_OVERRIDE_PROVIDER;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;

@@ -3,6 +3,7 @@ package inaugural.soliloquy.ui;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.tools.module.AbstractModule;
+import inaugural.soliloquy.ui.components.ComponentMethods;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
@@ -28,7 +29,6 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.*;
 import soliloquy.specs.io.graphics.rendering.WindowResolutionManager;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
-import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 import soliloquy.specs.io.input.mouse.MouseEventHandler;
 import soliloquy.specs.ui.definitions.providers.*;
 
@@ -62,7 +62,6 @@ public class UIModule extends AbstractModule {
                 staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
         @SuppressWarnings("rawtypes") ProviderAtTime nullProvider = ioModule.provide(NULL_PROVIDER);
         ProviderAtTime<FloatBox> wholeScreenProvider = ioModule.provide(WHOLE_SCREEN_PROVIDER);
-        var clock = ioModule.provide(GlobalClock.class);
         TextLineRenderer textLineRenderer = ioModule.provide(TEXT_LINE_RENDERER);
         var resManager = ioModule.provide(WindowResolutionManager.class);
         TriConsumer<Integer, MouseEventHandler.EventType, Runnable> subscribeToNextMouseEvent =
@@ -208,6 +207,9 @@ public class UIModule extends AbstractModule {
         ));
 
         var customComponentMethods = Collections.setOf();
+
+        var componentMethods = new ComponentMethods(graphics::getComponent);
+        customComponentMethods.add(componentMethods);
 
         // Button
         var buttonReader = new ButtonDefinitionReader(

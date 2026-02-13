@@ -12,6 +12,7 @@ import java.util.UUID;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static java.util.UUID.randomUUID;
 
+@SuppressWarnings("unused")
 public class ContentColumnDefinition extends AbstractContentDefinition {
     public final AbstractProviderDefinition<Vertex> RENDERING_LOC_DEF;
     public final float WIDTH;
@@ -55,7 +56,7 @@ public class ContentColumnDefinition extends AbstractContentDefinition {
     }
 
     public record Item(AbstractContentDefinition content,
-                       UUID itemUuid,
+                       UUID uuidForSpacingOnly,
                        float spacingAfter,
                        HorizontalAlignment alignment,
                        float indent) {

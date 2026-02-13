@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui;
 
-import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
+import soliloquy.specs.common.valueobjects.Vertex;
 
 import java.awt.*;
 import java.util.Map;
@@ -8,37 +8,42 @@ import java.util.Set;
 
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
-import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
 public class Constants {
     public final static String COMPONENT_UUID = "COMPONENT_UUID";
 
-    public final static String RENDERING_LOC = "RENDERING_LOC";
-    public final static String WIDTH = "WIDTH";
+    public final static String COMPONENT_DIMENS = "COMPONENT_DIMENS";
+    public final static String COMPONENT_RENDERING_LOC = "COMPONENT_RENDERING_LOC";
+    public final static String COMPONENT_WIDTH = "COMPONENT_WIDTH";
 
     public final static String CONTENTS = "CONTENTS";
 
     public final static String CONTENT_UUID = "CONTENT_UUID";
     public final static String CONTAINING_COMPONENT_UUID = "CONTAINING_COMPONENT_UUID";
     public final static String LAST_TIMESTAMP = "LAST_TIMESTAMP";
-    public final static String COMPONENT_DIMENS = "COMPONENT_DIMENS";
     public final static String ORIGIN_OVERRIDE_PROVIDER = "ORIGIN_OVERRIDE_PROVIDER";
     public final static String ORIGIN_OVERRIDE = "ORIGIN_OVERRIDE";
     public final static String ORIGIN_ADJUST = "ORIGIN_ADJUST";
 
-    public final static String CONTENT_UNADJUSTED_DIMENS = "CONTENT_UNADJUSTED_DIMENS";
     public final static String VERTICES_INDEX = "VERTICES_INDEX";
-    public final static String CONTENTS_TOP_LEFT_LOCS = "CONTENTS_TOP_LEFT_LOCS";
+    public final static String REGISTERED_CONTENTS = "REGISTERED_CONTENTS";
+    public final static String CONTENT_SPECIFIC_ORIGINS = "CONTENT_SPECIFIC_ORIGINS";
 
     public final static String CONTENT_UNADJUSTED_DIMENS_PROVIDERS =
             "CONTENT_UNADJUSTED_DIMENS_PROVIDERS";
+    public final static String CONTENT_UNADJUSTED_DIMENS = "CONTENT_UNADJUSTED_DIMENS";
     public final static String CONTENT_UNADJUSTED_VERTICES_PROVIDERS =
             "CONTENT_UNADJUSTED_VERTICES_PROVIDERS";
     public final static String CONTENT_UNADJUSTED_VERTICES = "CONTENT_UNADJUSTED_VERTICES";
+    public final static String CONTENT_POLYGON_OFFSETS = "CONTENT_POLYGON_OFFSETS";
 
     public final static String INDENT = "INDENT";
     public final static String ALIGNMENT = "ALIGNMENT";
     public final static String SPACING_AFTER = "SPACING_AFTER";
+    public final static String SPACING_UUID = "SPACING_UUID";
+
+    public final static Vertex ORIGIN = vertexOf(0f, 0f);
 
     private final static String BLACK = "black";
     private final static String DARK_GREY = "darkgrey";

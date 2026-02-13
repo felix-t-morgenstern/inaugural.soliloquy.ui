@@ -170,7 +170,7 @@ public class TextLineRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockDropShadowOffset),
                 same(mockDropShadowColor),
                 eq(Z),
-                isNotNull(),
+                eq(definition.UUID),
                 same(mockComponent)
         );
     }

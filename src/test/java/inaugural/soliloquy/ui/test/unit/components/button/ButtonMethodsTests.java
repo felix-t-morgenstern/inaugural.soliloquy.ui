@@ -27,6 +27,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
+import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.assertFloatBoxesEqual;
@@ -39,7 +40,6 @@ import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
 import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.CONTENT_UNADJUSTED_DIMENS_PROVIDERS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -126,7 +126,6 @@ public class ButtonMethodsTests {
     @Mock private Function<UUID, Component> mockGetComponent;
 
     @Mock private Map<UUID, ProviderAtTime<FloatBox>> mockOrigContentDimensProviders;
-    @Mock private Map<UUID, ProviderAtTime<Vertex>> mockOrigContentLocProviders;
 
     private Map<String, Object> mockButtonData;
 
@@ -193,11 +192,17 @@ public class ButtonMethodsTests {
     }
 
     @Test
-    public void testButton_setDimensForComponentAndContentWithoutOverride() {
-        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
+    public void testButton_getDimens() {
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                COMPONENT_UUID,
+                BUTTON_UUID
+        ));
+
+        var output = buttonMethods.Button_getDimens(inputs);
 
         assertEquals(BUTTON_UNADJ_DIMENS, output);
 
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
         verify(mockButton, atLeastOnce()).data();
         verify(mockButtonData, once()).get(LAST_TIMESTAMP);
         verify(mockButtonData, once()).get(IS_PRESSED);
@@ -259,6 +264,28 @@ public class ButtonMethodsTests {
         verify(mockButtonData, never()).get(ORIGIN_OVERRIDE_PROVIDER);
         verify(mockOriginOverrideProvider, never()).provide(anyLong());
         verify(mockButtonData, never()).put(anyString(), any());
+    }
+
+    @Test
+    public void testButton_setDimensForComponentAndContentWithoutOverride() {
+        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
+
+        assertEquals(BUTTON_UNADJ_DIMENS, output);
+
+        verify(mockButton, atLeastOnce()).data();
+        verify(mockButtonData, once()).get(LAST_TIMESTAMP);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(RECT_HOVER_STATE);
+        verify(mockButtonData, once()).get(SPRITE_HOVER_STATE);
+        verify(mockButtonData, once()).get(RENDERABLE_OPTIONS_DEFAULT);
+        verify(mockRectUnadjDimens, once()).provide(TIMESTAMP);
+        verify(mockSpriteUnadjDimens, once()).provide(TIMESTAMP);
+        verify(mockButtonData, once()).put(BUTTON_RECT_DIMENS, RECT_UNADJ_DIMENS);
+        verify(mockButtonData, once()).get(ORIGIN_OVERRIDE_PROVIDER);
+        verify(mockOriginOverrideProvider, never()).provide(anyLong());
+        verify(mockButtonData, once()).put(Constants.ORIGIN_ADJUST, null);
+        verify(mockButtonData, once()).put(BUTTON_DIMENS, BUTTON_UNADJ_DIMENS);
+        verify(mockButtonData, once()).put(BUTTON_RECT_DIMENS, RECT_UNADJ_DIMENS);
     }
 
     @Test

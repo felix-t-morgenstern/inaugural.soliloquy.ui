@@ -61,11 +61,11 @@ public class CombinationTest extends DisplayTest {
                 staticVal(floatBoxOf(0.2f, 0.2f, 0.8f, 0.8f)),
                 0
         )
-//                .withTexture(
-//                        staticVal(image.textureId()),
-//                        staticVal(0.5f),
-//                        staticVal(0.5f)
-//                )
+                .withTexture(
+                        staticVal(image.textureId()),
+                        staticVal(0.5f),
+                        staticVal(0.5f)
+                )
                 .withColors(
                         staticVal(randomColor()),
                         staticVal(randomColor()),

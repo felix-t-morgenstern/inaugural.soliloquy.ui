@@ -10,7 +10,6 @@ import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
-import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
 public class ButtonFromRectDimensWithTextAndTexDisplayTest extends ButtonDisplayTest {

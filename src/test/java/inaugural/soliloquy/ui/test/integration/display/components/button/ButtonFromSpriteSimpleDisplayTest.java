@@ -9,7 +9,6 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
 public class ButtonFromSpriteSimpleDisplayTest extends ButtonDisplayTest {
     public static void main(String[] args) {
@@ -39,7 +38,6 @@ public class ButtonFromSpriteSimpleDisplayTest extends ButtonDisplayTest {
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var buttonDef = testButtonFromSprite(
-                SHIELD_SPRITE_ID,
                 SPRITE_DIMENS
         );
 

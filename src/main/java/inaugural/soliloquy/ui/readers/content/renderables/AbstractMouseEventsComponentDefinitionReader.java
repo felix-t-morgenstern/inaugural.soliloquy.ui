@@ -27,7 +27,7 @@ public abstract class AbstractMouseEventsComponentDefinitionReader extends
 
     protected Consumer<EventInputs> getConsumer(String id) {
         //noinspection unchecked
-        return defaultIfNull(id, null, GET_CONSUMER);
+        return defaultIfNull(id, GET_CONSUMER, null);
     }
 
     protected Map<Integer, Consumer<EventInputs>> getConsumerPerButton(Map<Integer, String> ids) {

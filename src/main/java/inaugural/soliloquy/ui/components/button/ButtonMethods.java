@@ -90,10 +90,10 @@ public class ButtonMethods {
                 currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
             }
 
-            var unadjRectDimens = defaultIfNull(currentStateOptions.unadjRectDimens, null,
-                    dimens -> dimens.provide(timestamp));
-            var unadjSpriteDimens = defaultIfNull(currentStateOptions.unadjSpriteDimens, null,
-                    dimens -> dimens.provide(timestamp));
+            var unadjRectDimens = defaultIfNull(currentStateOptions.unadjRectDimens,
+                    dimens -> dimens.provide(timestamp), null);
+            var unadjSpriteDimens = defaultIfNull(currentStateOptions.unadjSpriteDimens,
+                    dimens -> dimens.provide(timestamp), null);
 
             if (unadjRectDimens != null) {
                 if (unadjSpriteDimens != null) {
@@ -109,7 +109,7 @@ public class ButtonMethods {
 
             ProviderAtTime<Vertex> originOverrideProvider =
                     getFromData(button, ORIGIN_OVERRIDE_PROVIDER);
-            var originOverride = defaultIfNull(originOverrideProvider, null, p -> p.provide(timestamp));
+            var originOverride = defaultIfNull(originOverrideProvider, p -> p.provide(timestamp), null);
             FloatBox buttonDimens;
             if (originOverride != null) {
                 var originAdjust = difference(unadjButtonDimens.topLeft(), originOverride);
@@ -360,8 +360,6 @@ public class ButtonMethods {
         ProviderAtTime<Color> bgColorBottomLeft;
         ProviderAtTime<Color> bgColorBottomRight;
         ProviderAtTime<Integer> bgTexProvider;
-        ProviderAtTime<Float> bgTexTileWidth;
-        ProviderAtTime<Float> bgTexTileHeight;
         String spriteId;
         ProviderAtTime<FloatBox> unadjSpriteDimens;
         ColorShift spriteShift;
@@ -373,6 +371,7 @@ public class ButtonMethods {
         public Options() {
         }
 
+        @SuppressWarnings("unused")
         public Options(
                 ProviderAtTime<FloatBox> unadjRectDimens,
                 ProviderAtTime<Color> bgColorTopLeft,

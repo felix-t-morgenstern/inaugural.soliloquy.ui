@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class DisplayTest {
     protected static final String ON_MOUSE_OVER_CONSUMER_ID = "onMouseOver";
     protected static final String ON_MOUSE_LEAVE_CONSUMER_ID = "onMouseLeave";

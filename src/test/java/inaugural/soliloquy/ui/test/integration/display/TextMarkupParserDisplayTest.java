@@ -13,7 +13,6 @@ import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
 
 import java.awt.*;
-import java.util.Arrays;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
@@ -75,11 +74,6 @@ public class TextMarkupParserDisplayTest extends DisplayTest {
                 lineHeight,
                 0.5f
         );
-        System.out.println("formattedText = " + Arrays.toString(formattedText));
-        System.out.println("formattedText.length = " + formattedText.length);
-        Arrays.stream(formattedText).forEach(f -> {
-            System.out.println(f.text());
-        });
 
         var linePadding = 0.005f;
         for (var i = 0; i < formattedText.length; i++) {

@@ -7,14 +7,10 @@ import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionRe
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
-import java.awt.*;
-
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
-import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
 
 public class BeveledButtonDisplayTest extends DisplayTest {
     public static void main(String[] args) {

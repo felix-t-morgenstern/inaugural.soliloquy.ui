@@ -1,6 +1,5 @@
 package inaugural.soliloquy.ui.components.beveledbutton;
 
-import inaugural.soliloquy.ui.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +9,7 @@ import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -19,8 +19,10 @@ import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockMap;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.BUTTON_RECT_DIMENS;
+import static inaugural.soliloquy.ui.components.button.ButtonMethods.IS_PRESSED;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,6 +42,11 @@ public class BeveledButtonMethodsTests {
             RECT_DIMENS.width() * BEVEL_PERCENT,
             RECT_DIMENS.height() * BEVEL_PERCENT
     );
+    private final Color BEVEL_COLOR_LIT = randomColor();
+    private final Color BEVEL_COLOR_UNLIT = randomColor();
+    private final float BEVEL_INTENSITY = randomFloatInRange(0f, 1f);
+    private final Color BEVEL_LIT_FROM_INTENSITY = new Color(1f, 1f, 1f, BEVEL_INTENSITY);
+    private final Color BEVEL_UNLIT_FROM_INTENSITY = new Color(0f, 0f, 0f, BEVEL_INTENSITY);
 
     private final long TIMESTAMP = randomLong();
 
@@ -49,7 +56,7 @@ public class BeveledButtonMethodsTests {
 
     private Map<String, Object> mockButtonData;
 
-    private BeveledButtonMethods beveledButtonMethods;
+    private BeveledButtonMethods methods;
 
     @BeforeEach
     public void setUp() {
@@ -63,7 +70,7 @@ public class BeveledButtonMethodsTests {
 
         lenient().when(mockButton.data()).thenReturn(mockButtonData);
 
-        beveledButtonMethods = new BeveledButtonMethods(mockGetComponent);
+        methods = new BeveledButtonMethods(mockGetComponent);
     }
 
     @Test
@@ -74,7 +81,7 @@ public class BeveledButtonMethodsTests {
     @Test
     public void testProvideVertex_BeveledButtonWithNewTimestamp_Slot0() {
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 0,
@@ -82,7 +89,7 @@ public class BeveledButtonMethodsTests {
                 0
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideVertex(inputs);
+        var output = methods.BeveledButton_provideVertex(inputs);
 
         assertEquals(
                 vertexOf(
@@ -105,7 +112,7 @@ public class BeveledButtonMethodsTests {
     @Test
     public void testProvideVertex_BeveledButtonWithNewTimestamp_Slot1() {
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 1,
@@ -113,7 +120,7 @@ public class BeveledButtonMethodsTests {
                 1
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideVertex(inputs);
+        var output = methods.BeveledButton_provideVertex(inputs);
 
         assertEquals(
                 vertexOf(
@@ -127,7 +134,7 @@ public class BeveledButtonMethodsTests {
     @Test
     public void testProvideVertex_BeveledButtonWithNewTimestamp_Slot2() {
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 2,
@@ -135,7 +142,7 @@ public class BeveledButtonMethodsTests {
                 2
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideVertex(inputs);
+        var output = methods.BeveledButton_provideVertex(inputs);
 
         assertEquals(
                 vertexOf(
@@ -149,7 +156,7 @@ public class BeveledButtonMethodsTests {
     @Test
     public void testProvideVertex_BeveledButtonWithNewTimestamp_Slot3() {
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 3,
@@ -157,7 +164,7 @@ public class BeveledButtonMethodsTests {
                 3
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideVertex(inputs);
+        var output = methods.BeveledButton_provideVertex(inputs);
 
         assertEquals(
                 vertexOf(
@@ -171,7 +178,7 @@ public class BeveledButtonMethodsTests {
     @Test
     public void testProvideVertex_BeveledButtonWithSameTimestampAsPrev() {
         var inputs = providerInputs(TIMESTAMP - 1, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 0,
@@ -179,7 +186,7 @@ public class BeveledButtonMethodsTests {
                 0
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideVertex(inputs);
+        var output = methods.BeveledButton_provideVertex(inputs);
 
         assertEquals(
                 vertexOf(
@@ -202,7 +209,7 @@ public class BeveledButtonMethodsTests {
     @Test
     public void testBeveledButton_provideBoxWithNewTimestamp_Slots0And1() {
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 0,
@@ -212,7 +219,7 @@ public class BeveledButtonMethodsTests {
                 0
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideBox(inputs);
+        var output = methods.BeveledButton_provideBox(inputs);
 
         assertEquals(
                 floatBoxOf(
@@ -235,7 +242,7 @@ public class BeveledButtonMethodsTests {
     @Test
     public void testBeveledButton_provideBoxWithNewTimestamp_Slots2and3() {
         var inputs = providerInputs(TIMESTAMP, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 2,
@@ -245,7 +252,7 @@ public class BeveledButtonMethodsTests {
                 2
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideBox(inputs);
+        var output = methods.BeveledButton_provideBox(inputs);
 
         assertEquals(
                 floatBoxOf(
@@ -264,7 +271,7 @@ public class BeveledButtonMethodsTests {
         when(mockButtonData.get(BEVEL_LAST_INNER_TRANSFORMS_TOP_LEFT))
                 .thenReturn(INNER_TRANSFORMS_TOP_LEFT);
         var inputs = providerInputs(TIMESTAMP - 1, null, mapOf(
-                Constants.COMPONENT_UUID,
+                COMPONENT_UUID,
                 BUTTON_UUID,
                 BeveledButton_xSlot,
                 0,
@@ -274,7 +281,7 @@ public class BeveledButtonMethodsTests {
                 0
         ));
 
-        var output = beveledButtonMethods.BeveledButton_provideBox(inputs);
+        var output = methods.BeveledButton_provideBox(inputs);
 
         assertEquals(
                 floatBoxOf(
@@ -296,4 +303,184 @@ public class BeveledButtonMethodsTests {
 
     // (I'm not testing for invalid args here, because if any developer is calling these methods
     // directly, they're already behaving in unsupported ways)
+
+    @Test
+    public void testBeveledButton_provideColorFromPresetLitByDefaultAndUnpressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(false);
+        when(mockButtonData.get(BeveledButtonMethods.BEVEL_COLOR_LIT)).thenReturn(BEVEL_COLOR_LIT);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                true,
+                COMPONENT_UUID,
+                BUTTON_UUID
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_COLOR_LIT, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_LIT);
+    }
+
+    @Test
+    public void testBeveledButton_provideColorFromPresetLitByDefaultAndPressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(true);
+        when(mockButtonData.get(BeveledButtonMethods.BEVEL_COLOR_UNLIT)).thenReturn(BEVEL_COLOR_UNLIT);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                true,
+                COMPONENT_UUID,
+                BUTTON_UUID
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_COLOR_UNLIT, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_UNLIT);
+    }
+
+    @Test
+    public void testBeveledButton_provideColorFromPresetUnlitByDefaultAndUnpressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(false);
+        when(mockButtonData.get(BeveledButtonMethods.BEVEL_COLOR_UNLIT)).thenReturn(BEVEL_COLOR_UNLIT);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                false,
+                COMPONENT_UUID,
+                BUTTON_UUID
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_COLOR_UNLIT, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_UNLIT);
+    }
+
+    @Test
+    public void testBeveledButton_provideColorFromPresetUnlitByDefaultAndPressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(true);
+        when(mockButtonData.get(BeveledButtonMethods.BEVEL_COLOR_LIT)).thenReturn(BEVEL_COLOR_LIT);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                false,
+                COMPONENT_UUID,
+                BUTTON_UUID
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_COLOR_LIT, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_LIT);
+    }
+
+    @Test
+    public void testBeveledButton_provideColorFromIntensityLitByDefaultAndUnpressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(false);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                true,
+                COMPONENT_UUID,
+                BUTTON_UUID,
+                BeveledButton_provideColor_bevelIntensity,
+                BEVEL_INTENSITY
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_LIT_FROM_INTENSITY, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_LIT);
+        verify(mockButtonData, once())
+                .put(BeveledButtonMethods.BEVEL_COLOR_LIT, BEVEL_LIT_FROM_INTENSITY);
+    }
+
+    @Test
+    public void testBeveledButton_provideColorFromIntensityLitByDefaultAndPressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(true);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                true,
+                COMPONENT_UUID,
+                BUTTON_UUID,
+                BeveledButton_provideColor_bevelIntensity,
+                BEVEL_INTENSITY
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_UNLIT_FROM_INTENSITY, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_UNLIT);
+        verify(mockButtonData, once())
+                .put(BeveledButtonMethods.BEVEL_COLOR_UNLIT, BEVEL_UNLIT_FROM_INTENSITY);
+    }
+
+    @Test
+    public void testBeveledButton_provideColorFromIntensityUnlitByDefaultAndUnpressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(false);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                false,
+                COMPONENT_UUID,
+                BUTTON_UUID,
+                BeveledButton_provideColor_bevelIntensity,
+                BEVEL_INTENSITY
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_UNLIT_FROM_INTENSITY, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_UNLIT);
+        verify(mockButtonData, once())
+                .put(BeveledButtonMethods.BEVEL_COLOR_UNLIT, BEVEL_UNLIT_FROM_INTENSITY);
+    }
+
+    @Test
+    public void testBeveledButton_provideColorFromIntensityUnlitByDefaultAndPressed() {
+        when(mockButtonData.get(IS_PRESSED)).thenReturn(true);
+
+        var inputs = providerInputs(TIMESTAMP, mapOf(
+                BeveledButton_provideColor_isLitByDefault,
+                false,
+                COMPONENT_UUID,
+                BUTTON_UUID,
+                BeveledButton_provideColor_bevelIntensity,
+                BEVEL_INTENSITY
+        ));
+
+        var output = methods.BeveledButton_provideColor(inputs);
+
+        assertEquals(BEVEL_LIT_FROM_INTENSITY, output);
+
+        verify(mockGetComponent, once()).apply(BUTTON_UUID);
+        verify(mockButtonData, once()).get(IS_PRESSED);
+        verify(mockButtonData, once()).get(BeveledButtonMethods.BEVEL_COLOR_LIT);
+        verify(mockButtonData, once())
+                .put(BeveledButtonMethods.BEVEL_COLOR_LIT, BEVEL_LIT_FROM_INTENSITY);
+    }
 }

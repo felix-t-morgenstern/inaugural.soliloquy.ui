@@ -16,8 +16,7 @@ import java.util.function.Function;
 import static inaugural.soliloquy.tools.Tools.provideIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapVals;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
-import static inaugural.soliloquy.ui.Constants.LAST_TIMESTAMP;
+import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
@@ -37,9 +36,11 @@ public class TextBlockDefinitionReader {
     }
 
     public ComponentDefinition read(TextBlockDefinition definition, long timestamp) {
-        var blockUpperLeft = provideIfNull(definition.UPPER_LEFT_PROVIDER,
+        var blockUpperLeft = provideIfNull(
+                definition.UPPER_LEFT_PROVIDER,
                 () -> PROVIDER_DEF_READER.read(Check.ifNull(definition.UPPER_LEFT_PROVIDER_DEF,
-                        "definition.UPPER_LEFT_PROVIDER_DEF"), timestamp));
+                        "definition.UPPER_LEFT_PROVIDER_DEF"), timestamp)
+        );
 
         var componentDef = component(definition.Z, definition.UUID)
                 .withDimensions(
@@ -49,9 +50,7 @@ public class TextBlockDefinitionReader {
                         )
                                 .withData(mapOf(
                                         COMPONENT_UUID,
-                                        definition.UUID,
-                                        TextBlock_blockUpperLeftProvider,
-                                        blockUpperLeft
+                                        definition.UUID
                                 ))
                 );
 
@@ -102,9 +101,11 @@ public class TextBlockDefinitionReader {
         }
 
         componentDef.withData(mapOf(
-                WIDTH,
+                ORIGIN_OVERRIDE_PROVIDER,
+                blockUpperLeft,
+                TEXT_BLOCK_WIDTH,
                 definition.MAX_LINE_LENGTH,
-                HEIGHT,
+                TEXT_BLOCK_HEIGHT,
                 yOffset,
                 LAST_TIMESTAMP,
                 timestamp - 1
@@ -118,12 +119,10 @@ public class TextBlockDefinitionReader {
                                                           float topOffset,
                                                           long timestamp) {
         return PROVIDER_DEF_READER.read(functionalProvider(
-                TextBlock_provideTextRenderingLoc, Vertex.class
+                TextBlock_provideTextLineRenderingLoc, Vertex.class
         ).withData(mapOf(
                 COMPONENT_UUID,
                 componentId,
-                TextBlock_blockUpperLeftProvider,
-                blockUpperLeft,
                 TextBlock_topOffset,
                 topOffset
         )), timestamp);

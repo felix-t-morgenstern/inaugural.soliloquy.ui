@@ -88,9 +88,8 @@ public class ButtonDisplayTest extends DisplayTest {
     }
 
     protected static ButtonDefinition testButtonFromSprite(
-            String spriteId,
             FloatBox dimens
     ) {
-        return button(spriteId, dimens, 0);
+        return button(DisplayTest.SHIELD_SPRITE_ID, dimens, 0);
     }
 }

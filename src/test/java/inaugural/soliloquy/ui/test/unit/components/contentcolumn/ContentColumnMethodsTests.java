@@ -10,30 +10,33 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.RenderableWithMutableDimensions;
-import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
-import soliloquy.specs.io.graphics.renderables.TriangleRenderable;
+import soliloquy.specs.io.graphics.renderables.*;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
-import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.tools.collections.Collections.mapOf;
+import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
+import static inaugural.soliloquy.tools.testing.Mock.generateMockList;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockMap;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.polygonDimens;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.*;
+import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
+import static soliloquy.specs.io.graphics.renderables.Component.Addend.addend;
+import static soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider.Inputs.providerInputs;
 
 @ExtendWith(MockitoExtension.class)
 public class ContentColumnMethodsTests {
@@ -42,26 +45,66 @@ public class ContentColumnMethodsTests {
     private final float COLUMN_WIDTH = randomFloat();
 
     private final UUID CONTENT_COMPONENT_UUID = randomUUID();
-    private final FloatBox CONTENT_COMPONENT_DIMENS = randomFloatBox();
+    private final FloatBox CONTENT_COMPONENT_UNADJ_DIMENS = randomFloatBox();
+    private final float CONTENT_COMPONENT_SPACING_AFTER = randomFloat();
 
     private final UUID CONTENT_TEXT_LINE_UUID = randomUUID();
-
-    private final UUID CONTENT_TRIANGLE_UUID = randomUUID();
+    private final float CONTENT_TEXT_LINE_HEIGHT = randomFloat();
+    private final float CONTENT_TEXT_LINE_SPACING_AFTER = randomFloat();
 
     private final UUID CONTENT_WITH_DIMENS_UUID = randomUUID();
+    private final FloatBox CONTENT_WITH_DIMENS_UNADJ_DIMENS = randomFloatBox();
+    private final float CONTENT_WITH_DIMENS_SPACING_AFTER = randomFloat();
+
+    private final UUID CONTENT_TRIANGLE_UUID = randomUUID();
+    private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_1 = randomVertex();
+    private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_2 = randomVertex();
+    private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_3 = randomVertex();
+    private final float CONTENT_TRIANGLE_SPACING_AFTER = randomFloat();
+
+    private final float EXPECTED_HEIGHT =
+            CONTENT_COMPONENT_UNADJ_DIMENS.height() +
+                    CONTENT_COMPONENT_SPACING_AFTER +
+                    CONTENT_TEXT_LINE_HEIGHT +
+                    CONTENT_TEXT_LINE_SPACING_AFTER +
+                    CONTENT_WITH_DIMENS_UNADJ_DIMENS.height() +
+                    CONTENT_WITH_DIMENS_SPACING_AFTER +
+                    polygonDimens(
+                            CONTENT_TRIANGLE_UNADJ_VERTEX_1,
+                            CONTENT_TRIANGLE_UNADJ_VERTEX_2,
+                            CONTENT_TRIANGLE_UNADJ_VERTEX_3
+                    ).height() +
+                    CONTENT_TRIANGLE_SPACING_AFTER;
+    private final FloatBox EXPECTED_OUTPUT = floatBoxOf(
+            COLUMN_RENDERING_LOC,
+            COLUMN_WIDTH,
+            EXPECTED_HEIGHT
+    );
 
     private final long TIMESTAMP = randomLong();
+
+    @Mock private Set<UUID> mockRegisteredComponents;
 
     @Mock private Component mockContentComponent;
     @Mock private ProviderAtTime<FloatBox> mockContentComponentDimens;
     @Mock private ProviderAtTime<Vertex> mockContentComponentOriginOverrideProvider;
+    @Mock private Map<String, Object> mockContentComponentData;
 
     @Mock private TextLineRenderable mockContentTextLine;
+    @Mock private ProviderAtTime<Float> mockContentTextLineHeightProvider;
     @Mock private ProviderAtTime<Vertex> mockContentTextLineOriginProvider;
 
-    @Mock private TriangleRenderable mockContentTriangle;
-
     @Mock private RenderableWithMutableDimensions mockContentWithDimens;
+    @Mock private ProviderAtTime<FloatBox> mockContentWithDimensUnadjDimens;
+    @Mock private ProviderAtTime<FloatBox> mockContentWithDimensAdjDimens;
+
+    @Mock private TriangleRenderable mockContentTriangle;
+    @Mock private ProviderAtTime<Vertex> mockContentTriangleUnadjVertex1;
+    @Mock private ProviderAtTime<Vertex> mockContentTriangleUnadjVertex2;
+    @Mock private ProviderAtTime<Vertex> mockContentTriangleUnadjVertex3;
+    @Mock private ProviderAtTime<Vertex> mockContentTriangleAdjVertex1;
+    @Mock private ProviderAtTime<Vertex> mockContentTriangleAdjVertex2;
+    @Mock private ProviderAtTime<Vertex> mockContentTriangleAdjVertex3;
 
     @Mock private Component mockColumn;
 
@@ -81,9 +124,9 @@ public class ContentColumnMethodsTests {
                 .thenReturn(COLUMN_RENDERING_LOC);
 
         mockColumnData = generateMockMap(
-                pairOf(RENDERING_LOC, mockColumnRenderingLocProvider),
-                pairOf(WIDTH, COLUMN_WIDTH),
-                pairOf(CONTENTS_TOP_LEFT_LOCS, Collections.<UUID, Vertex>mapOf())
+                pairOf(COMPONENT_RENDERING_LOC, mockColumnRenderingLocProvider),
+                pairOf(COMPONENT_WIDTH, COLUMN_WIDTH),
+                pairOf(REGISTERED_CONTENTS, mockRegisteredComponents)
         );
 
         lenient().when(mockColumn.uuid()).thenReturn(COLUMN_UUID);
@@ -93,12 +136,14 @@ public class ContentColumnMethodsTests {
 
         lenient().when(mockContentComponent.uuid()).thenReturn(CONTENT_COMPONENT_UUID);
         lenient().when(mockContentComponentDimens.provide(anyLong()))
-                .thenReturn(CONTENT_COMPONENT_DIMENS);
+                .thenReturn(CONTENT_COMPONENT_UNADJ_DIMENS);
         lenient().when(mockContentComponent.getDimensionsProvider())
                 .thenReturn(mockContentComponentDimens);
+        lenient().when(mockContentComponent.data()).thenReturn(mockContentComponentData);
+
         lenient().when(mockFunctionalProviderDefReader.apply(argThat(
                 new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
-                        Component_innerContentRenderingLocWithContentSpecificOverride,
+                        Component_innerContentSpecificRenderingLoc,
                         mapOf(
                                 CONTENT_UUID,
                                 CONTENT_COMPONENT_UUID,
@@ -108,9 +153,14 @@ public class ContentColumnMethodsTests {
                 )))).thenReturn(mockContentComponentOriginOverrideProvider);
 
         lenient().when(mockContentTextLine.uuid()).thenReturn(CONTENT_TEXT_LINE_UUID);
+        lenient().when(mockContentTextLine.lineHeightProvider())
+                .thenReturn(mockContentTextLineHeightProvider);
+        lenient().when(mockContentTextLineHeightProvider.provide(anyLong()))
+                .thenReturn(CONTENT_TEXT_LINE_HEIGHT);
+
         lenient().when(mockFunctionalProviderDefReader.apply(argThat(
                 new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
-                        Component_innerContentRenderingLocWithContentSpecificOverride,
+                        Component_innerContentSpecificRenderingLoc,
                         mapOf(
                                 CONTENT_UUID,
                                 CONTENT_TEXT_LINE_UUID,
@@ -119,9 +169,74 @@ public class ContentColumnMethodsTests {
                         )
                 )))).thenReturn(mockContentTextLineOriginProvider);
 
-        lenient().when(mockContentTriangle.uuid()).thenReturn(CONTENT_TRIANGLE_UUID);
-
         lenient().when(mockContentWithDimens.uuid()).thenReturn(CONTENT_WITH_DIMENS_UUID);
+        lenient().when(mockContentWithDimens.getRenderingDimensionsProvider())
+                .thenReturn(mockContentWithDimensUnadjDimens);
+        lenient().when(mockContentWithDimensUnadjDimens.provide(anyLong()))
+                .thenReturn(CONTENT_WITH_DIMENS_UNADJ_DIMENS);
+
+        lenient().when(mockFunctionalProviderDefReader.apply(argThat(
+                new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                        Component_innerContentDimensWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_WITH_DIMENS_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID
+                        )
+                )))).thenReturn(mockContentWithDimensAdjDimens);
+
+        lenient().when(mockContentTriangle.uuid()).thenReturn(CONTENT_TRIANGLE_UUID);
+        lenient().when(mockContentTriangle.containingComponent()).thenReturn(mockColumn);
+        lenient().when(mockContentTriangle.getVertex1Provider())
+                .thenReturn(mockContentTriangleUnadjVertex1);
+        lenient().when(mockContentTriangle.getVertex2Provider())
+                .thenReturn(mockContentTriangleUnadjVertex2);
+        lenient().when(mockContentTriangle.getVertex3Provider())
+                .thenReturn(mockContentTriangleUnadjVertex3);
+        lenient().when(mockContentTriangleUnadjVertex1.provide(anyLong()))
+                .thenReturn(CONTENT_TRIANGLE_UNADJ_VERTEX_1);
+        lenient().when(mockContentTriangleUnadjVertex2.provide(anyLong()))
+                .thenReturn(CONTENT_TRIANGLE_UNADJ_VERTEX_2);
+        lenient().when(mockContentTriangleUnadjVertex3.provide(anyLong()))
+                .thenReturn(CONTENT_TRIANGLE_UNADJ_VERTEX_3);
+
+        lenient().when(mockFunctionalProviderDefReader.apply(argThat(
+                new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                        Component_innerContentPolygonVertexWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_TRIANGLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID,
+                                VERTICES_INDEX,
+                                0
+                        )
+                )))).thenReturn(mockContentTriangleAdjVertex1);
+        lenient().when(mockFunctionalProviderDefReader.apply(argThat(
+                new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                        Component_innerContentPolygonVertexWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_TRIANGLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID,
+                                VERTICES_INDEX,
+                                1
+                        )
+                )))).thenReturn(mockContentTriangleAdjVertex2);
+        lenient().when(mockFunctionalProviderDefReader.apply(argThat(
+                new FunctionalProviderDefMatcher<FunctionalProviderDefinition<Vertex>>(
+                        Component_innerContentPolygonVertexWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_TRIANGLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID,
+                                VERTICES_INDEX,
+                                2
+                        )
+                )))).thenReturn(mockContentTriangleAdjVertex3);
 
         methods = new ContentColumnMethods(mockGetComponent, mockFunctionalProviderDefReader);
     }
@@ -150,7 +265,7 @@ public class ContentColumnMethodsTests {
     }
 
     @Test
-    public void testContentColumn_setDimensForComponentAndContentWithNewTimestampAndNoContentAndNoOverride() {
+    public void testContentColumn_setDimensForComponentAndContentWithNewTimestampAndNoContent() {
         when(mockColumnData.get(CONTENTS)).thenReturn(listOf());
         var expectedOutput = floatBoxOf(COLUMN_RENDERING_LOC, COLUMN_WIDTH, 0f);
 
@@ -171,43 +286,300 @@ public class ContentColumnMethodsTests {
         verify(mockColumnData, once()).get(CONTENT_UNADJUSTED_VERTICES);
         verify(mockColumnData, once()).put(CONTENT_UNADJUSTED_VERTICES,
                 Collections.<String, Object>mapOf());
-        verify(mockColumnData, once()).get(RENDERING_LOC);
+        verify(mockColumnData, once()).get(COMPONENT_RENDERING_LOC);
         verify(mockColumnRenderingLocProvider, once()).provide(TIMESTAMP);
-        verify(mockColumnData, once()).get(WIDTH);
+        verify(mockColumnData, once()).get(COMPONENT_WIDTH);
         verify(mockColumnData, once()).get(CONTENTS);
-        verify(mockColumnData, once()).get(CONTENTS_TOP_LEFT_LOCS);
+        verify(mockColumnData, once()).get(REGISTERED_CONTENTS);
         verify(mockColumnData, once()).put(COMPONENT_DIMENS, expectedOutput);
         verify(mockColumnData, once()).put(LAST_TIMESTAMP, TIMESTAMP);
     }
 
     @Test
-    public void testContentColumn_setDimensForComponentAndContentWithNewTimestampAndNewContentAndNoOverride() {
-        when(mockColumnData.get(CONTENTS)).thenReturn(listOf());
-        var expectedOutput = floatBoxOf(COLUMN_RENDERING_LOC, COLUMN_WIDTH, 0f);
+    public void testContentColumn_setDimensForComponentAndContentWithNewTimestampAndNewContent() {
+        when(mockColumn.contentsRepresentation()).thenReturn(setOf(
+                mockContentComponent,
+                mockContentTextLine,
+                mockContentTriangle,
+                mockContentWithDimens
+        ));
+        when(mockColumnData.get(CONTENTS)).thenReturn(listOf(
+                new ContentColumnMethods.Content(
+                        CONTENT_COMPONENT_UUID, CONTENT_COMPONENT_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TEXT_LINE_UUID, CONTENT_TEXT_LINE_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_WITH_DIMENS_UUID, CONTENT_WITH_DIMENS_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TRIANGLE_UUID, CONTENT_TRIANGLE_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                )
+        ));
 
         var output = methods.ContentColumn_setDimensForComponentAndContent(mockColumn, TIMESTAMP);
 
-        assertEquals(expectedOutput, output);
+        assertEquals(EXPECTED_OUTPUT, output);
+
+        verify(mockContentComponent, once()).getDimensionsProvider();
+        verify(mockContentComponentDimens, once()).provide(TIMESTAMP);
+        verify(mockFunctionalProviderDefReader, once())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentSpecificRenderingLoc,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_COMPONENT_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID
+                        )
+                )));
+        verify(mockRegisteredComponents, once()).add(CONTENT_COMPONENT_UUID);
+        verify(mockContentComponent, once()).data();
+        verify(mockContentComponentData, once())
+                .put(ORIGIN_OVERRIDE_PROVIDER, mockContentComponentOriginOverrideProvider);
+
+        verify(mockFunctionalProviderDefReader, once())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentSpecificRenderingLoc,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_TEXT_LINE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID
+                        )
+                )));
+        verify(mockRegisteredComponents, once()).add(CONTENT_TEXT_LINE_UUID);
+        verify(mockContentTextLine, once())
+                .setRenderingLocationProvider(mockContentTextLineOriginProvider);
+        verify(mockContentTextLineHeightProvider, once()).provide(TIMESTAMP);
+
+        verify(mockContentWithDimens, once()).getRenderingDimensionsProvider();
+        verify(mockFunctionalProviderDefReader, once())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentDimensWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_WITH_DIMENS_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID
+                        )
+                )));
+        verify(mockContentWithDimens, once())
+                .setRenderingDimensionsProvider(mockContentWithDimensAdjDimens);
+        verify(mockContentWithDimensUnadjDimens, once()).provide(TIMESTAMP);
+
+        verify(mockContentTriangle, atLeastOnce()).uuid();
+        verify(mockContentTriangle, once()).getVertex1Provider();
+        verify(mockContentTriangle, once()).getVertex2Provider();
+        verify(mockContentTriangle, once()).getVertex3Provider();
+        IntStream.range(0, 3).forEach(i -> verify(mockFunctionalProviderDefReader, once())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentPolygonVertexWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_TRIANGLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID,
+                                VERTICES_INDEX,
+                                i
+                        )
+                ))));
+        verify(mockContentTriangle, once()).setVertex1Provider(mockContentTriangleAdjVertex1);
+        verify(mockContentTriangle, once()).setVertex2Provider(mockContentTriangleAdjVertex2);
+        verify(mockContentTriangle, once()).setVertex3Provider(mockContentTriangleAdjVertex3);
+    }
+
+    @Test
+    public void testContentColumn_setDimensForComponentAndContentWithNewTimestampAndExistingContent() {
+        when(mockColumn.contentsRepresentation()).thenReturn(setOf(
+                mockContentComponent,
+                mockContentTextLine,
+                mockContentTriangle,
+                mockContentWithDimens
+        ));
+        Map<UUID, List<Vertex>> mockContentUnadjVertices = generateMockMap();
+        when(mockColumnData.get(CONTENT_UNADJUSTED_DIMENS)).thenReturn(mockContentUnadjVertices);
+        Map<UUID, FloatBox> mockContentUnadjDimens = generateMockMap();
+        when(mockColumnData.get(CONTENT_UNADJUSTED_VERTICES)).thenReturn(mockContentUnadjDimens);
+        when(mockColumnData.get(CONTENT_UNADJUSTED_DIMENS_PROVIDERS)).thenReturn(mapOf(
+                CONTENT_WITH_DIMENS_UUID, mockContentWithDimensUnadjDimens
+        ));
+        when(mockColumnData.get(CONTENT_UNADJUSTED_VERTICES_PROVIDERS)).thenReturn(mapOf(
+                CONTENT_TRIANGLE_UUID, listOf(
+                        mockContentTriangleUnadjVertex1,
+                        mockContentTriangleUnadjVertex2,
+                        mockContentTriangleUnadjVertex3
+                )
+        ));
+        when(mockColumnData.get(REGISTERED_CONTENTS)).thenReturn(setOf(
+                CONTENT_COMPONENT_UUID,
+                CONTENT_TEXT_LINE_UUID
+        ));
+        when(mockColumnData.get(CONTENTS)).thenReturn(listOf(
+                new ContentColumnMethods.Content(
+                        CONTENT_COMPONENT_UUID, CONTENT_COMPONENT_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TEXT_LINE_UUID, CONTENT_TEXT_LINE_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_WITH_DIMENS_UUID, CONTENT_WITH_DIMENS_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                ),
+                new ContentColumnMethods.Content(
+                        CONTENT_TRIANGLE_UUID, CONTENT_TRIANGLE_SPACING_AFTER,
+                        HorizontalAlignment.LEFT, 0f
+                )
+        ));
+
+        var output = methods.ContentColumn_setDimensForComponentAndContent(mockColumn, TIMESTAMP);
+
+        assertEquals(EXPECTED_OUTPUT, output);
+
+        verify(mockRegisteredComponents, never()).add(any());
+
+        verify(mockContentUnadjVertices, once()).clear();
+        verify(mockContentUnadjDimens, once()).clear();
+
+        verify(mockContentComponent, once()).getDimensionsProvider();
+        verify(mockContentComponentDimens, once()).provide(TIMESTAMP);
+        verify(mockFunctionalProviderDefReader, never())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentSpecificRenderingLoc,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_COMPONENT_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID
+                        )
+                )));
+        verify(mockContentComponent, never()).data();
+        verify(mockContentComponentData, never()).put(eq(ORIGIN_OVERRIDE_PROVIDER), any());
+
+        verify(mockFunctionalProviderDefReader, never())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentSpecificRenderingLoc,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_TEXT_LINE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID
+                        )
+                )));
+        verify(mockContentTextLine, never()).setRenderingLocationProvider(any());
+        verify(mockContentTextLineHeightProvider, once()).provide(TIMESTAMP);
+
+        verify(mockContentWithDimens, never()).getRenderingDimensionsProvider();
+        verify(mockFunctionalProviderDefReader, never())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentDimensWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_WITH_DIMENS_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID
+                        )
+                )));
+        verify(mockContentWithDimens, never()).setRenderingDimensionsProvider(any());
+        verify(mockContentWithDimensUnadjDimens, once()).provide(TIMESTAMP);
+
+        verify(mockContentTriangle, atLeastOnce()).uuid();
+        verify(mockContentTriangle, never()).getVertex1Provider();
+        verify(mockContentTriangle, never()).getVertex2Provider();
+        verify(mockContentTriangle, never()).getVertex3Provider();
+        IntStream.range(0, 3).forEach(i -> verify(mockFunctionalProviderDefReader, never())
+                .apply(argThat(new FunctionalProviderDefMatcher<>(
+                        Component_innerContentPolygonVertexWithContentSpecificOverride,
+                        mapOf(
+                                CONTENT_UUID,
+                                CONTENT_TRIANGLE_UUID,
+                                CONTAINING_COMPONENT_UUID,
+                                COLUMN_UUID,
+                                VERTICES_INDEX,
+                                i
+                        )
+                ))));
+        verify(mockContentTriangle, never()).setVertex1Provider(mockContentTriangleAdjVertex1);
+        verify(mockContentTriangle, never()).setVertex2Provider(mockContentTriangleAdjVertex2);
+        verify(mockContentTriangle, never()).setVertex3Provider(mockContentTriangleAdjVertex3);
+    }
+
+    @Test
+    public void ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider() {
+        var columnDimens = randomFloatBox();
+        when(mockColumnData.get(LAST_TIMESTAMP)).thenReturn(TIMESTAMP);
+        when(mockColumnData.get(COMPONENT_DIMENS)).thenReturn(columnDimens);
+
+        Map<String, Object> mockInputsData = generateMockMap(pairOf(COMPONENT_UUID, COLUMN_UUID));
+
+        var output = methods.ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider(
+                providerInputs(TIMESTAMP, mockInputsData)
+        );
+
+        assertEquals(columnDimens, output);
+
+        verify(mockInputsData, once()).get(COMPONENT_UUID);
+        verify(mockGetComponent, once()).apply(COLUMN_UUID);
 
         verify(mockColumnData, once()).get(LAST_TIMESTAMP);
-        verify(mockColumnData, once()).get(CONTENT_UNADJUSTED_DIMENS_PROVIDERS);
-        verify(mockColumnData, once()).put(CONTENT_UNADJUSTED_DIMENS_PROVIDERS,
-                Collections.<String, Object>mapOf());
-        verify(mockColumnData, once()).get(CONTENT_UNADJUSTED_DIMENS);
-        verify(mockColumnData, once()).put(CONTENT_UNADJUSTED_DIMENS,
-                Collections.<String, Object>mapOf());
-        verify(mockColumnData, once()).get(CONTENT_UNADJUSTED_VERTICES_PROVIDERS);
-        verify(mockColumnData, once()).put(CONTENT_UNADJUSTED_VERTICES_PROVIDERS,
-                Collections.<String, Object>mapOf());
-        verify(mockColumnData, once()).get(CONTENT_UNADJUSTED_VERTICES);
-        verify(mockColumnData, once()).put(CONTENT_UNADJUSTED_VERTICES,
-                Collections.<String, Object>mapOf());
-        verify(mockColumnData, once()).get(RENDERING_LOC);
-        verify(mockColumnRenderingLocProvider, once()).provide(TIMESTAMP);
-        verify(mockColumnData, once()).get(WIDTH);
+        verify(mockColumnData, once()).get(COMPONENT_DIMENS);
+        verify(mockColumnData, never()).get(CONTENT_UNADJUSTED_DIMENS_PROVIDERS);
+    }
+
+    @Test
+    public void testContentColumn_addItem() {
+        var alignment = HorizontalAlignment.fromValue(randomIntInRange(1,3));
+        var contentComponentIndent = randomFloat();
+        Map<String, Object> mockAddendData = generateMockMap(
+                pairOf(SPACING_AFTER, CONTENT_COMPONENT_SPACING_AFTER),
+                pairOf(ALIGNMENT, alignment),
+                pairOf(INDENT, contentComponentIndent)
+        );
+        List<ContentColumnMethods.Content> mockContents = generateMockList();
+        when(mockColumnData.get(CONTENTS)).thenReturn(mockContents);
+
+        methods.ContentColumn_add(mockColumn, addend(mockContentComponent, mockAddendData));
+
+        verify(mockColumn, once()).data();
         verify(mockColumnData, once()).get(CONTENTS);
-        verify(mockColumnData, once()).get(CONTENTS_TOP_LEFT_LOCS);
-        verify(mockColumnData, once()).put(COMPONENT_DIMENS, expectedOutput);
-        verify(mockColumnData, once()).put(LAST_TIMESTAMP, TIMESTAMP);
+        verify(mockContentComponent, once()).uuid();
+        verify(mockAddendData, once()).get(SPACING_AFTER);
+        verify(mockAddendData, once()).get(ALIGNMENT);
+        verify(mockAddendData, once()).get(INDENT);
+        verify(mockContents, once()).add(eq(new ContentColumnMethods.Content(
+                CONTENT_COMPONENT_UUID,
+                CONTENT_COMPONENT_SPACING_AFTER,
+                alignment,
+                contentComponentIndent
+        )));
+    }
+
+    @Test
+    public void testContentColumn_addSpace() {
+        var spacingUuid = randomUUID();
+        List<ContentColumnMethods.Content> mockContents = generateMockList();
+        when(mockColumnData.get(CONTENTS)).thenReturn(mockContents);
+        var space = randomFloat();
+
+        methods.ContentColumn_add(mockColumn, addend(null, mapOf(
+                SPACING_UUID,
+                spacingUuid,
+                SPACING_AFTER,
+                space
+        )));
+
+        verify(mockContents, once()).add(eq(new ContentColumnMethods.Content(
+                spacingUuid,
+                space,
+                null,
+                0f
+        )));
     }
 }

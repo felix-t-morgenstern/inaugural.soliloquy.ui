@@ -135,25 +135,38 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         @SuppressWarnings("unchecked") var readComponent = COMPONENT_FACTORY.make(
                 definition.UUID,
                 definition.Z,
-                defaultIfNull(definition.bindings, setOf(),
+                defaultIfNull(
+                        definition.bindings,
                         bindingDefs -> Arrays.stream(bindingDefs)
                                 .map(bindingDef -> keyBinding(
                                         bindingDef.KEY_CODEPOINTS,
                                         GET_CONSUMER.apply(bindingDef.PRESS_CONSUMER_ID),
                                         GET_CONSUMER.apply(bindingDef.RELEASE_CONSUMER_ID)))
-                                .collect(Collectors.toSet())),
+                                .collect(Collectors.toSet()),
+                        setOf()
+                ),
                 falseIfNull(definition.blocksLowerBindings),
                 defaultIfNull(definition.keyBindingPriority, DEFAULT_KEY_EVENT_PRIORITY),
-                defaultIfNull(definition.dimensionsProvider,
-                        defaultIfNull(definition.dimensionsProviderDef, WHOLE_SCREEN_PROVIDER,
-                                d -> PROVIDER_READER.read(d, timestamp))),
-                defaultIfNull(definition.RENDERING_BOUNDARIES_PROVIDER,
-                        defaultIfNull(definition.RENDERING_BOUNDARIES_PROVIDER_DEF, WHOLE_SCREEN_PROVIDER,
-                                d -> PROVIDER_READER.read(d, timestamp))),
+                defaultIfNull(
+                        definition.dimensionsProvider,
+                        defaultIfNull(
+                                definition.dimensionsProviderDef,
+                                d -> PROVIDER_READER.read(d, timestamp),
+                                WHOLE_SCREEN_PROVIDER
+                        )
+                ),
+                defaultIfNull(
+                        definition.RENDERING_BOUNDARIES_PROVIDER,
+                        defaultIfNull(
+                                definition.RENDERING_BOUNDARIES_PROVIDER_DEF,
+                                d -> PROVIDER_READER.read(d, timestamp),
+                                WHOLE_SCREEN_PROVIDER
+                        )
+                ),
                 definition.prerenderHookId,
                 definition.addHookId,
                 containingComponent,
-                defaultIfNull(definition.data, mapOf(), Collections::mapOf)
+                defaultIfNull(definition.data, Collections::mapOf, mapOf())
         );
         for (var contentDef : definition.CONTENT) {
             read(readComponent, contentDef, timestamp);

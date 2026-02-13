@@ -9,10 +9,10 @@ import soliloquy.specs.io.graphics.renderables.factories.TriangleRenderableFacto
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition;
 
-import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static java.util.UUID.randomUUID;
 
 public class TriangleRenderableDefinitionReader
         extends AbstractMouseEventsComponentDefinitionReader {
@@ -60,7 +60,8 @@ public class TriangleRenderableDefinitionReader
         var renderable =
                 FACTORY.make(vector1, vector1Color, vector2, vector2Color, vector3, vector3Color,
                         textureId, textureTileWidth, textureTileHeight, onPress, onRelease,
-                        onMouseOver, onMouseLeave, definition.Z, UUID.randomUUID(), component);
+                        onMouseOver, onMouseLeave, definition.Z,
+                        defaultIfNull(definition.UUID, randomUUID()), component);
 
         if (definition.onPressIds != null ||
                 definition.onReleaseIds != null ||

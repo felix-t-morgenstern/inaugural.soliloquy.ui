@@ -13,7 +13,6 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
-import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 

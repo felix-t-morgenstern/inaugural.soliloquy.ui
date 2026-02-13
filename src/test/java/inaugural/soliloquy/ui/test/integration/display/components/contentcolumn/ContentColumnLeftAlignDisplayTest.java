@@ -13,20 +13,28 @@ import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
+import static inaugural.soliloquy.ui.Constants.ORIGIN;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.itemOf;
+import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.space;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.column;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.test.integration.display.components.button.ButtonDisplayTest.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
+import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
+import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
+import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
+import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
+import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
+import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ContentColumnDisplayTest extends DisplayTest {
+public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column display test",
+                "Content column left align display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -46,14 +54,14 @@ public class ContentColumnDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column", 16000),
-                ContentColumnDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content column left align", 16000),
+                ContentColumnLeftAlignDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var spacingAfter = 0.05f;
+        var spacingAfter = 0.0125f;
 
         var lineHeight = 0.02f;
         var lineSpacing = 0.005f;
@@ -75,6 +83,9 @@ public class ContentColumnDisplayTest extends DisplayTest {
                 [color=127,0,0]II. It is high time that Communists should openly, in the face of the *whole world*,[/color] publish their views, their aims, their tendencies, and meet this nursery tale of the Spectre of Communism with a manifesto of the party itself."""
         );
 
+        var divHeight = 0.00625f;
+        var divCycle = 3000;
+
         var beveledButtonLineHeight = 0.075f;
 
         var def = column(
@@ -83,6 +94,40 @@ public class ContentColumnDisplayTest extends DisplayTest {
                 0
         )
                 .withItems(
+                        itemOf(
+                                textLine(
+                                        MERRIWEATHER_ID,
+                                        "This is a text line!",
+                                        ORIGIN,
+                                        lineHeight * 1.5f,
+                                        HorizontalAlignment.LEFT,
+                                        0f,
+                                        0
+                                ),
+                                spacingAfter
+                        ),
+                        itemOf(
+                                rectangle(
+                                        loopingLinearMoving(
+                                                divCycle,
+                                                0,
+                                                pairOf(0, floatBoxOf(0f, divHeight)),
+                                                pairOf(
+                                                        divCycle/2,
+                                                        floatBoxOf(0.5f, divHeight)
+                                                ),
+                                                pairOf(
+                                                        divCycle,
+                                                        floatBoxOf(0f, divHeight)
+                                                )
+                                        ),
+                                        0
+                                ).withColor(
+                                        randomHighSaturationColor()
+                                ),
+                                spacingAfter
+                        ),
+                        space(spacingAfter),
                         itemOf(
                                 textBlock(
                                         MERRIWEATHER_ID,
@@ -124,6 +169,24 @@ public class ContentColumnDisplayTest extends DisplayTest {
                                         HorizontalAlignment.LEFT,
                                         paragraphs2,
                                         1
+                                ),
+                                spacingAfter
+                        ),
+                        itemOf(
+                                triangle(
+                                        staticVal(vertexOf(0f,0f)),
+                                        staticVal(vertexOf(0.5f,0f)),
+                                        loopingLinearMoving(
+                                                divCycle,
+                                                0,
+                                                pairOf(0, vertexOf(0.25f, divHeight)),
+                                                pairOf(divCycle/4, vertexOf(0.5f, divHeight)),
+                                                pairOf(divCycle*3/4, vertexOf(0f, divHeight)),
+                                                pairOf(divCycle, vertexOf(0.25f, divHeight))
+                                        ),
+                                        0
+                                ).withColor(
+                                        randomHighSaturationColor()
                                 ),
                                 spacingAfter
                         ),

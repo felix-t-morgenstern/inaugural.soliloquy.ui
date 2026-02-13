@@ -1,6 +1,6 @@
 package inaugural.soliloquy.ui.test.unit.components.contentcolumn;
 
-import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.Constants;
 import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition;
 import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinitionReader;
 import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
@@ -15,13 +15,10 @@ import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
-import java.util.UUID;
-
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
-import static inaugural.soliloquy.ui.Constants.CONTENTS_TOP_LEFT_LOCS;
+import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.space;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.column;
 import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.*;
@@ -104,9 +101,9 @@ public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReade
         assertEquals(ContentColumn_add, output.addHookId);
         assertEquals(ContentColumn_setDimensForComponentAndContent, output.prerenderHookId);
         assertEquals(mapOf(
-                RENDERING_LOC,
+                COMPONENT_RENDERING_LOC,
                 mockRenderingLoc,
-                ContentColumnMethods.WIDTH,
+                Constants.COMPONENT_WIDTH,
                 WIDTH,
                 CONTENTS,
                 listOf(
@@ -117,7 +114,7 @@ public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReade
                                 item1Indent
                         ),
                         new ContentColumnMethods.Content(
-                                spacingItem.itemUuid(),
+                                spacingItem.uuidForSpacingOnly(),
                                 spacingAmt,
                                 null,
                                 0f
@@ -128,9 +125,7 @@ public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReade
                                 item2Alignment,
                                 item2Indent
                         )
-                ),
-                CONTENTS_TOP_LEFT_LOCS,
-                Collections.<UUID, Vertex>mapOf()
+                )
         ), output.data);
 
         verify(mockProviderDefReader, once()).read(mockRenderingLocDef, TIMESTAMP);

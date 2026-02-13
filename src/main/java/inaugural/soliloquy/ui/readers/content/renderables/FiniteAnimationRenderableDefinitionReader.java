@@ -47,10 +47,14 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
         var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
         var borderColor = provider(definition.borderColorProviderDef, timestamp);
 
-        List<ColorShift> colorShifts = defaultIfNull(definition.colorShifts,
-                defaultIfNull(definition.colorShiftDefs, listOf(), c -> Arrays.stream(c)
-                        .map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList()),
-                d -> Arrays.stream(d).toList());
+        List<ColorShift> colorShifts = defaultIfNull(
+                definition.colorShifts,
+                d -> Arrays.stream(d).toList(),
+                defaultIfNull(definition.colorShiftDefs,
+                        c -> Arrays.stream(c).map(shiftDef -> SHIFT_READER.read(shiftDef, timestamp)).toList(),
+                        listOf()
+                )
+        );
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);

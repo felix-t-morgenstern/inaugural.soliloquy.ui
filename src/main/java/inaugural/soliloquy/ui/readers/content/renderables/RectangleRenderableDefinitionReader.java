@@ -9,10 +9,10 @@ import soliloquy.specs.io.graphics.renderables.factories.RectangleRenderableFact
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 
-import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static java.util.UUID.randomUUID;
 
 public class RectangleRenderableDefinitionReader
         extends AbstractMouseEventsComponentDefinitionReader {
@@ -68,7 +68,7 @@ public class RectangleRenderableDefinitionReader
 
         var renderable = FACTORY.make(topLeft, topRight, bottomLeft, bottomRight, textureId,
                 textureTileWidth, textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave,
-                dimens, definition.Z, UUID.randomUUID(), component);
+                dimens, definition.Z, defaultIfNull(definition.UUID, randomUUID()), component);
 
         if (definition.onPressIds != null ||
                 definition.onReleaseIds != null ||

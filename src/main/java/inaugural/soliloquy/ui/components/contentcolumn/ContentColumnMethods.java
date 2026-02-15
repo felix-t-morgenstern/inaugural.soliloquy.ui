@@ -214,11 +214,11 @@ public class ContentColumnMethods {
                                 unadjContentVerticesProvidersForRenderable);
                     }
 
-                    var providedOrigContentVertices =
+                    var providedUnadjContentVertices =
                             unadjContentVerticesProvidersForRenderable.stream()
                                     .map(p -> p.provide(timestamp)).toList();
-                    contentUnadjustedVertices.put(t.uuid(), providedOrigContentVertices);
-                    var unadjPolygonDimens = polygonDimens(providedOrigContentVertices);
+                    contentUnadjustedVertices.put(t.uuid(), providedUnadjContentVertices);
+                    var unadjPolygonDimens = polygonEncompassingDimens(providedUnadjContentVertices);
                     contentPolygonOffsets.put(
                             t.uuid(),
                             vertexOf(midpoint(
@@ -230,11 +230,10 @@ public class ContentColumnMethods {
                             ), renderingLoc.Y + heightThusFar)
                     );
 
-                    var triangleEncompassingDimens = polygonDimens(providedOrigContentVertices);
-
-                    heightThusFar += triangleEncompassingDimens.height();
+                    heightThusFar += unadjPolygonDimens.height();
                 }
                 case null -> {
+                    // null is expected for spacing, c.f. ContentColumnDefinition.Item::space
                 }
                 default -> throw new IllegalStateException(
                         "ContentColumnMethods#ContentColumn_setDimensForComponentAndContent: " +

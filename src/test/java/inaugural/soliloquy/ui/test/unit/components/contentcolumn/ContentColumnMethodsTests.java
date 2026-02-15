@@ -26,11 +26,12 @@ import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockList;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockMap;
-import static inaugural.soliloquy.tools.valueobjects.Vertex.polygonDimens;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.polygonEncompassingDimens;
 import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
@@ -65,7 +66,7 @@ public class ContentColumnMethodsTests {
     private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_2 = randomVertex();
     private final Vertex CONTENT_TRIANGLE_UNADJ_VERTEX_3 = randomVertex();
     private final float CONTENT_TRIANGLE_SPACING_AFTER = randomFloat();
-    private final FloatBox CONTENT_TRIANGLE_POLYGON_DIMENS = polygonDimens(
+    private final FloatBox CONTENT_TRIANGLE_POLYGON_DIMENS = polygonEncompassingDimens(
             CONTENT_TRIANGLE_UNADJ_VERTEX_1,
             CONTENT_TRIANGLE_UNADJ_VERTEX_2,
             CONTENT_TRIANGLE_UNADJ_VERTEX_3

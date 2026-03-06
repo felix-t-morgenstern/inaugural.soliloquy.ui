@@ -98,10 +98,6 @@ public class ContentColumnMethods {
                     contentsFromComponent.stream().filter(c -> c.uuid().equals(content.uuid))
                             .findFirst().orElse(null);
 
-            // NOT handling alignment properly yet
-            // NOT handling alignment properly yet
-            // NOT handling alignment properly yet
-
             switch (contentFromUuid) {
                 case Component c -> {
                     var dimens = c.getDimensionsProvider().provide(timestamp);

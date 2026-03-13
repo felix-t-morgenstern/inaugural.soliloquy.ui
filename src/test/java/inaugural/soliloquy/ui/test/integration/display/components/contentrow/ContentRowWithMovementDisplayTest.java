@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentcolumn;
+package inaugural.soliloquy.ui.test.integration.display.components.contentrow;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -9,17 +9,15 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 
-import java.awt.*;
-
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
 import static inaugural.soliloquy.ui.Constants.ORIGIN;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.itemOf;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.space;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.column;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.itemOf;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.space;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.row;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.test.integration.display.components.button.ButtonDisplayTest.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
@@ -30,13 +28,14 @@ import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brigh
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
+import static soliloquy.specs.ui.definitions.providers.FiniteSinusoidMovingProviderDefinition.finiteSinusoidMoving;
 import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
+public class ContentRowWithMovementDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column center align display test",
+                "Content row with movement display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -46,7 +45,8 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                 MERRIWEATHER_DEFINITION_DTO
                         ),
                         arrayOf(
-                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
+                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID,
+                                        RPG_WEAPONS_RELATIVE_LOCATION,
                                         266, 271, 313, 343)
                         ),
                         arrayOf(),
@@ -56,20 +56,18 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column center align", 16000),
-                ContentColumnCenterAlignDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content row with movement", 16000),
+                ContentRowWithMovementDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var rect = rectangle(
-                floatBoxOf(0.25f, 0f, 0.75f, 1f),
-                -1
-        )
-                .withColor(Color.GRAY);
-        var def = column(
-                staticVal(vertexOf(0.25f, 0f)),
+        var def = row(
+                finiteSinusoidMoving(
+                        pairOf(1000, vertexOf(1f, 0.25f)),
+                        pairOf(3000, vertexOf(0f, 0.25f))
+                ),
                 0.5f,
                 0
         )
@@ -77,14 +75,13 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                         itemOf(
                                 textLine(
                                         MERRIWEATHER_ID,
-                                        "This is a text line!",
+                                        "Text line!",
                                         ORIGIN,
                                         lineHeight * 1.5f,
-                                        HorizontalAlignment.CENTER,
+                                        HorizontalAlignment.LEFT,
                                         0f,
                                         0
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -92,21 +89,20 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         loopingLinearMoving(
                                                 divCycle,
                                                 0,
-                                                pairOf(0, floatBoxOf(0f, divHeight)),
+                                                pairOf(0, floatBoxOf(divWidth, 0f)),
                                                 pairOf(
-                                                        divCycle/2,
-                                                        floatBoxOf(0.5f, divHeight)
+                                                        divCycle / 2,
+                                                        floatBoxOf(divWidth, 0.5f)
                                                 ),
                                                 pairOf(
                                                         divCycle,
-                                                        floatBoxOf(0f, divHeight)
+                                                        floatBoxOf(divWidth, 0f)
                                                 )
                                         ),
                                         0
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         space(spacingAfter),
@@ -114,19 +110,20 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                 textBlock(
                                         MERRIWEATHER_ID,
                                         lineHeight,
-                                        0.5f,
+                                        0.125f,
                                         vertexOf(0f, 0f),
                                         glyphPadding,
                                         lineSpacing,
                                         paragraphSpacing,
                                         HorizontalAlignment.LEFT,
-                                        paragraphs1,
+                                        listOf("Lorem ipsum yada yada. This is a text block which" +
+                                                " takes up more than one line."),
                                         1
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
+                                indent,
                                 testFullDefFromText("Button", SCREEN_CENTER)
                                         .withTextItalicIndices(listOf(listOf(0, 1)))
                                         .withKey(GLFW_KEY_B, 0)
@@ -138,42 +135,24 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                                 brightness(SPRITE_PRESS_SHADING, false))
                                         .withSpriteColorShiftPressed(
                                                 brightness(-SPRITE_PRESS_SHADING, false)),
-                                HorizontalAlignment.CENTER,
-                                spacingAfter
-                        ),
-                        itemOf(
-                                textBlock(
-                                        MERRIWEATHER_ID,
-                                        lineHeight,
-                                        0.5f,
-                                        vertexOf(0f, 0f),
-                                        glyphPadding,
-                                        lineSpacing,
-                                        paragraphSpacing,
-                                        HorizontalAlignment.LEFT,
-                                        paragraphs2,
-                                        1
-                                ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
                                 triangle(
-                                        staticVal(vertexOf(0f,0f)),
-                                        staticVal(vertexOf(0.5f,0f)),
+                                        staticVal(vertexOf(0f, 0f)),
+                                        staticVal(vertexOf(0f, 0.5f)),
                                         loopingLinearMoving(
                                                 divCycle,
                                                 0,
-                                                pairOf(0, vertexOf(0.25f, divHeight)),
-                                                pairOf(divCycle/4, vertexOf(0.5f, divHeight)),
-                                                pairOf(divCycle*3/4, vertexOf(0f, divHeight)),
-                                                pairOf(divCycle, vertexOf(0.25f, divHeight))
+                                                pairOf(0, vertexOf(divWidth, 0.25f)),
+                                                pairOf(divCycle / 4, vertexOf(divWidth, 0.5f)),
+                                                pairOf(divCycle * 3 / 4, vertexOf(divWidth, 0f)),
+                                                pairOf(divCycle, vertexOf(divWidth, 0.25f))
                                         ),
                                         0
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -181,7 +160,7 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         "Button",
                                         MERRIWEATHER_ID,
                                         beveledButtonLineHeight,
-                                        vertexOf(0.5f, 0.5f - (lineHeight/2f)),
+                                        SCREEN_CENTER,
                                         0.05f,
                                         0.125f,
                                         0
@@ -189,13 +168,12 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         .withTextPadding(0.025f)
                                         .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
                                         .withBgColor(randomHighSaturationColor()),
-                                HorizontalAlignment.CENTER
+                                0f
                         )
                 );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, rect, timestamp(uiModule));
         reader.read(topLevelComponent, def, timestamp(uiModule));
     }
 }

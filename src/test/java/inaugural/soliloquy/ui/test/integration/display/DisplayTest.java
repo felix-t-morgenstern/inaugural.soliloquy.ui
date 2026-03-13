@@ -10,6 +10,7 @@ import inaugural.soliloquy.io.api.dto.FontStyleDefinitionGlyphPropertyDTO;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
 import soliloquy.specs.common.entities.Methods;
+import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.gamestate.entities.Setting;
 import soliloquy.specs.io.bootstrap.CoreLoop;
@@ -23,6 +24,7 @@ import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -40,7 +42,9 @@ import static inaugural.soliloquy.ui.Settings.*;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -164,6 +168,40 @@ public class DisplayTest {
                             ADDITIONAL_GLYPH_VERTICAL_TEXTURE_SPACING_MERRIWEATHER
                     )
             );
+
+    protected static float spacingAfter = 0.0125f;
+
+    protected static float indent = 0.05f;
+    protected static float lineHeight = 0.02f;
+    protected static float lineSpacing = 0.005f;
+    protected static float paragraphSpacing = 0.02f;
+    protected static float glyphPadding = 0f;
+
+    protected static float divWidth = 0.00625f;
+    protected static float divHeight = 0.00625f;
+    protected static int divCycle = 3000;
+
+    protected static float beveledButtonLineHeight = 0.075f;
+
+    protected static FloatBox renderingBoundaries = floatBoxOf(
+            vertexOf(0.25f, 0.25f),
+            0.5f, 0.5f
+    );
+
+    protected static List<String> paragraphs1 = listOf(
+            """
+            A *spectre* is haunting Europe - the spectre of **[color=red]communism[/color]**. All the powers of old Europe have entered into a [color=orange]holy alliance[/color] to exorcise this spectre: Pope and Tsar, Metternich and Guizot, French Radicals and German police-spies.""",
+            """
+            Where is the party in opposition that has not been decried as [color=red]communistic[/color] by its opponents in power? Where is the opposition that has not hurled back the branding reproach of *communism*, against the more advanced opposition parties, as well as against its [color=162,201,129]reactionary[/color] adversaries?"""
+    );
+    protected static List<String> paragraphs2 = listOf(
+            """
+            Two things result from this fact:""",
+            """
+            I. **[color=red]Communism[/color]** is already acknowledged by all European powers to be itself a power.""",
+            """
+            [color=127,0,0]II. It is high time that Communists should openly, in the face of the *whole world*,[/color] publish their views, their aims, their tendencies, and meet this nursery tale of the Spectre of Communism with a manifesto of the party itself."""
+    );
 
     public Component topLevelComponent;
 

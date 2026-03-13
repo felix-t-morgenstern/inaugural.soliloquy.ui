@@ -38,7 +38,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public AbstractProviderDefinition<Color> bgColorTopRightDefault;
     public AbstractProviderDefinition<Color> bgColorBottomLeftDefault;
     public AbstractProviderDefinition<Color> bgColorBottomRightDefault;
-    public AbstractProviderDefinition<Integer> bgTexProviderDefault;
+
+    public AbstractProviderDefinition<Integer> bgTexIdProviderDefault;
     public String bgTexRelLocDefault;
 
     public String spriteIdDefault;
@@ -54,7 +55,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public AbstractProviderDefinition<Color> bgColorTopRightHover;
     public AbstractProviderDefinition<Color> bgColorBottomLeftHover;
     public AbstractProviderDefinition<Color> bgColorBottomRightHover;
-    public AbstractProviderDefinition<Integer> bgTexProviderHover;
+
+    public AbstractProviderDefinition<Integer> bgTexIdProviderHover;
     public String bgTexRelLocHover;
 
     public String spriteIdHover;
@@ -70,7 +72,8 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public AbstractProviderDefinition<Color> bgColorTopRightPressed;
     public AbstractProviderDefinition<Color> bgColorBottomLeftPressed;
     public AbstractProviderDefinition<Color> bgColorBottomRightPressed;
-    public AbstractProviderDefinition<Integer> bgTexProviderPressed;
+
+    public AbstractProviderDefinition<Integer> bgTexIdProviderPressed;
     public String bgTexRelLocPressed;
 
     public String spriteIdPressed;
@@ -267,7 +270,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      * @param bgTexProvider A definition of the provider of the background texture
      */
     public ButtonDefinition withTexture(AbstractProviderDefinition<Integer> bgTexProvider) {
-        this.bgTexProviderDefault = bgTexProvider;
+        this.bgTexIdProviderDefault = bgTexProvider;
 
         return this;
     }
@@ -501,7 +504,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      *                      button is being pressed down</i>
      */
     public ButtonDefinition withTextureHover(AbstractProviderDefinition<Integer> bgTexProvider) {
-        this.bgTexProviderHover = bgTexProvider;
+        this.bgTexIdProviderHover = bgTexProvider;
 
         return this;
     }
@@ -668,7 +671,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
      *                      button is being pressed down</i>
      */
     public ButtonDefinition withTexturePressed(AbstractProviderDefinition<Integer> bgTexProvider) {
-        this.bgTexProviderPressed = bgTexProvider;
+        this.bgTexIdProviderPressed = bgTexProvider;
 
         return this;
     }

@@ -12,6 +12,7 @@ import soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.provideIfNull;
 import static java.util.UUID.randomUUID;
 
 public class TriangleRenderableDefinitionReader
@@ -44,13 +45,23 @@ public class TriangleRenderableDefinitionReader
                 provider(Check.ifNull(definition.VERTEX_3_PROVIDER_DEF,
                         "definition.VERTEX_3_PROVIDER_DEF"), timestamp);
 
-        var vector1Color = defaultIfNull(definition.vertex1ColorProvider, provider(definition.vertex1ColorProviderDef, timestamp));
-        var vector2Color = defaultIfNull(definition.vertex2ColorProvider, provider(definition.vertex2ColorProviderDef, timestamp));
-        var vector3Color = defaultIfNull(definition.vertex3ColorProvider, provider(definition.vertex3ColorProviderDef, timestamp));
+        var vector1Color = defaultIfNull(definition.vertex1ColorProvider,
+                provider(definition.vertex1ColorProviderDef, timestamp));
+        var vector2Color = defaultIfNull(definition.vertex2ColorProvider,
+                provider(definition.vertex2ColorProviderDef, timestamp));
+        var vector3Color = defaultIfNull(definition.vertex3ColorProvider,
+                provider(definition.vertex3ColorProviderDef, timestamp));
 
-        var textureId = provider(definition.textureIdProvider, timestamp);
-        var textureTileWidth = provider(definition.textureTileWidthProvider, timestamp);
-        var textureTileHeight = provider(definition.textureTileHeightProvider, timestamp);
+        var textureId = provideIfNull(definition.textureIdProvider,
+                () -> provider(definition.textureIdProviderDef, timestamp));
+        var textureTilesPerWidth = provideIfNull(definition.textureTilesPerWidthProvider,
+                () -> providerOrNull(definition.textureTilesPerWidthProviderDef, timestamp));
+        var textureXOffset = provideIfNull(definition.textureXOffsetProvider,
+                () -> providerOrNull(definition.textureXOffsetProviderDef, timestamp));
+        var textureTilesPerHeight = provideIfNull(definition.textureTilesPerHeightProvider,
+                () -> providerOrNull(definition.textureTilesPerHeightProviderDef, timestamp));
+        var textureYOffset = provideIfNull(definition.textureYOffsetProvider,
+                () -> providerOrNull(definition.textureYOffsetProviderDef, timestamp));
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);
@@ -58,10 +69,26 @@ public class TriangleRenderableDefinitionReader
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         var renderable =
-                FACTORY.make(vector1, vector1Color, vector2, vector2Color, vector3, vector3Color,
-                        textureId, textureTileWidth, textureTileHeight, onPress, onRelease,
-                        onMouseOver, onMouseLeave, definition.Z,
-                        defaultIfNull(definition.UUID, randomUUID()), component);
+                FACTORY.make(
+                        vector1,
+                        vector1Color,
+                        vector2,
+                        vector2Color,
+                        vector3,
+                        vector3Color,
+                        textureId,
+                        textureTilesPerWidth,
+                        textureXOffset,
+                        textureTilesPerHeight,
+                        textureYOffset,
+                        onPress,
+                        onRelease,
+                        onMouseOver,
+                        onMouseLeave,
+                        definition.Z,
+                        defaultIfNull(definition.UUID, randomUUID()),
+                        component
+                );
 
         if (definition.onPressIds != null ||
                 definition.onReleaseIds != null ||

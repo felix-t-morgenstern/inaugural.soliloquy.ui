@@ -64,10 +64,16 @@ public abstract class AbstractContentDefinitionTests {
     @org.mockito.Mock protected AbstractProviderDefinition<Float>
             mockTextureWidthProviderDefinition;
     @org.mockito.Mock protected AbstractProviderDefinition<Float>
+            mockTextureXOffsetProviderDefinition;
+    @org.mockito.Mock protected AbstractProviderDefinition<Float>
             mockTextureHeightProviderDefinition;
+    @org.mockito.Mock protected AbstractProviderDefinition<Float>
+            mockTextureYOffsetProviderDefinition;
     @org.mockito.Mock protected ProviderAtTime<Integer> mockTextureIdProvider;
     @org.mockito.Mock protected ProviderAtTime<Float> mockTextureWidthProvider;
+    @org.mockito.Mock protected ProviderAtTime<Float> mockTextureXOffsetProvider;
     @org.mockito.Mock protected ProviderAtTime<Float> mockTextureHeightProvider;
+    @org.mockito.Mock protected ProviderAtTime<Float> mockTextureYOffsetProvider;
 
     protected void setUp() {
         lenient().when(mockColorShiftDefinitionReader.read(any(), anyLong())).thenReturn(mockShift);
@@ -83,8 +89,12 @@ public abstract class AbstractContentDefinitionTests {
                 .thenReturn(mockTextureIdProvider);
         lenient().when(mockProviderDefinitionReader.read(same(mockTextureWidthProviderDefinition),
                 anyLong())).thenReturn(mockTextureWidthProvider);
+        lenient().when(mockProviderDefinitionReader.read(same(mockTextureXOffsetProviderDefinition),
+                anyLong())).thenReturn(mockTextureXOffsetProvider);
         lenient().when(mockProviderDefinitionReader.read(same(mockTextureHeightProviderDefinition),
                 anyLong())).thenReturn(mockTextureHeightProvider);
+        lenient().when(mockProviderDefinitionReader.read(same(mockTextureYOffsetProviderDefinition),
+                anyLong())).thenReturn(mockTextureYOffsetProvider);
 
         lenient().when(
                         mockProviderDefinitionReader.read(same(mockBorderThicknessDefinition),

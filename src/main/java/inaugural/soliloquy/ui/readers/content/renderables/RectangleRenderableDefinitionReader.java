@@ -12,6 +12,7 @@ import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.provideIfNull;
 import static java.util.UUID.randomUUID;
 
 public class RectangleRenderableDefinitionReader
@@ -56,19 +57,41 @@ public class RectangleRenderableDefinitionReader
                 definition.bottomRightColorProviderDef,
                 timestamp);
 
-        var textureId = defaultIfNull(definition.textureIdProvider,
-                provider(definition.textureIdProviderDef, timestamp));
-        var textureTileWidth = definition.textureTileWidthProvider != null ? definition.textureTileWidthProvider : provider(definition.textureTileWidthProviderDef, timestamp);
-        var textureTileHeight = definition.textureTileHeightProvider != null ? definition.textureTileHeightProvider : provider(definition.textureTileHeightProviderDef, timestamp);
+        var textureId = provideIfNull(definition.textureIdProvider,
+                () -> provider(definition.textureIdProviderDef, timestamp));
+        var textureTilesPerWidth = provideIfNull(definition.textureTilesPerWidthProvider,
+                () -> providerOrNull(definition.textureTilesPerWidthProviderDef, timestamp));
+        var textureXOffset = provideIfNull(definition.textureXOffsetProvider,
+                () -> providerOrNull(definition.textureXOffsetProviderDef, timestamp));
+        var textureTilesPerHeight = provideIfNull(definition.textureTilesPerHeightProvider,
+                () -> providerOrNull(definition.textureTilesPerHeightProviderDef, timestamp));
+        var textureYOffset = provideIfNull(definition.textureYOffsetProvider,
+                () -> providerOrNull(definition.textureYOffsetProviderDef, timestamp));
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);
         var onMouseOver = getConsumer(definition.onMouseOverId);
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
-        var renderable = FACTORY.make(topLeft, topRight, bottomLeft, bottomRight, textureId,
-                textureTileWidth, textureTileHeight, onPress, onRelease, onMouseOver, onMouseLeave,
-                dimens, definition.Z, defaultIfNull(definition.UUID, randomUUID()), component);
+        var renderable = FACTORY.make(
+                topLeft,
+                topRight,
+                bottomLeft,
+                bottomRight,
+                textureId,
+                textureTilesPerWidth,
+                textureXOffset,
+                textureTilesPerHeight,
+                textureYOffset,
+                onPress,
+                onRelease,
+                onMouseOver,
+                onMouseLeave,
+                dimens,
+                definition.Z,
+                defaultIfNull(definition.UUID, randomUUID()),
+                component
+        );
 
         if (definition.onPressIds != null ||
                 definition.onReleaseIds != null ||

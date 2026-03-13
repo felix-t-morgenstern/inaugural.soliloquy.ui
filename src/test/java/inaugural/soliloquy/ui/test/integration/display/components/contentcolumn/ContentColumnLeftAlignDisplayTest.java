@@ -9,6 +9,8 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 
+import java.awt.*;
+
 import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
@@ -61,33 +63,11 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var spacingAfter = 0.0125f;
-
-        var lineHeight = 0.02f;
-        var lineSpacing = 0.005f;
-        var paragraphSpacing = 0.02f;
-        var glyphPadding = 0f;
-
-        var paragraphs1 = listOf(
-                """
-                A *spectre* is haunting Europe - the spectre of **[color=red]communism[/color]**. All the powers of old Europe have entered into a [color=orange]holy alliance[/color] to exorcise this spectre: Pope and Tsar, Metternich and Guizot, French Radicals and German police-spies.""",
-                """
-                Where is the party in opposition that has not been decried as [color=red]communistic[/color] by its opponents in power? Where is the opposition that has not hurled back the branding reproach of *communism*, against the more advanced opposition parties, as well as against its [color=162,201,129]reactionary[/color] adversaries?"""
-        );
-        var paragraphs2 = listOf(
-                """
-                Two things result from this fact:""",
-                """
-                I. **[color=red]Communism[/color]** is already acknowledged by all European powers to be itself a power.""",
-                """
-                [color=127,0,0]II. It is high time that Communists should openly, in the face of the *whole world*,[/color] publish their views, their aims, their tendencies, and meet this nursery tale of the Spectre of Communism with a manifesto of the party itself."""
-        );
-
-        var divHeight = 0.00625f;
-        var divCycle = 3000;
-
-        var beveledButtonLineHeight = 0.075f;
-
+        var rect = rectangle(
+                floatBoxOf(0.25f, 0f, 0.75f, 1f),
+                -1
+        )
+                .withColor(Color.GRAY);
         var def = column(
                 staticVal(vertexOf(0.25f, 0f)),
                 0.5f,
@@ -95,9 +75,10 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
         )
                 .withItems(
                         itemOf(
+                                indent,
                                 textLine(
                                         MERRIWEATHER_ID,
-                                        "This is a text line!",
+                                        "This is an indented text line!",
                                         ORIGIN,
                                         lineHeight * 1.5f,
                                         HorizontalAlignment.LEFT,
@@ -144,6 +125,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                 spacingAfter
                         ),
                         itemOf(
+                                indent,
                                 testFullDefFromText("Button", SCREEN_CENTER)
                                         .withTextItalicIndices(listOf(listOf(0, 1)))
                                         .withKey(GLFW_KEY_B, 0)
@@ -155,8 +137,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                                 brightness(SPRITE_PRESS_SHADING, false))
                                         .withSpriteColorShiftPressed(
                                                 brightness(-SPRITE_PRESS_SHADING, false)),
-                                spacingAfter,
-                                0.05f
+                                spacingAfter
                         ),
                         itemOf(
                                 textBlock(
@@ -203,13 +184,13 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                 )
                                         .withTextPadding(0.025f)
                                         .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
-                                        .withBgColor(randomHighSaturationColor()),
-                                0f
+                                        .withBgColor(randomHighSaturationColor())
                         )
                 );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
+        reader.read(topLevelComponent, rect, timestamp(uiModule));
         reader.read(topLevelComponent, def, timestamp(uiModule));
     }
 }

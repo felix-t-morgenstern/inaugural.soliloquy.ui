@@ -27,16 +27,18 @@ import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
+import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
+import static soliloquy.specs.ui.definitions.providers.FiniteLinearMovingProviderDefinition.finiteLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
+public class ContentColumnScrollingThroughBoundariesDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column center align display test",
+                "Content column scrolling through boundaries display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -56,20 +58,18 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column center align", 16000),
-                ContentColumnCenterAlignDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content column scrolling through boundaries", 16000),
+                ContentColumnScrollingThroughBoundariesDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var rect = rectangle(
-                floatBoxOf(0.25f, 0f, 0.75f, 1f),
-                -1
-        )
-                .withColor(Color.GRAY);
         var def = column(
-                staticVal(vertexOf(0.25f, 0f)),
+                finiteLinearMoving(
+                        pairOf(0, vertexOf(0.25f, 1f)),
+                        pairOf(16000, vertexOf(0.25f, -1f))
+                ),
                 0.5f,
                 0
         )
@@ -80,11 +80,10 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         "This is a text line!",
                                         ORIGIN,
                                         lineHeight * 1.5f,
-                                        HorizontalAlignment.CENTER,
+                                        HorizontalAlignment.LEFT,
                                         0f,
                                         0
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -106,7 +105,6 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         space(spacingAfter),
@@ -123,10 +121,10 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         paragraphs1,
                                         1
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
+                                indent,
                                 testFullDefFromText("Button", SCREEN_CENTER)
                                         .withTextItalicIndices(listOf(listOf(0, 1)))
                                         .withKey(GLFW_KEY_B, 0)
@@ -138,7 +136,6 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                                 brightness(SPRITE_PRESS_SHADING, false))
                                         .withSpriteColorShiftPressed(
                                                 brightness(-SPRITE_PRESS_SHADING, false)),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -154,7 +151,6 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         paragraphs2,
                                         1
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -173,7 +169,6 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
-                                HorizontalAlignment.CENTER,
                                 spacingAfter
                         ),
                         itemOf(
@@ -189,13 +184,25 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                         .withTextPadding(0.025f)
                                         .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
                                         .withBgColor(randomHighSaturationColor()),
-                                HorizontalAlignment.CENTER
+                                0f
                         )
+                );
+
+        var componentWithBoundaries = component(
+                0,
+                renderingBoundaries
+        )
+                .withContent(
+                        rectangle(
+                                renderingBoundaries,
+                                -1
+                        )
+                                .withColor(Color.GRAY),
+                        def
                 );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, rect, timestamp(uiModule));
-        reader.read(topLevelComponent, def, timestamp(uiModule));
+        reader.read(topLevelComponent, componentWithBoundaries, timestamp(uiModule));
     }
 }

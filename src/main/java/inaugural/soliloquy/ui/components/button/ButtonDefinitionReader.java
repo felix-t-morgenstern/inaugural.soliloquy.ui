@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
@@ -94,7 +95,7 @@ public class ButtonDefinitionReader {
         );
 
         KeyBindingDefinition[] bindings =
-                defaultIfNull(
+                defaultIfNullElseTransform(
                         definition.keyCodepoints,
                         k -> arrayOf(binding(
                                 PRESS_KEY_METHOD,
@@ -165,7 +166,7 @@ public class ButtonDefinitionReader {
         UUID textUuid = null;
 
         var makeRect = false;
-        var unadjRectDimensFromDef = defaultIfNull(
+        var unadjRectDimensFromDef = defaultIfNullElseTransform(
                 definition.RECT_DIMENS_DEF,
                 d -> PROVIDER_DEF_READER.read(d, timestamp),
                 null
@@ -312,27 +313,14 @@ public class ButtonDefinitionReader {
         var bgColorBottomRightDefault =
                 nullProviderIfNull(definition.bgColorBottomRightDefault, timestamp);
         var bgTexProviderDefault = nullProviderIfNull(
-                getBgTexProviderDef(definition.bgTexProviderDefault, definition.bgTexRelLocDefault),
+                getBgTexProviderDef(definition.bgTexIdProviderDefault, definition.bgTexRelLocDefault),
                 timestamp);
 
-        ProviderAtTime<Float> texWidthProvider;
-        ProviderAtTime<Float> texHeightProvider;
-        if (bgTexProviderDefault != NULL_PROVIDER) {
-            texWidthProvider =
-                    makeTexDimensDef(Button_provideTexTileWidth, definition.UUID, timestamp);
-            texHeightProvider =
-                    makeTexDimensDef(Button_provideTexTileHeight, definition.UUID, timestamp);
-        }
-        else {
-            //noinspection unchecked
-            texWidthProvider = texHeightProvider = NULL_PROVIDER;
-        }
-
-        var bgTexProviderHover = defaultIfNull(
-                getBgTexProviderDef(definition.bgTexProviderHover, definition.bgTexRelLocHover),
+        var bgTexProviderHover = defaultIfNullElseTransform(
+                getBgTexProviderDef(definition.bgTexIdProviderHover, definition.bgTexRelLocHover),
                 d -> PROVIDER_DEF_READER.read(d, timestamp), null);
-        var bgTexProviderPressed = defaultIfNull(
-                getBgTexProviderDef(definition.bgTexProviderPressed, definition.bgTexRelLocHover),
+        var bgTexProviderPressed = defaultIfNullElseTransform(
+                getBgTexProviderDef(definition.bgTexIdProviderPressed, definition.bgTexRelLocHover),
                 d -> PROVIDER_DEF_READER.read(d, timestamp), null);
 
         defaultOptions.bgColorTopLeft = bgColorTopLeftDefault;
@@ -342,30 +330,30 @@ public class ButtonDefinitionReader {
         defaultOptions.bgTexProvider = bgTexProviderDefault;
 
         hoverOptions.bgColorTopLeft =
-                defaultIfNull(definition.bgColorTopLeftHover,
+                defaultIfNullElseTransform(definition.bgColorTopLeftHover,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         hoverOptions.bgColorTopRight =
-                defaultIfNull(definition.bgColorTopRightHover,
+                defaultIfNullElseTransform(definition.bgColorTopRightHover,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         hoverOptions.bgColorBottomLeft =
-                defaultIfNull(definition.bgColorBottomLeftHover,
+                defaultIfNullElseTransform(definition.bgColorBottomLeftHover,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         hoverOptions.bgColorBottomRight =
-                defaultIfNull(definition.bgColorBottomRightHover,
+                defaultIfNullElseTransform(definition.bgColorBottomRightHover,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         hoverOptions.bgTexProvider = bgTexProviderHover;
 
         pressedOptions.bgColorTopLeft =
-                defaultIfNull(definition.bgColorTopLeftPressed,
+                defaultIfNullElseTransform(definition.bgColorTopLeftPressed,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         pressedOptions.bgColorTopRight =
-                defaultIfNull(definition.bgColorTopRightPressed,
+                defaultIfNullElseTransform(definition.bgColorTopRightPressed,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         pressedOptions.bgColorBottomLeft =
-                defaultIfNull(definition.bgColorBottomLeftPressed,
+                defaultIfNullElseTransform(definition.bgColorBottomLeftPressed,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         pressedOptions.bgColorBottomRight =
-                defaultIfNull(definition.bgColorBottomRightPressed,
+                defaultIfNullElseTransform(definition.bgColorBottomRightPressed,
                         d -> PROVIDER_DEF_READER.read(d, timestamp), null);
         pressedOptions.bgTexProvider = bgTexProviderPressed;
 
@@ -381,9 +369,7 @@ public class ButtonDefinitionReader {
                         bgColorBottomRightDefault
                 )
                 .withTexture(
-                        bgTexProviderDefault,
-                        texWidthProvider,
-                        texHeightProvider
+                        bgTexProviderDefault
                 )
                 .onPress(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD))
                 .onMouseOver(MOUSE_OVER_METHOD)
@@ -395,7 +381,7 @@ public class ButtonDefinitionReader {
             long timestamp
     ) {
         //noinspection unchecked
-        return defaultIfNull(def, d -> PROVIDER_DEF_READER.read(d, timestamp), NULL_PROVIDER);
+        return defaultIfNullElseTransform(def, d -> PROVIDER_DEF_READER.read(d, timestamp), NULL_PROVIDER);
     }
 
     private void setUnadjRectDimensFromUnadjTextLoc(
@@ -466,20 +452,6 @@ public class ButtonDefinitionReader {
                         pressedOptions.unadjTextLoc = unadjTextRenderingLocProvider;
     }
 
-    private ProviderAtTime<Float> makeTexDimensDef(String method,
-                                                   UUID buttonUuid,
-                                                   long timestamp) {
-        var data = Collections.<String, Object>mapOf(
-                COMPONENT_UUID,
-                buttonUuid
-        );
-
-        return PROVIDER_DEF_READER.read(
-                functionalProvider(method, Float.class).withData(data),
-                timestamp
-        );
-    }
-
     private SpriteRenderableDefinition makeSpriteDef(
             ButtonDefinition definition,
             Options defaultOptions,
@@ -487,11 +459,11 @@ public class ButtonDefinitionReader {
             Options pressedOptions,
             long timestamp
     ) {
-        var spriteShiftDefault = defaultIfNull(definition.spriteShiftDefaultDef,
+        var spriteShiftDefault = defaultIfNullElseTransform(definition.spriteShiftDefaultDef,
                 d -> SHIFT_DEF_READER.read(d, timestamp), null);
-        var spriteShiftHover = defaultIfNull(definition.spriteShiftHoverDef,
+        var spriteShiftHover = defaultIfNullElseTransform(definition.spriteShiftHoverDef,
                 d -> SHIFT_DEF_READER.read(d, timestamp), null);
-        var spriteShiftPressed = defaultIfNull(definition.spriteShiftPressedDef,
+        var spriteShiftPressed = defaultIfNullElseTransform(definition.spriteShiftPressedDef,
                 d -> SHIFT_DEF_READER.read(d, timestamp), null);
 
         defaultOptions.spriteId = definition.spriteIdDefault;
@@ -500,7 +472,7 @@ public class ButtonDefinitionReader {
         defaultOptions.spriteShift = spriteShiftDefault;
 
         hoverOptions.spriteId = defaultIfNull(definition.spriteIdHover, null);
-        hoverOptions.unadjSpriteDimens = defaultIfNull(
+        hoverOptions.unadjSpriteDimens = defaultIfNullElseTransform(
                 definition.spriteDimensHoverDef,
                 d -> PROVIDER_DEF_READER.read(d, timestamp),
                 defaultOptions.unadjSpriteDimens
@@ -508,7 +480,7 @@ public class ButtonDefinitionReader {
         hoverOptions.spriteShift = spriteShiftHover;
 
         pressedOptions.spriteId = defaultIfNull(definition.spriteIdPressed, null);
-        pressedOptions.unadjSpriteDimens = defaultIfNull(
+        pressedOptions.unadjSpriteDimens = defaultIfNullElseTransform(
                 definition.spriteDimensPressedDef,
                 d -> PROVIDER_DEF_READER.read(d, timestamp),
                 defaultOptions.unadjSpriteDimens
@@ -527,7 +499,7 @@ public class ButtonDefinitionReader {
                 .onPress(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD))
                 .onMouseOver(MOUSE_OVER_METHOD)
                 .onMouseLeave(MOUSE_LEAVE_METHOD)
-                .withColorShifts(defaultIfNull(
+                .withColorShifts(defaultIfNullElseTransform(
                         spriteShiftDefault,
                         Collections::arrayOf,
                         Collections.<ColorShift>arrayOf()
@@ -542,9 +514,9 @@ public class ButtonDefinitionReader {
             long timestamp
     ) {
         var colorsDefault = getColorIndices(definition.textColorIndicesDefault, timestamp);
-        var colorsHover = defaultIfNull(definition.textColorIndicesHover,
+        var colorsHover = defaultIfNullElseTransform(definition.textColorIndicesHover,
                 d -> getColorIndices(d, timestamp), null);
-        var colorsPressed = defaultIfNull(definition.textColorIndicesPressed,
+        var colorsPressed = defaultIfNullElseTransform(definition.textColorIndicesPressed,
                 d -> getColorIndices(d, timestamp), null);
 
         List<Integer> italicsDefault = defaultIfNull(definition.textItalicIndicesDefault, listOf());
@@ -593,7 +565,7 @@ public class ButtonDefinitionReader {
             Map<Integer, AbstractProviderDefinition<Color>> colorDefs,
             long timestamp
     ) {
-        return defaultIfNull(
+        return defaultIfNullElseTransform(
                 colorDefs,
                 c -> c.entrySet().stream().collect(
                         Collectors.toMap(Map.Entry::getKey,

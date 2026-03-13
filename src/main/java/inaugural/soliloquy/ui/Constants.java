@@ -16,6 +16,7 @@ public class Constants {
     public final static String COMPONENT_DIMENS = "COMPONENT_DIMENS";
     public final static String COMPONENT_RENDERING_LOC = "COMPONENT_RENDERING_LOC";
     public final static String COMPONENT_WIDTH = "COMPONENT_WIDTH";
+    public final static String COMPONENT_HEIGHT = "COMPONENT_HEIGHT";
 
     public final static String CONTENTS = "CONTENTS";
 

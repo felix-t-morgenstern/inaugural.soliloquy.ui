@@ -1,7 +1,6 @@
 package inaugural.soliloquy.ui.components.button;
 
 import inaugural.soliloquy.tools.collections.Collections;
-import inaugural.soliloquy.ui.components.ComponentMethods;
 import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionReaderTest;
 import inaugural.soliloquy.ui.test.unit.components.FunctionalProviderDefMatcher;
 import org.junit.jupiter.api.BeforeEach;
@@ -352,25 +351,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
     public void testReadFromRectDimensAndDefsWithMaximalArgs() {
         var definition = buttonDefinitionFromRectDimensAndDefsWithMaximalArgs();
 
-        when(mockProviderDefReader.read(argThat(
-                new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(
-                        Button_provideTexTileWidth,
-                        mapOf(
-                                COMPONENT_UUID,
-                                definition.UUID
-                        )
-                )
-        ), anyLong())).thenReturn(mockTexTileWidthProvider);
-        when(mockProviderDefReader.read(argThat(
-                new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(
-                        Button_provideTexTileHeight,
-                        mapOf(
-                                COMPONENT_UUID,
-                                definition.UUID
-                        )
-                )
-        ), anyLong())).thenReturn(mockTexTileHeightProvider);
-
         lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(
                                 Button_provideUnadjRectDimensFromText,
@@ -459,8 +439,10 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
         assertSame(mockBgColorTopRightDefault, rectDef.topRightColorProvider);
         assertSame(mockBgColorBottomLeftDefault, rectDef.bottomLeftColorProvider);
         assertSame(mockBgColorBottomRightDefault, rectDef.bottomRightColorProvider);
-        assertSame(mockTexTileWidthProvider, rectDef.textureTileWidthProvider);
-        assertSame(mockTexTileHeightProvider, rectDef.textureTileHeightProvider);
+        assertEquals(1f, extractStaticVal(rectDef.textureTilesPerWidthProviderDef));
+        assertEquals(0f, extractStaticVal(rectDef.textureXOffsetProviderDef));
+        assertEquals(1f, extractStaticVal(rectDef.textureTilesPerHeightProviderDef));
+        assertEquals(0f, extractStaticVal(rectDef.textureYOffsetProviderDef));
         assertEquals(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD), rectDef.onPressIds);
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
@@ -580,23 +562,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
         var definition = buttonDefinitionFromTextAndDefsWithMaximalArgs();
 
         lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(
-                                Button_provideTexTileWidth,
-                                mapOf(
-                                        COMPONENT_UUID,
-                                        definition.UUID
-                                ))), anyLong())).
-                thenReturn(mockTexTileWidthProvider);
-        lenient().when(mockProviderDefReader.read(argThat(
-                        new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(
-                                Button_provideTexTileHeight,
-                                mapOf(
-                                        COMPONENT_UUID,
-                                        definition.UUID
-                                ))), anyLong())).
-                thenReturn(mockTexTileHeightProvider);
-
-        lenient().when(mockProviderDefReader.read(argThat(
                         new FunctionalProviderDefMatcher<AbstractProviderDefinition<FloatBox>>(
                                 Button_provideUnadjRectDimensFromText,
                                 mapOf(
@@ -680,8 +645,10 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
         assertSame(mockBgColorBottomLeftDefault, rectDef.bottomLeftColorProvider);
         assertSame(mockBgColorBottomRightDefault, rectDef.bottomRightColorProvider);
         assertSame(mockTexProviderDefault, rectDef.textureIdProvider);
-        assertSame(mockTexTileWidthProvider, rectDef.textureTileWidthProvider);
-        assertSame(mockTexTileHeightProvider, rectDef.textureTileHeightProvider);
+        assertEquals(1f, extractStaticVal(rectDef.textureTilesPerWidthProviderDef));
+        assertEquals(0f, extractStaticVal(rectDef.textureXOffsetProviderDef));
+        assertEquals(1f, extractStaticVal(rectDef.textureTilesPerHeightProviderDef));
+        assertEquals(0f, extractStaticVal(rectDef.textureYOffsetProviderDef));
         assertEquals(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD), rectDef.onPressIds);
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
@@ -817,25 +784,6 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
     public void testReadFromRectDimensAndMaximalArgsForDefaultOnly() {
         var definition = withMaximalDefaultArgs(withText(definitionFromRectDimens));
 
-        when(mockProviderDefReader.read(argThat(
-                new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(
-                        Button_provideTexTileWidth,
-                        mapOf(
-                                COMPONENT_UUID,
-                                definition.UUID
-                        )
-                )
-        ), anyLong())).thenReturn(mockTexTileWidthProvider);
-        when(mockProviderDefReader.read(argThat(
-                new FunctionalProviderDefMatcher<AbstractProviderDefinition<Float>>(
-                        Button_provideTexTileHeight,
-                        mapOf(
-                                COMPONENT_UUID,
-                                definition.UUID
-                        )
-                )
-        ), anyLong())).thenReturn(mockTexTileHeightProvider);
-
         var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
@@ -865,8 +813,10 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
         assertSame(mockBgColorBottomLeftDefault, rectDef.bottomLeftColorProvider);
         assertSame(mockBgColorBottomRightDefault, rectDef.bottomRightColorProvider);
         assertSame(mockTexProviderDefault, rectDef.textureIdProvider);
-        assertSame(mockTexTileWidthProvider, rectDef.textureTileWidthProvider);
-        assertSame(mockTexTileHeightProvider, rectDef.textureTileHeightProvider);
+        assertEquals(1f, extractStaticVal(rectDef.textureTilesPerWidthProviderDef));
+        assertEquals(0f, extractStaticVal(rectDef.textureXOffsetProviderDef));
+        assertEquals(1f, extractStaticVal(rectDef.textureTilesPerHeightProviderDef));
+        assertEquals(0f, extractStaticVal(rectDef.textureYOffsetProviderDef));
         assertEquals(mapOf(LEFT_MOUSE_BUTTON, PRESS_MOUSE_METHOD), rectDef.onPressIds);
         assertEquals(MOUSE_OVER_METHOD, rectDef.onMouseOverId);
         assertEquals(MOUSE_LEAVE_METHOD, rectDef.onMouseLeaveId);
@@ -1287,6 +1237,18 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
 
     private ButtonDefinition withMaximalArgsFromDefs(ButtonDefinition definition) {
         return withMaximalDefaultArgs(definition)
+                .withBgColors(
+                        mockBgColorTopLeftDefaultDef,
+                        mockBgColorTopRightDefaultDef,
+                        mockBgColorBottomLeftDefaultDef,
+                        mockBgColorBottomRightDefaultDef
+                )
+                .withTexture(mockTexProviderDefaultDef)
+                .withSprite(SPRITE_ID_DEFAULT, mockSpriteUnadjDimensDefaultDef)
+                .withSpriteColorShift(mockSpriteShiftDefaultDef)
+                .withTextColorIndices(textColorsDefaultDefs)
+                .withTextItalicIndices(listOf(ITALIC_INDEX_DEFAULT))
+                .withTextBoldIndices(listOf(BOLD_INDEX_DEFAULT))
                 .withBgColorsHover(
                         mockBgColorTopLeftHoverDef,
                         mockBgColorTopRightHoverDef,

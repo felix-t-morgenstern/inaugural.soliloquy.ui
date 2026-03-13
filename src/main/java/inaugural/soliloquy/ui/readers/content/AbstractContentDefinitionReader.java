@@ -5,7 +5,7 @@ import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
-import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 
 public abstract class AbstractContentDefinitionReader {
     protected final ProviderDefinitionReader PROVIDER_READER;
@@ -26,7 +26,20 @@ public abstract class AbstractContentDefinitionReader {
     protected <T> ProviderAtTime<T> provider(AbstractProviderDefinition<T> definition,
                                              long timestamp) {
         //noinspection unchecked
-        return defaultIfNull(definition, d -> PROVIDER_READER.read(d, timestamp), NULL_PROVIDER);
+        return defaultIfNullElseTransform(
+                definition,
+                d -> PROVIDER_READER.read(d, timestamp),
+                NULL_PROVIDER
+        );
+    }
+
+    protected <T> ProviderAtTime<T> providerOrNull(AbstractProviderDefinition<T> definition,
+                                                   long timestamp) {
+        return defaultIfNullElseTransform(
+                definition,
+                d -> PROVIDER_READER.read(d, timestamp),
+                null
+        );
     }
 
     protected <T> ProviderAtTime<T> provider(ProviderAtTime<T> provider,

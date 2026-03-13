@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.components.contentcolumn;
+package inaugural.soliloquy.ui.components.contentrow;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
@@ -8,6 +8,7 @@ import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.*;
 import soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
+import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
 import soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition;
 
 import java.util.List;
@@ -20,88 +21,93 @@ import java.util.stream.IntStream;
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.tools.valueobjects.Vertex.*;
+import static inaugural.soliloquy.tools.valueobjects.Vertex.polygonEncompassingDimens;
 import static inaugural.soliloquy.ui.Constants.*;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment;
 import static inaugural.soliloquy.ui.components.ComponentMethods.*;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
-public class ContentColumnMethods {
+public class ContentRowMethods {
     private final Function<UUID, Component> GET_COMPONENT;
     @SuppressWarnings("rawtypes")
     private final Function<FunctionalProviderDefinition, ProviderAtTime>
             FUNCTIONAL_PROVIDER_DEF_READER;
+    private final TextLineRenderer TEXT_LINE_RENDERER;
 
-    public ContentColumnMethods(
+    public ContentRowMethods(
             Function<UUID, Component> getComponent,
             @SuppressWarnings("rawtypes")
-            Function<FunctionalProviderDefinition, ProviderAtTime> functionalProviderDefReader
+            Function<FunctionalProviderDefinition, ProviderAtTime> functionalProviderDefReader,
+            TextLineRenderer textLineRenderer
     ) {
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
         FUNCTIONAL_PROVIDER_DEF_READER =
                 Check.ifNull(functionalProviderDefReader, "functionalProviderDefReader");
+        TEXT_LINE_RENDERER = Check.ifNull(textLineRenderer, "textLineRenderer");
     }
 
-    public final static String ContentColumn_setDimensForComponentAndContent =
-            "ContentColumn_setDimensForComponentAndContent";
+    public final static String ContentRow_setDimensForComponentAndContent =
+            "ContentRow_setDimensForComponentAndContent";
 
-    public FloatBox ContentColumn_setDimensForComponentAndContent(
-            Component column,
+    public FloatBox ContentRow_setDimensForComponentAndContent(
+            Component row,
             long timestamp
     ) {
-        Long lastTimestamp = getFromData(column, LAST_TIMESTAMP);
+        Long lastTimestamp = getFromData(row, LAST_TIMESTAMP);
 
         if (lastTimestamp != null && timestamp == lastTimestamp) {
-            return getFromData(column, COMPONENT_DIMENS);
+            return getFromData(row, COMPONENT_DIMENS);
         }
 
         Map<UUID, ProviderAtTime<FloatBox>> unadjContentDimensProviders =
-                getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_DIMENS_PROVIDERS,
+                getFromComponentDataOrDefault(row, CONTENT_UNADJUSTED_DIMENS_PROVIDERS,
                         Collections::mapOf);
 
         Map<UUID, FloatBox> contentUnadjustedDimens =
-                getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_DIMENS,
+                getFromComponentDataOrDefault(row, CONTENT_UNADJUSTED_DIMENS,
                         Collections::mapOf);
         contentUnadjustedDimens.clear();
 
         Map<UUID, List<ProviderAtTime<Vertex>>> contentUnadjVerticesProviders =
-                getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_VERTICES_PROVIDERS,
+                getFromComponentDataOrDefault(row, CONTENT_UNADJUSTED_VERTICES_PROVIDERS,
                         Collections::mapOf);
 
         Map<UUID, List<Vertex>> contentUnadjustedVertices =
-                getFromComponentDataOrDefault(column, CONTENT_UNADJUSTED_VERTICES,
+                getFromComponentDataOrDefault(row, CONTENT_UNADJUSTED_VERTICES,
                         Collections::mapOf);
         contentUnadjustedVertices.clear();
 
         Map<UUID, Vertex> contentPolygonOffsets =
-                getFromComponentDataOrDefault(column, CONTENT_POLYGON_OFFSETS,
+                getFromComponentDataOrDefault(row, CONTENT_POLYGON_OFFSETS,
                         Collections::mapOf);
         contentPolygonOffsets.clear();
 
-        ProviderAtTime<Vertex> renderingLocProvider = getFromData(column, COMPONENT_RENDERING_LOC);
+        ProviderAtTime<Vertex> renderingLocProvider = getFromData(row, COMPONENT_RENDERING_LOC);
         var renderingLoc = renderingLocProvider.provide(timestamp);
-        float colWidth = getFromData(column, COMPONENT_WIDTH);
-        var heightThusFar = 0f;
+        float rowHeight = getFromData(row, COMPONENT_HEIGHT);
+        var widthThusFar = 0f;
 
-        var contentsFromComponent = column.contentsRepresentation();
+        var contentsFromComponent = row.contentsRepresentation();
 
-        List<Content> contents = getFromData(column, CONTENTS);
+        List<Content> contentsFromData = getFromData(row, CONTENTS);
 
         Set<UUID> registeredContentsInData =
-                getFromComponentDataOrDefault(column, REGISTERED_CONTENTS, Collections::setOf);
+                getFromComponentDataOrDefault(row, REGISTERED_CONTENTS, Collections::setOf);
 
         Map<UUID, Vertex> newContentSpecificOrigins = mapOf();
 
-        for (var content : contents) {
+        for (var content : contentsFromData) {
             var contentFromUuid =
                     contentsFromComponent.stream().filter(c -> c.uuid().equals(content.uuid))
                             .findFirst().orElse(null);
 
             switch (contentFromUuid) {
                 case Component c -> {
-                    var dimens = c.getDimensionsProvider().provide(timestamp);
+                    var origDimens = c.getDimensionsProvider().provide(timestamp);
 
                     if (!registeredContentsInData.contains(c.uuid())) {
                         c.data().put(ORIGIN_OVERRIDE_PROVIDER, FUNCTIONAL_PROVIDER_DEF_READER.apply(
@@ -113,7 +119,7 @@ public class ContentColumnMethods {
                                                 CONTENT_UUID,
                                                 c.uuid(),
                                                 CONTAINING_COMPONENT_UUID,
-                                                column.uuid()
+                                                row.uuid()
                                         ))
                         ));
                         registeredContentsInData.add(c.uuid());
@@ -121,16 +127,19 @@ public class ContentColumnMethods {
 
                     newContentSpecificOrigins.put(
                             c.uuid(),
-                            vertexOf(midpoint(
-                                    renderingLoc.X,
-                                    colWidth,
-                                    dimens.width(),
-                                    content.indent,
-                                    content.alignment
-                            ), renderingLoc.Y + heightThusFar)
+                            vertexOf(
+                                    renderingLoc.X + widthThusFar,
+                                    midpoint(
+                                            renderingLoc.Y,
+                                            rowHeight,
+                                            origDimens.height(),
+                                            content.indent,
+                                            content.alignment
+                                    )
+                            )
                     );
 
-                    heightThusFar += dimens.height();
+                    widthThusFar += origDimens.width();
                 }
                 case TextLineRenderable t -> {
                     if (!registeredContentsInData.contains(t.uuid())) {
@@ -144,26 +153,34 @@ public class ContentColumnMethods {
                                                 CONTENT_UUID,
                                                 t.uuid(),
                                                 CONTAINING_COMPONENT_UUID,
-                                                column.uuid()
+                                                row.uuid()
                                         ))
                         ));
                         registeredContentsInData.add(t.uuid());
+
+                        // (Rendering loc is overridden by the functional provider who assumes a
+                        // left-aligned text line
+                        t.setAlignment(LEFT);
                     }
 
-                    t.setAlignment(content.alignment);
-
-                    var xLoc = switch (content.alignment) {
-                        case LEFT -> renderingLoc.X + content.indent;
-                        case CENTER -> renderingLoc.X + (colWidth / 2f);
-                        case RIGHT -> renderingLoc.X + colWidth - content.indent;
-                    };
+                    var lineWidth = TEXT_LINE_RENDERER.textLineLength(t, timestamp);
+                    var lineHeight = t.lineHeightProvider().provide(timestamp);
 
                     newContentSpecificOrigins.put(
                             t.uuid(),
-                            vertexOf(xLoc, renderingLoc.Y + heightThusFar)
+                            vertexOf(
+                                    renderingLoc.X + widthThusFar,
+                                    midpoint(
+                                            renderingLoc.Y,
+                                            rowHeight,
+                                            lineHeight,
+                                            content.indent,
+                                            content.alignment
+                                    )
+                            )
                     );
 
-                    heightThusFar += t.lineHeightProvider().provide(timestamp);
+                    widthThusFar += lineWidth;
                 }
                 case RenderableWithMutableDimensions r -> {
                     var unadjDimensProvider = unadjContentDimensProviders.get(r.uuid());
@@ -180,7 +197,7 @@ public class ContentColumnMethods {
                                                 CONTENT_UUID,
                                                 r.uuid(),
                                                 CONTAINING_COMPONENT_UUID,
-                                                column.uuid()
+                                                row.uuid()
                                         ))
                         ));
                     }
@@ -190,23 +207,26 @@ public class ContentColumnMethods {
 
                     newContentSpecificOrigins.put(
                             r.uuid(),
-                            vertexOf(midpoint(
-                                    renderingLoc.X,
-                                    colWidth,
-                                    origDimens.width(),
-                                    content.indent,
-                                    content.alignment
-                            ), renderingLoc.Y + heightThusFar)
+                            vertexOf(
+                                    renderingLoc.X + widthThusFar,
+                                    midpoint(
+                                            renderingLoc.Y,
+                                            rowHeight,
+                                            origDimens.height(),
+                                            content.indent,
+                                            content.alignment
+                                    )
+                            )
                     );
 
-                    heightThusFar += origDimens.height();
+                    widthThusFar += origDimens.width();
                 }
                 case TriangleRenderable t -> {
                     var unadjContentVerticesProvidersForRenderable =
                             contentUnadjVerticesProviders.get(t.uuid());
                     if (unadjContentVerticesProvidersForRenderable == null) {
                         unadjContentVerticesProvidersForRenderable =
-                                ContentColumn_tearOutAndReplaceWithOriginOverrideForTriangle(t);
+                                ContentRow_tearOutAndReplaceWithOriginOverrideForTriangle(t);
                         contentUnadjVerticesProviders.put(t.uuid(),
                                 unadjContentVerticesProvidersForRenderable);
                     }
@@ -215,47 +235,49 @@ public class ContentColumnMethods {
                             unadjContentVerticesProvidersForRenderable.stream()
                                     .map(p -> p.provide(timestamp)).toList();
                     contentUnadjustedVertices.put(t.uuid(), providedUnadjContentVertices);
-                    var unadjPolygonDimens =
+                    var origEncompassingDimens =
                             polygonEncompassingDimens(providedUnadjContentVertices);
                     contentPolygonOffsets.put(
                             t.uuid(),
-                            vertexOf(midpoint(
-                                    renderingLoc.X,
-                                    colWidth,
-                                    unadjPolygonDimens.width(),
-                                    content.indent,
-                                    content.alignment
-                            ), renderingLoc.Y + heightThusFar)
+                            vertexOf(renderingLoc.X + widthThusFar,
+                                    midpoint(
+                                            renderingLoc.Y,
+                                            rowHeight,
+                                            origEncompassingDimens.height(),
+                                            content.indent,
+                                            content.alignment
+                                    )
+                            )
                     );
 
-                    heightThusFar += unadjPolygonDimens.height();
+                    widthThusFar += origEncompassingDimens.width();
                 }
                 case null -> {
                     // null is expected for spacing, c.f. ContentColumnDefinition.Item::space
                 }
                 default -> throw new IllegalStateException(
-                        "ContentColumnMethods#ContentColumn_setDimensForComponentAndContent: " +
+                        "ContentColumnMethods#ContentRow_setDimensForComponentAndContent: " +
                                 "contentsFromComponent has unsupported type (" +
                                 contentFromUuid.getClass().getCanonicalName() + ")");
             }
 
-            heightThusFar += content.spacingAfter();
+            widthThusFar += content.spacingAfter();
         }
 
         var componentDimens = floatBoxOf(
                 renderingLoc,
-                colWidth,
-                heightThusFar
+                widthThusFar,
+                rowHeight
         );
-        column.data().put(COMPONENT_DIMENS, componentDimens);
-        column.data().put(CONTENT_SPECIFIC_ORIGINS, newContentSpecificOrigins);
+        row.data().put(COMPONENT_DIMENS, componentDimens);
+        row.data().put(CONTENT_SPECIFIC_ORIGINS, newContentSpecificOrigins);
 
-        column.data().put(LAST_TIMESTAMP, timestamp);
+        row.data().put(LAST_TIMESTAMP, timestamp);
 
         return componentDimens;
     }
 
-    private List<ProviderAtTime<Vertex>> ContentColumn_tearOutAndReplaceWithOriginOverrideForTriangle(
+    private List<ProviderAtTime<Vertex>> ContentRow_tearOutAndReplaceWithOriginOverrideForTriangle(
             TriangleRenderable triangleRenderable) {
         var originalContentVerticesProviders = listOf(
                 triangleRenderable.getVertex1Provider(),
@@ -288,28 +310,28 @@ public class ContentColumnMethods {
         return originalContentVerticesProviders;
     }
 
-    private float midpoint(float startX, float colWidth, float contentWidth, float indent,
-                           HorizontalAlignment alignment) {
+    private float midpoint(float startY, float rowHeight, float contentHeight, float indent,
+                           VerticalAlignment alignment) {
         return switch (alignment) {
-            case LEFT -> startX + indent;
-            case CENTER -> startX + ((colWidth - contentWidth) / 2f);
-            case RIGHT -> startX + colWidth - contentWidth - indent;
+            case TOP -> startY + indent;
+            case CENTER -> startY + ((rowHeight - contentHeight) / 2f);
+            case BOTTOM -> startY + rowHeight - contentHeight - indent;
         };
     }
 
-    public final static String ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider =
-            "ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider";
+    public final static String ContentRow_setAndRetrieveDimensForComponentAndContentForProvider =
+            "ContentRow_setAndRetrieveDimensForComponentAndContentForProvider";
 
-    public FloatBox ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider(
+    public FloatBox ContentRow_setAndRetrieveDimensForComponentAndContentForProvider(
             FunctionalProvider.Inputs inputs) {
         UUID componentId = getFromData(inputs, COMPONENT_UUID);
         var component = GET_COMPONENT.apply(componentId);
-        return ContentColumn_setDimensForComponentAndContent(component, inputs.timestamp());
+        return ContentRow_setDimensForComponentAndContent(component, inputs.timestamp());
     }
 
-    public final static String ContentColumn_add = "ContentColumn_add";
+    public final static String ContentRow_add = "ContentRow_add";
 
-    public void ContentColumn_add(Component component, Component.Addend addend) {
+    public void ContentRow_add(Component component, Component.Addend addend) {
         var contentToAddToDataUuid = defaultIfNullElseTransform(
                 addend.content(),
                 HasUuid::uuid,
@@ -332,7 +354,7 @@ public class ContentColumnMethods {
 
     public record Content(UUID uuid,
                           float indent,
-                          HorizontalAlignment alignment,
+                          VerticalAlignment alignment,
                           float spacingAfter) {
     }
 }

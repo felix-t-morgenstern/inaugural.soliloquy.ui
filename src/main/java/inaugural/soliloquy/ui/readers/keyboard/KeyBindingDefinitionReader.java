@@ -7,7 +7,7 @@ import soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition;
 
 import java.util.function.Function;
 
-import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 import static soliloquy.specs.io.input.keyboard.KeyBinding.keyBinding;
 
 public class KeyBindingDefinitionReader {
@@ -20,8 +20,9 @@ public class KeyBindingDefinitionReader {
     }
 
     public KeyBinding read(KeyBindingDefinition definition) {
-        var onPress = defaultIfNull(definition.PRESS_CONSUMER_ID, GET_CONSUMER, null);
-        var onRelease = defaultIfNull(definition.RELEASE_CONSUMER_ID, GET_CONSUMER, null);
+        var onPress = defaultIfNullElseTransform(definition.PRESS_CONSUMER_ID, GET_CONSUMER, null);
+        var onRelease =
+                defaultIfNullElseTransform(definition.RELEASE_CONSUMER_ID, GET_CONSUMER, null);
 
         //noinspection unchecked
         return keyBinding(definition.KEY_CODEPOINTS, onPress, onRelease);

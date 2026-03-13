@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.components.contentcolumn;
+package inaugural.soliloquy.ui.components.contentrow;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
@@ -12,19 +12,19 @@ import java.util.Set;
 import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.Content;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowMethods.*;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowMethods.Content;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
-public class ContentColumnDefinitionReader {
+public class ContentRowDefinitionReader {
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
 
-    public ContentColumnDefinitionReader(ProviderDefinitionReader providerDefReader) {
+    public ContentRowDefinitionReader(ProviderDefinitionReader providerDefReader) {
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
     }
 
-    public ComponentDefinition read(ContentColumnDefinition definition, long timestamp) {
+    public ComponentDefinition read(ContentRowDefinition definition, long timestamp) {
         Check.ifNull(definition, "definition");
 
         Set<AbstractContentDefinition> componentContents = setOf();
@@ -49,7 +49,7 @@ public class ContentColumnDefinitionReader {
                 definition.UUID
         )
                 .withDimensions(functionalProvider(
-                                ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider,
+                                ContentRow_setAndRetrieveDimensForComponentAndContentForProvider,
                                 FloatBox.class
                         )
                                 .withData(mapOf(
@@ -57,13 +57,13 @@ public class ContentColumnDefinitionReader {
                                         definition.UUID
                                 ))
                 )
-                .withAddHook(ContentColumn_add)
-                .withPrerenderHook(ContentColumn_setDimensForComponentAndContent)
+                .withAddHook(ContentRow_add)
+                .withPrerenderHook(ContentRow_setDimensForComponentAndContent)
                 .withData(mapOf(
                         COMPONENT_RENDERING_LOC,
                         PROVIDER_DEF_READER.read(definition.RENDERING_LOC_DEF, timestamp),
-                        COMPONENT_WIDTH,
-                        definition.WIDTH,
+                        COMPONENT_HEIGHT,
+                        definition.HEIGHT,
                         CONTENTS,
                         contentsForData
                 ));

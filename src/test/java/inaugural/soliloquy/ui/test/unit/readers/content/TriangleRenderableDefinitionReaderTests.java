@@ -65,7 +65,8 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
         lenient().when(
                         mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
-                                any(), any(), any(), any(), any(), anyInt(), any(), any()))
+                                any(), any(), any(), any(), any(), any(), any(), anyInt(), any(),
+                                any()))
                 .thenReturn(mockRenderable);
 
         reader = new TriangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
@@ -109,11 +110,15 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 .withColors(
                         vector1ColorDefinition,
                         vector2ColorDefinition,
-                        vector3ColorDefinition)
+                        vector3ColorDefinition
+                )
                 .withTexture(
                         mockTextureIdProviderDefinition,
                         mockTextureWidthProviderDefinition,
-                        mockTextureHeightProviderDefinition)
+                        mockTextureXOffsetProviderDefinition,
+                        mockTextureHeightProviderDefinition,
+                        mockTextureYOffsetProviderDefinition
+                )
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
                 .onMouseOver(ON_MOUSE_OVER_ID)
@@ -151,15 +156,19 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockVector1), same(mockVector1Color),
                 same(mockVector2), same(mockVector2Color),
                 same(mockVector3), same(mockVector3Color),
-                same(mockTextureIdProvider), same(mockTextureWidthProvider), same(
-                        mockTextureHeightProvider),
+                same(mockTextureIdProvider),
+                same(mockTextureWidthProvider),
+                same(mockTextureXOffsetProvider),
+                same(mockTextureHeightProvider),
+                same(mockTextureYOffsetProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 eq(Z),
                 eq(definition.UUID),
-                same(mockComponent));
+                same(mockComponent)
+        );
     }
 
     @Test
@@ -180,17 +189,25 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 eq(TIMESTAMP));
         //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(mockVector1), same(mockNullProvider),
-                same(mockVector2), same(mockNullProvider),
-                same(mockVector3), same(mockNullProvider),
-                same(mockNullProvider), same(mockNullProvider), same(mockNullProvider),
+                same(mockVector1),
+                same(mockNullProvider),
+                same(mockVector2),
+                same(mockNullProvider),
+                same(mockVector3),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
                 eq(mapOf()),
                 eq(mapOf()),
                 isNull(),
                 isNull(),
                 eq(Z),
                 isNotNull(),
-                same(mockComponent));
+                same(mockComponent)
+        );
     }
 
     @Test
@@ -199,7 +216,15 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 .withColors(
                         mockVector1Color,
                         mockVector2Color,
-                        mockVector3Color);
+                        mockVector3Color
+                )
+                .withTexture(
+                        mockTextureIdProvider,
+                        mockTextureWidthProvider,
+                        mockTextureXOffsetProvider,
+                        mockTextureHeightProvider,
+                        mockTextureYOffsetProvider
+                );
 
         var renderable = reader.read(mockComponent, definition, TIMESTAMP);
 
@@ -211,19 +236,26 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, never()).read(same(mockVector3Definition),
                 eq(TIMESTAMP));
-        //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(mockVector1), same(mockVector1Color),
-                same(mockVector2), same(mockVector2Color),
-                same(mockVector3), same(mockVector3Color),
-                same(mockNullProvider), same(mockNullProvider), same(mockNullProvider),
+                same(mockVector1),
+                same(mockVector1Color),
+                same(mockVector2),
+                same(mockVector2Color),
+                same(mockVector3),
+                same(mockVector3Color),
+                same(mockTextureIdProvider),
+                same(mockTextureWidthProvider),
+                same(mockTextureXOffsetProvider),
+                same(mockTextureHeightProvider),
+                same(mockTextureYOffsetProvider),
                 eq(mapOf()),
                 eq(mapOf()),
                 isNull(),
                 isNull(),
                 eq(Z),
                 isNotNull(),
-                same(mockComponent));
+                same(mockComponent)
+        );
     }
 
     @Test

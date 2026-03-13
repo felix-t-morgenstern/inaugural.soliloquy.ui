@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 
 public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefinitionReader {
@@ -48,10 +48,10 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
         var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
         var borderColor = provider(definition.borderColorProviderDef, timestamp);
 
-        List<ColorShift> colorShifts = defaultIfNull(
+        List<ColorShift> colorShifts = defaultIfNullElseTransform(
                 definition.colorShifts,
                 Collections::listOf,
-                defaultIfNull(
+                defaultIfNullElseTransform(
                         definition.colorShiftDefs,
                         c -> listOf(shiftDef -> SHIFT_READER.read(shiftDef, timestamp), c),
                         listOf()

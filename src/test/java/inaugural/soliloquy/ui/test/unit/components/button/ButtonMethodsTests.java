@@ -972,47 +972,6 @@ public class ButtonMethodsTests {
     }
 
     @Test
-    public void testButton_provideTexTileWidth() {
-        testButton_provideTexTileDimension(
-                ButtonMethods::Button_provideTexTileWidth,
-                FloatBox::width
-        );
-    }
-
-    @Test
-    public void testButton_provideTexTileHeight() {
-        testButton_provideTexTileDimension(
-                ButtonMethods::Button_provideTexTileHeight,
-                FloatBox::height
-        );
-    }
-
-    private void testButton_provideTexTileDimension(
-            BiFunction<ButtonMethods, FunctionalProvider.Inputs, Float> method,
-            Function<FloatBox, Float> getDimension
-    ) {
-        Map<String, Object> mockInputsData = generateMockMap(
-                pairOf(COMPONENT_UUID, BUTTON_UUID)
-        );
-
-        var output = method.apply(buttonMethods, providerInputs(
-                TIMESTAMP,
-                null,
-                mockInputsData
-        ));
-
-        assertEquals(getDimension.apply(RECT_UNADJ_DIMENS), output);
-
-        verify(mockGetComponent, once()).apply(BUTTON_UUID);
-        verify(mockButton, atLeastOnce()).data();
-        verify(mockButtonData, once()).get(IS_PRESSED);
-        verify(mockButtonData, once()).get(RECT_HOVER_STATE);
-        verify(mockButtonData, once()).get(SPRITE_HOVER_STATE);
-        verify(mockButtonData, once()).get(RENDERABLE_OPTIONS_DEFAULT);
-        verify(mockRectUnadjDimens, once()).provide(TIMESTAMP);
-    }
-
-    @Test
     public void testButton_rectDimensWithAdj() {
         testButton_componentWithAdj(
                 ButtonMethods::Button_rectDimensWithAdj,

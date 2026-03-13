@@ -1,8 +1,7 @@
-package inaugural.soliloquy.ui.test.unit.components.contentcolumn;
+package inaugural.soliloquy.ui.test.unit.components.contentrow;
 
 import inaugural.soliloquy.ui.Constants;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinitionReader;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
+import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinitionReader;
 import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionReaderTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
@@ -18,33 +16,34 @@ import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.itemOf;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.space;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.column;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.*;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.itemOf;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.space;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.TOP;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.row;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowMethods.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 @ExtendWith(MockitoExtension.class)
-public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReaderTest {
-    private final float WIDTH = randomFloat();
+public class ContentRowDefinitionReaderTests extends ComponentDefinitionReaderTest {
+    private final float HEIGHT = randomFloat();
 
     @Mock private AbstractProviderDefinition<Vertex> mockRenderingLocDef;
     @Mock private ProviderAtTime<Vertex> mockRenderingLoc;
 
-    private ContentColumnDefinitionReader reader;
+    private ContentRowDefinitionReader reader;
 
     @BeforeEach
     public void setUp() {
-        reader = new ContentColumnDefinitionReader(mockProviderDefReader);
+        reader = new ContentRowDefinitionReader(mockProviderDefReader);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
-        assertThrows(IllegalArgumentException.class, () -> new ContentColumnDefinitionReader(null));
+        assertThrows(IllegalArgumentException.class, () -> new ContentRowDefinitionReader(null));
     }
 
     @Test
@@ -54,7 +53,7 @@ public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReade
 
         var content1 = rectangle(staticVal(randomFloatBox()), randomInt());
         var item1Spacing = randomFloat();
-        var item1Alignment = HorizontalAlignment.fromValue(randomIntInRange(1, 3));
+        var item1Alignment = VerticalAlignment.fromValue(randomIntInRange(1, 3));
         var item1Indent = randomFloat();
         var item1 = itemOf(
                 item1Indent,
@@ -66,7 +65,7 @@ public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReade
         var spacingItem = space(spacingAmt);
         var content2 = rectangle(staticVal(randomFloatBox()), randomInt());
         var item2Spacing = randomFloat();
-        var item2Alignment = HorizontalAlignment.fromValue(randomIntInRange(1, 3));
+        var item2Alignment = VerticalAlignment.fromValue(randomIntInRange(1, 3));
         var item2Indent = randomFloat();
         var item2 = itemOf(
                 item2Indent,
@@ -75,9 +74,9 @@ public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReade
                 item2Spacing
         );
 
-        var definition = column(
+        var definition = row(
                 mockRenderingLocDef,
-                WIDTH,
+                HEIGHT,
                 Z
         )
                 .withItems(item1, spacingItem, item2);
@@ -91,34 +90,34 @@ public class ContentColumnDefinitionReaderTests extends ComponentDefinitionReade
         assertEquals(definition.UUID, output.UUID);
         assertIsFunctionalProviderWithData(
                 output.dimensionsProviderDef,
-                ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider,
+                ContentRow_setAndRetrieveDimensForComponentAndContentForProvider,
                 mapOf(
                         COMPONENT_UUID,
                         definition.UUID
                 )
         );
-        assertEquals(ContentColumn_add, output.addHookId);
-        assertEquals(ContentColumn_setDimensForComponentAndContent, output.prerenderHookId);
+        assertEquals(ContentRow_add, output.addHookId);
+        assertEquals(ContentRow_setDimensForComponentAndContent, output.prerenderHookId);
         assertEquals(mapOf(
                 COMPONENT_RENDERING_LOC,
                 mockRenderingLoc,
-                Constants.COMPONENT_WIDTH,
-                WIDTH,
+                Constants.COMPONENT_HEIGHT,
+                HEIGHT,
                 CONTENTS,
                 listOf(
-                        new ContentColumnMethods.Content(
+                        new Content(
                                 content1.UUID,
                                 item1Indent,
                                 item1Alignment,
                                 item1Spacing
                         ),
-                        new ContentColumnMethods.Content(
+                        new Content(
                                 spacingItem.uuidForSpacingOnly(),
                                 0f,
-                                LEFT,
+                                TOP,
                                 spacingAmt
                         ),
-                        new ContentColumnMethods.Content(
+                        new Content(
                                 content2.UUID,
                                 item2Indent,
                                 item2Alignment,

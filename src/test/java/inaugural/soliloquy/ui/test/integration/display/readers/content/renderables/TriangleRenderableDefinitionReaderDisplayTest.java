@@ -13,8 +13,10 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
+import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class TriangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
@@ -47,6 +49,12 @@ public class TriangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
         var ioModule = uiModule.provide(IOModule.class);
         var graphics = ioModule.provide(Graphics.class);
         var image = graphics.getImage(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
+        var textureOffsetProvider = loopingLinearMoving(
+                2000,
+                0,
+                pairOf(0, 0f),
+                pairOf(2000, 1f)
+        );
         var def = triangle(
                 staticVal(vertexOf(0.2f, 0.2f)),
                 staticVal(vertexOf(0.8f, 0.4f)),
@@ -56,7 +64,9 @@ public class TriangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 .withTexture(
                         staticVal(image.textureId()),
                         staticVal(0.6f),
-                        staticVal(0.6f)
+                        textureOffsetProvider,
+                        staticVal(0.6f),
+                        textureOffsetProvider
                 )
                 .withColors(
                         staticVal(randomColor()),

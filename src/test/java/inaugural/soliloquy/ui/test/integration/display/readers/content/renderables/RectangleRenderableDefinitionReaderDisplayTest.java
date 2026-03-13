@@ -12,7 +12,9 @@ import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
+import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
+import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest {
@@ -42,6 +44,12 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
         var ioModule = uiModule.provide(IOModule.class);
         var graphics = ioModule.provide(Graphics.class);
         var image = graphics.getImage(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
+        var textureOffsetProvider = loopingLinearMoving(
+                2000,
+                0,
+                pairOf(0, 0f),
+                pairOf(2000, 1f)
+        );
         var rectDef = rectangle(
                 staticVal(floatBoxOf(0.25f, 0.25f, 0.75f, 0.75f)),
                 0
@@ -49,7 +57,9 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
                 .withTexture(
                         staticVal(image.textureId()),
                         staticVal(0.5f),
-                        staticVal(0.5f)
+                        textureOffsetProvider,
+                        staticVal(0.5f),
+                        textureOffsetProvider
                 )
                 .withColors(
                         staticVal(randomColor()),

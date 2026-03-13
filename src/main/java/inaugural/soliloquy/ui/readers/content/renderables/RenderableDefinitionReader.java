@@ -18,8 +18,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static inaugural.soliloquy.tools.Tools.defaultIfNull;
-import static inaugural.soliloquy.tools.Tools.falseIfNull;
+import static inaugural.soliloquy.tools.Tools.*;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.collections.Collections.setOf;
 import static soliloquy.specs.io.input.keyboard.KeyBinding.keyBinding;
@@ -135,7 +134,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         @SuppressWarnings("unchecked") var readComponent = COMPONENT_FACTORY.make(
                 definition.UUID,
                 definition.Z,
-                defaultIfNull(
+                defaultIfNullElseTransform(
                         definition.bindings,
                         bindingDefs -> Arrays.stream(bindingDefs)
                                 .map(bindingDef -> keyBinding(
@@ -149,7 +148,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                 defaultIfNull(definition.keyBindingPriority, DEFAULT_KEY_EVENT_PRIORITY),
                 defaultIfNull(
                         definition.dimensionsProvider,
-                        defaultIfNull(
+                        defaultIfNullElseTransform(
                                 definition.dimensionsProviderDef,
                                 d -> PROVIDER_READER.read(d, timestamp),
                                 WHOLE_SCREEN_PROVIDER
@@ -157,7 +156,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                 ),
                 defaultIfNull(
                         definition.RENDERING_BOUNDARIES_PROVIDER,
-                        defaultIfNull(
+                        defaultIfNullElseTransform(
                                 definition.RENDERING_BOUNDARIES_PROVIDER_DEF,
                                 d -> PROVIDER_READER.read(d, timestamp),
                                 WHOLE_SCREEN_PROVIDER
@@ -166,7 +165,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                 definition.prerenderHookId,
                 definition.addHookId,
                 containingComponent,
-                defaultIfNull(definition.data, Collections::mapOf, mapOf())
+                defaultIfNullElseTransform(definition.data, Collections::mapOf, mapOf())
         );
         for (var contentDef : definition.CONTENT) {
             read(readComponent, contentDef, timestamp);

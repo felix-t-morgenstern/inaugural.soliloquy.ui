@@ -24,8 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
-import static inaugural.soliloquy.tools.Tools.defaultIfNull;
-import static inaugural.soliloquy.tools.Tools.falseIfNull;
+import static inaugural.soliloquy.tools.Tools.*;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.encompassing;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.difference;
@@ -63,7 +62,8 @@ public class ButtonMethods {
 
     public ButtonMethods(Consumer<String> playSound,
                          TriConsumer<Integer, MouseEventHandler.EventType, Runnable> subscribeToMouseEvents,
-                         Function<String, Sprite> getSprite, Function<UUID, Component> getComponent) {
+                         Function<String, Sprite> getSprite,
+                         Function<UUID, Component> getComponent) {
         PLAY_SOUND = Check.ifNull(playSound, "playSound");
         SUBSCRIBE_TO_MOUSE_EVENTS = Check.ifNull(subscribeToMouseEvents, "subscribeToMouseEvents");
         GET_SPRITE = Check.ifNull(getSprite, "getSprite");
@@ -90,10 +90,11 @@ public class ButtonMethods {
                 currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
             }
 
-            var unadjRectDimens = defaultIfNull(currentStateOptions.unadjRectDimens,
+            var unadjRectDimens = defaultIfNullElseTransform(currentStateOptions.unadjRectDimens,
                     dimens -> dimens.provide(timestamp), null);
-            var unadjSpriteDimens = defaultIfNull(currentStateOptions.unadjSpriteDimens,
-                    dimens -> dimens.provide(timestamp), null);
+            var unadjSpriteDimens =
+                    defaultIfNullElseTransform(currentStateOptions.unadjSpriteDimens,
+                            dimens -> dimens.provide(timestamp), null);
 
             if (unadjRectDimens != null) {
                 if (unadjSpriteDimens != null) {
@@ -109,7 +110,9 @@ public class ButtonMethods {
 
             ProviderAtTime<Vertex> originOverrideProvider =
                     getFromData(button, ORIGIN_OVERRIDE_PROVIDER);
-            var originOverride = defaultIfNull(originOverrideProvider, p -> p.provide(timestamp), null);
+            var originOverride =
+                    defaultIfNullElseTransform(originOverrideProvider, p -> p.provide(timestamp),
+                            null);
             FloatBox buttonDimens;
             if (originOverride != null) {
                 var originAdjust = difference(unadjButtonDimens.topLeft(), originOverride);
@@ -462,26 +465,6 @@ public class ButtonMethods {
                 textLoc.X + distFromCenterHoriz,
                 textLoc.Y + textHeight + textPaddingVert
         );
-    }
-
-    final static String Button_provideTexTileWidth = "Button_provideTexTileWidth";
-
-    public float Button_provideTexTileWidth(FunctionalProvider.Inputs inputs) {
-        return Button_provideTexTileDimensComponent(inputs, FloatBox::width);
-    }
-
-    final static String Button_provideTexTileHeight = "Button_provideTexTileHeight";
-
-    public float Button_provideTexTileHeight(FunctionalProvider.Inputs inputs) {
-        return Button_provideTexTileDimensComponent(inputs, FloatBox::height);
-    }
-
-    private float Button_provideTexTileDimensComponent(FunctionalProvider.Inputs inputs,
-                                                       Function<FloatBox, Float> getDimensComponent) {
-        var button = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
-        var currentOptions = getCurrentOptions(button);
-        var rectDimens = currentOptions.unadjRectDimens.provide(inputs.timestamp());
-        return getDimensComponent.apply(rectDimens);
     }
 
     final static String Button_rectDimensWithAdj = "Button_rectDimensWithAdj";

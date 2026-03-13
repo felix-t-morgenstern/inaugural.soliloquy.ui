@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
+import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 
 public abstract class AbstractMouseEventsComponentDefinitionReader extends
         AbstractContentDefinitionReader {
@@ -27,7 +28,7 @@ public abstract class AbstractMouseEventsComponentDefinitionReader extends
 
     protected Consumer<EventInputs> getConsumer(String id) {
         //noinspection unchecked
-        return defaultIfNull(id, GET_CONSUMER, null);
+        return defaultIfNullElseTransform(id, GET_CONSUMER, null);
     }
 
     protected Map<Integer, Consumer<EventInputs>> getConsumerPerButton(Map<Integer, String> ids) {

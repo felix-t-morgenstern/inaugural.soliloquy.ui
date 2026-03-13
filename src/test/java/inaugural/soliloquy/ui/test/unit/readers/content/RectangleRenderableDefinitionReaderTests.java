@@ -45,11 +45,12 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
     public void setUp() {
         super.setUp();
 
-        lenient().when(mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
-                any(), any(), any(), any(), anyInt(), any(), any())).thenReturn(mockRenderable);
+        lenient().when(
+                        mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
+                                any(), any(), any(), any(), any(), any(), anyInt(), any(), any()))
+                .thenReturn(mockRenderable);
 
-        reader =
-                new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
+        reader = new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
                         mockProviderDefinitionReader, mockNullProvider);
     }
 
@@ -98,7 +99,10 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 .withTexture(
                         mockTextureIdProviderDefinition,
                         mockTextureWidthProviderDefinition,
-                        mockTextureHeightProviderDefinition)
+                        mockTextureXOffsetProviderDefinition,
+                        mockTextureHeightProviderDefinition,
+                        mockTextureYOffsetProviderDefinition
+                )
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
                 .onMouseOver(ON_MOUSE_OVER_ID)
@@ -134,8 +138,11 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(mockFactory, once()).make(
                 same(mockTopLeftColor), same(mockTopRightColor),
                 same(mockBottomLeftColor), same(mockBottomRightColor),
-                same(mockTextureIdProvider), same(mockTextureWidthProvider), same(
-                        mockTextureHeightProvider),
+                same(mockTextureIdProvider),
+                same(mockTextureWidthProvider),
+                same(mockTextureXOffsetProvider),
+                same(mockTextureHeightProvider),
+                same(mockTextureYOffsetProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
                 same(MOCK_ON_MOUSE_OVER),
@@ -159,15 +166,24 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(mockRenderable, never()).setCapturesMouseEvents(anyBoolean());
         //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(mockNullProvider), same(mockNullProvider),
-                same(mockNullProvider), same(mockNullProvider),
-                same(mockNullProvider), same(mockNullProvider), same(mockNullProvider),
-                eq(mapOf()), eq(mapOf()),
-                isNull(), isNull(),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(mapOf()),
+                eq(mapOf()),
+                isNull(),
+                isNull(),
                 same(mockAreaProvider),
                 eq(Z),
                 isNotNull(),
-                same(mockComponent));
+                same(mockComponent)
+        );
     }
 
     @Test
@@ -178,18 +194,28 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockProviderDefinitionReader, never()).read(same(mockAreaProviderDefinition), anyLong());
+        verify(mockProviderDefinitionReader, never()).read(same(mockAreaProviderDefinition),
+                anyLong());
         verify(mockRenderable, never()).setCapturesMouseEvents(anyBoolean());
         verify(mockFactory, once()).make(
-                any(), any(),
-                any(), any(),
-                any(), any(), any(),
-                any(), any(),
-                isNull(), isNull(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                isNull(),
+                isNull(),
                 same(mockAreaProvider),
                 anyInt(),
                 isNotNull(),
-                any());
+                any()
+        );
     }
 
     @Test
@@ -201,27 +227,44 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
 
         //noinspection unchecked
         verify(mockFactory, once()).make(
-                same(mockNullProvider), same(mockNullProvider),
-                same(mockNullProvider), same(mockNullProvider),
-                same(mockTextureIdProvider), any(), any(),
-                eq(mapOf()), eq(mapOf()),
-                isNull(), isNull(),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                same(mockNullProvider),
+                same(mockTextureIdProvider),
+                any(),
+                any(),
+                any(),
+                any(),
+                eq(mapOf()),
+                eq(mapOf()),
+                isNull(),
+                isNull(),
                 same(mockAreaProvider),
                 eq(Z),
                 isNotNull(),
-                same(mockComponent));
+                same(mockComponent)
+        );
     }
 
     @Test
-    public void testReadWithTexDimensProviders() {
-        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexWidthProvider = mock(ProviderAtTime.class);
-        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexHeightProvider = mock(ProviderAtTime.class);
+    public void testReadWithTexDimensAndOffsetProviders() {
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexWidthProvider =
+                mock(ProviderAtTime.class);
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexXOffsetProvider =
+                mock(ProviderAtTime.class);
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexHeightProvider =
+                mock(ProviderAtTime.class);
+        @SuppressWarnings("unchecked") ProviderAtTime<Float> mockTexYOffsetProvider =
+                mock(ProviderAtTime.class);
 
         var definition = rectangle(mockAreaProviderDefinition, Z)
                 .withTexture(
                         mockTextureIdProvider,
                         mockTexWidthProvider,
-                        mockTexHeightProvider
+                        mockTexXOffsetProvider,
+                        mockTexHeightProvider,
+                        mockTexYOffsetProvider
                 )
                 .withTexture(
                         mockTextureIdProvider,
@@ -237,7 +280,9 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 same(mockNullProvider), same(mockNullProvider),
                 same(mockTextureIdProvider),
                 same(mockTexWidthProvider),
+                same(mockTexXOffsetProvider),
                 same(mockTexHeightProvider),
+                same(mockTexYOffsetProvider),
                 eq(mapOf()), eq(mapOf()),
                 isNull(), isNull(),
                 same(mockAreaProvider),
@@ -259,15 +304,24 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         reader.read(mockComponent, definition, TIMESTAMP);
 
         verify(mockFactory, once()).make(
-                same(mockTopLeftColor), same(mockTopRightColor),
-                same(mockBottomLeftColor), same(mockBottomRightColor),
-                any(), any(), any(),
-                anyMap(), anyMap(),
-                isNull(), isNull(),
+                same(mockTopLeftColor),
+                same(mockTopRightColor),
+                same(mockBottomLeftColor),
+                same(mockBottomRightColor),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                anyMap(),
+                anyMap(),
+                isNull(),
+                isNull(),
                 any(),
                 anyInt(),
                 isNotNull(),
-                any());
+                any()
+        );
     }
 
     @Test

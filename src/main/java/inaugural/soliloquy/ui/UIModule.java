@@ -13,6 +13,9 @@ import inaugural.soliloquy.ui.components.button.ButtonMethods;
 import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition;
 import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinitionReader;
 import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
+import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition;
+import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinitionReader;
+import inaugural.soliloquy.ui.components.contentrow.ContentRowMethods;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
 import inaugural.soliloquy.ui.components.textblock.TextBlockMethods;
@@ -253,9 +256,18 @@ public class UIModule extends AbstractModule {
         // Column
         var columnReader = new ContentColumnDefinitionReader(providerDefinitionReader);
         customComponentMethods.add(
-                new ContentColumnMethods(graphics::getComponent, functionalProviderDefReader::read));
+                new ContentColumnMethods(graphics::getComponent,
+                        functionalProviderDefReader::read));
         renderableDefinitionReader.addCustomComponentReader(ContentColumnDefinition.class,
                 (d, t) -> columnReader.read((ContentColumnDefinition) d, t));
+
+        // Row
+        var rowReader = new ContentRowDefinitionReader(providerDefinitionReader);
+        customComponentMethods.add(
+                new ContentRowMethods(graphics::getComponent, functionalProviderDefReader::read,
+                        textLineRenderer));
+        renderableDefinitionReader.addCustomComponentReader(ContentRowDefinition.class,
+                (d, t) -> rowReader.read((ContentRowDefinition) d, t));
 
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));
     }

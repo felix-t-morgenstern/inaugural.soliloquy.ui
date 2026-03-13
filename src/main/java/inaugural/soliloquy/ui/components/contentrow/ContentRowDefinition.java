@@ -1,7 +1,6 @@
-package inaugural.soliloquy.ui.components.contentcolumn;
+package inaugural.soliloquy.ui.components.contentrow;
 
 import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
@@ -10,47 +9,47 @@ import java.util.List;
 import java.util.UUID;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.TOP;
 import static java.util.UUID.randomUUID;
-import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 
 @SuppressWarnings("unused")
-public class ContentColumnDefinition extends AbstractContentDefinition {
+public class ContentRowDefinition extends AbstractContentDefinition {
     public final AbstractProviderDefinition<Vertex> RENDERING_LOC_DEF;
-    public final float WIDTH;
+    public final float HEIGHT;
     public final List<Item> ITEMS;
 
-    private ContentColumnDefinition(AbstractProviderDefinition<Vertex> renderingLocDef,
-                                    float width,
-                                    int z,
-                                    UUID uuid) {
+    private ContentRowDefinition(AbstractProviderDefinition<Vertex> renderingLocDef,
+                                 float height,
+                                 int z,
+                                 UUID uuid) {
         super(z, uuid);
         RENDERING_LOC_DEF = renderingLocDef;
-        WIDTH = width;
+        HEIGHT = height;
         ITEMS = listOf();
     }
 
-    public static ContentColumnDefinition column(
+    public static ContentRowDefinition row(
             AbstractProviderDefinition<Vertex> renderingLocDef,
-            float width,
+            float height,
             int z,
             UUID uuid) {
-        return new ContentColumnDefinition(renderingLocDef, width, z, uuid);
+        return new ContentRowDefinition(renderingLocDef, height, z, uuid);
     }
 
-    public static ContentColumnDefinition column(
+    public static ContentRowDefinition row(
             AbstractProviderDefinition<Vertex> renderingLocDef,
-            float width,
+            float height,
             int z) {
-        return column(renderingLocDef, width, z, randomUUID());
+        return row(renderingLocDef, height, z, randomUUID());
     }
 
-    public ContentColumnDefinition withItem(Item item) {
+    public ContentRowDefinition withItem(Item item) {
         ITEMS.add(item);
 
         return this;
     }
 
-    public ContentColumnDefinition withItems(Item... items) {
+    public ContentRowDefinition withItems(Item... items) {
         ITEMS.addAll(Arrays.asList(items));
 
         return this;
@@ -59,11 +58,11 @@ public class ContentColumnDefinition extends AbstractContentDefinition {
     public record Item(UUID uuidForSpacingOnly,
                        float indent,
                        AbstractContentDefinition content,
-                       HorizontalAlignment alignment,
+                       VerticalAlignment alignment,
                        float spacingAfter) {
         public static Item itemOf(float indent,
                                   AbstractContentDefinition content,
-                                  HorizontalAlignment alignment,
+                                  VerticalAlignment alignment,
                                   float spacingAfter) {
             return new Item(null, indent, content, alignment, spacingAfter);
         }
@@ -71,40 +70,69 @@ public class ContentColumnDefinition extends AbstractContentDefinition {
         public static Item itemOf(float indent,
                                   AbstractContentDefinition content,
                                   float spacingAfter) {
-            return itemOf(indent, content, LEFT, spacingAfter);
+            return itemOf(indent, content, TOP, spacingAfter);
         }
 
         public static Item itemOf(float indent,
                                   AbstractContentDefinition content,
-                                  HorizontalAlignment alignment) {
+                                  VerticalAlignment alignment) {
             return itemOf(indent, content, alignment, 0f);
         }
 
         public static Item itemOf(AbstractContentDefinition content) {
-            return itemOf(0f, content, LEFT, 0f);
+            return itemOf(0f, content, TOP, 0f);
         }
 
         public static Item itemOf(AbstractContentDefinition content,
-                                  HorizontalAlignment alignment) {
+                                  VerticalAlignment alignment) {
             return itemOf(0f, content, alignment, 0f);
         }
 
         public static Item itemOf(AbstractContentDefinition content,
-                                  HorizontalAlignment alignment,
+                                  VerticalAlignment alignment,
                                   float spacingAfter) {
             return itemOf(0f, content, alignment, spacingAfter);
         }
 
         public static Item itemOf(float indent, AbstractContentDefinition content) {
-            return itemOf(indent, content, LEFT);
+            return itemOf(indent, content, TOP);
         }
 
         public static Item itemOf(AbstractContentDefinition content, float spacingAfter) {
-            return itemOf(0f, content, LEFT, spacingAfter);
+            return itemOf(0f, content, TOP, spacingAfter);
         }
 
         public static Item space(float spacing) {
-            return new Item(randomUUID(), 0f, null, LEFT, spacing);
+            return new Item(randomUUID(), 0f, null, TOP, spacing);
+        }
+    }
+
+    public enum VerticalAlignment {
+        TOP(1),
+        CENTER(2),
+        BOTTOM(3);
+
+        private final int VALUE;
+
+        VerticalAlignment(int value) {
+            VALUE = value;
+        }
+
+        public int getValue() {
+            return VALUE;
+        }
+
+        public static VerticalAlignment fromValue(Integer value) {
+            if (value == null) {
+                return null;
+            }
+            return switch (value) {
+                case 1 -> TOP;
+                case 2 -> CENTER;
+                case 3 -> BOTTOM;
+                default -> throw new IllegalArgumentException("VerticalAlignment: value (" + value +
+                        ") does not correspond to valid enum type");
+            };
         }
     }
 }

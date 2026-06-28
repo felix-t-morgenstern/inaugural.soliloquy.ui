@@ -7,55 +7,48 @@ import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.util.List;
+import java.util.Map;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
+import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class TextBlockDefinition extends AbstractContentDefinition {
     public final String FONT_ID;
     public final float LINE_HEIGHT;
-    public final float MAX_LINE_LENGTH;
-    public final ProviderAtTime<Vertex> UPPER_LEFT_PROVIDER;
-    public final AbstractProviderDefinition<Vertex> UPPER_LEFT_PROVIDER_DEF;
-    public final float GLYPH_PADDING;
-    public final float LINE_SPACING;
-    public final float PARAGRAPH_SPACING;
-    public final HorizontalAlignment ALIGNMENT;
     public final List<String> PARAGRAPHS;
+    public final Map<String, Object> DATA;
+
+    public float maxLineLength;
+    public ProviderAtTime<Vertex> upperLeftProvider;
+    public AbstractProviderDefinition<Vertex> upperLeftProviderDef;
+    public float glyphPadding;
+    public float lineSpacing;
+    public float paragraphSpacing;
+    public HorizontalAlignment horizontalAlignment;
 
     private TextBlockDefinition(String fontId,
                                 float lineHeight,
                                 float maxLineLength,
                                 ProviderAtTime<Vertex> upperLeftProvider,
                                 AbstractProviderDefinition<Vertex> upperLeftProviderDef,
-                                float glyphPadding,
-                                float lineSpacing,
-                                float paragraphSpacing,
-                                HorizontalAlignment alignment,
                                 List<String> paragraphs,
                                 int z) {
         super(z, randomUUID());
         FONT_ID = fontId;
         LINE_HEIGHT = lineHeight;
-        MAX_LINE_LENGTH = maxLineLength;
-        UPPER_LEFT_PROVIDER = upperLeftProvider;
-        UPPER_LEFT_PROVIDER_DEF = upperLeftProviderDef;
-        GLYPH_PADDING = glyphPadding;
-        LINE_SPACING = lineSpacing;
-        PARAGRAPH_SPACING = paragraphSpacing;
-        ALIGNMENT = alignment;
+        this.maxLineLength = maxLineLength;
+        this.upperLeftProvider = upperLeftProvider;
+        this.upperLeftProviderDef = upperLeftProviderDef;
         PARAGRAPHS = paragraphs;
+        DATA = mapOf();
     }
 
     public static TextBlockDefinition textBlock(String fontId,
                                                 float lineHeight,
                                                 float maxLineLength,
                                                 ProviderAtTime<Vertex> upperLeftProvider,
-                                                float glyphPadding,
-                                                float lineSpacing,
-                                                float paragraphSpacing,
-                                                HorizontalAlignment alignment,
                                                 List<String> paragraphs,
                                                 int z) {
         return new TextBlockDefinition(
@@ -64,10 +57,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                 maxLineLength,
                 upperLeftProvider,
                 null,
-                glyphPadding,
-                lineSpacing,
-                paragraphSpacing,
-                alignment,
                 paragraphs,
                 z
         );
@@ -77,9 +66,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                                                 float lineHeight,
                                                 float maxLineLength,
                                                 ProviderAtTime<Vertex> upperLeftProvider,
-                                                float glyphPadding,
-                                                float lineSpacing,
-                                                HorizontalAlignment alignment,
                                                 String paragraph,
                                                 int z) {
         return textBlock(
@@ -87,10 +73,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                 lineHeight,
                 maxLineLength,
                 upperLeftProvider,
-                glyphPadding,
-                lineSpacing,
-                0f,
-                alignment,
                 listOf(paragraph),
                 z
         );
@@ -100,10 +82,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                                                 float lineHeight,
                                                 float maxLineLength,
                                                 AbstractProviderDefinition<Vertex> upperLeftProviderDef,
-                                                float glyphPadding,
-                                                float lineSpacing,
-                                                float paragraphSpacing,
-                                                HorizontalAlignment alignment,
                                                 List<String> paragraphs,
                                                 int z) {
         return new TextBlockDefinition(
@@ -112,10 +90,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                 maxLineLength,
                 null,
                 upperLeftProviderDef,
-                glyphPadding,
-                lineSpacing,
-                paragraphSpacing,
-                alignment,
                 paragraphs,
                 z
         );
@@ -125,9 +99,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                                                 float lineHeight,
                                                 float maxLineLength,
                                                 AbstractProviderDefinition<Vertex> upperLeftProviderDef,
-                                                float glyphPadding,
-                                                float lineSpacing,
-                                                HorizontalAlignment alignment,
                                                 String paragraph,
                                                 int z) {
         return textBlock(
@@ -135,10 +106,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                 lineHeight,
                 maxLineLength,
                 upperLeftProviderDef,
-                glyphPadding,
-                lineSpacing,
-                0f,
-                alignment,
                 listOf(paragraph),
                 z
         );
@@ -148,10 +115,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                                                 float lineHeight,
                                                 float maxLineLength,
                                                 Vertex upperLeft,
-                                                float glyphPadding,
-                                                float lineSpacing,
-                                                float paragraphSpacing,
-                                                HorizontalAlignment alignment,
                                                 List<String> paragraphs,
                                                 int z) {
         return textBlock(
@@ -159,10 +122,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                 lineHeight,
                 maxLineLength,
                 staticVal(upperLeft),
-                glyphPadding,
-                lineSpacing,
-                paragraphSpacing,
-                alignment,
                 paragraphs,
                 z
         );
@@ -172,9 +131,6 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                                                 float lineHeight,
                                                 float maxLineLength,
                                                 Vertex upperLeft,
-                                                float glyphPadding,
-                                                float lineSpacing,
-                                                HorizontalAlignment alignment,
                                                 String paragraph,
                                                 int z) {
         return textBlock(
@@ -182,12 +138,131 @@ public class TextBlockDefinition extends AbstractContentDefinition {
                 lineHeight,
                 maxLineLength,
                 staticVal(upperLeft),
-                glyphPadding,
-                lineSpacing,
-                0f,
-                alignment,
                 listOf(paragraph),
                 z
         );
+    }
+
+    public static TextBlockDefinition textBlock(String fontId,
+                                                float lineHeight,
+                                                float maxLineLength,
+                                                Vertex upperLeft,
+                                                String paragraph) {
+        return textBlock(
+                fontId,
+                lineHeight,
+                maxLineLength,
+                staticVal(upperLeft),
+                listOf(paragraph),
+                0
+        );
+    }
+
+    /**
+     * (The no-location method exists for the convenience of components which will place their own
+     * rendering locations, e.g., Button)
+     */
+    public static TextBlockDefinition textBlock(String fontId,
+                                                float lineHeight,
+                                                float maxLineLength,
+                                                List<String> paragraphs,
+                                                int z) {
+        return textBlock(
+                fontId,
+                lineHeight,
+                maxLineLength,
+                (AbstractProviderDefinition<Vertex>) null,
+                paragraphs,
+                z
+        );
+    }
+
+    /**
+     * (The no-location method exists for the convenience of components which will place their own
+     * rendering locations, e.g., Button)
+     */
+    public static TextBlockDefinition textBlock(
+            String fontId,
+            float lineHeight,
+            float maxLineLength,
+            AbstractProviderDefinition<Vertex> upperLeftProviderDef,
+            String paragraph
+    ) {
+        return textBlock(
+                fontId,
+                lineHeight,
+                maxLineLength,
+                upperLeftProviderDef,
+                listOf(paragraph),
+                0
+        );
+    }
+
+    /**
+     * (The no-location method exists for the convenience of components which will place their own
+     * rendering locations, e.g., ContentColumn)
+     */
+    public static TextBlockDefinition textBlock(String fontId,
+                                                float lineHeight,
+                                                float maxLineLength,
+                                                List<String> paragraphs) {
+        return textBlock(
+                fontId,
+                lineHeight,
+                maxLineLength,
+                (AbstractProviderDefinition<Vertex>) null,
+                paragraphs,
+                0
+        );
+    }
+
+    /**
+     * (The no-location method exists for the convenience of components which will place their own
+     * rendering locations, e.g., Button)
+     */
+    public static TextBlockDefinition textBlock(String fontId,
+                                                float lineHeight,
+                                                float maxLineLength,
+                                                String paragraph) {
+        return textBlock(
+                fontId,
+                lineHeight,
+                maxLineLength,
+                listOf(paragraph)
+        );
+    }
+
+    public TextBlockDefinition withGlyphPadding(float glyphPadding) {
+        this.glyphPadding = glyphPadding;
+
+        return this;
+    }
+
+    public TextBlockDefinition withLineSpacing(float lineSpacing) {
+        this.lineSpacing = lineSpacing;
+
+        return this;
+    }
+
+    public TextBlockDefinition withParagraphSpacing(float paragraphSpacing) {
+        this.paragraphSpacing = paragraphSpacing;
+
+        return this;
+    }
+
+    public TextBlockDefinition withHorizontalAlignment(HorizontalAlignment horizontalAlignment) {
+        this.horizontalAlignment = horizontalAlignment;
+
+        return this;
+    }
+
+    /**
+     * Repeat calls of this method will not overwrite all prior data, only those objects in data
+     * which share one of the new keys.
+     */
+    public TextBlockDefinition withData(Map<String, Object> data) {
+        DATA.putAll(data);
+
+        return this;
     }
 }

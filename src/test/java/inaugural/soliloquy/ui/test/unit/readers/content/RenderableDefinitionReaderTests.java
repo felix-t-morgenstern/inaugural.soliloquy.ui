@@ -109,7 +109,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
 
         lenient().when(mockProviderReader.read(same(mockComponentDimensionsDef), anyLong()))
                 .thenReturn(mockComponentDimensions);
-        lenient().when(mockProviderReader.read(same(mockComponentRenderingBoundariesDef), anyLong()))
+        lenient().when(
+                        mockProviderReader.read(same(mockComponentRenderingBoundariesDef),
+                                anyLong()))
                 .thenReturn(mockComponentRenderingBoundaries);
 
         reader = new RenderableDefinitionReader(
@@ -614,14 +616,17 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     }
 
     @Test
+    public void testReadWithNullContainingComponent() {
+        reader.read(null, mockAntialiasedLineDefinition, TIMESTAMP);
+
+        verify(mockContainingComponent, never()).add(any());
+    }
+
+    @Test
     public void testReadWithInvalidArgs() {
+        assertThrows(IllegalArgumentException.class, () -> reader.read(null, null, TIMESTAMP));
         assertThrows(IllegalArgumentException.class,
-                () -> reader.read(null, mock(ComponentDefinition.class), TIMESTAMP));
-        assertThrows(IllegalArgumentException.class,
-                () -> reader.read(mockContainingComponent, null, TIMESTAMP));
-        assertThrows(IllegalArgumentException.class,
-                () -> reader.read(mockContainingComponent, mock(AbstractContentDefinition.class),
-                        TIMESTAMP));
+                () -> reader.read(null, mock(AbstractContentDefinition.class), TIMESTAMP));
     }
 
     @Test

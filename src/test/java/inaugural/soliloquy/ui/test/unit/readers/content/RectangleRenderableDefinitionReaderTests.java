@@ -51,23 +51,28 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 .thenReturn(mockRenderable);
 
         reader = new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
-                        mockProviderDefinitionReader, mockNullProvider);
+                mockProviderDefinitionReader, mockGetTexIdProviderFromRelLoc, mockNullProvider);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(null, MOCK_GET_CONSUMER,
-                        mockProviderDefinitionReader, mockNullProvider));
+                        mockProviderDefinitionReader, mockGetTexIdProviderFromRelLoc,
+                        mockNullProvider));
         assertThrows(IllegalArgumentException.class,
                 () -> new RectangleRenderableDefinitionReader(mockFactory, null,
-                        mockProviderDefinitionReader, mockNullProvider));
+                        mockProviderDefinitionReader, mockGetTexIdProviderFromRelLoc,
+                        mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_CONSUMER, null, mockNullProvider));
+                () -> new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER, null,
+                        mockGetTexIdProviderFromRelLoc, mockNullProvider));
         assertThrows(IllegalArgumentException.class,
-                () -> new RectangleRenderableDefinitionReader(mockFactory,
-                        MOCK_GET_CONSUMER, mockProviderDefinitionReader, null));
+                () -> new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
+                        mockProviderDefinitionReader, null, mockNullProvider));
+        assertThrows(IllegalArgumentException.class,
+                () -> new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
+                        mockProviderDefinitionReader, mockGetTexIdProviderFromRelLoc, null));
     }
 
     @Test
@@ -94,13 +99,18 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 .withColors(
                         topLeftColorDefinition,
                         topRightColorDefinition,
-                        bottomLeftColorDefinition,
-                        bottomRightColorDefinition)
+                        bottomRightColorDefinition,
+                        bottomLeftColorDefinition
+                )
                 .withTexture(
-                        mockTextureIdProviderDefinition,
+                        mockTextureIdProviderDefinition
+                )
+                .withTextureTilingDefs(
                         mockTextureWidthProviderDefinition,
+                        mockTextureHeightProviderDefinition
+                )
+                .withTextureTilingOffsetDefs(
                         mockTextureXOffsetProviderDefinition,
-                        mockTextureHeightProviderDefinition,
                         mockTextureYOffsetProviderDefinition
                 )
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
@@ -137,7 +147,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(mockTopLeftColor), same(mockTopRightColor),
-                same(mockBottomLeftColor), same(mockBottomRightColor),
+                same(mockBottomRightColor), same(mockBottomLeftColor),
                 same(mockTextureIdProvider),
                 same(mockTextureWidthProvider),
                 same(mockTextureXOffsetProvider),
@@ -221,7 +231,8 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
     @Test
     public void testReadWithTexIdProvider() {
         var definition = rectangle(mockAreaProviderDefinition, Z)
-                .withTexture(mockTextureIdProvider, randomFloat(), randomFloat());
+                .withTexture(mockTextureIdProvider)
+                .withTextureTiling(randomFloat(), randomFloat());
 
         reader.read(mockComponent, definition, TIMESTAMP);
 
@@ -260,16 +271,15 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
 
         var definition = rectangle(mockAreaProviderDefinition, Z)
                 .withTexture(
-                        mockTextureIdProvider,
-                        mockTexWidthProvider,
-                        mockTexXOffsetProvider,
-                        mockTexHeightProvider,
-                        mockTexYOffsetProvider
+                        mockTextureIdProvider
                 )
-                .withTexture(
-                        mockTextureIdProvider,
-                        randomFloat(),
-                        randomFloat()
+                .withTextureTiling(
+                        mockTexWidthProvider,
+                        mockTexHeightProvider
+                )
+                .withTextureTilingOffsets(
+                        mockTexXOffsetProvider,
+                        mockTexYOffsetProvider
                 );
 
         reader.read(mockComponent, definition, TIMESTAMP);
@@ -306,8 +316,8 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         verify(mockFactory, once()).make(
                 same(mockTopLeftColor),
                 same(mockTopRightColor),
-                same(mockBottomLeftColor),
                 same(mockBottomRightColor),
+                same(mockBottomLeftColor),
                 any(),
                 any(),
                 any(),
@@ -325,10 +335,36 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
     }
 
     @Test
+    public void testGetTexProviderFromRelLoc() {
+        var rectDef = rectangle()
+                .withTexture(TEX_REL_LOC);
+
+        reader.read(null, rectDef, TIMESTAMP);
+
+        verify(mockGetTexIdProviderFromRelLoc, once()).apply(TEX_REL_LOC);
+        verify(mockFactory, once()).make(
+                any(),
+                any(),
+                any(),
+                any(),
+                same(mockTexIdFromRelLocProvider),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                anyInt(),
+                any(),
+                any()
+        );
+    }
+
+    @Test
     public void testReadWithInvalidArgs() {
-        assertThrows(IllegalArgumentException.class,
-                () -> reader.read(null, rectangle(mockAreaProviderDefinition, randomInt()),
-                        TIMESTAMP));
         assertThrows(IllegalArgumentException.class,
                 () -> reader.read(mockComponent, null, TIMESTAMP));
         assertThrows(IllegalArgumentException.class,

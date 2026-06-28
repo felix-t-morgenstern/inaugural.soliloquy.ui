@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.contentrow;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.Constants;
 import soliloquy.specs.common.shared.HasUuid;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -86,7 +87,8 @@ public class ContentRowMethods {
                         Collections::mapOf);
         contentPolygonOffsets.clear();
 
-        ProviderAtTime<Vertex> renderingLocProvider = getFromData(row, COMPONENT_RENDERING_LOC);
+        ProviderAtTime<Vertex> renderingLocProvider = getFromData(row,
+                Constants.COMPONENT_ORIGIN_PROVIDER);
         var renderingLoc = renderingLocProvider.provide(timestamp);
         float rowHeight = getFromData(row, COMPONENT_HEIGHT);
         var widthThusFar = 0f;
@@ -110,7 +112,7 @@ public class ContentRowMethods {
                     var origDimens = c.getDimensionsProvider().provide(timestamp);
 
                     if (!registeredContentsInData.contains(c.uuid())) {
-                        c.data().put(ORIGIN_OVERRIDE_PROVIDER, FUNCTIONAL_PROVIDER_DEF_READER.apply(
+                        c.data().put(COMPONENT_ORIGIN_PROVIDER, FUNCTIONAL_PROVIDER_DEF_READER.apply(
                                 functionalProvider(
                                         Component_innerContentSpecificRenderingLoc,
                                         Vertex.class
@@ -294,7 +296,7 @@ public class ContentRowMethods {
                                                 CONTENT_UUID,
                                                 triangleRenderable.uuid(),
                                                 CONTAINING_COMPONENT_UUID,
-                                                triangleRenderable.containingComponent().uuid(),
+                                                triangleRenderable.getContainingComponent().uuid(),
                                                 VERTICES_INDEX,
                                                 i
                                         ))))

@@ -49,6 +49,6 @@ public class RasterizedLineSegmentRenderableDefinitionReader
                 Check.ifNull(definition.COLOR_PROVIDER, "definition.COLOR_PROVIDER"), timestamp);
 
         return FACTORY.make(vertex1, vertex2, thickness, stipplePattern, stippleFactor, color,
-                definition.Z, UUID.randomUUID(), containingComponent);
+                definition.z, UUID.randomUUID(), containingComponent);
     }
 }

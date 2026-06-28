@@ -129,11 +129,12 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
 
     @Test
     public void testReadShiftsFromProviders() {
-        var definition = sprite(SPRITE_ID, mockAreaProviderDefinition, Z)
+        var definition = sprite(SPRITE_ID, mockAreaProvider, Z)
                 .withColorShifts(mockShift);
 
         reader.read(mockComponent, definition, TIMESTAMP);
 
+        verify(mockProviderDefinitionReader, never()).read(any(), anyLong());
         verify(mockColorShiftDefinitionReader, never()).read(any(), anyLong());
         verify(mockFactory, once()).make(
                 any(),

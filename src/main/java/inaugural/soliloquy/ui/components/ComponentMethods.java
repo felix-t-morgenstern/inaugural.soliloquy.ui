@@ -6,6 +6,9 @@ import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
+import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
+import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
 
 import java.util.List;
 import java.util.Map;
@@ -104,5 +107,19 @@ public class ComponentMethods {
             component.data().put(key, val);
         }
         return val;
+    }
+
+    @Reflection.DoNotReadMethod
+    public static <T> T extractFromStaticProviderDef(
+            AbstractProviderDefinition<T> staticProviderDef
+    ) {
+        if (staticProviderDef instanceof StaticProviderDefinition<T> def) {
+            return def.VALUE;
+        }
+        else {
+            throw new IllegalArgumentException(
+                    "ComponentMethods#extractFromStaticProvider: staticProviderDef isn't a " +
+                            "StaticProviderDefinition");
+        }
     }
 }

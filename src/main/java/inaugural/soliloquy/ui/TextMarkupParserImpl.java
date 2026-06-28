@@ -3,8 +3,13 @@ package inaugural.soliloquy.ui;
 import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.tools.timing.TimestampValidator;
+import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.io.graphics.assets.Font;
 import soliloquy.specs.io.graphics.assets.FontStyleInfo;
+import soliloquy.specs.io.graphics.renderables.Component;
+import soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
 import soliloquy.specs.ui.TextMarkupParser;
 
@@ -12,10 +17,16 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.*;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.TextMarkupParserImpl.TextMarkupParserMethods.TextMarkupParserMethods_provideCustomColor;
+import static inaugural.soliloquy.ui.TextMarkupParserImpl.TextMarkupParserMethods.TextMarkupParserMethods_provideCustomColor_dataKey;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
+import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
 public class TextMarkupParserImpl implements TextMarkupParser {
     private final static char ESC_CHAR = '\\';
@@ -31,40 +42,59 @@ public class TextMarkupParserImpl implements TextMarkupParser {
     private final static int RGBA_CHANNELS = 4;
     private final static String SEPARATOR = ",";
 
-    private final Color DEFAULT_COLOR;
-    private final Map<Integer, Color> DEFAULT_COLORS;
+    private final ProviderAtTime<Color> DEFAULT_COLOR_PROVIDER;
+    private final Map<Integer, ProviderAtTime<Color>> DEFAULT_COLOR_INDICES;
     private final Map<String, Color> COLOR_PRESETS;
     private final TextLineRenderer TEXT_LINE_RENDERER;
+    private final ProviderDefinitionReader PROVIDER_DEFINITION_READER;
+    private final Function<Color, ProviderAtTime<Color>> MAKE_STATIC_PROVIDER;
+    private final TimestampValidator TIMESTAMP_VALIDATOR;
 
     public TextMarkupParserImpl(Color defaultColor,
                                 Map<Set<String>, Color> colorPresets,
-                                TextLineRenderer textLineRenderer) {
-        DEFAULT_COLOR = Check.ifNull(defaultColor, "defaultColor");
-        DEFAULT_COLORS = mapOf(0, DEFAULT_COLOR);
+                                TextLineRenderer textLineRenderer,
+                                ProviderDefinitionReader providerDefinitionReader,
+                                Function<Color, ProviderAtTime<Color>> makeStaticProvider,
+                                TimestampValidator timestampValidator) {
+        MAKE_STATIC_PROVIDER = Check.ifNull(makeStaticProvider, "makeStaticProvider");
+        DEFAULT_COLOR_PROVIDER =
+                MAKE_STATIC_PROVIDER.apply(Check.ifNull(defaultColor, "defaultColor"));
+        DEFAULT_COLOR_INDICES = mapOf(0, DEFAULT_COLOR_PROVIDER);
         COLOR_PRESETS = mapOf();
         Check.ifNull(colorPresets, "colorPresets").forEach(
                 (key, value) -> Check.ifNull(key, "key within colorPresets")
                         .forEach(s -> addColorPreset(s, value)));
         TEXT_LINE_RENDERER = Check.ifNull(textLineRenderer, "textLineRenderer");
+        PROVIDER_DEFINITION_READER =
+                Check.ifNull(providerDefinitionReader, "providerDefinitionReader");
+        TIMESTAMP_VALIDATOR = Check.ifNull(timestampValidator, "timestampValidator");
     }
 
     @Override
-    public LineFormatting formatSingleLine(String rawText) {
-        return processRawText(rawText, false, null, 0f, 0f, 0f, "formatSingleLine")[0];
+    public LineFormatting formatSingleLine(String rawText,
+                                           UUID containingComponentUuid,
+                                           long timestamp) {
+        return processRawText(rawText, false, null, 0f, 0f, 0f, containingComponentUuid, timestamp,
+                "formatSingleLine")[0];
     }
 
     @Override
-    public LineFormatting[] formatMultiline(String rawText,
-                                            Font font,
-                                            float paddingBetweenGlyphs,
-                                            float lineHeight,
-                                            float maxLength) throws IllegalArgumentException {
+    public LineFormatting[] formatMultiline(
+            String rawText,
+            Font font,
+            float paddingBetweenGlyphs,
+            float lineHeight,
+            float maxLength,
+            UUID containingComponentUuid,
+            long timestamp
+    ) throws IllegalArgumentException {
         if (Strings.isNullOrEmpty(rawText)) {
-            return arrayOf(new LineFormatting("", mapOf(DEFAULT_COLORS), listOf(), listOf()));
+            return arrayOf(
+                    new LineFormatting("", mapOf(DEFAULT_COLOR_INDICES), listOf(), listOf(), null));
         }
 
         return processRawText(rawText, true, font, maxLength, paddingBetweenGlyphs, lineHeight,
-                "formatMultiline");
+                containingComponentUuid, timestamp, "formatMultiline");
     }
 
     // Join me on this journey.
@@ -74,18 +104,23 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                             float maxLength,
                                             float paddingBetweenGlyphs,
                                             float lineHeight,
+                                            UUID containingComponentUuid,
+                                            long timestamp,
                                             String methodName) {
-        var colors = mapOf(DEFAULT_COLORS);
+        // TODO: Test whether validator was called
+        TIMESTAMP_VALIDATOR.validateTimestamp(timestamp);
+
+        var colors = mapOf(DEFAULT_COLOR_INDICES);
 
         if (Strings.isNullOrEmpty(rawText)) {
-            return arrayOf(new LineFormatting("", colors, listOf(), listOf()));
+            return arrayOf(new LineFormatting("", colors, listOf(), listOf(), null));
         }
 
         var results = Collections.<LineFormatting>listOf();
         var lineLength = 0f;
         var paddingToRender = paddingBetweenGlyphs * lineHeight;
         var mostRecentSpaceIndex = 0;
-        var colorAtMostRecentSpaceIndex = DEFAULT_COLOR;
+        var colorAtMostRecentSpaceIndex = DEFAULT_COLOR_PROVIDER;
         var italicAtMostRecentSpaceIndex = false;
         var boldAtMostRecentSpaceIndex = false;
 
@@ -100,7 +135,7 @@ public class TextMarkupParserImpl implements TextMarkupParser {
         Integer italicIndexToAdd = null;
         var withinTag = false;
         StringBuilder tagContentsBuilder = null;
-        Color customColorApplied = null;
+        ProviderAtTime<Color> customColorProviderApplied = null;
         var isItalic = false;
         var isBold = false;
         for (var i = 0; i < rawText.length(); i++) {
@@ -110,9 +145,9 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                     withinTag = false;
                     var tagContents = tagContentsBuilder.toString().toLowerCase();
                     if (String.format("%s%s", COMMAND_END, COLOR_COMMAND).equals(tagContents)) {
-                        if (customColorApplied != null) {
-                            colors.put(i - indexAdjustment, DEFAULT_COLOR);
-                            customColorApplied = null;
+                        if (customColorProviderApplied != null) {
+                            colors.put(i - indexAdjustment, DEFAULT_COLOR_PROVIDER);
+                            customColorProviderApplied = null;
                         }
                     }
                     else {
@@ -121,13 +156,26 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                             var command = tagContents.substring(0, assignmentOperator);
                             if (COLOR_COMMAND.equals(command)) {
                                 var colorVal = tagContents.substring(assignmentOperator + 1);
-                                var preset = COLOR_PRESETS.get(colorVal);
-                                if (preset != null) {
-                                    colors.put(i - indexAdjustment, preset);
-                                    customColorApplied = preset;
+                                var presetColor = COLOR_PRESETS.get(colorVal);
+                                int colonIndex;
+                                if (presetColor != null) {
+                                    var presetProvider = MAKE_STATIC_PROVIDER.apply(presetColor);
+                                    colors.put(i - indexAdjustment, presetProvider);
+                                    customColorProviderApplied = presetProvider;
+                                }
+                                else if ((colonIndex = colorVal.indexOf(':')) >= 0 &&
+                                        colorVal.subSequence(0, colonIndex).equals("p")) {
+                                    var providerKey = colorVal.substring(colonIndex + 1);
+                                    customColorProviderApplied =
+                                            makeColorProviderFromCustomProvider(
+                                                    providerKey,
+                                                    containingComponentUuid,
+                                                    timestamp
+                                            );
+                                    colors.put(i - indexAdjustment, customColorProviderApplied);
                                 }
                                 else {
-                                    customColorApplied =
+                                    customColorProviderApplied =
                                             processColorValFromChannels(colorVal, colors,
                                                     i - indexAdjustment, methodName);
                                 }
@@ -193,7 +241,8 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                             String newLineText;
                             int trimAdjustment;
                             var newColors = mapOf(pairOf(0, aChar == CARRIAGE_RETURN ?
-                                    defaultIfNull(customColorApplied, DEFAULT_COLOR) :
+                                    defaultIfNull(customColorProviderApplied,
+                                            DEFAULT_COLOR_PROVIDER) :
                                     colorAtMostRecentSpaceIndex));
                             List<Integer> newItalicIndices = (aChar == CARRIAGE_RETURN ? isItalic :
                                     italicAtMostRecentSpaceIndex) ? listOf(0) : listOf();
@@ -208,7 +257,8 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                         mapOfStream(colors.entrySet().stream()
                                                 .filter(e -> e.getKey() < prevLineEnd)),
                                         listOf(italicIndices.stream().filter(j -> j < prevLineEnd)),
-                                        listOf(boldIndices.stream().filter(j -> j < prevLineEnd))
+                                        listOf(boldIndices.stream().filter(j -> j < prevLineEnd)),
+                                        null
                                 ));
 
                                 newLineText = textBuilder.substring(
@@ -254,7 +304,8 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                                         prevLineText,
                                         colors,
                                         italicIndices,
-                                        boldIndices
+                                        boldIndices,
+                                        null
                                 ));
                             }
                             colors = newColors;
@@ -263,7 +314,8 @@ public class TextMarkupParserImpl implements TextMarkupParser {
 
                             mostRecentSpaceIndex = 0;
                             colorAtMostRecentSpaceIndex =
-                                    defaultIfNull(customColorApplied, DEFAULT_COLOR);
+                                    defaultIfNull(customColorProviderApplied,
+                                            DEFAULT_COLOR_PROVIDER);
                             italicAtMostRecentSpaceIndex = isItalic;
                             boldAtMostRecentSpaceIndex = isBold;
                             indexAdjustment = i - newLineText.length() + trimAdjustment;
@@ -278,7 +330,7 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                     if (aChar == SPACE) {
                         mostRecentSpaceIndex = i - indexAdjustment;
                         colorAtMostRecentSpaceIndex =
-                                defaultIfNull(customColorApplied, DEFAULT_COLOR);
+                                defaultIfNull(customColorProviderApplied, DEFAULT_COLOR_PROVIDER);
                         italicAtMostRecentSpaceIndex = isItalic;
                         boldAtMostRecentSpaceIndex = isBold;
                     }
@@ -294,7 +346,8 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                 textBuilder.toString(),
                 colors,
                 italicIndices,
-                boldIndices
+                boldIndices,
+                null
         ));
 
         return results.toArray(LineFormatting[]::new);
@@ -320,26 +373,28 @@ public class TextMarkupParserImpl implements TextMarkupParser {
         }
     }
 
-    private Color processColorValFromChannels(String colorVal,
-                                              Map<Integer, Color> colorIndices,
-                                              int index,
-                                              String methodName) {
+    private ProviderAtTime<Color> processColorValFromChannels(
+            String colorVal,
+            Map<Integer, ProviderAtTime<Color>> colorProviderIndices,
+            int index,
+            String methodName
+    ) {
         try {
             var channels = colorVal.split(SEPARATOR);
             if (channels.length == RGB_CHANNELS || channels.length == RGBA_CHANNELS) {
-                Color color;
+                ProviderAtTime<Color> colorProvider;
                 var red = Integer.parseInt(channels[0]);
                 var green = Integer.parseInt(channels[1]);
                 var blue = Integer.parseInt(channels[2]);
                 if (channels.length == RGB_CHANNELS) {
-                    color = new Color(red, green, blue);
+                    colorProvider = MAKE_STATIC_PROVIDER.apply(new Color(red, green, blue));
                 }
                 else {
                     var alpha = Integer.parseInt(channels[3]);
-                    color = new Color(red, green, blue, alpha);
+                    colorProvider = MAKE_STATIC_PROVIDER.apply(new Color(red, green, blue, alpha));
                 }
-                colorIndices.put(index, color);
-                return color;
+                colorProviderIndices.put(index, colorProvider);
+                return colorProvider;
             }
             else {
                 throw new Exception();
@@ -358,5 +413,38 @@ public class TextMarkupParserImpl implements TextMarkupParser {
                 Check.ifNullOrEmpty(name, name).toLowerCase(),
                 Check.ifNull(color, "color")
         );
+    }
+
+    private ProviderAtTime<Color> makeColorProviderFromCustomProvider(String dataKey,
+                                                                      UUID containingComponentUuid,
+                                                                      long timestamp) {
+        return PROVIDER_DEFINITION_READER.read(
+                functionalProvider(TextMarkupParserMethods_provideCustomColor, Color.class)
+                        .withData(mapOf(
+                                COMPONENT_UUID,
+                                containingComponentUuid,
+                                TextMarkupParserMethods_provideCustomColor_dataKey,
+                                dataKey
+                        )),
+                timestamp
+        );
+    }
+
+    public static class TextMarkupParserMethods {
+        private final Function<UUID, Component> GET_COMPONENT;
+
+        public TextMarkupParserMethods(Function<UUID, Component> getComponent) {
+            GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
+        }
+
+        public final static String TextMarkupParserMethods_provideCustomColor = "TextMarkupParserMethods_provideCustomColor";
+        public final static String TextMarkupParserMethods_provideCustomColor_dataKey = "TextMarkupParserMethods_provideCustomColor_dataKey";
+
+        public Color TextMarkupParserMethods_provideCustomColor(FunctionalProvider.Inputs inputs) {
+            var containingComponent = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+            ProviderAtTime<Color> customProvider = getFromData(containingComponent,
+                    getFromData(inputs, TextMarkupParserMethods_provideCustomColor_dataKey));
+            return customProvider.provide(inputs.timestamp());
+        }
     }
 }

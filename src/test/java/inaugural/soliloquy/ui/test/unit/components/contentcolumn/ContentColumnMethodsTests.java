@@ -1,6 +1,7 @@
 package inaugural.soliloquy.ui.test.unit.components.contentcolumn;
 
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.Constants;
 import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
 import inaugural.soliloquy.ui.test.unit.components.FunctionalProviderDefMatcher;
 import org.junit.jupiter.api.BeforeEach;
@@ -141,7 +142,7 @@ public class ContentColumnMethodsTests {
                 .thenReturn(COLUMN_RENDERING_LOC);
 
         mockColumnData = generateMockMap(
-                pairOf(COMPONENT_RENDERING_LOC, mockColumnRenderingLocProvider),
+                pairOf(Constants.COMPONENT_ORIGIN_PROVIDER, mockColumnRenderingLocProvider),
                 pairOf(COMPONENT_WIDTH, COLUMN_WIDTH),
                 pairOf(REGISTERED_CONTENTS, mockRegisteredComponents)
         );
@@ -204,7 +205,7 @@ public class ContentColumnMethodsTests {
                 )))).thenReturn(mockContentWithDimensAdjDimens);
 
         lenient().when(mockContentTriangle.uuid()).thenReturn(CONTENT_TRIANGLE_UUID);
-        lenient().when(mockContentTriangle.containingComponent()).thenReturn(mockColumn);
+        lenient().when(mockContentTriangle.getContainingComponent()).thenReturn(mockColumn);
         lenient().when(mockContentTriangle.getVertex1Provider())
                 .thenReturn(mockContentTriangleUnadjVertex1);
         lenient().when(mockContentTriangle.getVertex2Provider())
@@ -306,7 +307,7 @@ public class ContentColumnMethodsTests {
         verify(mockColumnData, once()).get(CONTENT_POLYGON_OFFSETS);
         verify(mockColumnData, once()).put(CONTENT_POLYGON_OFFSETS,
                 Collections.<UUID, Vertex>mapOf());
-        verify(mockColumnData, once()).get(COMPONENT_RENDERING_LOC);
+        verify(mockColumnData, once()).get(Constants.COMPONENT_ORIGIN_PROVIDER);
         verify(mockColumnRenderingLocProvider, once()).provide(TIMESTAMP);
         verify(mockColumnData, once()).get(COMPONENT_WIDTH);
         verify(mockColumnData, once()).get(CONTENTS);
@@ -358,7 +359,7 @@ public class ContentColumnMethodsTests {
         verify(mockRegisteredComponents, once()).add(CONTENT_COMPONENT_UUID);
         verify(mockContentComponent, once()).data();
         verify(mockContentComponentData, once())
-                .put(ORIGIN_OVERRIDE_PROVIDER, mockContentComponentOriginOverrideProvider);
+                .put(COMPONENT_ORIGIN_PROVIDER, mockContentComponentOriginOverrideProvider);
 
         verify(mockFunctionalProviderDefReader, once())
                 .apply(argThat(new FunctionalProviderDefMatcher<>(
@@ -509,7 +510,7 @@ public class ContentColumnMethodsTests {
                         )
                 )));
         verify(mockContentComponent, never()).data();
-        verify(mockContentComponentData, never()).put(eq(ORIGIN_OVERRIDE_PROVIDER), any());
+        verify(mockContentComponentData, never()).put(eq(COMPONENT_ORIGIN_PROVIDER), any());
 
         verify(mockFunctionalProviderDefReader, never())
                 .apply(argThat(new FunctionalProviderDefMatcher<>(

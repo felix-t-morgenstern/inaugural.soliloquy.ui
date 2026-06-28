@@ -72,7 +72,9 @@ public class TextMarkupParserDisplayTest extends DisplayTest {
                 font,
                 0f,
                 lineHeight,
-                0.5f
+                0.5f,
+                null,
+                timestamp(uiModule)
         );
 
         var linePadding = 0.005f;
@@ -102,8 +104,7 @@ public class TextMarkupParserDisplayTest extends DisplayTest {
                     )
                             .withItalics(formattedText[i].italicIndices())
                             .withBold(formattedText[i].boldIndices())
-                            .withColorDefs(mapVals(formattedText[i].colorIndices(),
-                                    StaticProviderDefinition::staticVal))
+                            .withColorProviders(formattedText[i].colorIndices())
                             .withBorder(
                                     0.000625f,
                                     Color.BLACK

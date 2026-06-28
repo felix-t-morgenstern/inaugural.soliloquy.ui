@@ -1,27 +1,38 @@
 package inaugural.soliloquy.ui.test.unit;
 
+import inaugural.soliloquy.tools.timing.TimestampValidator;
 import inaugural.soliloquy.ui.TextMarkupParserImpl;
+import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.io.graphics.assets.Font;
 import soliloquy.specs.io.graphics.assets.FontStyleInfo;
+import soliloquy.specs.io.graphics.renderables.Component;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
 import soliloquy.specs.ui.TextMarkupParser;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
+import static inaugural.soliloquy.tools.testing.Mock.*;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 
 @ExtendWith(MockitoExtension.class)
 public class TextMarkupParserImplTests {
@@ -29,13 +40,29 @@ public class TextMarkupParserImplTests {
     private final String PRESET_COLOR_NAME_2 = randomString();
     private final Color PRESET_COLOR = randomColor();
     private final Color DEFAULT_COLOR = randomColor();
-    private final Map<Integer, Color> DEFAULT_COLOR_INDICES = mapOf(0, DEFAULT_COLOR);
     private final float VERY_HIGH_MAX_LENGTH = randomFloatWithInclusiveFloor(1000000000f);
     // In theory, any value should work, but excessively large values are both totally silly in
     // practice, and also risk breaking tests by hitting Float.MAX_VALUE
     private final float GLYPH_WIDTH = randomFloatWithInclusiveCeiling(10f);
     private final float PADDING_BETWEEN_GLYPHS = randomFloatWithInclusiveCeiling(10f);
     private final float LINE_HEIGHT = randomFloatWithInclusiveCeiling(10f);
+    private final long TIMESTAMP = randomLong();
+
+    private final UUID CONTAINING_COMPONENT_UUID = randomUUID();
+    private final LookupAndEntitiesWithUuid<Component> MOCK_COMPONENT_AND_LOOKUP =
+            generateMockLookupFunctionWithUuid(Component.class, CONTAINING_COMPONENT_UUID);
+    private final Component MOCK_CONTAINING_COMPONENT =
+            MOCK_COMPONENT_AND_LOOKUP.entities.getFirst();
+    private final Function<UUID, Component> MOCK_GET_COMPONENT = MOCK_COMPONENT_AND_LOOKUP.lookup;
+
+    private final String MOCK_CUSTOM_COLOR_PROVIDER_DATA_KEY = randomString();
+    private final Color CUSTOM_PROVIDED_COLOR = randomColor();
+    private final ProviderAtTime<Color> MOCK_CUSTOM_COLOR_PROVIDER =
+            generateMockStaticProvider(CUSTOM_PROVIDED_COLOR);
+    private final Map<String, Object> MOCK_CONTAINING_COMPONENT_DATA = generateMockMap(pairOf(
+            MOCK_CUSTOM_COLOR_PROVIDER_DATA_KEY,
+            MOCK_CUSTOM_COLOR_PROVIDER
+    ));
 
     @Mock private Font mockFont;
     @Mock private FontStyleInfo mockPlain;
@@ -44,6 +71,11 @@ public class TextMarkupParserImplTests {
     @Mock private FontStyleInfo mockBoldItalic;
 
     @Mock private TextLineRenderer mockTextLineRenderer;
+    @Mock private ProviderDefinitionReader mockProviderDefinitionReader;
+    @Mock private Function<Color, ProviderAtTime<Color>> mockStaticProviderFactory;
+    @Mock private TimestampValidator mockTimestampValidator;
+
+    private List<Pair<Color, ProviderAtTime<Color>>> mockColorProvidersGenerated;
 
     private TextMarkupParser parser;
 
@@ -57,38 +89,71 @@ public class TextMarkupParserImplTests {
         lenient().when(mockFont.bold()).thenReturn(mockBold);
         lenient().when(mockFont.boldItalic()).thenReturn(mockBoldItalic);
 
+        lenient().when(MOCK_CONTAINING_COMPONENT.data()).thenReturn(MOCK_CONTAINING_COMPONENT_DATA);
+
+        lenient().when(mockStaticProviderFactory.apply(any())).thenAnswer(invocation -> {
+            Color color = invocation.getArgument(0);
+            var provider = generateMockStaticProvider(color);
+            mockColorProvidersGenerated.add(pairOf(color, provider));
+            return provider;
+        });
+
+        mockColorProvidersGenerated = listOf();
+
         parser = new TextMarkupParserImpl(DEFAULT_COLOR,
                 mapOf(setOf(PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2), PRESET_COLOR),
-                mockTextLineRenderer);
+                mockTextLineRenderer, mockProviderDefinitionReader, mockStaticProviderFactory,
+                mockTimestampValidator);
     }
 
     @Test
     public void testConstructorWithInvalidArgs() {
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(null, mapOf(), mockTextLineRenderer));
+                () -> new TextMarkupParserImpl(null, mapOf(), mockTextLineRenderer,
+                        mockProviderDefinitionReader, mockStaticProviderFactory,
+                        mockTimestampValidator));
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(DEFAULT_COLOR, null, mockTextLineRenderer));
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, null, mockTextLineRenderer,
+                        mockProviderDefinitionReader, mockStaticProviderFactory,
+                        mockTimestampValidator));
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(null, PRESET_COLOR), mockTextLineRenderer));
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(null, PRESET_COLOR),
+                        mockTextLineRenderer, mockProviderDefinitionReader,
+                        mockStaticProviderFactory, mockTimestampValidator));
+        assertThrows(IllegalArgumentException.class, () -> new TextMarkupParserImpl(DEFAULT_COLOR,
+                mapOf(setOf(null, PRESET_COLOR_NAME_2), PRESET_COLOR), mockTextLineRenderer,
+                mockProviderDefinitionReader, mockStaticProviderFactory, mockTimestampValidator));
+        assertThrows(IllegalArgumentException.class, () -> new TextMarkupParserImpl(DEFAULT_COLOR,
+                mapOf(setOf(PRESET_COLOR_NAME_1, null), PRESET_COLOR), mockTextLineRenderer,
+                mockProviderDefinitionReader, mockStaticProviderFactory, mockTimestampValidator));
+        assertThrows(IllegalArgumentException.class, () -> new TextMarkupParserImpl(DEFAULT_COLOR,
+                mapOf(setOf(PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2), null), mockTextLineRenderer,
+                mockProviderDefinitionReader, mockStaticProviderFactory, mockTimestampValidator));
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(setOf(null, PRESET_COLOR_NAME_2), PRESET_COLOR), mockTextLineRenderer));
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(), null,
+                        mockProviderDefinitionReader, mockStaticProviderFactory,
+                        mockTimestampValidator));
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(setOf(PRESET_COLOR_NAME_1, null), PRESET_COLOR), mockTextLineRenderer));
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(), mockTextLineRenderer, null,
+                        mockStaticProviderFactory, mockTimestampValidator));
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(setOf(PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2), null), mockTextLineRenderer));
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(), mockTextLineRenderer,
+                        mockProviderDefinitionReader, null, mockTimestampValidator));
         assertThrows(IllegalArgumentException.class,
-                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(), null));
+                () -> new TextMarkupParserImpl(DEFAULT_COLOR, mapOf(), mockTextLineRenderer,
+                        mockProviderDefinitionReader, mockStaticProviderFactory, null));
     }
 
     @Test
     public void testFormatSingleLineNull() {
-        var formatting = parser.formatSingleLine(null);
+        var formatting = parser.formatSingleLine(null, null, TIMESTAMP);
 
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals("", formatting.text());
         assertNotNull(formatting.colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting.colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting.colorIndices());
         assertNotNull(formatting.italicIndices());
         assertTrue(formatting.italicIndices().isEmpty());
         assertNotNull(formatting.boldIndices());
@@ -97,13 +162,14 @@ public class TextMarkupParserImplTests {
 
     @Test
     public void testFormatSingleLineEmpty() {
-        var formatting = parser.formatSingleLine(null);
+        var formatting = parser.formatSingleLine(null, null, TIMESTAMP);
 
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals("", formatting.text());
         assertNotNull(formatting.colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting.colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting.colorIndices());
         assertNotNull(formatting.italicIndices());
         assertTrue(formatting.italicIndices().isEmpty());
         assertNotNull(formatting.boldIndices());
@@ -114,13 +180,14 @@ public class TextMarkupParserImplTests {
     public void testFormatPlainString() {
         var rawText = randomString();
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals(rawText, formatting.text());
         assertNotNull(formatting.colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting.colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting.colorIndices());
         assertNotNull(formatting.italicIndices());
         assertTrue(formatting.italicIndices().isEmpty());
         assertNotNull(formatting.boldIndices());
@@ -131,14 +198,15 @@ public class TextMarkupParserImplTests {
     public void testFormatItalicization() {
         var rawText = "plain *italic* plain";
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain italic plain";
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals(expectedText, formatting.text());
         assertNotNull(formatting.colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting.colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting.colorIndices());
         assertNotNull(formatting.italicIndices());
         assertEquals(listOf(6, 12), formatting.italicIndices());
         assertNotNull(formatting.boldIndices());
@@ -149,14 +217,15 @@ public class TextMarkupParserImplTests {
     public void testFormatBoldface() {
         var rawText = "plain **bold** plain";
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain bold plain";
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals(expectedText, formatting.text());
         assertNotNull(formatting.colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting.colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting.colorIndices());
         assertNotNull(formatting.italicIndices());
         assertTrue(formatting.italicIndices().isEmpty());
         assertNotNull(formatting.boldIndices());
@@ -167,14 +236,15 @@ public class TextMarkupParserImplTests {
     public void testFormatBoldItalic() {
         var rawText = "plain ***bolditalic*** plain";
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain bolditalic plain";
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals(expectedText, formatting.text());
         assertNotNull(formatting.colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting.colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting.colorIndices());
         assertNotNull(formatting.italicIndices());
         assertEquals(listOf(6, 16), formatting.italicIndices());
         assertNotNull(formatting.boldIndices());
@@ -185,14 +255,15 @@ public class TextMarkupParserImplTests {
     public void testFormatInterspersedBoldAndItalic() {
         var rawText = "plain **bold *both** italic* plain";
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain bold both italic plain";
         assertNotNull(formatting);
         assertNotNull(formatting.text());
         assertEquals(expectedText, formatting.text());
         assertNotNull(formatting.colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting.colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting.colorIndices());
         assertNotNull(formatting.italicIndices());
         assertEquals(listOf(11, 22), formatting.italicIndices());
         assertNotNull(formatting.boldIndices());
@@ -201,9 +272,10 @@ public class TextMarkupParserImplTests {
 
     @Test
     public void testColorFromPreset() {
-        var rawText = String.format("plain [color=%s]color1[/color] [color=%s]color2[/color] plain", PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2);
+        var rawText = String.format("plain [color=%s]color1[/color] [color=%s]color2[/color] plain",
+                PRESET_COLOR_NAME_1, PRESET_COLOR_NAME_2);
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain color1 color2 plain";
         assertNotNull(formatting);
@@ -213,15 +285,15 @@ public class TextMarkupParserImplTests {
         assertEquals(
                 mapOf(
                         0,
-                        DEFAULT_COLOR,
+                        mockColorProvidersGenerated.get(0).SECOND,
                         6,
-                        PRESET_COLOR,
+                        mockColorProvidersGenerated.get(1).SECOND,
                         12,
-                        DEFAULT_COLOR,
+                        mockColorProvidersGenerated.get(0).SECOND,
                         13,
-                        PRESET_COLOR,
+                        mockColorProvidersGenerated.get(2).SECOND,
                         19,
-                        DEFAULT_COLOR
+                        mockColorProvidersGenerated.get(0).SECOND
                 ),
                 formatting.colorIndices()
         );
@@ -239,7 +311,7 @@ public class TextMarkupParserImplTests {
                 customColorName.toUpperCase());
 
         parser.addColorPreset(customColorName, customColor);
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain color plain";
         assertNotNull(formatting);
@@ -249,11 +321,11 @@ public class TextMarkupParserImplTests {
         assertEquals(
                 mapOf(
                         0,
-                        DEFAULT_COLOR,
+                        mockColorProvidersGenerated.get(0).SECOND,
                         6,
-                        customColor,
+                        mockColorProvidersGenerated.get(1).SECOND,
                         11,
-                        DEFAULT_COLOR
+                        mockColorProvidersGenerated.get(0).SECOND
                 ),
                 formatting.colorIndices()
         );
@@ -278,7 +350,7 @@ public class TextMarkupParserImplTests {
         var rawText = String.format("plain [color=%d,%d,%d]color[/color] plain",
                 PRESET_COLOR.getRed(), PRESET_COLOR.getGreen(), PRESET_COLOR.getBlue());
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain color plain";
         assertNotNull(formatting);
@@ -288,12 +360,11 @@ public class TextMarkupParserImplTests {
         assertEquals(
                 mapOf(
                         0,
-                        DEFAULT_COLOR,
+                        mockColorProvidersGenerated.get(0).SECOND,
                         6,
-                        new Color(PRESET_COLOR.getRed(), PRESET_COLOR.getGreen(),
-                                PRESET_COLOR.getBlue()),
+                        mockColorProvidersGenerated.get(1).SECOND,
                         11,
-                        DEFAULT_COLOR
+                        mockColorProvidersGenerated.get(0).SECOND
                 ),
                 formatting.colorIndices()
         );
@@ -309,7 +380,7 @@ public class TextMarkupParserImplTests {
                 PRESET_COLOR.getRed(), PRESET_COLOR.getGreen(), PRESET_COLOR.getBlue(),
                 PRESET_COLOR.getAlpha());
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         var expectedText = "plain color plain";
         assertNotNull(formatting);
@@ -319,11 +390,11 @@ public class TextMarkupParserImplTests {
         assertEquals(
                 mapOf(
                         0,
-                        DEFAULT_COLOR,
+                        mockColorProvidersGenerated.get(0).SECOND,
                         6,
-                        PRESET_COLOR,
+                        mockColorProvidersGenerated.get(1).SECOND,
                         11,
-                        DEFAULT_COLOR
+                        mockColorProvidersGenerated.get(0).SECOND
                 ),
                 formatting.colorIndices()
         );
@@ -338,7 +409,8 @@ public class TextMarkupParserImplTests {
         var invalidColor = "invalidColor";
         var rawText = String.format("plain [color=%s]color[/color] plain", invalidColor);
 
-        assertThrows(IllegalArgumentException.class, () -> parser.formatSingleLine(rawText),
+        assertThrows(IllegalArgumentException.class,
+                () -> parser.formatSingleLine(rawText, null, TIMESTAMP),
                 "TextMarkupParserImpl.formatSingleLine: invalid color val at index 6 (\"" +
                         invalidColor + "\")");
     }
@@ -347,7 +419,7 @@ public class TextMarkupParserImplTests {
     public void testEscapeCharacter() {
         var rawText = "\\*text\\[!";
 
-        var formatting = parser.formatSingleLine(rawText);
+        var formatting = parser.formatSingleLine(rawText, null, TIMESTAMP);
 
         assertEquals("*text[!", formatting.text());
     }
@@ -359,7 +431,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 randomFloat(),
                 randomFloat(),
-                randomFloat()
+                randomFloat(),
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -367,7 +441,8 @@ public class TextMarkupParserImplTests {
         assertNotNull(formatting[0].text());
         assertEquals("", formatting[0].text());
         assertNotNull(formatting[0].colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[0].colorIndices());
         assertNotNull(formatting[0].italicIndices());
         assertTrue(formatting[0].italicIndices().isEmpty());
         assertNotNull(formatting[0].boldIndices());
@@ -381,7 +456,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 randomFloat(),
                 randomFloat(),
-                randomFloat()
+                randomFloat(),
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -389,7 +466,8 @@ public class TextMarkupParserImplTests {
         assertNotNull(formatting[0].text());
         assertEquals("", formatting[0].text());
         assertNotNull(formatting[0].colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[0].colorIndices());
         assertNotNull(formatting[0].italicIndices());
         assertTrue(formatting[0].italicIndices().isEmpty());
         assertNotNull(formatting[0].boldIndices());
@@ -405,7 +483,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                VERY_HIGH_MAX_LENGTH
+                VERY_HIGH_MAX_LENGTH,
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -413,7 +493,8 @@ public class TextMarkupParserImplTests {
         assertNotNull(formatting[0].text());
         assertEquals(rawText, formatting[0].text());
         assertNotNull(formatting[0].colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[0].colorIndices());
         assertNotNull(formatting[0].italicIndices());
         assertTrue(formatting[0].italicIndices().isEmpty());
         assertNotNull(formatting[0].boldIndices());
@@ -427,14 +508,15 @@ public class TextMarkupParserImplTests {
         // (The small multiplicand at the end is to avoid rounding errors)
         var maxLength = (lineCharLength * GLYPH_WIDTH) +
                 ((lineCharLength - 1) * (PADDING_BETWEEN_GLYPHS * LINE_HEIGHT)) * (1.0001f);
-        System.out.println("maxLength = " + maxLength);
 
         var formatting = parser.formatMultiline(
                 rawText,
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                maxLength
+                maxLength,
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -443,13 +525,15 @@ public class TextMarkupParserImplTests {
         assertEquals(rawText.substring(0, lineCharLength), formatting[0].text());
         assertEquals(rawText.substring(lineCharLength), formatting[1].text());
         assertNotNull(formatting[0].colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[0].colorIndices());
         assertNotNull(formatting[0].italicIndices());
         assertTrue(formatting[0].italicIndices().isEmpty());
         assertNotNull(formatting[0].boldIndices());
         assertTrue(formatting[0].boldIndices().isEmpty());
         assertNotNull(formatting[1].colorIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[1].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[1].colorIndices());
         assertNotNull(formatting[1].italicIndices());
         assertTrue(formatting[1].italicIndices().isEmpty());
         assertNotNull(formatting[1].boldIndices());
@@ -465,7 +549,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                VERY_HIGH_MAX_LENGTH
+                VERY_HIGH_MAX_LENGTH,
+                null,
+                TIMESTAMP
         );
 
         var inOrder = Mockito.inOrder(mockTextLineRenderer);
@@ -497,7 +583,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                maxLength
+                maxLength,
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -509,7 +597,8 @@ public class TextMarkupParserImplTests {
         assertEquals("wordNumber4", formatting[3].text());
         for (var i = 0; i < 4; i++) {
             assertNotNull(formatting[i].colorIndices());
-            assertEquals(DEFAULT_COLOR_INDICES, formatting[i].colorIndices());
+            assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                    formatting[1].colorIndices());
             assertNotNull(formatting[i].italicIndices());
             assertTrue(formatting[i].italicIndices().isEmpty());
             assertNotNull(formatting[i].boldIndices());
@@ -551,7 +640,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                maxLength
+                maxLength,
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -582,7 +673,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                maxLength
+                maxLength,
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -592,26 +685,28 @@ public class TextMarkupParserImplTests {
         assertEquals("wordNumber2", formatting[1].text());
         assertEquals("wordNumber3", formatting[2].text());
         assertEquals("wordNumber4", formatting[3].text());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[0].colorIndices());
         assertTrue(formatting[0].italicIndices().isEmpty());
         assertTrue(formatting[0].boldIndices().isEmpty());
         assertEquals(mapOf(
                 0,
-                DEFAULT_COLOR,
+                mockColorProvidersGenerated.get(0).SECOND,
                 2,
-                PRESET_COLOR
+                mockColorProvidersGenerated.get(1).SECOND
         ), formatting[1].colorIndices());
         assertEquals(listOf(2), formatting[1].italicIndices());
         assertEquals(listOf(2), formatting[1].boldIndices());
         assertEquals(mapOf(
                 0,
-                PRESET_COLOR,
+                mockColorProvidersGenerated.get(1).SECOND,
                 10,
-                DEFAULT_COLOR
+                mockColorProvidersGenerated.get(0).SECOND
         ), formatting[2].colorIndices());
         assertEquals(listOf(0, 10), formatting[2].italicIndices());
         assertEquals(listOf(0, 10), formatting[2].boldIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[3].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[3].colorIndices());
         assertTrue(formatting[3].italicIndices().isEmpty());
         assertTrue(formatting[3].boldIndices().isEmpty());
     }
@@ -625,7 +720,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                VERY_HIGH_MAX_LENGTH
+                VERY_HIGH_MAX_LENGTH,
+                null,
+                TIMESTAMP
         );
 
         assertEquals(2, formatting.length);
@@ -644,7 +741,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                VERY_HIGH_MAX_LENGTH
+                VERY_HIGH_MAX_LENGTH,
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -654,26 +753,28 @@ public class TextMarkupParserImplTests {
         assertEquals("wordNumber2", formatting[1].text());
         assertEquals("wordNumber3", formatting[2].text());
         assertEquals("wordNumber4", formatting[3].text());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[0].colorIndices());
         assertTrue(formatting[0].italicIndices().isEmpty());
         assertTrue(formatting[0].boldIndices().isEmpty());
         assertEquals(mapOf(
                 0,
-                DEFAULT_COLOR,
+                mockColorProvidersGenerated.get(0).SECOND,
                 2,
-                PRESET_COLOR
+                mockColorProvidersGenerated.get(1).SECOND
         ), formatting[1].colorIndices());
         assertEquals(listOf(2), formatting[1].italicIndices());
         assertEquals(listOf(2), formatting[1].boldIndices());
         assertEquals(mapOf(
                 0,
-                PRESET_COLOR,
+                mockColorProvidersGenerated.get(1).SECOND,
                 10,
-                DEFAULT_COLOR
+                mockColorProvidersGenerated.get(0).SECOND
         ), formatting[2].colorIndices());
         assertEquals(listOf(0, 10), formatting[2].italicIndices());
         assertEquals(listOf(0, 10), formatting[2].boldIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[3].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[3].colorIndices());
         assertTrue(formatting[3].italicIndices().isEmpty());
         assertTrue(formatting[3].boldIndices().isEmpty());
     }
@@ -693,7 +794,9 @@ public class TextMarkupParserImplTests {
                 mockFont,
                 PADDING_BETWEEN_GLYPHS,
                 LINE_HEIGHT,
-                VERY_HIGH_MAX_LENGTH
+                VERY_HIGH_MAX_LENGTH,
+                null,
+                TIMESTAMP
         );
 
         assertNotNull(formatting);
@@ -703,26 +806,28 @@ public class TextMarkupParserImplTests {
         assertEquals("wordNumber2", formatting[1].text());
         assertEquals("wordNumber3", formatting[2].text());
         assertEquals("wordNumber4", formatting[3].text());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[0].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[0].colorIndices());
         assertTrue(formatting[0].italicIndices().isEmpty());
         assertTrue(formatting[0].boldIndices().isEmpty());
         assertEquals(mapOf(
                 0,
-                DEFAULT_COLOR,
+                mockColorProvidersGenerated.get(0).SECOND,
                 2,
-                PRESET_COLOR
+                mockColorProvidersGenerated.get(1).SECOND
         ), formatting[1].colorIndices());
         assertEquals(listOf(2), formatting[1].italicIndices());
         assertEquals(listOf(2), formatting[1].boldIndices());
         assertEquals(mapOf(
                 0,
-                PRESET_COLOR,
+                mockColorProvidersGenerated.get(1).SECOND,
                 10,
-                DEFAULT_COLOR
+                mockColorProvidersGenerated.get(0).SECOND
         ), formatting[2].colorIndices());
         assertEquals(listOf(0, 10), formatting[2].italicIndices());
         assertEquals(listOf(0, 10), formatting[2].boldIndices());
-        assertEquals(DEFAULT_COLOR_INDICES, formatting[3].colorIndices());
+        assertEquals(mapOf(0, mockColorProvidersGenerated.getFirst().SECOND),
+                formatting[3].colorIndices());
         assertTrue(formatting[3].italicIndices().isEmpty());
         assertTrue(formatting[3].boldIndices().isEmpty());
     }

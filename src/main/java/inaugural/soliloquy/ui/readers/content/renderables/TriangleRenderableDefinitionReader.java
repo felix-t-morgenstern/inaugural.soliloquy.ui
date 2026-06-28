@@ -12,7 +12,7 @@ import soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
-import static inaugural.soliloquy.tools.Tools.provideIfNull;
+import static inaugural.soliloquy.tools.Tools.supplyIfNull;
 import static java.util.UUID.randomUUID;
 
 public class TriangleRenderableDefinitionReader
@@ -52,15 +52,15 @@ public class TriangleRenderableDefinitionReader
         var vector3Color = defaultIfNull(definition.vertex3ColorProvider,
                 provider(definition.vertex3ColorProviderDef, timestamp));
 
-        var textureId = provideIfNull(definition.textureIdProvider,
+        var textureId = supplyIfNull(definition.textureIdProvider,
                 () -> provider(definition.textureIdProviderDef, timestamp));
-        var textureTilesPerWidth = provideIfNull(definition.textureTilesPerWidthProvider,
+        var textureTilesPerWidth = supplyIfNull(definition.textureTilesPerWidthProvider,
                 () -> providerOrNull(definition.textureTilesPerWidthProviderDef, timestamp));
-        var textureXOffset = provideIfNull(definition.textureXOffsetProvider,
+        var textureXOffset = supplyIfNull(definition.textureXOffsetProvider,
                 () -> providerOrNull(definition.textureXOffsetProviderDef, timestamp));
-        var textureTilesPerHeight = provideIfNull(definition.textureTilesPerHeightProvider,
+        var textureTilesPerHeight = supplyIfNull(definition.textureTilesPerHeightProvider,
                 () -> providerOrNull(definition.textureTilesPerHeightProviderDef, timestamp));
-        var textureYOffset = provideIfNull(definition.textureYOffsetProvider,
+        var textureYOffset = supplyIfNull(definition.textureYOffsetProvider,
                 () -> providerOrNull(definition.textureYOffsetProviderDef, timestamp));
 
         var onPress = getConsumerPerButton(definition.onPressIds);
@@ -85,7 +85,7 @@ public class TriangleRenderableDefinitionReader
                         onRelease,
                         onMouseOver,
                         onMouseLeave,
-                        definition.Z,
+                        definition.z,
                         defaultIfNull(definition.UUID, randomUUID()),
                         component
                 );

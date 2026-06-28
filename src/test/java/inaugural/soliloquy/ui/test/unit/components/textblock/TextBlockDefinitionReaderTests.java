@@ -20,13 +20,14 @@ import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.Constants.ORIGIN_OVERRIDE_PROVIDER;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_ORIGIN_PROVIDER;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.TEXT_BLOCK_HEIGHT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 
 @ExtendWith(MockitoExtension.class)
 public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTest {
@@ -61,11 +62,11 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTes
     public void setUp() {
         lenient().when(
                         mockParser.formatMultiline(eq(PARAGRAPH_1), any(), anyFloat(), anyFloat(),
-                                anyFloat()))
+                                anyFloat(), any(), anyLong()))
                 .thenReturn(arrayOf(mockLine1, mockLine2));
         lenient().when(
                         mockParser.formatMultiline(eq(PARAGRAPH_2), any(), anyFloat(), anyFloat(),
-                                anyFloat()))
+                                anyFloat(), any(), anyLong()))
                 .thenReturn(arrayOf(mockLine3, mockLine4));
         lenient().when(mockLine1.text()).thenReturn(LINE_TEXT_1);
         lenient().when(mockLine2.text()).thenReturn(LINE_TEXT_2);
@@ -102,33 +103,36 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTes
                 LINE_HEIGHT,
                 MAX_LINE_LENGTH,
                 mockUpperLeftDefinition,
-                GLYPH_PADDING,
-                LINE_SPACING,
-                PARAGRAPH_SPACING,
-                ALIGNMENT,
                 listOf(PARAGRAPH_1, PARAGRAPH_2),
                 Z
-        );
+        )
+                .withGlyphPadding(GLYPH_PADDING)
+                .withLineSpacing(LINE_SPACING)
+                .withParagraphSpacing(PARAGRAPH_SPACING)
+                .withHorizontalAlignment(ALIGNMENT);
         float expectedHeight =
                 LINE_HEIGHT + LINE_SPACING + LINE_HEIGHT + PARAGRAPH_SPACING + LINE_HEIGHT +
                         LINE_SPACING + LINE_HEIGHT;
+        var expectedLeftOffset = switch (ALIGNMENT) {
+            case LEFT -> 0f;
+            case CENTER -> MAX_LINE_LENGTH / 2f;
+            case RIGHT -> MAX_LINE_LENGTH;
+        };
 
         var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
-        assertEquals(4, output.data.size());
+        assertEquals(3, output.data.size());
         assertEquals(mapOf(
-                ORIGIN_OVERRIDE_PROVIDER,
+                COMPONENT_ORIGIN_PROVIDER,
                 providersRead.getFirst(),
                 TEXT_BLOCK_WIDTH,
-                definition.MAX_LINE_LENGTH,
+                definition.maxLineLength,
                 TEXT_BLOCK_HEIGHT,
-                expectedHeight,
-                LAST_TIMESTAMP,
-                TIMESTAMP - 1
+                expectedHeight
         ), output.data);
         assertEquals(expectedHeight, output.data.get(TEXT_BLOCK_HEIGHT));
-        assertEquals(TIMESTAMP - 1, output.data.get(LAST_TIMESTAMP));
+        assertNull(output.data.get(LAST_TIMESTAMP));
         assertEquals(4, output.CONTENT.size());
         assertEquals(5, providersRead.size());
         var lines = listOf(LINE_TEXT_1, LINE_TEXT_2, LINE_TEXT_3, LINE_TEXT_4);
@@ -144,13 +148,13 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTes
             assertEquals(LINE_HEIGHT, extractStaticVal(textLine.HEIGHT_PROVIDER));
             assertEquals(ALIGNMENT, textLine.ALIGNMENT);
             assertEquals(GLYPH_PADDING, textLine.GLYPH_PADDING);
-            assertEquals(0, textLine.Z);
+            assertEquals(0, textLine.z);
         }
 
         verify(mockProviderDefinitionReader, times(5)).read(any(), anyLong());
         verify(mockParser, times(2))
                 .formatMultiline(anyString(), any(), anyFloat(), anyFloat(),
-                        anyFloat());
+                        anyFloat(), any(), anyLong());
 
         var inOrder = inOrder(MOCK_GET_FONT, mockProviderDefinitionReader, mockParser,
                 mockProviderDefinitionReader);
@@ -159,19 +163,18 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTes
         inOrder.verify(MOCK_GET_FONT, once()).apply(FONT_ID);
         inOrder.verify(mockParser, once())
                 .formatMultiline(eq(PARAGRAPH_1), same(MOCK_FONT), eq(GLYPH_PADDING),
-                        eq(LINE_HEIGHT), eq(MAX_LINE_LENGTH));
+                        eq(LINE_HEIGHT), eq(MAX_LINE_LENGTH), eq(definition.UUID), eq(TIMESTAMP));
         inOrder.verify(mockParser, once())
                 .formatMultiline(eq(PARAGRAPH_2), same(MOCK_FONT), eq(GLYPH_PADDING),
-                        eq(LINE_HEIGHT), eq(MAX_LINE_LENGTH));
-        var upperLeftProvider = providersRead.getFirst();
+                        eq(LINE_HEIGHT), eq(MAX_LINE_LENGTH), eq(definition.UUID), eq(TIMESTAMP));
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(
                         TextBlock_provideTextLineRenderingLoc,
                         mapOf(
                                 COMPONENT_UUID,
                                 output.UUID,
-                                TextBlock_topOffset,
-                                0f
+                                TEXT_BLOCK_LINE_OFFSET,
+                                vertexOf(expectedLeftOffset, 0f)
                         ))), eq(TIMESTAMP));
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(
@@ -179,8 +182,8 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTes
                         mapOf(
                                 COMPONENT_UUID,
                                 output.UUID,
-                                TextBlock_topOffset,
-                                LINE_HEIGHT + LINE_SPACING
+                                TEXT_BLOCK_LINE_OFFSET,
+                                vertexOf(expectedLeftOffset, LINE_HEIGHT + LINE_SPACING)
                         ))), eq(TIMESTAMP));
         inOrder.verify(mockProviderDefinitionReader, once()).read(
                 argThat(new FunctionalProviderDefMatcher<AbstractProviderDefinition<Vertex>>(
@@ -188,8 +191,10 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTes
                         mapOf(
                                 COMPONENT_UUID,
                                 output.UUID,
-                                TextBlock_topOffset,
-                                LINE_HEIGHT + LINE_SPACING + LINE_HEIGHT + PARAGRAPH_SPACING
+                                TEXT_BLOCK_LINE_OFFSET,
+                                vertexOf(expectedLeftOffset,
+                                        LINE_HEIGHT + LINE_SPACING + LINE_HEIGHT +
+                                                PARAGRAPH_SPACING)
                         ))),
                 eq(TIMESTAMP));
         inOrder.verify(mockProviderDefinitionReader, once()).read(
@@ -198,11 +203,11 @@ public class TextBlockDefinitionReaderTests extends ComponentDefinitionReaderTes
                         mapOf(
                                 COMPONENT_UUID,
                                 output.UUID,
-                                TextBlock_topOffset,
-                                LINE_HEIGHT + LINE_SPACING + LINE_HEIGHT + PARAGRAPH_SPACING +
-                                        LINE_HEIGHT + LINE_SPACING
+                                TEXT_BLOCK_LINE_OFFSET,
+                                vertexOf(expectedLeftOffset,
+                                        LINE_HEIGHT + LINE_SPACING + LINE_HEIGHT +
+                                                PARAGRAPH_SPACING + LINE_HEIGHT + LINE_SPACING)
                         ))),
                 eq(TIMESTAMP));
-
     }
 }

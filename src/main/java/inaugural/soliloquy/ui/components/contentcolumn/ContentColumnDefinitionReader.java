@@ -1,6 +1,7 @@
 package inaugural.soliloquy.ui.components.contentcolumn;
 
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.ui.Constants;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
@@ -44,7 +45,7 @@ public class ContentColumnDefinitionReader {
         });
 
         return component(
-                definition.Z,
+                definition.z,
                 componentContents,
                 definition.UUID
         )
@@ -60,7 +61,7 @@ public class ContentColumnDefinitionReader {
                 .withAddHook(ContentColumn_add)
                 .withPrerenderHook(ContentColumn_setDimensForComponentAndContent)
                 .withData(mapOf(
-                        COMPONENT_RENDERING_LOC,
+                        Constants.COMPONENT_ORIGIN_PROVIDER,
                         PROVIDER_DEF_READER.read(definition.RENDERING_LOC_DEF, timestamp),
                         COMPONENT_WIDTH,
                         definition.WIDTH,

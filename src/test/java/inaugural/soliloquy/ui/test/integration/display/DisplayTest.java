@@ -9,11 +9,13 @@ import inaugural.soliloquy.io.api.dto.FontStyleDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.FontStyleDefinitionGlyphPropertyDTO;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
+import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Methods;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Pair;
 import soliloquy.specs.gamestate.entities.Setting;
 import soliloquy.specs.io.bootstrap.CoreLoop;
+import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -49,16 +51,9 @@ import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.
 
 @SuppressWarnings("SpellCheckingInspection")
 public class DisplayTest {
-    protected static final String ON_MOUSE_OVER_CONSUMER_ID = "onMouseOver";
-    protected static final String ON_MOUSE_LEAVE_CONSUMER_ID = "onMouseLeave";
-    protected static final String ON_MOUSE_PRESS_CONSUMER_ID = "onMousePress";
-    protected static final String ON_MOUSE_RELEASE_CONSUMER_ID = "onMouseRelease";
-
     protected final static WindowResolution DEFAULT_RES = WindowResolution.RES_1680x1050;
     private final static String SHADER_FILENAME_PREFIX =
             "./src/main/resources/shaders/defaultShader";
-
-    private final Methods METHODS;
 
     private final static Set<String> AUDIO_DIR_RELATIVE_PATHS = setOf(
             "\\src\\test\\resources\\sounds\\ui\\button\\"
@@ -181,9 +176,7 @@ public class DisplayTest {
     protected static float divHeight = 0.00625f;
     protected static int divCycle = 3000;
 
-    protected static float beveledButtonLineHeight = 0.075f;
-
-    protected static FloatBox renderingBoundaries = floatBoxOf(
+    protected static FloatBox clippingRenderingBoundaries = floatBoxOf(
             vertexOf(0.25f, 0.25f),
             0.5f, 0.5f
     );
@@ -205,23 +198,27 @@ public class DisplayTest {
 
     public Component topLevelComponent;
 
-    public DisplayTest() {
-        METHODS = readMethods(DisplayTestMethods.class);
-    }
-
     public void runTest(
             String testName,
             AssetDefinitionsDTO assetDefinitionsDTO,
             Runnable displayTest,
             BiConsumer<UIModule, Component> populateTopLevelComponent
     ) {
+        var methods = new Methods();
+
         var modules = getModules(
-                METHODS,
+                methods,
                 testName,
                 assetDefinitionsDTO
         );
         var uiModule = modules.FIRST;
         var ioModule = modules.SECOND;
+
+        var graphics = ioModule.provide(Graphics.class);
+        var providerDefReader = uiModule.provide(ProviderDefinitionReader.class);
+
+        var displayTestMethods = new DisplayTestMethods(graphics::getComponent, providerDefReader);
+        methods.concatenate(readMethods(displayTestMethods));
 
         var coreLoop = ioModule.provide(CoreLoop.class);
 

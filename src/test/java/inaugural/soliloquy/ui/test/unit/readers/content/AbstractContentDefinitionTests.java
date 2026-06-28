@@ -19,6 +19,9 @@ import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionW
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractContentDefinitionTests {
+    protected final String TEX_REL_LOC = randomString();
+    protected final int TEX_ID = randomInt();
+
     protected final String ON_PRESS_ID = randomString();
     protected final String ON_RELEASE_ID = randomString();
     protected final String ON_MOUSE_OVER_ID = randomString();
@@ -43,6 +46,10 @@ public abstract class AbstractContentDefinitionTests {
     protected final int Z = randomInt();
 
     protected final long TIMESTAMP = randomLong();
+
+    @org.mockito.Mock protected Function<String, ProviderAtTime<Integer>>
+            mockGetTexIdProviderFromRelLoc;
+    @org.mockito.Mock protected ProviderAtTime<Integer> mockTexIdFromRelLocProvider;
 
     @org.mockito.Mock protected ProviderDefinitionReader mockProviderDefinitionReader;
     @org.mockito.Mock protected ColorShiftDefinitionReader mockColorShiftDefinitionReader;
@@ -76,6 +83,10 @@ public abstract class AbstractContentDefinitionTests {
     @org.mockito.Mock protected ProviderAtTime<Float> mockTextureYOffsetProvider;
 
     protected void setUp() {
+        lenient().when(mockGetTexIdProviderFromRelLoc.apply(any()))
+                .thenReturn(mockTexIdFromRelLocProvider);
+        lenient().when(mockTexIdFromRelLocProvider.provide(anyLong())).thenReturn(TEX_ID);
+
         lenient().when(mockColorShiftDefinitionReader.read(any(), anyLong())).thenReturn(mockShift);
 
         lenient().when(

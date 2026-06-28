@@ -1,19 +1,17 @@
 package inaugural.soliloquy.ui.components.button;
 
-import soliloquy.specs.common.valueobjects.FloatBox;
+import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
-import soliloquy.specs.io.graphics.renderables.TextLineRenderable;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
-import soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
+import soliloquy.specs.ui.definitions.content.AbstractImageAssetRenderableDefinition;
+import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
-import java.awt.*;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
@@ -23,66 +21,22 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public int[] keyCodepoints;
     public int keyEventPriority;
 
-    public final AbstractProviderDefinition<FloatBox> RECT_DIMENS_DEF;
-    public final AbstractProviderDefinition<Vertex> TEXT_RENDERING_LOC_DEF;
+    public Boolean rectDefinesTextDimens = null;
 
-    public String text;
-    public String fontId;
-    public float textHeight;
-    public float textPaddingVertical;
-    public float textGlyphPadding;
-    public HorizontalAlignment horizontalAlignment;
+    public TextBlockDefinition textBlockDef;
+    public HorizontalAlignment textBlockHorizontalAlignment;
+    public float textBlockXPadding;
+    public Float textBlockYPadding;
+    public ProviderAtTime<Vertex> textBlockCenterProvider;
+    public AbstractProviderDefinition<Vertex> textBlockCenterProviderDef;
 
-    // default state
-    public AbstractProviderDefinition<Color> bgColorTopLeftDefault;
-    public AbstractProviderDefinition<Color> bgColorTopRightDefault;
-    public AbstractProviderDefinition<Color> bgColorBottomLeftDefault;
-    public AbstractProviderDefinition<Color> bgColorBottomRightDefault;
+    public RectangleRenderableDefinition rectDefaultDef;
+    public RectangleRenderableDefinition rectHoverDef;
+    public RectangleRenderableDefinition rectPressedDef;
 
-    public AbstractProviderDefinition<Integer> bgTexIdProviderDefault;
-    public String bgTexRelLocDefault;
-
-    public String spriteIdDefault;
-    public AbstractProviderDefinition<FloatBox> spriteDimensDefaultDef;
-    public ShiftDefinition spriteShiftDefaultDef;
-
-    public Map<Integer, AbstractProviderDefinition<Color>> textColorIndicesDefault;
-    public List<Integer> textItalicIndicesDefault;
-    public List<Integer> textBoldIndicesDefault;
-
-    // hover
-    public AbstractProviderDefinition<Color> bgColorTopLeftHover;
-    public AbstractProviderDefinition<Color> bgColorTopRightHover;
-    public AbstractProviderDefinition<Color> bgColorBottomLeftHover;
-    public AbstractProviderDefinition<Color> bgColorBottomRightHover;
-
-    public AbstractProviderDefinition<Integer> bgTexIdProviderHover;
-    public String bgTexRelLocHover;
-
-    public String spriteIdHover;
-    public AbstractProviderDefinition<FloatBox> spriteDimensHoverDef;
-    public ShiftDefinition spriteShiftHoverDef;
-
-    public Map<Integer, AbstractProviderDefinition<Color>> textColorIndicesHover;
-    public List<Integer> textItalicIndicesHover;
-    public List<Integer> textBoldIndicesHover;
-
-    // pressed
-    public AbstractProviderDefinition<Color> bgColorTopLeftPressed;
-    public AbstractProviderDefinition<Color> bgColorTopRightPressed;
-    public AbstractProviderDefinition<Color> bgColorBottomLeftPressed;
-    public AbstractProviderDefinition<Color> bgColorBottomRightPressed;
-
-    public AbstractProviderDefinition<Integer> bgTexIdProviderPressed;
-    public String bgTexRelLocPressed;
-
-    public String spriteIdPressed;
-    public AbstractProviderDefinition<FloatBox> spriteDimensPressedDef;
-    public ShiftDefinition spriteShiftPressedDef;
-
-    public Map<Integer, AbstractProviderDefinition<Color>> textColorIndicesPressed;
-    public List<Integer> textItalicIndicesPressed;
-    public List<Integer> textBoldIndicesPressed;
+    public AbstractImageAssetRenderableDefinition imageAssetDefault;
+    public AbstractImageAssetRenderableDefinition imageAssetHover;
+    public AbstractImageAssetRenderableDefinition imageAssetPressed;
 
     public String onPressId;
 
@@ -91,104 +45,72 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public String mouseLeaveSoundId;
     public String releaseSoundId;
 
-    protected ButtonDefinition(int z,
-                               AbstractProviderDefinition<FloatBox> rectDimensDef,
-                               AbstractProviderDefinition<Vertex> textRenderingLocDef) {
-        super(z, randomUUID());
-        RECT_DIMENS_DEF = rectDimensDef;
-        TEXT_RENDERING_LOC_DEF = textRenderingLocDef;
+    public final Map<String, Object> DATA;
+
+    protected ButtonDefinition(int z, UUID uuid) {
+        super(z, uuid);
+        DATA = mapOf();
+    }
+
+    public static ButtonDefinition button(int z, UUID uuid) {
+        return new ButtonDefinition(z, uuid);
+    }
+
+    public static ButtonDefinition button(int z) {
+        return button(z, randomUUID());
     }
 
     /**
-     * <b>If you define a button in terms of its dimensions, then any text will be positioned
-     * relative to these dimensions.</b>
+     * <u>If you want to define a Button's dimensions according to a TextBox instead of a Rectangle,
+     * use {@link #textBlockDefinesRectDimens} and {@link #textBlockCenterProvider}, etc.</u>
+     * <p>
+     * If you define a button in terms of a rectangle, then any text will be positioned relative
+     * to its dimensions. Conversely, if you define a button in terms of its text, then a
+     * transparent rectangle will automatically be generated beneath the text, wrapping around it,
+     * with any padding specified by {@link #withTextBlockPadding}.
      * <p>
      * (Text will always be vertically centered; its horizontal placement will depend on its
-     * alignment.)
-     *
-     * @param dimens The dimensions of the button on the screen
-     * @param z      The z-index
-     */
-    public static ButtonDefinition button(AbstractProviderDefinition<FloatBox> dimens, int z) {
-        return new ButtonDefinition(z, dimens, null);
-    }
-
-    /**
-     * <b>If you define a button in terms of its dimensions, then any text will be positioned
-     * relative to these dimensions.</b>
+     * alignment. <i>If you make a block of text too large to fit within the rectangle dimensions,
+     * it will just overflow.</i> And keep in mind that TextBlocks don't capture mouse events.)
      * <p>
-     * (Text will always be vertically centered; its horizontal placement will depend on its
-     * alignment.)
+     * Also, if you do not have both a default Rectangle (c.f. {@link #withRectDefault}) and
+     * TextBlock (c.f. {@link #withTextBlockDef}) defined, this method has no impact. (C.f.
+     * withTextBlockDef for what happens when a TextBlock is defined, and a default Rectangle
+     * isn't.)
      *
-     * @param dimens The dimensions of the button on the screen
-     * @param z      The z-index
+     * @param textBlockHorizontalAlignment This is the alignment of the TextBlock <i>within the
+     *                                     Rectangle</i>. This is different from
+     *                                     {@link TextBlockDefinition#withHorizontalAlignment},
+     *                                     since that field specifies the alignment of the text
+     *                                     <i>within the TextBlock</i>. (So, for instance, you can
+     *                                     have a block center-justified text, which doesn't take up
+     *                                     the span of the Button, but instead is left-aligned.)
      */
-    public static ButtonDefinition button(FloatBox dimens, int z) {
-        return button(staticVal(dimens), z);
+    public ButtonDefinition rectDefinesTextDimens(
+            HorizontalAlignment textBlockHorizontalAlignment
+    ) {
+        if (rectDefinesTextDimens != null) {
+            throw new IllegalStateException(
+                    "ButtonDefinition#rectDefinesTextDimens: TextBlock already defines dimens");
+        }
+        rectDefinesTextDimens = true;
+        this.textBlockHorizontalAlignment = textBlockHorizontalAlignment;
+
+        return this;
     }
 
     /**
-     * <b>If you define a button in terms of its text, then a transparent rectangle will
-     * automatically be generated beneath the text, wrapping around it, with any padding specified
-     * by {@link #withTextPadding}.</b>
-     *
-     * @param text       The text of the button
-     * @param fontId     The id of the font for the text
-     * @param textHeight The line height of the text (c.f.
-     *                   {@link TextLineRenderable#setLineHeightProvider(ProviderAtTime)})
-     * @param z          The z-index
+     * C.f. {@link #rectDefinesTextDimens(HorizontalAlignment)} for the counterpart. This method is
+     * intended to be used in tandem with {@link #withTextBlockCenterProvider}, etc.
      */
-    public static ButtonDefinition button(String text,
-                                          String fontId,
-                                          float textHeight,
-                                          AbstractProviderDefinition<Vertex> textRenderingLoc,
-                                          int z) {
-        return new ButtonDefinition(z, null, textRenderingLoc)
-                .withText(text, fontId, textHeight);
-    }
+    public ButtonDefinition textBlockDefinesRectDimens() {
+        if (rectDefinesTextDimens != null) {
+            throw new IllegalStateException(
+                    "ButtonDefinition#rectDefinesTextDimens: Rect already defines dimens");
+        }
+        rectDefinesTextDimens = false;
 
-    /**
-     * <b>If you define a button in terms of its text, then a transparent rectangle will
-     * automatically be generated beneath the text, wrapping around it, with any padding specified
-     * by {@link #withTextPadding}.</b>
-     *
-     * @param text       The text of the button
-     * @param fontId     The id of the font for the text
-     * @param textHeight The line height of the text (c.f.
-     *                   {@link TextLineRenderable#setLineHeightProvider(ProviderAtTime)})
-     * @param z          The z-index
-     */
-    public static ButtonDefinition button(String text,
-                                          String fontId,
-                                          float textHeight,
-                                          Vertex textRenderingLoc,
-                                          int z) {
-        return button(text, fontId, textHeight, staticVal(textRenderingLoc), z);
-    }
-
-    /**
-     * <b>If you define a button as a sprite, then it will have neither text nor a rectangle. If you
-     * instead want a button that combines both a Sprite along with a rectangle and some text, then
-     * use one of the alternate constructors, in conjunction with some variant of
-     * {@link #withSprite}.</b>
-     */
-    public static ButtonDefinition button(String spriteId,
-                                          AbstractProviderDefinition<FloatBox> dimens,
-                                          int z) {
-        return new ButtonDefinition(z, null, null)
-                .withSprite(spriteId, dimens);
-    }
-
-    /**
-     * <b>If you define a button as a sprite, then it will have neither text nor a rectangle. If you
-     * instead want a button that combines both a Sprite along with a rectangle and some text, then
-     * use one of the alternate constructors, in conjunction with some variant of
-     * {@link #withSprite}.</b>
-     */
-    public static ButtonDefinition button(String spriteId,
-                                          FloatBox dimens,
-                                          int z) {
-        return button(spriteId, staticVal(dimens), z);
+        return this;
     }
 
     /**
@@ -213,565 +135,174 @@ public class ButtonDefinition extends AbstractContentDefinition {
     }
 
     /**
-     * @param bgColorTopLeft     A definition of the top left background color
-     * @param bgColorTopRight    A definition of the top right background color
-     * @param bgColorBottomLeft  A definition of the bottom left background color
-     * @param bgColorBottomRight A definition of the bottom right background color
+     * This method is used to provide a Rectangle to accompany the text of a button, if it was
+     * defined by text first
      */
-    public ButtonDefinition withBgColors(
-            AbstractProviderDefinition<Color> bgColorTopLeft,
-            AbstractProviderDefinition<Color> bgColorTopRight,
-            AbstractProviderDefinition<Color> bgColorBottomLeft,
-            AbstractProviderDefinition<Color> bgColorBottomRight
-    ) {
-        this.bgColorTopLeftDefault = bgColorTopLeft;
-        this.bgColorTopRightDefault = bgColorTopRight;
-        this.bgColorBottomLeftDefault = bgColorBottomLeft;
-        this.bgColorBottomRightDefault = bgColorBottomRight;
+    public ButtonDefinition withRectDefault(RectangleRenderableDefinition rectDefault) {
+        this.rectDefaultDef = rectDefault;
 
         return this;
     }
 
     /**
-     * @param bgColorTopLeft     The top left background color
-     * @param bgColorTopRight    The top right background color
-     * @param bgColorBottomLeft  The bottom left background color
-     * @param bgColorBottomRight The bottom right background color
+     * This method is used to make the Rectangle part of a Button change appearance when the mouse
+     * hovers over it. <u>While it changes the appearance of the Button's Rectangle, it does NOT
+     * change its dimensions; the dimensions fields of rectHover are ignored.</u>
      */
-    public ButtonDefinition withBgColors(
-            Color bgColorTopLeft,
-            Color bgColorTopRight,
-            Color bgColorBottomLeft,
-            Color bgColorBottomRight
-    ) {
-        return this.withBgColors(
-                staticVal(bgColorTopLeft),
-                staticVal(bgColorTopRight),
-                staticVal(bgColorBottomLeft),
-                staticVal(bgColorBottomRight)
-        );
-    }
-
-    /**
-     * @param bgColor A definition of the background color
-     */
-    public ButtonDefinition withBgColor(AbstractProviderDefinition<Color> bgColor) {
-        return this.withBgColors(bgColor, bgColor, bgColor, bgColor);
-    }
-
-    /**
-     * @param bgColor The background color
-     */
-    public ButtonDefinition withBgColor(Color bgColor) {
-        return this.withBgColor(staticVal(bgColor));
-    }
-
-    /**
-     * @param bgTexProvider A definition of the provider of the background texture
-     */
-    public ButtonDefinition withTexture(AbstractProviderDefinition<Integer> bgTexProvider) {
-        this.bgTexIdProviderDefault = bgTexProvider;
+    public ButtonDefinition withRectHover(RectangleRenderableDefinition rectHover) {
+        this.rectHoverDef = rectHover;
 
         return this;
     }
 
     /**
-     * @param bgTexRelLoc The relative location of the file to be used as the texture
+     * This method is used to make the Rectangle part of a Button change appearance when it is being
+     * pressed down by the mouse or a keypress. <u>While it changes the appearance of the Button's
+     * Rectangle, it does NOT change its dimensions; the dimensions fields of rectPressed are
+     * ignored.</u>
      */
-    public ButtonDefinition withTexture(String bgTexRelLoc) {
-        this.bgTexRelLocDefault = bgTexRelLoc;
+    public ButtonDefinition withRectPressed(RectangleRenderableDefinition rectPressed) {
+        this.rectPressedDef = rectPressed;
 
         return this;
     }
 
     /**
-     * @param spriteId     The id of the Sprite
-     * @param spriteDimens Provides the dimensions in which to render the Sprite
-     */
-    public ButtonDefinition withSprite(String spriteId,
-                                       AbstractProviderDefinition<FloatBox> spriteDimens) {
-        this.spriteIdDefault = spriteId;
-        this.spriteDimensDefaultDef = spriteDimens;
-
-        return this;
-    }
-
-    /**
-     * @param spriteId     The id of the Sprite
-     * @param spriteDimens Provides the dimensions in which to render the Sprite
-     */
-    public ButtonDefinition withSprite(String spriteId, FloatBox spriteDimens) {
-        return this.withSprite(spriteId, staticVal(spriteDimens));
-    }
-
-    public ButtonDefinition withSpriteColorShift(ShiftDefinition spriteShift) {
-        this.spriteShiftDefaultDef = spriteShift;
-
-        return this;
-    }
-
-    /**
-     * @param text       The text of the button
-     * @param fontId     The id of the font for the text
-     * @param textHeight A definition of the provider of the line height of the text (c.f.
-     *                   {@link TextLineRenderable#setLineHeightProvider(ProviderAtTime)})
-     */
-    public ButtonDefinition withText(String text,
-                                     String fontId,
-                                     float textHeight) {
-        this.text = text;
-        this.fontId = fontId;
-        this.textHeight = textHeight;
-
-        return this;
-    }
-
-    /**
-     * <u>This property operates differently based on whether the dimensions have been set
-     * manually.</u>
+     * If you define a TextBlock and <i>don't</i> define a default Rectangle, a transparent
+     * Rectangle will be created to wrap around the TextBlock, purely for the purpose of mouse
+     * event detection. The values passed to {@link #withTextBlockPadding} and
+     * {@link #withTextBlockPadding} will therefore still impact the total size of the Button.
      * <p>
-     * <i>If the dimensions have been set manually,</i> this property determines the distance of
-     * the
-     * text from the left or right edge. When {@link #withHorizontalAlignment} is set to
-     * {@link HorizontalAlignment#LEFT}, this property determines how far the left end of the text
-     * is
-     * from the left edge of the button. Conversely, when alignment is set to
-     * {@link HorizontalAlignment#RIGHT}, it's how far the end of the text line is from the right
-     * edge
-     * of the button. When the alignment is {@link HorizontalAlignment#CENTER}, this property has
-     * no effect.
+     * If you set {@link TextBlockDefinition#maxLineLength} to a value of 0 or less, then the
+     * ButtonDefinitionReader will determine the length of the first paragraph as a single line,
+     * and will set the maxLineLength of this TextBlockDefinition to the length of that line. (This
+     * behavior is intended to support single-line text for buttons, e.g., "Okay", "Cancel", etc.)
+     *
+     * @param textBlockDef The definition of the TextBlock component to use for the Button
+     */
+    public ButtonDefinition withTextBlockDef(TextBlockDefinition textBlockDef) {
+        this.textBlockDef = textBlockDef;
+
+        return this;
+    }
+
+    /**
+     * The behavior of these values depends on whether the Button's dimensions were predefined,
+     * c.f. {@link #rectDefinesTextDimens(HorizontalAlignment)}.
      * <p>
-     * <i>If the dimensions have not been set manually,</i> this property expands the boundaries of
-     * the button on each side
+     * If the Button's dimensions are predefined, then textBlockXPadding determines the distance of
+     * the TextBlock from either the left or right edge of the Button, if the horizontal alignment
+     * is set to {@link HorizontalAlignment#LEFT} or {@link HorizontalAlignment#RIGHT},
+     * respectively. If it's set to {@link HorizontalAlignment#CENTER}, then this value has no
+     * impact.
      * <p>
-     * In all cases, textPaddingVertical is expressed in <i>percent of screen height</i>.
+     * If the Button's dimensions aren't defined by the Rectangle, then both values determine the
+     * amount of padding the Rectangle wraps around the TextBlock.
+     * <p>
+     * <b>If you leave textBlockYPadding null, the ButtonDefinitionReader will automatically use
+     * the window's width-to-height ratio to calculate a pixel-equivalent textBlockYPadding.</b>
      *
-     * @param textPaddingVertical The distance from the boundaries of the
-     *                            {@link soliloquy.specs.io.graphics.renderables.TextLineRenderable}
-     *                            and the
-     *                            boundaries of the button, expressed in percentage of screen
-     *                            height
+     * @param textBlockXPadding The percent of window width to use as padding on either side of the
+     *                          text
+     * @param textBlockYPadding The percent of window height to use as padding above and below the
+     *                          text
      */
-    public ButtonDefinition withTextPadding(float textPaddingVertical) {
-        this.textPaddingVertical = textPaddingVertical;
+    public ButtonDefinition withTextBlockPadding(float textBlockXPadding, Float textBlockYPadding) {
+        this.textBlockXPadding = textBlockXPadding;
+        this.textBlockYPadding = textBlockYPadding;
 
         return this;
     }
 
     /**
-     * @param glyphPadding A modification to the space between each glyph, c.f.
-     *                     {@link TextLineRenderable#getPaddingBetweenGlyphs()}
+     * This field is only used when the Button's location is defined by the Rectangle, c.f.
+     * {@link #rectDefinesTextDimens}, and the TextBlock has a dynamic length, c.f.
+     * {@link #withTextBlockDef}. It overrides the location of the TextBlock in the
+     * {@link TextBlockDefinition} with a location at which the TextBlock (and therefore the
+     * Button) will be centered. The intended use case is where a Button's dimensions are defined
+     * by
+     * a TextBlock, whose width is dynamic; this property will allow the ButtonDefinitionReader to
+     * properly set the rendering location of the TextBlock so that it is centered where specified.
+     * <p>
+     * <u>If you cet a center provider when the max length is not dynamic, this value will be
+     * ignored.</u>
      */
-    public ButtonDefinition withGlyphPadding(float glyphPadding) {
-        textGlyphPadding = glyphPadding;
-
-        return this;
-    }
-
-    /**
-     * Defaults to {@link HorizontalAlignment#CENTER}. (Vertical alignment is centered.) <i>This has
-     * no effect unless you manually set the button's dimensions when creating the definition, via
-     * e.g. {@link ButtonDefinition#button(AbstractProviderDefinition, int)}.</i>
-     *
-     * @param alignment The alignment of the text within the button
-     */
-    public ButtonDefinition withHorizontalAlignment(HorizontalAlignment alignment) {
-        this.horizontalAlignment = alignment;
-
-        return this;
-    }
-
-    /**
-     * @param colorIndices Definitions of providers for colors at indices within the text (c.f.
-     *                     {@link TextLineRenderable#colorProviderIndices()})
-     */
-    public ButtonDefinition withTextColorIndices(
-            Map<Integer, AbstractProviderDefinition<Color>> colorIndices) {
-        this.textColorIndicesDefault = colorIndices;
-
-        return this;
-    }
-
-    /**
-     * @param color The Definition of the text color
-     */
-    public ButtonDefinition withTextColor(AbstractProviderDefinition<Color> color) {
-        return this.withTextColorIndices(mapOf(0, color));
-    }
-
-    /**
-     * @param color The text color
-     */
-    public ButtonDefinition withTextColor(Color color) {
-        return this.withTextColor(staticVal(color));
-    }
-
-    /**
-     * @param italicIndices The indices which mark the starts and ends of italicization within the
-     *                      text (c.f. {@link TextLineRenderable#italicIndices()})
-     */
-    public ButtonDefinition withTextItalicIndices(List<Integer> italicIndices) {
-        this.textItalicIndicesDefault = italicIndices;
-
-        return this;
-    }
-
-    /**
-     * Makes the whole text italicized
-     */
-    public ButtonDefinition italic() {
-        return this.withTextItalicIndices(listOf(0));
-    }
-
-    /**
-     * @param boldIndices The indices which mark the starts and ends of boldface within the text
-     *                    (c.f. {@link TextLineRenderable#boldIndices()})
-     */
-    public ButtonDefinition withTextBoldIndices(List<Integer> boldIndices) {
-        this.textBoldIndicesDefault = boldIndices;
-
-        return this;
-    }
-
-    /**
-     * Makes the whole text bold
-     */
-    public ButtonDefinition bold() {
-        return this.withTextBoldIndices(listOf(0));
-    }
-
-    /**
-     * These background colors are used <i>when the button is being pressed down</i>
-     *
-     * @param bgColorTopLeft     A definition of the top left background color
-     * @param bgColorTopRight    A definition of the top right background color
-     * @param bgColorBottomLeft  A definition of the bottom left background color
-     * @param bgColorBottomRight A definition of the bottom right background color
-     */
-    public ButtonDefinition withBgColorsHover(
-            AbstractProviderDefinition<Color> bgColorTopLeft,
-            AbstractProviderDefinition<Color> bgColorTopRight,
-            AbstractProviderDefinition<Color> bgColorBottomLeft,
-            AbstractProviderDefinition<Color> bgColorBottomRight
+    public ButtonDefinition withTextBlockCenterProvider(
+            ProviderAtTime<Vertex> textBlockCenterProvider
     ) {
-        this.bgColorTopLeftHover = bgColorTopLeft;
-        this.bgColorTopRightHover = bgColorTopRight;
-        this.bgColorBottomLeftHover = bgColorBottomLeft;
-        this.bgColorBottomRightHover = bgColorBottomRight;
+        this.textBlockCenterProvider = textBlockCenterProvider;
 
         return this;
     }
 
     /**
-     * These background colors are used <i>when the button is being pressed down</i>
-     *
-     * @param bgColorTopLeft     The top left background color
-     * @param bgColorTopRight    The top right background color
-     * @param bgColorBottomLeft  The bottom left background color
-     * @param bgColorBottomRight The bottom right background color
+     * C.f. {@link #withTextBlockCenterProvider} for full info
      */
-    public ButtonDefinition withBgColorsHover(
-            Color bgColorTopLeft,
-            Color bgColorTopRight,
-            Color bgColorBottomLeft,
-            Color bgColorBottomRight
+    public ButtonDefinition withTextBlockCenterProviderDef(
+            AbstractProviderDefinition<Vertex> textBlockCenterProviderDef
     ) {
-        return this.withBgColorsHover(
-                staticVal(bgColorTopLeft),
-                staticVal(bgColorTopRight),
-                staticVal(bgColorBottomLeft),
-                staticVal(bgColorBottomRight)
-        );
-    }
-
-    /**
-     * @param bgColor A definition of the background color <i>when the button is being pressed
-     *                down</i>
-     */
-    public ButtonDefinition withBgColorHover(AbstractProviderDefinition<Color> bgColor) {
-        return this.withBgColorsHover(bgColor, bgColor, bgColor, bgColor);
-    }
-
-    /**
-     * @param bgColor The background color <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition withBgColorHover(Color bgColor) {
-        return this.withBgColorHover(staticVal(bgColor));
-    }
-
-    /**
-     * @param bgTexProvider A definition of the provider of the background texture <i>when the
-     *                      button is being pressed down</i>
-     */
-    public ButtonDefinition withTextureHover(AbstractProviderDefinition<Integer> bgTexProvider) {
-        this.bgTexIdProviderHover = bgTexProvider;
+        this.textBlockCenterProviderDef = textBlockCenterProviderDef;
 
         return this;
     }
 
     /**
-     * @param bgTexRelLoc The relative location of the file to be used as the texture <i>when the
-     *                    button is being pressed down</i>
+     * C.f. {@link #withTextBlockCenterProvider} for full info
      */
-    public ButtonDefinition withTextureHover(String bgTexRelLoc) {
-        this.bgTexRelLocHover = bgTexRelLoc;
+    public ButtonDefinition withTextBlockCenter(Vertex textBlockCenter) {
+        this.textBlockCenterProviderDef = staticVal(textBlockCenter);
 
         return this;
     }
 
     /**
-     * @param spriteId     The id of the Sprite <i>when the button is being pressed down</i>
-     * @param spriteDimens Provides the dimensions in which to render the Sprite
-     */
-    public ButtonDefinition withSpriteHover(String spriteId,
-                                            AbstractProviderDefinition<FloatBox> spriteDimens) {
-        this.spriteIdHover = spriteId;
-        this.spriteDimensHoverDef = spriteDimens;
-
-        return this;
-    }
-
-    /**
-     * @param spriteId     The id of the Sprite <i>when the button is being pressed down</i>
-     * @param spriteDimens Provides the dimensions in which to render the Sprite
-     */
-    public ButtonDefinition withSpriteHover(String spriteId, FloatBox spriteDimens) {
-        return this.withSpriteHover(spriteId, staticVal(spriteDimens));
-    }
-
-    public ButtonDefinition withSpriteColorShiftHover(ShiftDefinition spriteShift) {
-        this.spriteShiftHoverDef = spriteShift;
-
-        return this;
-    }
-
-    /**
-     * @param colorIndices Definitions of providers for colors at indices within the text <i>when
-     *                     the button is being pressed down</i> (c.f.
-     *                     {@link TextLineRenderable#colorProviderIndices()})
-     */
-    public ButtonDefinition withTextColorIndicesHover(
-            Map<Integer, AbstractProviderDefinition<Color>> colorIndices) {
-        this.textColorIndicesHover = colorIndices;
-
-        return this;
-    }
-
-    /**
-     * @param color The Definition of the text color <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition withTextColorHover(AbstractProviderDefinition<Color> color) {
-        return this.withTextColorIndicesHover(mapOf(0, color));
-    }
-
-    /**
-     * @param color The text color <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition withTextColorHover(Color color) {
-        return this.withTextColorHover(staticVal(color));
-    }
-
-    /**
-     * @param italicIndices The indices which mark the starts and ends of italicization within the
-     *                      text <i>when the button is being pressed down</i> (c.f.
-     *                      {@link TextLineRenderable#italicIndices()})
-     */
-    public ButtonDefinition withTextItalicIndicesHover(List<Integer> italicIndices) {
-        this.textItalicIndicesHover = italicIndices;
-
-        return this;
-    }
-
-    /**
-     * Makes the whole text italicized <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition italicHover() {
-        return this.withTextItalicIndicesHover(listOf(0));
-    }
-
-    /**
-     * @param boldIndices The indices which mark the starts and ends of boldface within the text
-     *                    <i>when the button is being pressed down</i> (c.f.
-     *                    {@link TextLineRenderable#boldIndices()})
-     */
-    public ButtonDefinition withTextBoldIndicesHover(List<Integer> boldIndices) {
-        this.textBoldIndicesHover = boldIndices;
-
-        return this;
-    }
-
-    /**
-     * Makes the whole text bold <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition boldHover() {
-        return this.withTextBoldIndicesHover(listOf(0));
-    }
-
-    /**
-     * These background colors are used <i>when the button is being pressed down</i>
+     * C.f. {@link #withTextBlockPadding(float, Float)} for a full explanation; this method assigns
+     * the x padding value, while the y value remains null.
      *
-     * @param bgColorTopLeft     A definition of the top left background color
-     * @param bgColorTopRight    A definition of the top right background color
-     * @param bgColorBottomLeft  A definition of the bottom left background color
-     * @param bgColorBottomRight A definition of the bottom right background color
+     * @param textBlockXPadding The percent of window width to use as padding on either side of the
+     *                          text
      */
-    public ButtonDefinition withBgColorsPressed(
-            AbstractProviderDefinition<Color> bgColorTopLeft,
-            AbstractProviderDefinition<Color> bgColorTopRight,
-            AbstractProviderDefinition<Color> bgColorBottomLeft,
-            AbstractProviderDefinition<Color> bgColorBottomRight
-    ) {
-        this.bgColorTopLeftPressed = bgColorTopLeft;
-        this.bgColorTopRightPressed = bgColorTopRight;
-        this.bgColorBottomLeftPressed = bgColorBottomLeft;
-        this.bgColorBottomRightPressed = bgColorBottomRight;
+    public ButtonDefinition withTextBlockPadding(float textBlockXPadding) {
+        this.textBlockXPadding = textBlockXPadding;
+
+        return this;
+    }
+
+    public ButtonDefinition withImageAsset(
+            AbstractImageAssetRenderableDefinition imageAssetDefault) {
+        this.imageAssetDefault = imageAssetDefault;
 
         return this;
     }
 
     /**
-     * These background colors are used <i>when the button is being pressed down</i>
+     * NB: If imageAssetHover doesn't provide a dimensions provider or a dimensions provider
+     * definition, it will inherit the one from the default ImageAsset.
      *
-     * @param bgColorTopLeft     The top left background color
-     * @param bgColorTopRight    The top right background color
-     * @param bgColorBottomLeft  The bottom left background color
-     * @param bgColorBottomRight The bottom right background color
+     * @param imageAssetHover The definition of the ImageAsset used when the mouse hovers over the
+     *                        Button
      */
-    public ButtonDefinition withBgColorsPressed(
-            Color bgColorTopLeft,
-            Color bgColorTopRight,
-            Color bgColorBottomLeft,
-            Color bgColorBottomRight
+    public ButtonDefinition withImageAssetHover(
+            AbstractImageAssetRenderableDefinition imageAssetHover
     ) {
-        return this.withBgColorsPressed(
-                staticVal(bgColorTopLeft),
-                staticVal(bgColorTopRight),
-                staticVal(bgColorBottomLeft),
-                staticVal(bgColorBottomRight)
-        );
-    }
-
-    /**
-     * @param bgColor A definition of the background color <i>when the button is being pressed
-     *                down</i>
-     */
-    public ButtonDefinition withBgColorPressed(AbstractProviderDefinition<Color> bgColor) {
-        return this.withBgColorsPressed(bgColor, bgColor, bgColor, bgColor);
-    }
-
-    /**
-     * @param bgColor The background color <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition withBgColorPressed(Color bgColor) {
-        return this.withBgColorPressed(staticVal(bgColor));
-    }
-
-    /**
-     * @param bgTexProvider A definition of the provider of the background texture <i>when the
-     *                      button is being pressed down</i>
-     */
-    public ButtonDefinition withTexturePressed(AbstractProviderDefinition<Integer> bgTexProvider) {
-        this.bgTexIdProviderPressed = bgTexProvider;
+        this.imageAssetHover = imageAssetHover;
 
         return this;
     }
 
     /**
-     * @param bgTexRelLoc The relative location of the file to be used as the texture <i>when the
-     *                    button is being pressed down</i>
+     * NB: If imageAssetPressed doesn't provide a dimensions provider or a dimensions provider
+     * definition, it will inherit the one from the default ImageAsset.
+     *
+     * @param imageAssetPressed The definition of the ImageAsset used when the Button is pressed
+     *                          down
      */
-    public ButtonDefinition withTexturePressed(String bgTexRelLoc) {
-        this.bgTexRelLocPressed = bgTexRelLoc;
+    public ButtonDefinition withImageAssetPressed(
+            AbstractImageAssetRenderableDefinition imageAssetPressed
+    ) {
+        this.imageAssetPressed = imageAssetPressed;
 
         return this;
-    }
-
-    /**
-     * @param spriteId     The id of the Sprite <i>when the button is being pressed down</i>
-     * @param spriteDimens Provides the dimensions in which to render the Sprite
-     */
-    public ButtonDefinition withSpritePressed(String spriteId,
-                                              AbstractProviderDefinition<FloatBox> spriteDimens) {
-        this.spriteIdPressed = spriteId;
-        this.spriteDimensPressedDef = spriteDimens;
-
-        return this;
-    }
-
-    /**
-     * @param spriteId     The id of the Sprite <i>when the button is being pressed down</i>
-     * @param spriteDimens Provides the dimensions in which to render the Sprite
-     */
-    public ButtonDefinition withSpritePressed(String spriteId, FloatBox spriteDimens) {
-        return this.withSpritePressed(spriteId, staticVal(spriteDimens));
-    }
-
-    public ButtonDefinition withSpriteColorShiftPressed(ShiftDefinition spriteShift) {
-        this.spriteShiftPressedDef = spriteShift;
-
-        return this;
-    }
-
-    /**
-     * @param colorIndices Definitions of providers for colors at indices within the text <i>when
-     *                     the button is being pressed down</i> (c.f.
-     *                     {@link TextLineRenderable#colorProviderIndices()})
-     */
-    public ButtonDefinition withTextColorIndicesPressed(
-            Map<Integer, AbstractProviderDefinition<Color>> colorIndices) {
-        this.textColorIndicesPressed = colorIndices;
-
-        return this;
-    }
-
-    /**
-     * @param color The Definition of the text color <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition withTextColorPressed(AbstractProviderDefinition<Color> color) {
-        return this.withTextColorIndicesPressed(mapOf(0, color));
-    }
-
-    /**
-     * @param color The text color <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition withTextColorPressed(Color color) {
-        return this.withTextColorPressed(staticVal(color));
-    }
-
-    /**
-     * @param italicIndices The indices which mark the starts and ends of italicization within the
-     *                      text <i>when the button is being pressed down</i> (c.f.
-     *                      {@link TextLineRenderable#italicIndices()})
-     */
-    public ButtonDefinition withTextItalicIndicesPressed(List<Integer> italicIndices) {
-        this.textItalicIndicesPressed = italicIndices;
-
-        return this;
-    }
-
-    /**
-     * Makes the whole text italicized <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition italicPressed() {
-        return this.withTextItalicIndicesPressed(listOf(0));
-    }
-
-    /**
-     * @param boldIndices The indices which mark the starts and ends of boldface within the text
-     *                    <i>when the button is being pressed down</i> (c.f.
-     *                    {@link TextLineRenderable#boldIndices()})
-     */
-    public ButtonDefinition withTextBoldIndicesPressed(List<Integer> boldIndices) {
-        this.textBoldIndicesPressed = boldIndices;
-
-        return this;
-    }
-
-    /**
-     * Makes the whole text bold <i>when the button is being pressed down</i>
-     */
-    public ButtonDefinition boldPressed() {
-        return this.withTextBoldIndicesPressed(listOf(0));
     }
 
     /**
@@ -817,6 +348,15 @@ public class ButtonDefinition extends AbstractContentDefinition {
      */
     public ButtonDefinition withReleaseSound(String soundId) {
         releaseSoundId = soundId;
+
+        return this;
+    }
+
+    /**
+     * This method does not overwrite all previous data, only data with the same keys entered
+     */
+    public ButtonDefinition withData(Map<String, Object> data) {
+        DATA.putAll(data);
 
         return this;
     }

@@ -14,6 +14,7 @@ import soliloquy.specs.ui.definitions.content.*;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -76,7 +77,6 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             TDef definition,
             long timestamp
     ) {
-        Check.ifNull(containingComponent, "containingComponent");
         Check.ifNull(definition, "definition");
         TRend renderable = switch (definition) {
             case RasterizedLineSegmentRenderableDefinition d ->
@@ -107,7 +107,9 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             default -> //noinspection unchecked
                     (TRend) readCustomDef(definition, containingComponent, timestamp);
         };
-        containingComponent.add(renderable);
+        if (containingComponent != null) {
+            containingComponent.add(renderable);
+        }
         return renderable;
     }
 
@@ -133,7 +135,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
     ) {
         @SuppressWarnings("unchecked") var readComponent = COMPONENT_FACTORY.make(
                 definition.UUID,
-                definition.Z,
+                definition.z,
                 defaultIfNullElseTransform(
                         definition.bindings,
                         bindingDefs -> Arrays.stream(bindingDefs)
@@ -170,6 +172,38 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         for (var contentDef : definition.CONTENT) {
             read(readComponent, contentDef, timestamp);
         }
+        for (var prereadContent : definition.PREREAD_CONTENT) {
+            prereadContent.setContainingComponent(readComponent);
+            readComponent.add(prereadContent);
+        }
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
+        // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
         //noinspection unchecked
         return (T) readComponent;
     }

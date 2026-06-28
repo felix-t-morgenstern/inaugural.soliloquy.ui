@@ -10,9 +10,8 @@ import org.lwjgl.glfw.GLFW;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.tools.random.Random.*;
-import static inaugural.soliloquy.ui.Constants.ORIGIN_OVERRIDE_PROVIDER;
-import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_ORIGIN_PROVIDER;
+import static inaugural.soliloquy.ui.test.integration.display.components.beveledbutton.BeveledButtonDisplayTest.makeBeveledButton;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
@@ -42,29 +41,16 @@ public class BeveledButtonOriginOverrideDisplayTest extends DisplayTest {
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var lineHeight = 0.075f;
-
-        var def = beveledButton(
-                "Button",
-                MERRIWEATHER_ID,
-                lineHeight,
-                randomVertex(),
-                0.05f,
-                0.125f,
-                0
-        )
-                .withTextPadding(0.025f)
-                .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
-                .withBgColor(randomHighSaturationColor())
+        var def = makeBeveledButton()
                 .withKey(GLFW.GLFW_KEY_B, 1);
 
         var timestamp = timestamp(uiModule);
         var reader = uiModule.provide(RenderableDefinitionReader.class);
         var providerReader = uiModule.provide(ProviderDefinitionReader.class);
-        var originOverride = vertexOf(0.1f, 0.1f);
-        var originOverrideProvider = providerReader.read(staticVal(originOverride), timestamp);
+        var componentOrigin = vertexOf(0.1f, 0.1f);
+        var componentOriginProvider = providerReader.read(staticVal(componentOrigin), timestamp);
 
         Component beveledButton = reader.read(topLevelComponent, def, timestamp);
-        beveledButton.data().put(ORIGIN_OVERRIDE_PROVIDER, originOverrideProvider);
+        beveledButton.data().put(COMPONENT_ORIGIN_PROVIDER, componentOriginProvider);
     }
 }

@@ -1,7 +1,7 @@
 package inaugural.soliloquy.ui.test.unit.components;
 
 import inaugural.soliloquy.tools.testing.Mock;
-import inaugural.soliloquy.ui.readers.colorshifting.ColorShiftDefinitionReader;
+import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,7 +31,7 @@ public class ComponentDefinitionReaderTest {
     protected final long TIMESTAMP = randomLong();
 
     @org.mockito.Mock protected ProviderDefinitionReader mockProviderDefReader;
-    @org.mockito.Mock protected ColorShiftDefinitionReader mockShiftReader;
+    @org.mockito.Mock protected RenderableDefinitionReader mockRenderableDefReader;
 
     protected <T> T extractStaticVal(AbstractProviderDefinition<T> provider) {
         return ((StaticProviderDefinition<T>) provider).VALUE;

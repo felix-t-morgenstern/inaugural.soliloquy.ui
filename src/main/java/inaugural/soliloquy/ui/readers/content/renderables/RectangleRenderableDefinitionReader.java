@@ -11,34 +11,39 @@ import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 
 import java.util.function.Function;
 
-import static inaugural.soliloquy.tools.Tools.defaultIfNull;
-import static inaugural.soliloquy.tools.Tools.provideIfNull;
+import static inaugural.soliloquy.tools.Tools.*;
 import static java.util.UUID.randomUUID;
 
 public class RectangleRenderableDefinitionReader
         extends AbstractMouseEventsComponentDefinitionReader {
     private final RectangleRenderableFactory FACTORY;
+    private final Function<String, ProviderAtTime<Integer>> GET_TEX_ID_PROVIDER_FROM_REL_LOC;
 
-    public RectangleRenderableDefinitionReader(RectangleRenderableFactory factory,
-                                               @SuppressWarnings("rawtypes")
-                                               Function<String, Consumer> getConsumer,
-                                               ProviderDefinitionReader providerReader,
-                                               @SuppressWarnings("rawtypes")
-                                               ProviderAtTime nullProvider) {
+    public RectangleRenderableDefinitionReader(
+            RectangleRenderableFactory factory,
+            @SuppressWarnings("rawtypes")
+            Function<String, Consumer> getConsumer,
+            ProviderDefinitionReader providerReader,
+            Function<String, ProviderAtTime<Integer>> getTexIdProviderFromRelLoc,
+            @SuppressWarnings("rawtypes")
+            ProviderAtTime nullProvider
+    ) {
         super(providerReader, nullProvider, getConsumer);
         FACTORY = Check.ifNull(factory, "factory");
+        GET_TEX_ID_PROVIDER_FROM_REL_LOC =
+                Check.ifNull(getTexIdProviderFromRelLoc, "getTexIdProviderFromRelLoc");
     }
 
     public RectangleRenderable read(Component component,
                                     RectangleRenderableDefinition definition,
                                     long timestamp) {
-        Check.ifNull(component, "component");
         Check.ifNull(definition, "definition");
 
-        var dimens = definition.DIMENS_PROVIDER != null ? definition.DIMENS_PROVIDER :
+        var dimens = definition.dimensProvider != null ? definition.dimensProvider :
                 PROVIDER_READER.read(
-                        Check.ifNull(definition.DIMENS_PROVIDER_DEF, "definition.DIMENS_PROVIDER"),
-                        timestamp);
+                        Check.ifNull(definition.dimensProviderDef, "definition.dimensProviderDef"),
+                        timestamp
+                );
 
         var topLeft = provider(
                 definition.topLeftColorProvider,
@@ -57,15 +62,24 @@ public class RectangleRenderableDefinitionReader
                 definition.bottomRightColorProviderDef,
                 timestamp);
 
-        var textureId = provideIfNull(definition.textureIdProvider,
-                () -> provider(definition.textureIdProviderDef, timestamp));
-        var textureTilesPerWidth = provideIfNull(definition.textureTilesPerWidthProvider,
+        @SuppressWarnings("unchecked") ProviderAtTime<Integer> textureId = supplyIfNull(
+                definition.textureIdProvider,
+                () -> defaultIfNullElseTransform(
+                        definition.textureIdProviderDef,
+                        d -> provider(d, timestamp),
+                        defaultIfNullElseTransform(
+                                definition.textureRelativeLoc,
+                                GET_TEX_ID_PROVIDER_FROM_REL_LOC::apply,
+                                NULL_PROVIDER
+                        )
+                ));
+        var textureTilesPerWidth = supplyIfNull(definition.textureTilesPerWidthProvider,
                 () -> providerOrNull(definition.textureTilesPerWidthProviderDef, timestamp));
-        var textureXOffset = provideIfNull(definition.textureXOffsetProvider,
+        var textureXOffset = supplyIfNull(definition.textureXOffsetProvider,
                 () -> providerOrNull(definition.textureXOffsetProviderDef, timestamp));
-        var textureTilesPerHeight = provideIfNull(definition.textureTilesPerHeightProvider,
+        var textureTilesPerHeight = supplyIfNull(definition.textureTilesPerHeightProvider,
                 () -> providerOrNull(definition.textureTilesPerHeightProviderDef, timestamp));
-        var textureYOffset = provideIfNull(definition.textureYOffsetProvider,
+        var textureYOffset = supplyIfNull(definition.textureYOffsetProvider,
                 () -> providerOrNull(definition.textureYOffsetProviderDef, timestamp));
 
         var onPress = getConsumerPerButton(definition.onPressIds);
@@ -76,8 +90,8 @@ public class RectangleRenderableDefinitionReader
         var renderable = FACTORY.make(
                 topLeft,
                 topRight,
-                bottomLeft,
                 bottomRight,
+                bottomLeft,
                 textureId,
                 textureTilesPerWidth,
                 textureXOffset,
@@ -88,7 +102,7 @@ public class RectangleRenderableDefinitionReader
                 onMouseOver,
                 onMouseLeave,
                 dimens,
-                definition.Z,
+                definition.z,
                 defaultIfNull(definition.UUID, randomUUID()),
                 component
         );

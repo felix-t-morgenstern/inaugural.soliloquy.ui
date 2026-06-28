@@ -10,6 +10,7 @@ import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
+import static inaugural.soliloquy.ui.test.integration.display.DisplayTestMethods.*;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
@@ -44,7 +45,7 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
         var ioModule = uiModule.provide(IOModule.class);
         var graphics = ioModule.provide(Graphics.class);
         var image = graphics.getImage(BACKGROUND_TEXTURE_RELATIVE_LOCATION);
-        var textureOffsetProvider = loopingLinearMoving(
+        var textureOffsetProviderDef = loopingLinearMoving(
                 2000,
                 0,
                 pairOf(0, 0f),
@@ -55,11 +56,15 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
                 0
         )
                 .withTexture(
-                        staticVal(image.textureId()),
+                        staticVal(image.textureId())
+                )
+                .withTextureTilingDefs(
                         staticVal(0.5f),
-                        textureOffsetProvider,
-                        staticVal(0.5f),
-                        textureOffsetProvider
+                        staticVal(0.5f)
+                )
+                .withTextureTilingOffsetDefs(
+                        textureOffsetProviderDef,
+                        textureOffsetProviderDef
                 )
                 .withColors(
                         staticVal(randomColor()),
@@ -69,14 +74,14 @@ public class RectangleRenderableDefinitionReaderDisplayTest extends DisplayTest 
                 )
                 .onPress(mapOf(
                         GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_PRESS_CONSUMER_ID
+                        DisplayTest_onMousePress
                 ))
                 .onRelease(mapOf(
                         GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_RELEASE_CONSUMER_ID
+                        DisplayTest_onMouseRelease
                 ))
-                .onMouseOver(ON_MOUSE_OVER_CONSUMER_ID)
-                .onMouseLeave(ON_MOUSE_LEAVE_CONSUMER_ID);
+                .onMouseOver(DisplayTest_onMouseOver)
+                .onMouseLeave(DisplayTest_onMouseLeave);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

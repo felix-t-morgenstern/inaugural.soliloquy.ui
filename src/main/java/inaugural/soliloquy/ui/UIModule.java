@@ -3,6 +3,7 @@ package inaugural.soliloquy.ui;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.tools.module.AbstractModule;
+import inaugural.soliloquy.tools.timing.TimestampValidator;
 import inaugural.soliloquy.ui.components.ComponentMethods;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition;
 import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinitionReader;
@@ -32,7 +33,7 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.*;
 import soliloquy.specs.io.graphics.rendering.WindowResolutionManager;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
-import soliloquy.specs.io.input.mouse.MouseEventHandler;
+import soliloquy.specs.io.input.mouse.Mouse;
 import soliloquy.specs.ui.definitions.providers.*;
 
 import java.awt.*;
@@ -45,6 +46,7 @@ import static inaugural.soliloquy.io.api.Constants.*;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.reflection.Reflection.readMethods;
 import static inaugural.soliloquy.ui.Settings.*;
+import static java.util.UUID.randomUUID;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 
 public class UIModule extends AbstractModule {
@@ -67,8 +69,9 @@ public class UIModule extends AbstractModule {
         ProviderAtTime<FloatBox> wholeScreenProvider = ioModule.provide(WHOLE_SCREEN_PROVIDER);
         TextLineRenderer textLineRenderer = ioModule.provide(TEXT_LINE_RENDERER);
         var resManager = ioModule.provide(WindowResolutionManager.class);
-        TriConsumer<Integer, MouseEventHandler.EventType, Runnable> subscribeToNextMouseEvent =
+        TriConsumer<Integer, Mouse.EventType, Runnable> subscribeToNextMouseEvent =
                 ioModule.provide(SUBSCRIBE_TO_NEXT_MOUSE_EVENT);
+        var timestampValidator = ioModule.provide(TimestampValidator.class);
 
         // ==================
         // Definition Readers
@@ -139,97 +142,111 @@ public class UIModule extends AbstractModule {
 
         var defaultKeyBindingPriority =
                 (int) (getSetting.apply(DEFAULT_KEY_BINDING_PRIORITY_SETTING_ID).getValue());
-        var renderableDefinitionReader = andRegister(new RenderableDefinitionReader(
-                new RasterizedLineSegmentRenderableDefinitionReader(
-                        ioModule.provide(RasterizedLineSegmentRenderableFactory.class),
+        @SuppressWarnings("unchecked") var renderableDefinitionReader =
+                andRegister(new RenderableDefinitionReader(
+                        new RasterizedLineSegmentRenderableDefinitionReader(
+                                ioModule.provide(RasterizedLineSegmentRenderableFactory.class),
+                                providerDefinitionReader,
+                                (short) 1
+                        ),
+                        new AntialiasedLineSegmentRenderableDefinitionReader(
+                                ioModule.provide(AntialiasedLineSegmentRenderableFactory.class),
+                                providerDefinitionReader
+                        ),
+                        new RectangleRenderableDefinitionReader(
+                                ioModule.provide(RectangleRenderableFactory.class),
+                                methods.CONSUMERS::get,
+                                providerDefinitionReader,
+                                imgRelLoc -> staticProviderFactory.apply(randomUUID(),
+                                        graphics.getImage(imgRelLoc).textureId()),
+                                nullProvider
+                        ),
+                        new TriangleRenderableDefinitionReader(
+                                ioModule.provide(TriangleRenderableFactory.class),
+                                methods.CONSUMERS::get,
+                                providerDefinitionReader,
+                                nullProvider
+                        ),
+                        new SpriteRenderableDefinitionReader(
+                                ioModule.provide(SpriteRenderableFactory.class),
+                                graphics::getSprite,
+                                methods.CONSUMERS::get,
+                                providerDefinitionReader,
+                                shiftDefinitionReader,
+                                nullProvider
+                        ),
+                        new ImageAssetSetRenderableDefinitionReader(
+                                ioModule.provide(ImageAssetSetRenderableFactory.class),
+                                graphics::getImageAssetSet,
+                                methods.CONSUMERS::get,
+                                providerDefinitionReader,
+                                shiftDefinitionReader,
+                                nullProvider
+                        ),
+                        new FiniteAnimationRenderableDefinitionReader(
+                                ioModule.provide(FiniteAnimationRenderableFactory.class),
+                                graphics::getAnimation,
+                                methods.CONSUMERS::get,
+                                providerDefinitionReader,
+                                shiftDefinitionReader,
+                                nullProvider
+                        ),
+                        new TextLineRenderableDefinitionReader(
+                                ioModule.provide(TextLineRenderableFactory.class),
+                                graphics::getFont,
+                                providerDefinitionReader,
+                                nullProvider
+                        ),
+                        ioModule.provide(ComponentFactory.class),
                         providerDefinitionReader,
-                        (short) 1
-                ),
-                new AntialiasedLineSegmentRenderableDefinitionReader(
-                        ioModule.provide(AntialiasedLineSegmentRenderableFactory.class),
-                        providerDefinitionReader
-                ),
-                new RectangleRenderableDefinitionReader(
-                        ioModule.provide(RectangleRenderableFactory.class),
                         methods.CONSUMERS::get,
-                        providerDefinitionReader,
-                        nullProvider
-                ),
-                new TriangleRenderableDefinitionReader(
-                        ioModule.provide(TriangleRenderableFactory.class),
-                        methods.CONSUMERS::get,
-                        providerDefinitionReader,
-                        nullProvider
-                ),
-                new SpriteRenderableDefinitionReader(
-                        ioModule.provide(SpriteRenderableFactory.class),
-                        graphics::getSprite,
-                        methods.CONSUMERS::get,
-                        providerDefinitionReader,
-                        shiftDefinitionReader,
-                        nullProvider
-                ),
-                new ImageAssetSetRenderableDefinitionReader(
-                        ioModule.provide(ImageAssetSetRenderableFactory.class),
-                        graphics::getImageAssetSet,
-                        methods.CONSUMERS::get,
-                        providerDefinitionReader,
-                        shiftDefinitionReader,
-                        nullProvider
-                ),
-                new FiniteAnimationRenderableDefinitionReader(
-                        ioModule.provide(FiniteAnimationRenderableFactory.class),
-                        graphics::getAnimation,
-                        methods.CONSUMERS::get,
-                        providerDefinitionReader,
-                        shiftDefinitionReader,
-                        nullProvider
-                ),
-                new TextLineRenderableDefinitionReader(
-                        ioModule.provide(TextLineRenderableFactory.class),
-                        graphics::getFont,
-                        providerDefinitionReader,
-                        nullProvider
-                ),
-                ioModule.provide(ComponentFactory.class),
-                providerDefinitionReader,
-                methods.CONSUMERS::get,
-                wholeScreenProvider,
-                defaultKeyBindingPriority
-        ));
+                        wholeScreenProvider,
+                        defaultKeyBindingPriority
+                ));
 
         // >>> Custom component readers
+
+        var customComponentMethods = Collections.setOf();
 
         var defaultTextColor = (Color) (getSetting.apply(DEFAULT_TEXT_COLOR_SETTING_ID).getValue());
         @SuppressWarnings("unchecked") var defaultColorPresets =
                 (Map<Set<String>, Color>) (getSetting.apply(COLOR_PRESETS_SETTING_ID).getValue());
-        var markupParser = andRegister(new TextMarkupParserImpl(
+        @SuppressWarnings("unchecked") var markupParser = andRegister(new TextMarkupParserImpl(
                 defaultTextColor,
                 defaultColorPresets,
-                textLineRenderer
+                textLineRenderer,
+                providerDefinitionReader,
+                c -> staticProviderFactory.apply(randomUUID(), c),
+                timestampValidator
         ));
-
-        var customComponentMethods = Collections.setOf();
+        customComponentMethods.add(
+                new TextMarkupParserImpl.TextMarkupParserMethods(graphics::getComponent));
 
         var componentMethods = new ComponentMethods(graphics::getComponent);
         customComponentMethods.add(componentMethods);
 
+        // Text Block
+        var textBlockReader = new TextBlockDefinitionReader(markupParser, graphics::getFont,
+                providerDefinitionReader);
+        customComponentMethods.add(new TextBlockMethods(graphics::getComponent));
+        renderableDefinitionReader.addCustomComponentReader(TextBlockDefinition.class,
+                (d, t) -> textBlockReader.read((TextBlockDefinition) d, t));
+
         // Button
         var buttonReader = new ButtonDefinitionReader(
                 providerDefinitionReader,
-                shiftDefinitionReader,
-                nullProvider,
+                renderableDefinitionReader,
+                textBlockReader,
+                markupParser,
                 textLineRenderer,
                 methods.CONSUMERS::get,
                 graphics::getFont,
-                imgRelLoc -> graphics.getImage(imgRelLoc).textureId(),
                 resManager::windowWidthToHeightRatio
         );
         //noinspection unchecked
         customComponentMethods.add(new ButtonMethods(
                 id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
                 subscribeToNextMouseEvent,
-                graphics::getSprite,
                 graphics::getComponent
         ));
         renderableDefinitionReader.addCustomComponentReader(
@@ -245,13 +262,6 @@ public class UIModule extends AbstractModule {
                 BeveledButtonDefinition.class,
                 (d, t) -> beveledButtonReader.read((BeveledButtonDefinition) d, t)
         );
-
-        // Text Block
-        var textBlockReader = new TextBlockDefinitionReader(markupParser, graphics::getFont,
-                providerDefinitionReader);
-        customComponentMethods.add(new TextBlockMethods(graphics::getComponent));
-        renderableDefinitionReader.addCustomComponentReader(TextBlockDefinition.class,
-                (d, t) -> textBlockReader.read((TextBlockDefinition) d, t));
 
         // Column
         var columnReader = new ContentColumnDefinitionReader(providerDefinitionReader);

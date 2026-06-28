@@ -3,11 +3,13 @@ package inaugural.soliloquy.ui.test.integration.display.components.textblock;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
+import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
+import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
+import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
 
@@ -16,6 +18,7 @@ import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.te
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
+import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class TextBlockSimpleDisplayTest extends DisplayTest {
     public static void main(String[] args) {
@@ -46,6 +49,16 @@ public class TextBlockSimpleDisplayTest extends DisplayTest {
         defs.add(rectangle(floatBoxOf(0.25f, 0f, 0.75f, 1f), 0)
                 .withColor(new Color(31, 31, 31)));
 
+        defs.add(makeTestTextBlockDef(staticVal(vertexOf(0.25f, 0f))));
+
+        var reader = uiModule.provide(RenderableDefinitionReader.class);
+
+        defs.forEach(d -> reader.read(topLevelComponent, d, timestamp(uiModule)));
+    }
+
+    public static TextBlockDefinition makeTestTextBlockDef(
+            AbstractProviderDefinition<Vertex> upperLeftRenderingLocProviderDef
+    ) {
         var paragraphs = listOf(
                 """
                 A *spectre* is haunting Europe - the spectre of **[color=red]communism[/color]**. All the powers of old Europe have entered into a [color=orange]holy alliance[/color] to exorcise this spectre: Pope and Tsar, Metternich and Guizot, French Radicals and German police-spies.""",
@@ -64,21 +77,16 @@ public class TextBlockSimpleDisplayTest extends DisplayTest {
         var paragraphSpacing = 0.02f;
         var glyphPadding = 0f;
 
-        defs.add(textBlock(
+        return textBlock(
                 MERRIWEATHER_ID,
                 lineHeight,
                 0.5f,
-                vertexOf(0.25f, 0f),
-                glyphPadding,
-                lineSpacing,
-                paragraphSpacing,
-                HorizontalAlignment.LEFT,
+                upperLeftRenderingLocProviderDef,
                 paragraphs,
                 1
-        ));
-
-        var reader = uiModule.provide(RenderableDefinitionReader.class);
-
-        defs.forEach(d -> reader.read(topLevelComponent, d, timestamp(uiModule)));
+        )
+                .withGlyphPadding(glyphPadding)
+                .withLineSpacing(lineSpacing)
+                .withParagraphSpacing(paragraphSpacing);
     }
 }

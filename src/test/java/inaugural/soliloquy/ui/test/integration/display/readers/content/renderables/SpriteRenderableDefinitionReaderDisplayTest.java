@@ -11,6 +11,7 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.random.Random.randomColor;
+import static inaugural.soliloquy.ui.test.integration.display.DisplayTestMethods.*;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
@@ -51,14 +52,14 @@ public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 )
                 .onPress(mapOf(
                         GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_PRESS_CONSUMER_ID
+                        DisplayTest_onMousePress
                 ))
                 .onRelease(mapOf(
                         GLFW_MOUSE_BUTTON_LEFT,
-                        ON_MOUSE_RELEASE_CONSUMER_ID
+                        DisplayTest_onMouseRelease
                 ))
-                .onMouseOver(ON_MOUSE_OVER_CONSUMER_ID)
-                .onMouseLeave(ON_MOUSE_LEAVE_CONSUMER_ID);
+                .onMouseOver(DisplayTest_onMouseOver)
+                .onMouseLeave(DisplayTest_onMouseLeave);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
         reader.read(topLevelComponent, definition, timestamp(uiModule));

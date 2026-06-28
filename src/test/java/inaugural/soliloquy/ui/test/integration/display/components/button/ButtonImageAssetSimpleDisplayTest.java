@@ -9,11 +9,16 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
+import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
+import static inaugural.soliloquy.ui.test.integration.display.DisplayTestMethods.DisplayTest_onMousePress;
+import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
+import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
+import static soliloquy.specs.ui.definitions.content.SpriteRenderableDefinition.sprite;
 
-public class ButtonFromSpriteSimpleDisplayTest extends ButtonDisplayTest {
+public class ButtonImageAssetSimpleDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Button definition from sprite simple display test",
+                "Button imageAsset simple display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(RPG_WEAPONS_RELATIVE_LOCATION, true)
@@ -30,19 +35,27 @@ public class ButtonFromSpriteSimpleDisplayTest extends ButtonDisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Button definition from sprite simple", 8000),
-                ButtonFromSpriteSimpleDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Button imageAsset simple", 16000),
+                ButtonImageAssetSimpleDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var buttonDef = testButtonFromSprite(
-                SPRITE_DIMENS
-        );
+        var spriteDimens = floatBoxOf(0.45f, 0.4f, 0.55f, 0.6f);
+
+        var def = button(0)
+                .withImageAsset(sprite(SHIELD_SPRITE_ID, spriteDimens))
+                .withImageAssetHover(sprite(SHIELD_SPRITE_ID, spriteDimens)
+                        .withColorShifts(brightness(0.1f, false)))
+                .withImageAssetPressed(sprite(SHIELD_SPRITE_ID, spriteDimens)
+                        .withColorShifts(brightness(-0.1f, false)))
+                .withPressSound(PRESS_SOUND_ID)
+                .withReleaseSound(RELEASE_SOUND_ID)
+                .onPress(DisplayTest_onMousePress);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, buttonDef, timestamp(uiModule));
+        reader.read(topLevelComponent, def, timestamp(uiModule));
     }
 }

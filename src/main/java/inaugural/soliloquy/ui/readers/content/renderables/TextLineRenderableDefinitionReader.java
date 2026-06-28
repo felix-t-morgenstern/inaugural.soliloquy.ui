@@ -17,7 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
-import static inaugural.soliloquy.tools.Tools.provideIfNull;
+import static inaugural.soliloquy.tools.Tools.supplyIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static java.util.UUID.randomUUID;
 
@@ -38,7 +38,7 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
     public TextLineRenderable read(Component component,
                                    TextLineRenderableDefinition definition,
                                    long timestamp) {
-        var font = provideIfNull(definition.FONT, () -> GET_FONT.apply(definition.FONT_ID));
+        var font = supplyIfNull(definition.FONT, () -> GET_FONT.apply(definition.FONT_ID));
 
         var text = PROVIDER_READER.read(definition.TEXT_PROVIDER, timestamp);
         var location = definition.LOCATION_PROVIDER != null ? definition.LOCATION_PROVIDER :
@@ -69,7 +69,7 @@ public class TextLineRenderableDefinitionReader extends AbstractContentDefinitio
                 colors, italics, bolds,
                 borderThickness, borderColor,
                 dropShadowSize, dropShadowOffset, dropShadowColor,
-                definition.Z,
+                definition.z,
                 defaultIfNull(definition.UUID, randomUUID()),
                 component);
     }

@@ -84,7 +84,7 @@ public class ContentRowDefinitionReaderTests extends ComponentDefinitionReaderTe
         var output = reader.read(definition, TIMESTAMP);
 
         assertNotNull(output);
-        assertEquals(Z, output.Z);
+        assertEquals(Z, output.z);
         assertEquals(2, output.CONTENT.size());
         assertEquals(setOf(content1, content2), output.CONTENT);
         assertEquals(definition.UUID, output.UUID);
@@ -99,7 +99,7 @@ public class ContentRowDefinitionReaderTests extends ComponentDefinitionReaderTe
         assertEquals(ContentRow_add, output.addHookId);
         assertEquals(ContentRow_setDimensForComponentAndContent, output.prerenderHookId);
         assertEquals(mapOf(
-                COMPONENT_RENDERING_LOC,
+                Constants.COMPONENT_ORIGIN_PROVIDER,
                 mockRenderingLoc,
                 Constants.COMPONENT_HEIGHT,
                 HEIGHT,

@@ -45,7 +45,7 @@ public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetD
 
         var data = mapOf(definition.DISPLAY_PARAMS);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER_DEF, timestamp);
+        var dimensions = PROVIDER_READER.read(definition.dimensProviderDef, timestamp);
 
         var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
         var borderColor = provider(definition.borderColorProviderDef, timestamp);
@@ -67,7 +67,7 @@ public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetD
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         return FACTORY.make(imageAssetSet, data, borderThickness, borderColor, onPress, onRelease,
-                onMouseOver, onMouseLeave, colorShifts, dimensions, definition.Z, UUID.randomUUID(),
+                onMouseOver, onMouseLeave, colorShifts, dimensions, definition.z, UUID.randomUUID(),
                 component);
     }
 }

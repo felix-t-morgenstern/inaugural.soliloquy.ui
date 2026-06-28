@@ -140,7 +140,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
 
     @Test
     public void testReadShiftsFromProviders() {
-        var definition = imageAssetSet(IMAGE_ASSET_SET_ID, DATA, mockAreaProviderDefinition, Z)
+        var definition = imageAssetSet(IMAGE_ASSET_SET_ID, DATA, mockAreaProvider, Z)
                 .withColorShifts(mockShift);
 
         reader.read(mockComponent, definition, TIMESTAMP);
@@ -161,7 +161,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 any()
         );
     }
-
+    
     @Test
     public void testReadWithMinimalArgs() {
         var definition = imageAssetSet(IMAGE_ASSET_SET_ID, DATA, mockAreaProviderDefinition, Z);

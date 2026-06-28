@@ -4,29 +4,31 @@ import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.SpriteDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
+import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
+import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
+import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
+import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.awt.*;
 
-import static inaugural.soliloquy.io.api.Constants.SCREEN_CENTER;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
-import static inaugural.soliloquy.ui.Constants.ORIGIN;
-import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
 import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.itemOf;
 import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.space;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment;
+import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.TOP;
 import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.row;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
-import static inaugural.soliloquy.ui.test.integration.display.components.button.ButtonDisplayTest.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
+import static inaugural.soliloquy.ui.test.integration.display.components.beveledbutton.BeveledButtonDisplayTest.makeBeveledButton;
+import static inaugural.soliloquy.ui.test.integration.display.components.button.ButtonFullSuiteDisplayTest.makeFullSuiteButton;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
-import static soliloquy.specs.ui.definitions.colorshifting.ShiftDefinition.brightness;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
@@ -64,13 +66,29 @@ public class ContentRowTopAlignDisplayTest extends DisplayTest {
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var rect = rectangle(
+        var rect = makeRowTestRect();
+        var def = makeRowWithContents(staticVal(vertexOf(0f, 0.25f)), TOP);
+
+        var reader = uiModule.provide(RenderableDefinitionReader.class);
+
+        reader.read(topLevelComponent, def, timestamp(uiModule));
+        reader.read(topLevelComponent, rect, timestamp(uiModule));
+    }
+
+    public static RectangleRenderableDefinition makeRowTestRect() {
+        return rectangle(
                 floatBoxOf(0f, 0.25f, 1f, 0.75f),
                 -1
         )
                 .withColor(Color.GRAY);
-        var def = row(
-                staticVal(vertexOf(0f, 0.25f)),
+    }
+
+    public static ContentRowDefinition makeRowWithContents(
+            AbstractProviderDefinition<Vertex> renderingLoc,
+            VerticalAlignment align
+    ) {
+        return row(
+                renderingLoc,
                 0.5f,
                 0
         )
@@ -80,12 +98,12 @@ public class ContentRowTopAlignDisplayTest extends DisplayTest {
                                 textLine(
                                         MERRIWEATHER_ID,
                                         "Text line!",
-                                        ORIGIN,
                                         lineHeight * 1.5f,
                                         HorizontalAlignment.LEFT,
                                         0f,
                                         0
                                 ),
+                                align,
                                 spacingAfter
                         ),
                         itemOf(
@@ -107,6 +125,7 @@ public class ContentRowTopAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                align,
                                 spacingAfter
                         ),
                         space(spacingAfter),
@@ -115,30 +134,22 @@ public class ContentRowTopAlignDisplayTest extends DisplayTest {
                                         MERRIWEATHER_ID,
                                         lineHeight,
                                         0.125f,
-                                        vertexOf(0f, 0f),
-                                        glyphPadding,
-                                        lineSpacing,
-                                        paragraphSpacing,
-                                        HorizontalAlignment.LEFT,
                                         listOf("Lorem ipsum yada yada. This is a text block which" +
                                                 " takes up more than one line."),
                                         1
-                                ),
+                                )
+                                        .withGlyphPadding(
+                                                glyphPadding)
+                                        .withLineSpacing(lineSpacing)
+                                        .withParagraphSpacing(paragraphSpacing)
+                                        .withHorizontalAlignment(HorizontalAlignment.LEFT),
+                                align,
                                 spacingAfter
                         ),
                         itemOf(
                                 indent,
-                                testFullDefFromText("Button", SCREEN_CENTER)
-                                        .withTextItalicIndices(listOf(listOf(0, 1)))
-                                        .withKey(GLFW_KEY_B, 0)
-                                        .withSprite(
-                                                SHIELD_SPRITE_ID,
-                                                SPRITE_DIMENS
-                                        )
-                                        .withSpriteColorShiftHover(
-                                                brightness(SPRITE_PRESS_SHADING, false))
-                                        .withSpriteColorShiftPressed(
-                                                brightness(-SPRITE_PRESS_SHADING, false)),
+                                makeFullSuiteButton(),
+                                align,
                                 spacingAfter
                         ),
                         itemOf(
@@ -157,27 +168,13 @@ public class ContentRowTopAlignDisplayTest extends DisplayTest {
                                 ).withColor(
                                         randomHighSaturationColor()
                                 ),
+                                align,
                                 spacingAfter
                         ),
                         itemOf(
-                                beveledButton(
-                                        "Button",
-                                        MERRIWEATHER_ID,
-                                        beveledButtonLineHeight,
-                                        SCREEN_CENTER,
-                                        0.05f,
-                                        0.125f,
-                                        0
-                                )
-                                        .withTextPadding(0.025f)
-                                        .withTexture(BACKGROUND_TEXTURE_RELATIVE_LOCATION)
-                                        .withBgColor(randomHighSaturationColor())
+                                makeBeveledButton(),
+                                align
                         )
                 );
-
-        var reader = uiModule.provide(RenderableDefinitionReader.class);
-
-        reader.read(topLevelComponent, def, timestamp(uiModule));
-        reader.read(topLevelComponent, rect, timestamp(uiModule));
     }
 }

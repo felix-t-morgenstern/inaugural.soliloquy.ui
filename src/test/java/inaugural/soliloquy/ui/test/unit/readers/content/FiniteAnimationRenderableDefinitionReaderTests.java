@@ -135,7 +135,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
 
     @Test
     public void testReadShiftsFromProviders() {
-        var definition = finiteAnimation(ANIMATION_ID, mockAreaProviderDefinition, Z)
+        var definition = finiteAnimation(ANIMATION_ID, mockAreaProvider, Z)
                 .withColorShifts(mockShift);
 
         reader.read(mockComponent, definition, TIMESTAMP);

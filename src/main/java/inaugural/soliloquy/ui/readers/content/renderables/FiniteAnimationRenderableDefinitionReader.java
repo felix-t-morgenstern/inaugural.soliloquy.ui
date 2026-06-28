@@ -40,9 +40,9 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
     public FiniteAnimationRenderable read(Component component,
                                           FiniteAnimationRenderableDefinition definition,
                                           long timestamp) {
-        var animation = GET_ANIMATION.apply(definition.ANIMATION_ID);
+        var animation = GET_ANIMATION.apply(definition.ASSET_ID);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER_DEF, timestamp);
+        var dimensions = PROVIDER_READER.read(definition.dimensProviderDef, timestamp);
 
         var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
         var borderColor = provider(definition.borderColorProviderDef, timestamp);
@@ -75,7 +75,7 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
                 onMouseLeave,
                 colorShifts,
                 dimensions,
-                definition.Z,
+                definition.z,
                 UUID.randomUUID(),
                 component,
                 startTimestamp,

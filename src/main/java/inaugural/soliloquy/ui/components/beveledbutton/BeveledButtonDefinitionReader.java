@@ -5,10 +5,10 @@ import inaugural.soliloquy.ui.components.button.ButtonDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
+import soliloquy.specs.io.graphics.renderables.RectangleRenderable;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.content.ComponentDefinition;
-import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 
 import java.awt.*;
 import java.util.Map;
@@ -40,12 +40,12 @@ public class BeveledButtonDefinitionReader {
         componentDef.data.put(BEVELED_BUTTON_LAST_TIMESTAMP, timestamp - 1L);
         componentDef.data.put(BEVEL_PERCENT, definition.BEVEL_DIMENS_PERCENT);
 
-        @SuppressWarnings("OptionalGetWithoutIsPresent") var rectDef =
-                (RectangleRenderableDefinition) componentDef.CONTENT.stream()
-                        .filter(c -> c.Z == RECT_Z).findFirst().get();
+        @SuppressWarnings("OptionalGetWithoutIsPresent") var rect =
+                (RectangleRenderable) componentDef.PREREAD_CONTENT.stream()
+                        .filter(c -> c.getZ() == RECT_Z).findFirst().get();
 
         return componentDef.withContent(
-                makeBevel(definition, rectDef.DIMENS_PROVIDER, timestamp)
+                makeBevel(definition, rect.getRenderingDimensionsProvider(), timestamp)
         );
     }
 

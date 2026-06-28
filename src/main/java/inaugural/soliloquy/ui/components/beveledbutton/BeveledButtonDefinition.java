@@ -1,91 +1,45 @@
 package inaugural.soliloquy.ui.components.beveledbutton;
 
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
-import soliloquy.specs.common.valueobjects.FloatBox;
-import soliloquy.specs.common.valueobjects.Vertex;
-import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
+import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
 
-import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
+import java.util.UUID;
 
+import static java.util.UUID.randomUUID;
+
+/**
+ * (This Component was principally made early as a demonstration of how decorative elements can be
+ * festooned onto functional Components, but feel free to use to your heart's content!)
+ */
 public class BeveledButtonDefinition extends ButtonDefinition {
     public final float BEVEL_DIMENS_PERCENT;
     public final float BEVEL_INTENSITY;
 
     private BeveledButtonDefinition(int z,
-                                    AbstractProviderDefinition<FloatBox> rectDimensDef,
-                                    AbstractProviderDefinition<Vertex> textRenderingLocDef,
+                                    RectangleRenderableDefinition rectDefault,
                                     float bevelDimensPercent,
-                                    float bevelIntensity) {
-        super(z, rectDimensDef, textRenderingLocDef);
+                                    float bevelIntensity,
+                                    UUID uuid) {
+        super(z, uuid);
         BEVEL_DIMENS_PERCENT = bevelDimensPercent;
         BEVEL_INTENSITY = bevelIntensity;
+        this.rectDefaultDef = rectDefault;
     }
 
-    public static BeveledButtonDefinition beveledButton(
-            AbstractProviderDefinition<FloatBox> dimens,
-            float bevelDimensPercent,
-            float bevelIntensity,
-            int z
-    ) {
-        return new BeveledButtonDefinition(
-                z,
-                dimens,
-                null,
-                bevelDimensPercent,
-                bevelIntensity
-        );
+    public static BeveledButtonDefinition beveledButton(int z,
+                                                        RectangleRenderableDefinition rectDefault,
+                                                        float bevelDimensPercent,
+                                                        float bevelIntensity,
+                                                        UUID uuid) {
+        return new BeveledButtonDefinition(z, rectDefault, bevelDimensPercent, bevelIntensity,
+                uuid);
     }
 
-    public static BeveledButtonDefinition beveledButton(
-            FloatBox dimens,
-            float bevelDimensPercent,
-            float bevelIntensity,
-            int z
-    ) {
-        return beveledButton(
-                staticVal(dimens),
-                bevelDimensPercent,
-                bevelIntensity,
-                z
-        );
-    }
-
-    public static BeveledButtonDefinition beveledButton(
-            String text,
-            String fontId,
-            float textHeight,
-            AbstractProviderDefinition<Vertex> textRenderingLoc,
-            float bevelDimensPercent,
-            float bevelIntensity,
-            int z
-    ) {
-        return (BeveledButtonDefinition) new BeveledButtonDefinition(
-                z,
-                null,
-                textRenderingLoc,
-                bevelDimensPercent,
-                bevelIntensity
-        )
-                .withText(text, fontId, textHeight);
-    }
-
-    public static BeveledButtonDefinition beveledButton(
-            String text,
-            String fontId,
-            float textHeight,
-            Vertex textRenderingLoc,
-            float bevelDimensPercent,
-            float bevelIntensity,
-            int z
-    ) {
-        return beveledButton(
-                text,
-                fontId,
-                textHeight,
-                staticVal(textRenderingLoc),
-                bevelDimensPercent,
-                bevelIntensity,
-                z
-        );
+    public static BeveledButtonDefinition beveledButton(int z,
+                                                        RectangleRenderableDefinition rectDefault,
+                                                        float bevelDimensPercent,
+                                                        float bevelIntensity) {
+        return new BeveledButtonDefinition(z, rectDefault, bevelDimensPercent, bevelIntensity,
+                randomUUID());
     }
 }

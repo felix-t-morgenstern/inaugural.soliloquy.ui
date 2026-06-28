@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.contentcolumn;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.Constants;
 import soliloquy.specs.common.shared.HasUuid;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -80,7 +81,8 @@ public class ContentColumnMethods {
                         Collections::mapOf);
         contentPolygonOffsets.clear();
 
-        ProviderAtTime<Vertex> renderingLocProvider = getFromData(column, COMPONENT_RENDERING_LOC);
+        ProviderAtTime<Vertex> renderingLocProvider = getFromData(column,
+                Constants.COMPONENT_ORIGIN_PROVIDER);
         var renderingLoc = renderingLocProvider.provide(timestamp);
         float colWidth = getFromData(column, COMPONENT_WIDTH);
         var heightThusFar = 0f;
@@ -104,7 +106,7 @@ public class ContentColumnMethods {
                     var dimens = c.getDimensionsProvider().provide(timestamp);
 
                     if (!registeredContentsInData.contains(c.uuid())) {
-                        c.data().put(ORIGIN_OVERRIDE_PROVIDER, FUNCTIONAL_PROVIDER_DEF_READER.apply(
+                        c.data().put(COMPONENT_ORIGIN_PROVIDER, FUNCTIONAL_PROVIDER_DEF_READER.apply(
                                 functionalProvider(
                                         Component_innerContentSpecificRenderingLoc,
                                         Vertex.class
@@ -272,7 +274,7 @@ public class ContentColumnMethods {
                                                 CONTENT_UUID,
                                                 triangleRenderable.uuid(),
                                                 CONTAINING_COMPONENT_UUID,
-                                                triangleRenderable.containingComponent().uuid(),
+                                                triangleRenderable.getContainingComponent().uuid(),
                                                 VERTICES_INDEX,
                                                 i
                                         ))))

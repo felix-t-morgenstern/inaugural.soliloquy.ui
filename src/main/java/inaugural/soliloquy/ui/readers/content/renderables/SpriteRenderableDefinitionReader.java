@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
+import static inaugural.soliloquy.tools.Tools.supplyIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
 
 public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefinitionReader {
@@ -41,9 +42,12 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
     public SpriteRenderable read(Component component,
                                  SpriteRenderableDefinition definition,
                                  long timestamp) {
-        var sprite = GET_SPRITE.apply(definition.SPRITE_ID);
+        var sprite = GET_SPRITE.apply(definition.ASSET_ID);
 
-        var dimensions = PROVIDER_READER.read(definition.DIMENSIONS_PROVIDER_DEF, timestamp);
+        var dimensions = supplyIfNull(
+                definition.dimensProvider,
+                () -> PROVIDER_READER.read(definition.dimensProviderDef, timestamp)
+        );
 
         var borderThickness = provider(definition.borderThicknessProviderDef, timestamp);
         var borderColor = provider(definition.borderColorProviderDef, timestamp);
@@ -65,7 +69,7 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
 
         var renderable =
                 FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease, onMouseOver,
-                        onMouseLeave, colorShifts, dimensions, definition.Z, UUID.randomUUID(),
+                        onMouseLeave, colorShifts, dimensions, definition.z, UUID.randomUUID(),
                         component);
         if (
                 (definition.onPressIds != null && !definition.onPressIds.isEmpty()) ||

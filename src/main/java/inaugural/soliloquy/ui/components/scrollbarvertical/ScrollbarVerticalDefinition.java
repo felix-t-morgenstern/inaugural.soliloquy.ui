@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.scrollbarvertical;
+package inaugural.soliloquy.ui.components.scrollbarvertical;
 
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;

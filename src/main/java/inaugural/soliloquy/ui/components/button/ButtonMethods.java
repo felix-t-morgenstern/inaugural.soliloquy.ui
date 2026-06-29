@@ -79,82 +79,80 @@ public class ButtonMethods {
 
             FloatBox unadjButtonDimens;
 
-            if (lastTimestamp == null || timestamp != lastTimestamp) {
-                Options currentStateOptions;
-                if (getPressedState(button.data())) {
-                    currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_PRESSED);
-                }
-                else if (getHoverState(button.data())) {
-                    currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_HOVER);
-                }
-                else {
-                    currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
-                }
-
-                @SuppressWarnings("unchecked") var unadjRectDimens = defaultIfNullElseTransform(
-                        (ProviderAtTime<FloatBox>) getFromData(button, RECT_UNADJ_DIMENS_PROVIDER),
-                        dimens -> dimens.provide(timestamp),
-                        null
-                );
-                var unadjImageAssetDimens = defaultIfNullElseTransform(
-                        currentStateOptions.unadjImageAssetDimens,
-                        dimens -> dimens.provide(timestamp),
-                        null
-                );
-
-                if (unadjRectDimens != null) {
-                    if (unadjImageAssetDimens != null) {
-                        unadjButtonDimens = encompassing(unadjRectDimens, unadjImageAssetDimens);
-                    }
-                    else {
-                        unadjButtonDimens = unadjRectDimens;
-                    }
-                }
-                else {
-                    unadjButtonDimens = unadjImageAssetDimens;
-                }
-
-                button.data().put(BUTTON_UNADJ_DIMENS, unadjButtonDimens);
-
-                ProviderAtTime<Vertex> componentOriginProvider =
-                        getFromData(button, COMPONENT_ORIGIN_PROVIDER);
-                var componentOrigin =
-                        defaultIfNullElseTransform(componentOriginProvider,
-                                p -> p.provide(timestamp),
-                                null);
-
-                FloatBox buttonAdjDimens;
-                if (componentOrigin != null) {
-                    var originAdjust = difference(unadjButtonDimens.topLeft(), componentOrigin);
-                    button.data().put(COMPONENT_ORIGIN_ADJUST, originAdjust);
-                    if (unadjRectDimens != null) {
-                        button.data().put(BUTTON_RECT_DIMENS, floatBoxOf(
-                                translateVertex(unadjRectDimens.topLeft(), originAdjust),
-                                translateVertex(unadjRectDimens.bottomRight(), originAdjust)
-                        ));
-                    }
-                    else {
-                        button.data().put(BUTTON_RECT_DIMENS, null);
-                    }
-                    buttonAdjDimens = floatBoxOf(
-                            componentOrigin,
-                            unadjButtonDimens.width(),
-                            unadjButtonDimens.height()
-                    );
-                }
-                else {
-                    button.data().put(COMPONENT_ORIGIN_ADJUST, null);
-                    button.data().put(BUTTON_RECT_DIMENS, unadjRectDimens);
-                    buttonAdjDimens = unadjButtonDimens;
-                }
-
-                button.data().put(BUTTON_DIMENS, buttonAdjDimens);
-
-                return buttonAdjDimens;
-            }
-            else {
+            if (lastTimestamp != null && timestamp == lastTimestamp) {
                 return getFromData(button, BUTTON_DIMENS);
             }
+            Options currentStateOptions;
+            if (getPressedState(button.data())) {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_PRESSED);
+            }
+            else if (getHoverState(button.data())) {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_HOVER);
+            }
+            else {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
+            }
+
+            @SuppressWarnings("unchecked") var unadjRectDimens = defaultIfNullElseTransform(
+                    (ProviderAtTime<FloatBox>) getFromData(button, RECT_UNADJ_DIMENS_PROVIDER),
+                    dimens -> dimens.provide(timestamp),
+                    null
+            );
+            var unadjImageAssetDimens = defaultIfNullElseTransform(
+                    currentStateOptions.unadjImageAssetDimens,
+                    dimens -> dimens.provide(timestamp),
+                    null
+            );
+
+            if (unadjRectDimens != null) {
+                if (unadjImageAssetDimens != null) {
+                    unadjButtonDimens = encompassing(unadjRectDimens, unadjImageAssetDimens);
+                }
+                else {
+                    unadjButtonDimens = unadjRectDimens;
+                }
+            }
+            else {
+                unadjButtonDimens = unadjImageAssetDimens;
+            }
+
+            button.data().put(BUTTON_UNADJ_DIMENS, unadjButtonDimens);
+
+            ProviderAtTime<Vertex> componentOriginProvider =
+                    getFromData(button, COMPONENT_ORIGIN_PROVIDER);
+            var componentOrigin =
+                    defaultIfNullElseTransform(componentOriginProvider,
+                            p -> p.provide(timestamp),
+                            null);
+
+            FloatBox buttonAdjDimens;
+            if (componentOrigin != null) {
+                var originAdjust = difference(unadjButtonDimens.topLeft(), componentOrigin);
+                button.data().put(COMPONENT_ORIGIN_ADJUST, originAdjust);
+                if (unadjRectDimens != null) {
+                    button.data().put(BUTTON_RECT_DIMENS, floatBoxOf(
+                            translateVertex(unadjRectDimens.topLeft(), originAdjust),
+                            translateVertex(unadjRectDimens.bottomRight(), originAdjust)
+                    ));
+                }
+                else {
+                    button.data().put(BUTTON_RECT_DIMENS, null);
+                }
+                buttonAdjDimens = floatBoxOf(
+                        componentOrigin,
+                        unadjButtonDimens.width(),
+                        unadjButtonDimens.height()
+                );
+            }
+            else {
+                button.data().put(COMPONENT_ORIGIN_ADJUST, null);
+                button.data().put(BUTTON_RECT_DIMENS, unadjRectDimens);
+                buttonAdjDimens = unadjButtonDimens;
+            }
+
+            button.data().put(BUTTON_DIMENS, buttonAdjDimens);
+
+            return buttonAdjDimens;
         }
     }
 

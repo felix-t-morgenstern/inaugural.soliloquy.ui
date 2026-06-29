@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.textblock;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.components.AbstractCustomComponentDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -26,7 +27,8 @@ import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinitio
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class TextBlockDefinitionReader {
+public class TextBlockDefinitionReader
+        extends AbstractCustomComponentDefinitionReader<TextBlockDefinition> {
     private final TextMarkupParser PARSER;
     private final Function<String, Font> GET_FONT;
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
@@ -38,7 +40,8 @@ public class TextBlockDefinitionReader {
         GET_FONT = Check.ifNull(getFont, "getFont");
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
     }
-
+    
+    @Override
     public ComponentDefinition read(TextBlockDefinition definition, long timestamp) {
         // TODO: Test null UL def and provider (e.g. Button)
         var blockUpperLeft = supplyIfNull(

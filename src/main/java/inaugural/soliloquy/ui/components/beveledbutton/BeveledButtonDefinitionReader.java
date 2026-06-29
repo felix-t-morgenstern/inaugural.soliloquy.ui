@@ -1,6 +1,7 @@
 package inaugural.soliloquy.ui.components.beveledbutton;
 
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.ui.components.AbstractCustomComponentDefinitionReader;
 import inaugural.soliloquy.ui.components.button.ButtonDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
@@ -22,7 +23,8 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
-public class BeveledButtonDefinitionReader {
+public class BeveledButtonDefinitionReader
+        extends AbstractCustomComponentDefinitionReader<BeveledButtonDefinition> {
     private static final int BEVEL_Z = 3;
 
     private final ButtonDefinitionReader BUTTON_DEF_READER;
@@ -34,6 +36,7 @@ public class BeveledButtonDefinitionReader {
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
     }
 
+    @Override
     public ComponentDefinition read(BeveledButtonDefinition definition, long timestamp) {
         var componentDef = BUTTON_DEF_READER.read(definition, timestamp);
 

@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.contentcolumn;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.Constants;
+import inaugural.soliloquy.ui.components.AbstractCustomComponentDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
@@ -18,7 +19,8 @@ import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMetho
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
-public class ContentColumnDefinitionReader {
+public class ContentColumnDefinitionReader
+        extends AbstractCustomComponentDefinitionReader<ContentColumnDefinition> {
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
 
     public ContentColumnDefinitionReader(ProviderDefinitionReader providerDefReader) {

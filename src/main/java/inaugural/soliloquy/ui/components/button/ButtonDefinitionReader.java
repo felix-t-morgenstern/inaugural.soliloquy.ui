@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.button;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
+import inaugural.soliloquy.ui.components.AbstractCustomComponentDefinitionReader;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
@@ -40,7 +41,8 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
-public class ButtonDefinitionReader {
+public class ButtonDefinitionReader
+        extends AbstractCustomComponentDefinitionReader<ButtonDefinition> {
     public static final int RECT_Z = 0;
     public static final int IMAGE_ASSET_Z = 1;
     public static final int TEXT_BLOCK_Z = 2;
@@ -77,6 +79,7 @@ public class ButtonDefinitionReader {
         GET_WIDTH_TO_HEIGHT_RATIO = Check.ifNull(getWidthToHeightRatio, "getWidthToHeightRatio");
     }
 
+    @Override
     public ComponentDefinition read(ButtonDefinition definition, long timestamp) {
         Check.ifNull(definition, "definition");
 

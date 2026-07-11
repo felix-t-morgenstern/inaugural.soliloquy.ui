@@ -6,7 +6,6 @@ import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
 import soliloquy.specs.io.graphics.renderables.providers.FunctionalProvider;
-import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import soliloquy.specs.ui.definitions.providers.StaticProviderDefinition;
 
@@ -19,7 +18,6 @@ import java.util.function.Supplier;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.Constants.VERTICES_INDEX;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 
 public class ComponentMethods {

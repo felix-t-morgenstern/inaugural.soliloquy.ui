@@ -16,7 +16,6 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static inaugural.soliloquy.tools.Tools.defaultIfNull;
-import static inaugural.soliloquy.tools.Tools.supplyIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.*;
@@ -31,25 +30,22 @@ public class TextBlockDefinitionReader
         extends AbstractCustomComponentDefinitionReader<TextBlockDefinition> {
     private final TextMarkupParser PARSER;
     private final Function<String, Font> GET_FONT;
-    private final ProviderDefinitionReader PROVIDER_DEF_READER;
 
     public TextBlockDefinitionReader(TextMarkupParser parser,
                                      Function<String, Font> getFont,
                                      ProviderDefinitionReader providerDefReader) {
+        super(providerDefReader);
         PARSER = Check.ifNull(parser, "parser");
         GET_FONT = Check.ifNull(getFont, "getFont");
-        PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
     }
-    
+
     @Override
     public ComponentDefinition read(TextBlockDefinition definition, long timestamp) {
         // TODO: Test null UL def and provider (e.g. Button)
-        var blockUpperLeft = supplyIfNull(
+        var blockUpperLeft = providerOrReadDef(
                 definition.upperLeftProvider,
-                () -> PROVIDER_DEF_READER.read(
-                        defaultIfNull(definition.upperLeftProviderDef, staticVal(WINDOW_ORIGIN)),
-                        timestamp
-                )
+                defaultIfNull(definition.upperLeftProviderDef, staticVal(WINDOW_ORIGIN)),
+                timestamp
         );
 
         // TODO: Test default alignment assignment

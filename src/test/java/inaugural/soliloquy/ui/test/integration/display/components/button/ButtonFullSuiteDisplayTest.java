@@ -13,12 +13,13 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.Constants.NO_MAX_LINE_LENGTH;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.Constants.WINDOW_CENTER;
 import static inaugural.soliloquy.ui.TextMarkupParserMethods.coloredText;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.test.integration.display.DisplayTestMethods.DisplayTest_onMousePress;
+import static inaugural.soliloquy.ui.test.integration.display.DisplayTestMethods.DisplayTest_onMouseRelease;
 import static java.awt.Color.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.CENTER;
@@ -54,7 +55,7 @@ public class ButtonFullSuiteDisplayTest extends DisplayTest {
                 ButtonFullSuiteDisplayTest::populateTopLevelComponent
         );
     }
-
+    
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var def = makeFullSuiteButton()
@@ -117,6 +118,7 @@ public class ButtonFullSuiteDisplayTest extends DisplayTest {
                         .withColorShifts(brightness(-brightnessAdj, false)))
                 .withPressSound(PRESS_SOUND_ID)
                 .withReleaseSound(RELEASE_SOUND_ID)
-                .onPress(DisplayTest_onMousePress);
+                .onPress(DisplayTest_onMousePress)
+                .onReleaseAfterPress(DisplayTest_onMouseRelease);
     }
 }

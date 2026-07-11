@@ -13,6 +13,7 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.TextMarkupParserMethods.coloredText;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.test.integration.display.DisplayTestMethods.DisplayTest_onMousePress;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.CENTER;
@@ -65,7 +66,7 @@ public class ButtonWithEventsFromTextLocDisplayTest extends DisplayTest {
                 .withTextBlockPadding(0.01f)
                 .withPressSound(PRESS_SOUND_ID)
                 .withReleaseSound(RELEASE_SOUND_ID)
-                .onPress(DisplayTest_onMousePress);
+                .onReleaseAfterPress(DisplayTest_onMousePress);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

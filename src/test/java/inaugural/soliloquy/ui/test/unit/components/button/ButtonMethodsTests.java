@@ -219,10 +219,10 @@
 //    }
 //
 //    @Test
-//    public void testButton_setDimensForComponentAndContentWithOverride() {
+//    public void testButton_setDimensWithOverride() {
 //        when(mockButtonData.get(COMPONENT_ORIGIN_PROVIDER)).thenReturn(mockOriginOverrideProvider);
 //
-//        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
+//        var output = buttonMethods.Button_setDimens(mockButton, TIMESTAMP);
 //
 //        assertEquals(BUTTON_ADJ_DIMENS, output);
 //
@@ -242,12 +242,12 @@
 //    }
 //
 //    @Test
-//    public void testButton_setDimensForComponentAndContentOnLastTimestamp() {
+//    public void testButton_setDimensOnLastTimestamp() {
 //        var dimensAtLastTimestamp = randomFloatBox();
 //        when(mockButtonData.get(LAST_TIMESTAMP)).thenReturn(TIMESTAMP);
 //        when(mockButtonData.get(BUTTON_DIMENS)).thenReturn(dimensAtLastTimestamp);
 //
-//        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
+//        var output = buttonMethods.Button_setDimens(mockButton, TIMESTAMP);
 //
 //        assertEquals(dimensAtLastTimestamp, output);
 //
@@ -266,8 +266,8 @@
 //    }
 //
 //    @Test
-//    public void testButton_setDimensForComponentAndContentWithoutOverride() {
-//        var output = buttonMethods.Button_setDimensForComponentAndContent(mockButton, TIMESTAMP);
+//    public void testButton_setDimensWithoutOverride() {
+//        var output = buttonMethods.Button_setDimens(mockButton, TIMESTAMP);
 //
 //        assertEquals(BUTTON_UNADJ_DIMENS, output);
 //

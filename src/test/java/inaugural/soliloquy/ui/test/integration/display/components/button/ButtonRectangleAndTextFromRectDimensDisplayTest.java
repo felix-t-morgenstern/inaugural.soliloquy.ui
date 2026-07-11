@@ -10,7 +10,7 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.Constants.NO_MAX_LINE_LENGTH;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.Constants.WHITE;
 import static inaugural.soliloquy.ui.TextMarkupParserMethods.coloredText;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;

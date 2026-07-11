@@ -17,6 +17,7 @@ import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.TextMarkupParserMethods.coloredText;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.test.integration.display.DisplayTestMethods.*;
 import static java.awt.Color.BLUE;
@@ -141,7 +142,7 @@ public class ButtonComponentOriginProviderDisplayTest extends DisplayTest {
                         .withColorShifts(brightness(-brightnessAdj, false)))
                 .withPressSound(PRESS_SOUND_ID)
                 .withReleaseSound(RELEASE_SOUND_ID)
-                .onPress(DisplayTest_onMousePress)
+                .onReleaseAfterPress(DisplayTest_onMousePress)
                 .withData(mapOf(
                         COMPONENT_ORIGIN_PROVIDER,
                         movingCenterOriginProvider

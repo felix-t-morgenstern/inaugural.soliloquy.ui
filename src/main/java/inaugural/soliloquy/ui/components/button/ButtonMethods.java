@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.button;
 
 import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.tools.reflection.Reflection;
 import org.apache.commons.lang3.function.TriConsumer;
 import soliloquy.specs.common.valueobjects.FloatBox;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -33,8 +34,10 @@ import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.io.input.mouse.Mouse.EventType.RELEASE;
 
 public class ButtonMethods {
+    public final static String BUTTON_LAST_UNADJ_TIMESTAMP = "BUTTON_LAST_UNADJ_TIMESTAMP";
     public final static String BUTTON_DIMENS = "BUTTON_DIMENS";
     public final static String BUTTON_UNADJ_DIMENS = "BUTTON_UNADJ_DIMENS";
+    public final static String RECT_UNADJ_DIMENS = "RECT_UNADJ_DIMENS";
     public final static String BUTTON_RECT_DIMENS = "BUTTON_RECT_DIMENS";
 
     public final static String IS_PRESSED = "IS_PRESSED";
@@ -44,6 +47,7 @@ public class ButtonMethods {
     final static String SPRITE_HOVER_STATE = "SPRITE_HOVER_STATE";
 
     final static String PRESS_CONSUMER = "PRESS_CONSUMER";
+    final static String RELEASE_CONSUMER = "RELEASE_CONSUMER";
     final static String PRESS_SOUND_ID = "PRESS_SOUND_ID";
     final static String MOUSE_OVER_SOUND_ID = "MOUSE_OVER_SOUND_ID";
     final static String MOUSE_LEAVE_SOUND_ID = "MOUSE_LEAVE_SOUND_ID";
@@ -69,54 +73,20 @@ public class ButtonMethods {
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
     }
 
-    public final static String Button_setDimensForComponentAndContent =
-            "Button_setDimensForComponentAndContent";
+    public final static String Button_setDimens = "Button_setDimens";
 
-    public FloatBox Button_setDimensForComponentAndContent(Component button, long timestamp) {
+    public FloatBox Button_setDimens(Component button, long timestamp) {
+        Long lastTimestamp = getFromData(button, LAST_TIMESTAMP);
+
+        if (lastTimestamp != null && timestamp == lastTimestamp) {
+            return getFromData(button, BUTTON_DIMENS);
+        }
+
+        var unadjButtonDimens = Button_getUnadjDimens(button, timestamp);
+
         //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (button) {
-            Long lastTimestamp = getFromData(button, LAST_TIMESTAMP);
-
-            FloatBox unadjButtonDimens;
-
-            if (lastTimestamp != null && timestamp == lastTimestamp) {
-                return getFromData(button, BUTTON_DIMENS);
-            }
-            Options currentStateOptions;
-            if (getPressedState(button.data())) {
-                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_PRESSED);
-            }
-            else if (getHoverState(button.data())) {
-                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_HOVER);
-            }
-            else {
-                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
-            }
-
-            @SuppressWarnings("unchecked") var unadjRectDimens = defaultIfNullElseTransform(
-                    (ProviderAtTime<FloatBox>) getFromData(button, RECT_UNADJ_DIMENS_PROVIDER),
-                    dimens -> dimens.provide(timestamp),
-                    null
-            );
-            var unadjImageAssetDimens = defaultIfNullElseTransform(
-                    currentStateOptions.unadjImageAssetDimens,
-                    dimens -> dimens.provide(timestamp),
-                    null
-            );
-
-            if (unadjRectDimens != null) {
-                if (unadjImageAssetDimens != null) {
-                    unadjButtonDimens = encompassing(unadjRectDimens, unadjImageAssetDimens);
-                }
-                else {
-                    unadjButtonDimens = unadjRectDimens;
-                }
-            }
-            else {
-                unadjButtonDimens = unadjImageAssetDimens;
-            }
-
-            button.data().put(BUTTON_UNADJ_DIMENS, unadjButtonDimens);
+            FloatBox unadjRectDimens = getFromData(button, RECT_UNADJ_DIMENS);
 
             ProviderAtTime<Vertex> componentOriginProvider =
                     getFromData(button, COMPONENT_ORIGIN_PROVIDER);
@@ -156,10 +126,61 @@ public class ButtonMethods {
         }
     }
 
+    @Reflection.DoNotReadMethod
+    public FloatBox Button_getUnadjDimens(Component button, long timestamp) {
+        Long buttonLastUnadjTimestamp = getFromData(button, BUTTON_LAST_UNADJ_TIMESTAMP);
+        if (buttonLastUnadjTimestamp != null && timestamp == buttonLastUnadjTimestamp) {
+            return getFromData(button, BUTTON_UNADJ_DIMENS);
+        }
+
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (button) {
+            Options currentStateOptions;
+            if (getPressedState(button.data())) {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_PRESSED);
+            }
+            else if (getHoverState(button.data())) {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_HOVER);
+            }
+            else {
+                currentStateOptions = getFromData(button, RENDERABLE_OPTIONS_DEFAULT);
+            }
+
+            @SuppressWarnings("unchecked") var unadjRectDimens = defaultIfNullElseTransform(
+                    (ProviderAtTime<FloatBox>) getFromData(button, RECT_UNADJ_DIMENS_PROVIDER),
+                    dimens -> dimens.provide(timestamp),
+                    null
+            );
+            var unadjImageAssetDimens = defaultIfNullElseTransform(
+                    currentStateOptions.unadjImageAssetDimens,
+                    dimens -> dimens.provide(timestamp),
+                    null
+            );
+
+            FloatBox unadjButtonDimens;
+            if (unadjRectDimens != null) {
+                if (unadjImageAssetDimens != null) {
+                    unadjButtonDimens = encompassing(unadjRectDimens, unadjImageAssetDimens);
+                }
+                else {
+                    unadjButtonDimens = unadjRectDimens;
+                }
+            }
+            else {
+                unadjButtonDimens = unadjImageAssetDimens;
+            }
+
+            button.data().put(BUTTON_UNADJ_DIMENS, unadjButtonDimens);
+            button.data().put(RECT_UNADJ_DIMENS, unadjRectDimens);
+
+            return unadjButtonDimens;
+        }
+    }
+
     public final static String Button_getDimens = "Button_getDimens";
 
     public FloatBox Button_getDimens(FunctionalProvider.Inputs inputs) {
-        return Button_setDimensForComponentAndContent(getButton(inputs), inputs.timestamp());
+        return Button_setDimens(getButton(inputs), inputs.timestamp());
     }
 
     public final static String Button_pressMouse = "Button_pressMouse";
@@ -241,6 +262,11 @@ public class ButtonMethods {
             }
             setRenderablesPressed(e);
 
+            Consumer<EventInputs> pressConsumer = getFromData(data, PRESS_CONSUMER);
+            if (pressConsumer != null) {
+                pressConsumer.accept(e);
+            }
+
             if (afterFire != null) {
                 afterFire.run();
             }
@@ -277,12 +303,12 @@ public class ButtonMethods {
                     !Strings.isNullOrEmpty(releaseSoundIdStr)) {
                 PLAY_SOUND.accept(releaseSoundIdStr);
             }
-            var pressConsumer = data.get(PRESS_CONSUMER);
-            //noinspection rawtypes
-            if (pressConsumer instanceof Consumer pressActionCast) {
-                //noinspection unchecked
-                pressActionCast.accept(e);
+
+            Consumer<EventInputs> releaseConsumer = getFromData(data, RELEASE_CONSUMER);
+            if (releaseConsumer != null) {
+                releaseConsumer.accept(e);
             }
+
             setRenderablesDefault(e);
         }
     }

@@ -10,8 +10,8 @@ import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
-import static inaugural.soliloquy.ui.Constants.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonDefinition.beveledButton;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 

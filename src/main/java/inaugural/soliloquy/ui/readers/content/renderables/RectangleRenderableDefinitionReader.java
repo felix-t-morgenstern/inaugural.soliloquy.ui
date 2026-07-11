@@ -39,11 +39,13 @@ public class RectangleRenderableDefinitionReader
                                     long timestamp) {
         Check.ifNull(definition, "definition");
 
-        var dimens = definition.dimensProvider != null ? definition.dimensProvider :
-                PROVIDER_READER.read(
+        var dimens = supplyIfNull(
+                definition.dimensProvider,
+                () -> PROVIDER_READER.read(
                         Check.ifNull(definition.dimensProviderDef, "definition.dimensProviderDef"),
                         timestamp
-                );
+                )
+        );
 
         var topLeft = provider(
                 definition.topLeftColorProvider,

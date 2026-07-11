@@ -39,8 +39,7 @@ import static inaugural.soliloquy.tools.testing.Assertions.assertMapContainsSubs
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.tools.testing.Mock.LookupAndEntitiesWithId;
 import static inaugural.soliloquy.tools.testing.Mock.generateMockLookupFunctionWithId;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_ORIGIN_PROVIDER;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinitionReader.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
@@ -79,11 +78,14 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
             HorizontalAlignment.fromValue(randomIntInRange(1, 3));
 
     private final String ON_PRESS_ID = randomString();
+    private final String ON_RELEASE_ID = randomString();
     @SuppressWarnings("rawtypes") private final LookupAndEntitiesWithId<Consumer>
             MOCK_CONSUMER_AND_LOOKUP =
-            generateMockLookupFunctionWithId(Consumer.class, ON_PRESS_ID);
+            generateMockLookupFunctionWithId(Consumer.class, ON_PRESS_ID, ON_RELEASE_ID);
     @SuppressWarnings("rawtypes") private final Consumer MOCK_ON_PRESS =
             MOCK_CONSUMER_AND_LOOKUP.entities.getFirst();
+    @SuppressWarnings("rawtypes") private final Consumer MOCK_ON_RELEASE =
+            MOCK_CONSUMER_AND_LOOKUP.entities.get(1);
     @SuppressWarnings("rawtypes") private final Function<String, Consumer> MOCK_GET_CONSUMER =
             MOCK_CONSUMER_AND_LOOKUP.lookup;
 
@@ -361,6 +363,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
                 .withImageAssetHover(imageAssetDefHover)
                 .withImageAssetPressed(imageAssetDefPressed)
                 .onPress(ON_PRESS_ID)
+                .onReleaseAfterPress(ON_RELEASE_ID)
                 .withMouseOverSound(TEST_MOUSE_OVER_SOUND_ID)
                 .withMouseLeaveSound(TEST_MOUSE_LEAVE_SOUND_ID)
                 .withPressSound(TEST_PRESS_SOUND_ID)
@@ -378,6 +381,8 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
         var expectedData = Collections.<String, Object>mapOf(
                 PRESS_CONSUMER,
                 MOCK_ON_PRESS,
+                RELEASE_CONSUMER,
+                MOCK_ON_RELEASE,
                 PRESS_SOUND_ID,
                 TEST_PRESS_SOUND_ID,
                 MOUSE_OVER_SOUND_ID,
@@ -431,6 +436,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
         assertImageAssetDefPrepped(imageAssetDefPressed);
 
         verify(MOCK_GET_CONSUMER, once()).apply(ON_PRESS_ID);
+        verify(MOCK_GET_CONSUMER, once()).apply(ON_RELEASE_ID);
         verify(mockProviderDefReader, once())
                 .read(same(mockRectDefaultUnadjDimensProviderDef), eq(TIMESTAMP));
         verify(mockProviderDefReader, once()).read(
@@ -501,6 +507,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
                 .withImageAssetHover(imageAssetDefHover)
                 .withImageAssetPressed(imageAssetDefPressed)
                 .onPress(ON_PRESS_ID)
+                .onReleaseAfterPress(ON_RELEASE_ID)
                 .withMouseOverSound(TEST_MOUSE_OVER_SOUND_ID)
                 .withMouseLeaveSound(TEST_MOUSE_LEAVE_SOUND_ID)
                 .withPressSound(TEST_PRESS_SOUND_ID)
@@ -528,6 +535,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
                 .withImageAssetHover(imageAssetDefHover)
                 .withImageAssetPressed(imageAssetDefPressed)
                 .onPress(ON_PRESS_ID)
+                .onReleaseAfterPress(ON_RELEASE_ID)
                 .withMouseOverSound(TEST_MOUSE_OVER_SOUND_ID)
                 .withMouseLeaveSound(TEST_MOUSE_LEAVE_SOUND_ID)
                 .withPressSound(TEST_PRESS_SOUND_ID)

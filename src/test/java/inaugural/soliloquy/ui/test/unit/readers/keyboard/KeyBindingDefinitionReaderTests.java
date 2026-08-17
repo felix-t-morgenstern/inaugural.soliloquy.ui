@@ -7,9 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static inaugural.soliloquy.tools.collections.Collections.arrayChars;
 import static inaugural.soliloquy.tools.collections.Collections.arrayInts;
-import static inaugural.soliloquy.tools.random.Random.randomChar;
 import static inaugural.soliloquy.tools.random.Random.randomInt;
 import static org.junit.jupiter.api.Assertions.*;
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
@@ -34,7 +32,9 @@ public class KeyBindingDefinitionReaderTests extends AbstractContentDefinitionTe
 
     @Test
     public void testRead() {
-        var definition = binding(ON_PRESS_ID, ON_RELEASE_ID, KEY);
+        var definition = binding(KEY)
+                .onPress(ON_PRESS_ID)
+                .onRelease(ON_RELEASE_ID);
 
         var binding = reader.read(definition);
 

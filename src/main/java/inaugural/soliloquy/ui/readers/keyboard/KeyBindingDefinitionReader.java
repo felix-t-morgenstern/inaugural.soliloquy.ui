@@ -20,9 +20,9 @@ public class KeyBindingDefinitionReader {
     }
 
     public KeyBinding read(KeyBindingDefinition definition) {
-        var onPress = defaultIfNullElseTransform(definition.PRESS_CONSUMER_ID, GET_CONSUMER, null);
+        var onPress = defaultIfNullElseTransform(definition.pressConsumerId, GET_CONSUMER, null);
         var onRelease =
-                defaultIfNullElseTransform(definition.RELEASE_CONSUMER_ID, GET_CONSUMER, null);
+                defaultIfNullElseTransform(definition.releaseConsumerId, GET_CONSUMER, null);
 
         //noinspection unchecked
         return keyBinding(definition.KEY_CODEPOINTS, onPress, onRelease);

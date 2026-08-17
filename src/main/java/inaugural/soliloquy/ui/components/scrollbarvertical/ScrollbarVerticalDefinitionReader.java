@@ -24,6 +24,9 @@ import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinit
 
 public class ScrollbarVerticalDefinitionReader extends
         AbstractCustomComponentDefinitionReader<ScrollbarVerticalDefinition> {
+    private final static int TRACK_AND_BUTTON_Z = 0;
+    private final static int THUMB_Z = 1;
+
     private final ButtonDefinitionReader BUTTON_DEF_READER;
     private final RectangleRenderableDefinitionReader RECT_DEF_READER;
 
@@ -37,9 +40,11 @@ public class ScrollbarVerticalDefinitionReader extends
 
     @Override
     public ComponentDefinition read(ScrollbarVerticalDefinition def, long timestamp) {
+        System.out.println("scrollbar uuid at def = " + def.UUID);
         var scrollbarData = Collections.<String, Object>mapOf();
 
-        def.TRACK_DEF.onPress(mapOf(LEFT_MOUSE_BUTTON, ScrollbarVertical_trackClick));
+        def.TRACK_DEF.z = TRACK_AND_BUTTON_Z;
+        def.TRACK_DEF.onPress(mapOf(LEFT_MOUSE_BUTTON, ScrollbarVertical_trackPress));
         var track = RECT_DEF_READER.read(null, def.TRACK_DEF, timestamp);
         var unadjTrackDimens = track.getRenderingDimensionsProvider();
         track.setRenderingDimensionsProvider(PROVIDER_DEF_READER.read(
@@ -52,12 +57,34 @@ public class ScrollbarVerticalDefinitionReader extends
         ));
         scrollbarData.put(TRACK_UNADJ_DIMENS_PROVIDER, unadjTrackDimens);
 
+        var thumbOriginProvider = PROVIDER_DEF_READER.read(
+                functionalProvider(
+                        ScrollbarVertical_thumbOrigin,
+                        Vertex.class
+                )
+                        .withData(mapOf(
+                                COMPONENT_UUID,
+                                def.UUID
+                        )),
+                timestamp
+        );
+        def.THUMB_DEF.z = THUMB_Z;
+        def.THUMB_DEF
+                .onPress(ScrollbarVertical_thumbPress)
+                .withData(mapOf(
+                        COMPONENT_ORIGIN_PROVIDER,
+                        thumbOriginProvider
+                ));
         var thumb = BUTTON_DEF_READER.read(def.THUMB_DEF, timestamp);
 
-        scrollbarData.put(
+        scrollbarData.putAll(mapOf(
                 COMPONENT_ORIGIN_PROVIDER,
-                providerOrReadDef(def.ORIGIN_PROVIDER, def.ORIGIN_PROVIDER_DEF, timestamp)
-        );
+                providerOrReadDef(def.ORIGIN_PROVIDER, def.ORIGIN_PROVIDER_DEF, timestamp),
+                THUMB_UUID,
+                def.THUMB_DEF.UUID,
+                THUMB_IS_PRESSED,
+                false
+        ));
 
         var scrollbarComponentDef = component(def.z, def.UUID)
                 .withBindings(
@@ -66,33 +93,55 @@ public class ScrollbarVerticalDefinitionReader extends
                         binding()
                 )
                 .withData(scrollbarData)
-                .withPrerenderHook(ScrollbarVertical_setDimens)
+                .withPrerenderHook(ScrollbarVertical_getDimens)
                 .withContent(thumb)
                 .withPrereadContent(track);
 
         if (def.topArrowDef != null) {
             scrollbarComponentDef.withContent(
-                    prepareButton(def.UUID, def.topArrowDef, timestamp),
-                    prepareButton(def.UUID, def.bottomArrowDef, timestamp)
+                    prepareArrowButton(
+                            def.UUID,
+                            def.topArrowDef,
+                            ScrollbarVertical_topArrowReleaseAfterPress,
+                            ScrollbarVertical_provideAdjTopArrowOrigin,
+                            timestamp
+                    ),
+                    prepareArrowButton(
+                            def.UUID,
+                            def.bottomArrowDef,
+                            ScrollbarVertical_bottomArrowReleaseAfterPress,
+                            ScrollbarVertical_provideAdjBottomArrowOrigin,
+                            timestamp
+                    )
             );
+            scrollbarData.putAll(mapOf(
+                    THUMB_INCREMENT_MOVE_DUR,
+                    def.THUMB_INCREMENT_MOVE_DUR,
+                    ARROW_HOLD_START_THRESHOLD,
+                    def.arrowHoldStartThreshold,
+                    TOP_ARROW_UUID,
+                    def.topArrowDef.UUID,
+                    BOTTOM_ARROW_UUID,
+                    def.bottomArrowDef.UUID
+            ));
         }
 
         return scrollbarComponentDef;
     }
 
-    private ComponentDefinition prepareButton(UUID scrollbarUuid,
-                                              ButtonDefinition buttonDef,
-                                              long timestamp) {
+    private ComponentDefinition prepareArrowButton(UUID scrollbarUuid,
+                                                   ButtonDefinition buttonDef,
+                                                   String releaseAndPressFunctionId,
+                                                   String originFunctionId,
+                                                   long timestamp) {
+        buttonDef.z = TRACK_AND_BUTTON_Z;
         return BUTTON_DEF_READER.read(
                 buttonDef
-                        .onReleaseAfterPress(ScrollbarVertical_topArrowClick)
+                        .onReleaseAfterPress(releaseAndPressFunctionId)
                         .withData(mapOf(
                                 COMPONENT_ORIGIN_PROVIDER,
                                 PROVIDER_DEF_READER.read(
-                                        functionalProvider(
-                                                ScrollbarVertical_provideAdjTopArrowOrigin,
-                                                Vertex.class
-                                        )
+                                        functionalProvider(originFunctionId, Vertex.class)
                                                 .withData(mapOf(COMPONENT_UUID, scrollbarUuid)),
                                         timestamp
                                 )

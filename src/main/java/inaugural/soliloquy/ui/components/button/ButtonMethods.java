@@ -125,7 +125,7 @@ public class ButtonMethods {
             return buttonAdjDimens;
         }
     }
-
+    
     @Reflection.DoNotReadMethod
     public FloatBox Button_getUnadjDimens(Component button, long timestamp) {
         Long buttonLastUnadjTimestamp = getFromData(button, BUTTON_LAST_UNADJ_TIMESTAMP);
@@ -190,7 +190,6 @@ public class ButtonMethods {
         pressButton(e.component, null, e, () ->
                 SUBSCRIBE_TO_MOUSE_EVENTS.accept(LEFT_MOUSE_BUTTON, RELEASE,
                         () -> releaseButton(e, null)));
-
     }
 
     public final static String Button_mouseOver = "Button_mouseOver";
@@ -250,11 +249,11 @@ public class ButtonMethods {
         releaseButton(e, e.keyCodepoint);
     }
 
-    private void pressButton(Component c, Integer key, EventInputs e, Runnable afterFire) {
+    private void pressButton(Component c, Integer keycode, EventInputs e, Runnable afterFire) {
         var data = c.data();
         if (!falseIfNull(data.get(IS_PRESSED))) {
             data.put(IS_PRESSED, true);
-            data.put(PRESSED_KEY, key);
+            data.put(PRESSED_KEY, keycode);
             var pressSoundId = data.get(PRESS_SOUND_ID);
             if (pressSoundId instanceof String pressSoundIdStr &&
                     !Strings.isNullOrEmpty(pressSoundIdStr)) {

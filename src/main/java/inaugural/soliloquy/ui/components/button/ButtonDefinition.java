@@ -61,6 +61,10 @@ public class ButtonDefinition extends AbstractContentDefinition {
         return button(z, randomUUID());
     }
 
+    public static ButtonDefinition button() {
+        return button(0, randomUUID());
+    }
+
     /**
      * <u>If you want to define a Button's dimensions according to a TextBox instead of a Rectangle,
      * use {@link #textBlockDefinesRectDimens} and {@link #textBlockCenterProvider}, etc.</u>

@@ -120,11 +120,11 @@ public class ButtonDefinitionReader
         KeyBindingDefinition[] bindings =
                 defaultIfNullElseTransform(
                         definition.keyCodepoints,
-                        k -> arrayOf(binding(
-                                Button_pressKey,
-                                Button_releaseKey,
-                                k
-                        )),
+                        k -> arrayOf(
+                                binding(k)
+                                        .onPress(Button_pressKey)
+                                        .onRelease(Button_releaseKey)
+                        ),
                         arrayOf()
                 );
 

@@ -44,7 +44,7 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                                     Component topLevelComponent) {
         var rectDef = makeRectForCol();
 
-        var colDef = makeColumnWithContents(DEFAULT_COL_RENDERING_LOC, RIGHT);
+        var colDef = makeColumnWithContents(DEFAULT_RENDERING_LOC_DEF, RIGHT);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

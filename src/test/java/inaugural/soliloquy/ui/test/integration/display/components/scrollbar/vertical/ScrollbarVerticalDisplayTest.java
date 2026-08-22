@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.scrollbarvertical;
+package inaugural.soliloquy.ui.test.integration.display.components.scrollbar.vertical;
 
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
@@ -16,8 +16,8 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.exception.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
-import static inaugural.soliloquy.ui.components.scrollbarvertical.ScrollbarVerticalDefinition.scrollbarVertical;
-import static inaugural.soliloquy.ui.components.scrollbarvertical.ScrollbarVerticalMethods.THUMB_LOC_IN_SCROLLABLE_RANGE;
+import static inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinition.scrollbarVertical;
+import static inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalMethods.THUMB_LOC_IN_SCROLLABLE_RANGE;
 import static java.awt.Color.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
@@ -42,7 +42,7 @@ public class ScrollbarVerticalDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Scrollbar vertical", 32000),
+                () -> DisplayTest.runThenClose("Scrollbar vertical", 60000),
                 ScrollbarVerticalDisplayTest::populateTopLevelComponent
         );
     }
@@ -50,6 +50,11 @@ public class ScrollbarVerticalDisplayTest extends DisplayTest {
     @SuppressWarnings("SuspiciousNameCombination")
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
+        var scrollMoveDur = 100;
+        var arrowHoldStartThreshold = 500;
+        var minDurBetweenMovesWhileArrowHeld = scrollMoveDur;
+        var arrowHeldRepeatedTimeExponent = 3f;
+        var arrowHeldRepeatedTimeExponentFactor = 100f;
         var scrollbarDef = scrollbarVertical(
                 DEFAULT_RENDERING_LOC,
                 rectangle(floatBoxOf(SCROLLBAR_WIDTH, 0.4f), 0)
@@ -57,21 +62,22 @@ public class ScrollbarVerticalDisplayTest extends DisplayTest {
                 button()
                         .withRectDefault(
                                 rectangle(
-                                        floatBoxOf(SCROLLBAR_WIDTH * 1.1f, SCROLLBAR_WIDTH * 1.25f),
+                                        floatBoxOf(SCROLLBAR_WIDTH * 1.2f, SCROLLBAR_WIDTH * 1.25f),
                                         0)
                                         .withColor(YELLOW)
                         )
                         .withRectDefault(
                                 rectangle(
-                                        floatBoxOf(SCROLLBAR_WIDTH * 1.1f, SCROLLBAR_WIDTH * 1.25f),
+                                        floatBoxOf(SCROLLBAR_WIDTH * 1.2f, SCROLLBAR_WIDTH * 1.25f),
                                         0)
                                         .withColor(ORANGE)
                         )
                         .withPressSound(PRESS_SOUND_ID)
                         .withReleaseSound(RELEASE_SOUND_ID),
-                1000
+                staticVal(0.1f),
+                scrollMoveDur
         )
-                .withAnchors(
+                .withArrowButtons(
                         button(0)
                                 .withRectDefault(
                                         rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
@@ -94,9 +100,10 @@ public class ScrollbarVerticalDisplayTest extends DisplayTest {
                                 )
                                 .withPressSound(PRESS_SOUND_ID)
                                 .withReleaseSound(RELEASE_SOUND_ID),
-                        staticVal(0.1f),
-                        500,
-                        500
+                        arrowHoldStartThreshold,
+                        minDurBetweenMovesWhileArrowHeld,
+                        arrowHeldRepeatedTimeExponent,
+                        arrowHeldRepeatedTimeExponentFactor
                 );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);

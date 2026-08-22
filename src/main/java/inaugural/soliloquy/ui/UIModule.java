@@ -17,9 +17,9 @@ import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinitionReader;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowMethods;
-import inaugural.soliloquy.ui.components.scrollbarvertical.ScrollbarVerticalDefinition;
-import inaugural.soliloquy.ui.components.scrollbarvertical.ScrollbarVerticalDefinitionReader;
-import inaugural.soliloquy.ui.components.scrollbarvertical.ScrollbarVerticalMethods;
+import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinition;
+import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinitionReader;
+import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalMethods;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
 import inaugural.soliloquy.ui.components.textblock.TextBlockMethods;
@@ -34,6 +34,7 @@ import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.factories.*;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.*;
+import soliloquy.specs.io.graphics.rendering.FrameExecutor;
 import soliloquy.specs.io.graphics.rendering.WindowResolutionManager;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
 import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
@@ -67,6 +68,7 @@ public class UIModule extends AbstractModule {
         andRegister(ioModule);
 
         var graphics = ioModule.provide(Graphics.class);
+        var frameExecutor = ioModule.provide(FrameExecutor.class);
         @SuppressWarnings("rawtypes") BiFunction<UUID, Object, ProviderAtTime>
                 staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
         @SuppressWarnings("rawtypes") ProviderAtTime nullProvider = ioModule.provide(NULL_PROVIDER);
@@ -256,7 +258,8 @@ public class UIModule extends AbstractModule {
         customComponentMethods.add(buttonMethods = new ButtonMethods(
                 id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
                 subscribeToNextMouseEvent,
-                graphics::getComponent
+                graphics::getComponent,
+                frameExecutor::registerFrameBlockingEvent
         ));
         renderableDefinitionReader.addCustomComponentReader(
                 ButtonDefinition.class,

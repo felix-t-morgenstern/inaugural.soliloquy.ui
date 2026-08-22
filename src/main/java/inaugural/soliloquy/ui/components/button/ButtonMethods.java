@@ -64,13 +64,16 @@ public class ButtonMethods {
     private final TriConsumer<Integer, Mouse.EventType, Runnable>
             SUBSCRIBE_TO_MOUSE_EVENTS;
     private final Function<UUID, Component> GET_COMPONENT;
+    private final Consumer<Consumer<Long>> REGISTER_FRAME_BLOCKING_EVENT;
 
     public ButtonMethods(Consumer<String> playSound,
                          TriConsumer<Integer, Mouse.EventType, Runnable> subscribeToMouseEvents,
-                         Function<UUID, Component> getComponent) {
+                         Function<UUID, Component> getComponent,
+                         Consumer<Consumer<Long>> registerFrameBlockingEvent) {
         PLAY_SOUND = Check.ifNull(playSound, "playSound");
         SUBSCRIBE_TO_MOUSE_EVENTS = Check.ifNull(subscribeToMouseEvents, "subscribeToMouseEvents");
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
+        REGISTER_FRAME_BLOCKING_EVENT = Check.ifNull(registerFrameBlockingEvent, "registerFrameBlockingEvent");
     }
 
     public final static String Button_setDimens = "Button_setDimens";
@@ -305,7 +308,7 @@ public class ButtonMethods {
 
             Consumer<EventInputs> releaseConsumer = getFromData(data, RELEASE_CONSUMER);
             if (releaseConsumer != null) {
-                releaseConsumer.accept(e);
+                REGISTER_FRAME_BLOCKING_EVENT.accept(_ -> releaseConsumer.accept(e));
             }
 
             setRenderablesDefault(e);

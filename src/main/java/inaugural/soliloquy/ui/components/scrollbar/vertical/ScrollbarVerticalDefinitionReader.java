@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.components.scrollbarvertical;
+package inaugural.soliloquy.ui.components.scrollbar.vertical;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
@@ -17,7 +17,7 @@ import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.ui.Constants.COMPONENT_ORIGIN_PROVIDER;
 import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
-import static inaugural.soliloquy.ui.components.scrollbarvertical.ScrollbarVerticalMethods.*;
+import static inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalMethods.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
@@ -40,7 +40,6 @@ public class ScrollbarVerticalDefinitionReader extends
 
     @Override
     public ComponentDefinition read(ScrollbarVerticalDefinition def, long timestamp) {
-        System.out.println("scrollbar uuid at def = " + def.UUID);
         var scrollbarData = Collections.<String, Object>mapOf();
 
         def.TRACK_DEF.z = TRACK_AND_BUTTON_Z;
@@ -98,10 +97,13 @@ public class ScrollbarVerticalDefinitionReader extends
                 .withPrereadContent(track);
 
         if (def.topArrowDef != null) {
+            var thumbMoveAmountProvider =
+                    PROVIDER_DEF_READER.read(def.THUMB_MOVE_AMOUNT_PROVIDER_DEF, timestamp);
             scrollbarComponentDef.withContent(
                     prepareArrowButton(
                             def.UUID,
                             def.topArrowDef,
+                            ScrollbarVertical_topArrowPress,
                             ScrollbarVertical_topArrowReleaseAfterPress,
                             ScrollbarVertical_provideAdjTopArrowOrigin,
                             timestamp
@@ -109,16 +111,25 @@ public class ScrollbarVerticalDefinitionReader extends
                     prepareArrowButton(
                             def.UUID,
                             def.bottomArrowDef,
+                            ScrollbarVertical_bottomArrowPress,
                             ScrollbarVertical_bottomArrowReleaseAfterPress,
                             ScrollbarVertical_provideAdjBottomArrowOrigin,
                             timestamp
                     )
             );
-            scrollbarData.putAll(mapOf(
+            scrollbarComponentDef.withData(mapOf(
+                    THUMB_MOVE_AMOUNT_PROVIDER,
+                    thumbMoveAmountProvider,
                     THUMB_INCREMENT_MOVE_DUR,
                     def.THUMB_INCREMENT_MOVE_DUR,
                     ARROW_HOLD_START_THRESHOLD,
                     def.arrowHoldStartThreshold,
+                    MIN_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD,
+                    def.minDurBetweenMovesWhileArrowHeld,
+                    ARROW_HELD_REPEATED_TIME_EXPONENT,
+                    def.arrowHeldRepeatedTimeExponent,
+                    ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR,
+                    def.arrowHeldRepeatedTimeExponentFactor,
                     TOP_ARROW_UUID,
                     def.topArrowDef.UUID,
                     BOTTOM_ARROW_UUID,
@@ -131,13 +142,15 @@ public class ScrollbarVerticalDefinitionReader extends
 
     private ComponentDefinition prepareArrowButton(UUID scrollbarUuid,
                                                    ButtonDefinition buttonDef,
-                                                   String releaseAndPressFunctionId,
+                                                   String pressFunctionId,
+                                                   String releaseAfterPressFunctionId,
                                                    String originFunctionId,
                                                    long timestamp) {
         buttonDef.z = TRACK_AND_BUTTON_Z;
         return BUTTON_DEF_READER.read(
                 buttonDef
-                        .onReleaseAfterPress(releaseAndPressFunctionId)
+                        .onPress(pressFunctionId)
+                        .onReleaseAfterPress(releaseAfterPressFunctionId)
                         .withData(mapOf(
                                 COMPONENT_ORIGIN_PROVIDER,
                                 PROVIDER_DEF_READER.read(

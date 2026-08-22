@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.components.scrollbarvertical;
+package inaugural.soliloquy.ui.components.scrollbar.vertical;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.reflection.Reflection;
@@ -50,16 +50,14 @@ public class ScrollbarVerticalMethods {
             "THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE";
     final static String THUMB_MOVE_AMOUNT_PROVIDER = "THUMB_MOVE_AMOUNT_PROVIDER";
     final static String THUMB_IS_PRESSED = "THUMB_IS_PRESSED";
-    final static String THUMB_HAS_BEEN_PRESSED = "THUMB_HAS_BEEN_PRESSED";
     final static String THUMB_INCREMENT_MOVE_DUR = "THUMB_INCREMENT_MOVE_DUR";
     final static String THUMB_MOVE_PROGRESS_PROVIDER = "THUMB_MOVE_PROGRESS_PROVIDER";
 
     final static String ARROW_BEING_HELD = "ARROW_BEING_HELD";
     final static String ARROW_HOLD_START_THRESHOLD = "ARROW_HOLD_START_THRESHOLD";
-    final static String FIRST_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD =
-            "FIRST_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD";
     final static String MIN_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD =
             "MIN_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD";
+    final static String ARROW_HELD_REPEATED_TIME_EXPONENT = "ARROW_HELD_REPEATED_TIME_EXPONENT";
     final static String ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR =
             "ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR";
 
@@ -91,6 +89,11 @@ public class ScrollbarVerticalMethods {
     public final static String ScrollbarVertical_getDimens = "ScrollbarVertical_getDimens";
 
     public FloatBox ScrollbarVertical_getDimens(Component scrollbar, long timestamp) {
+        Long lastTimestamp = getFromData(scrollbar, LAST_TIMESTAMP);
+        if (timestamp == defaultIfNull(lastTimestamp, Long.MIN_VALUE)) {
+            return getFromData(scrollbar, COMPONENT_DIMENS);
+        }
+
         ProviderAtTime<Vertex> scrollbarOriginProvider =
                 getFromData(scrollbar, COMPONENT_ORIGIN_PROVIDER);
         var scrollbarOrigin = scrollbarOriginProvider.provide(timestamp);
@@ -180,6 +183,8 @@ public class ScrollbarVerticalMethods {
             "ScrollbarVertical_provideAdjTrackDimens";
 
     public FloatBox ScrollbarVertical_provideAdjTrackDimens(FunctionalProvider.Inputs inputs) {
+        var scrollbar = getScrollbar(inputs);
+        ScrollbarVertical_getDimens(scrollbar, inputs.timestamp());
         return getInComponentData(inputs, TRACK_ADJ_DIMENS);
     }
 
@@ -326,7 +331,7 @@ public class ScrollbarVerticalMethods {
 
         scrollbar.data()
                 .put(THUMB_LOC_IN_SCROLLABLE_RANGE, relativeMouseLocWithinScrollableRange);
-        scrollbar.data().put(THUMB_MOVE_AMOUNT_PROVIDER, null);
+        scrollbar.data().remove(THUMB_MOVE_PROGRESS_PROVIDER);
 
         var thumbPressEvent = eventInputs(e.TIMESTAMP)
                 .withMouseEvent(e.mouseButton, e.mouseEvent, e.mouseLoc, null, thumb);
@@ -349,23 +354,45 @@ public class ScrollbarVerticalMethods {
         );
     }
 
-    private void pressArrow(Component scrollbar, boolean moveUp) {
+    public final static String ScrollbarVertical_topArrowPress = "ScrollbarVertical_topArrowPress";
+
+    public void ScrollbarVertical_topArrowPress(EventInputs e) {
+        pressArrow(e, true);
+    }
+
+    public final static String ScrollbarVertical_bottomArrowPress = "ScrollbarVertical_bottomArrowPress";
+
+    public void ScrollbarVertical_bottomArrowPress(EventInputs e) {
+        pressArrow(e, false);
+    }
+
+    private void pressArrow(EventInputs e, boolean moveUp) {
+        System.out.println(">> PRESS, moveUp = " + moveUp);
+        var scrollbar = e.component.getContainingComponent();
+        System.out.println("scrollbar data...");
+        System.out.println(scrollbar.data());
         scrollbar.data().put(ARROW_BEING_HELD, true);
 
-        int startThreshold = getFromData(scrollbar, ARROW_HOLD_START_THRESHOLD);
+        final int startThreshold = getFromData(scrollbar, ARROW_HOLD_START_THRESHOLD);
+        System.out.println("startThreshold = " + startThreshold);
 
-        var timesRepeated = 0;
-        sleep(startThreshold);
-        while (falseIfNull(getFromData(scrollbar, ARROW_BEING_HELD))) {
-            var timestamp = CLOCK.globalTimestamp();
+        new Thread(() -> {
+            var timesRepeated = 0;
 
-            incrementMovement(scrollbar, timestamp, moveUp);
+            sleep(startThreshold);
+            while (falseIfNull(getFromData(scrollbar, ARROW_BEING_HELD))) {
+                System.out.println("[STILL HELD] initiating move");
+                var timestamp = CLOCK.globalTimestamp();
 
-            var timeUntilNextIncrement =
-                    timeTilNextThumbMovementWhileArrowHeld(scrollbar, timesRepeated++);
+                incrementMovement(scrollbar, timestamp, moveUp);
 
-            sleep(timeUntilNextIncrement);
-        }
+                var timeUntilNextIncrement =
+                        timeTilNextThumbMovementWhileArrowHeld(scrollbar, timesRepeated++);
+                System.out.println("timeUntilNextIncrement = " + timeUntilNextIncrement);
+
+                sleep(timeUntilNextIncrement);
+            }
+        }).start();
     }
 
     public final static String ScrollbarVertical_topArrowReleaseAfterPress =
@@ -383,58 +410,63 @@ public class ScrollbarVerticalMethods {
     }
 
     public void releaseArrowAndIncrementMovement(EventInputs e, boolean moveUp) {
-        var scrollbar = e.renderable.getContainingComponent();
+        System.out.println("::: in releaseArrowAndIncrementMovement");
+        // The Renderable is a Rectangle within the Button, *within* the Scrollbar
+        var scrollbar = e.renderable.getContainingComponent().getContainingComponent();
+        System.out.println("scrollbar data = " + scrollbar.data());
         scrollbar.data().put(ARROW_BEING_HELD, false);
+        System.out.println("scrollbar data AFTER change = " + scrollbar.data());
         incrementMovement(scrollbar, e.TIMESTAMP, moveUp);
     }
 
     @Reflection.DoNotReadMethod
     public void incrementMovement(Component scrollbar, long timestamp, boolean moveUp) {
-        ProviderAtTime<Float> arrowClickThumbMoveAmountProvider =
+        System.out.println("...in incrementMovement");
+        System.out.println("moveUp = " + moveUp);
+        var thumbLocInScrollableRangeFromData =
+                defaultIfNull(getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE), 0f);
+        System.out.println("thumbLocInScrollableRangeFromData = " + thumbLocInScrollableRangeFromData);
+        ProviderAtTime<Float> thumbMoveAmountProvider =
                 getFromData(scrollbar, THUMB_MOVE_AMOUNT_PROVIDER);
-        var arrowClickThumbMoveAmount = arrowClickThumbMoveAmountProvider.provide(timestamp);
+        var thumbMoveAmount = thumbMoveAmountProvider.provide(timestamp);
         if (moveUp) {
-            arrowClickThumbMoveAmount *= -1f;
+            if (thumbLocInScrollableRangeFromData <= 0f) {
+                return;
+            }
+            thumbMoveAmount *= -1f;
         }
+        else if (thumbLocInScrollableRangeFromData >= 1f) {
+            return;
+        }
+        System.out.println("thumb is not at edge of range!");
 
         var newThumbMoveProgressProvider = makeNewMoveProgressProvider(scrollbar, timestamp);
 
         ProviderAtTime<Float> thumbMoveProgressProvider =
                 getFromData(scrollbar, THUMB_MOVE_PROGRESS_PROVIDER);
+        float newOrigin;
         if (thumbMoveProgressProvider != null) {
             // Set updated target
-            float prevTarget = getFromData(scrollbar, THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE);
-            var updatedTarget = constrain(
-                    prevTarget + arrowClickThumbMoveAmount,
-                    0f,
-                    1f
-            );
-            scrollbar.data().putAll(mapOf(
-                    THUMB_MOVE_PROGRESS_PROVIDER,
-                    newThumbMoveProgressProvider,
-                    THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE,
-                    updatedTarget
-            ));
+            newOrigin = getFromData(scrollbar, THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE);
         }
         else {
             // make new target
-            float thumbLocInScrollableRangeFromData =
-                    getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE);
-            var newTarget = constrain(
-                    thumbLocInScrollableRangeFromData + arrowClickThumbMoveAmount,
-                    0f,
-                    1f
-            );
-
-            scrollbar.data().putAll(mapOf(
-                    THUMB_MOVE_PROGRESS_PROVIDER,
-                    newThumbMoveProgressProvider,
-                    THUMB_MOVE_ORIGIN_IN_SCROLLABLE_RANGE,
-                    thumbLocInScrollableRangeFromData,
-                    THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE,
-                    newTarget
-            ));
+            newOrigin = thumbLocInScrollableRangeFromData;
         }
+        var newTarget = constrain(
+                newOrigin + thumbMoveAmount,
+                0f,
+                1f
+        );
+
+        scrollbar.data().putAll(mapOf(
+                THUMB_MOVE_PROGRESS_PROVIDER,
+                newThumbMoveProgressProvider,
+                THUMB_MOVE_ORIGIN_IN_SCROLLABLE_RANGE,
+                thumbLocInScrollableRangeFromData,
+                THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE,
+                newTarget
+        ));
     }
 
     private ProviderAtTime<Float> makeNewMoveProgressProvider(Component scrollbar,
@@ -448,12 +480,12 @@ public class ScrollbarVerticalMethods {
 
     public int timeTilNextThumbMovementWhileArrowHeld(Component scrollbar,
                                                       int timesRepeatedThusFar) {
-        int firstTimeBetween =
-                getFromData(scrollbar, FIRST_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD);
+        int firstTimeBetween = getFromData(scrollbar, ARROW_HOLD_START_THRESHOLD);
         if (timesRepeatedThusFar == 0) {
             return firstTimeBetween;
         }
         int minTimeBetween = getFromData(scrollbar, MIN_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD);
+        float exponent = getFromData(scrollbar, ARROW_HELD_REPEATED_TIME_EXPONENT);
         float exponentFactor = getFromData(scrollbar, ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR);
         var calculatedTimeBetween =
                 firstTimeBetween - (exponentFactor * Math.pow(2f, timesRepeatedThusFar));

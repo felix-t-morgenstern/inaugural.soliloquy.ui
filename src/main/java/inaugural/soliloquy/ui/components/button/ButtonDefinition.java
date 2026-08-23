@@ -39,6 +39,7 @@ public class ButtonDefinition extends AbstractContentDefinition {
     public AbstractImageAssetRenderableDefinition imageAssetPressed;
 
     public String onPressId;
+    public String onReleaseAfterPressId;
 
     public String pressSoundId;
     public String Button_mouseOverSoundId;
@@ -58,6 +59,10 @@ public class ButtonDefinition extends AbstractContentDefinition {
 
     public static ButtonDefinition button(int z) {
         return button(z, randomUUID());
+    }
+
+    public static ButtonDefinition button() {
+        return button(0, randomUUID());
     }
 
     /**
@@ -306,11 +311,21 @@ public class ButtonDefinition extends AbstractContentDefinition {
     }
 
     /**
-     * @param onPressId The id of the Action fired when the button is clicked (and released) or its
-     *                  key is pressed (and released)
+     * @param onPressId The id of the Action fired when the button is pressed (but <b>not yet</b>
+     *                  released) by the mouse or keyboard
      */
     public ButtonDefinition onPress(String onPressId) {
         this.onPressId = onPressId;
+
+        return this;
+    }
+
+    /**
+     * @param onReleaseAfterPressId The id of the Action fired when the button is released over the
+     *                              Button, <b>after</b> it is pressed
+     */
+    public ButtonDefinition onReleaseAfterPress(String onReleaseAfterPressId) {
+        this.onReleaseAfterPressId = onReleaseAfterPressId;
 
         return this;
     }

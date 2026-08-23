@@ -34,7 +34,7 @@ import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProvid
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
-    public static final AbstractProviderDefinition<Vertex> DEFAULT_COL_RENDERING_LOC =
+    public static final AbstractProviderDefinition<Vertex> DEFAULT_RENDERING_LOC_DEF =
             staticVal(vertexOf(0.25f, 0f));
 
     public static void main(String[] args) {
@@ -69,7 +69,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                                     Component topLevelComponent) {
         var rectDef = makeRectForCol();
 
-        var colDef = makeColumnWithContents(DEFAULT_COL_RENDERING_LOC, LEFT);
+        var colDef = makeColumnWithContents(DEFAULT_RENDERING_LOC_DEF, LEFT);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

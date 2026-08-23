@@ -28,12 +28,11 @@ public class BeveledButtonDefinitionReader
     private static final int BEVEL_Z = 3;
 
     private final ButtonDefinitionReader BUTTON_DEF_READER;
-    private final ProviderDefinitionReader PROVIDER_DEF_READER;
 
     public BeveledButtonDefinitionReader(ButtonDefinitionReader buttonDefReader,
                                          ProviderDefinitionReader providerDefReader) {
+        super(providerDefReader);
         BUTTON_DEF_READER = Check.ifNull(buttonDefReader, "buttonDefReader");
-        PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
     }
 
     @Override

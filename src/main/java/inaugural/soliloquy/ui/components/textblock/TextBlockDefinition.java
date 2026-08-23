@@ -15,6 +15,8 @@ import static java.util.UUID.randomUUID;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class TextBlockDefinition extends AbstractContentDefinition {
+    public final static float NO_MAX_LINE_LENGTH = 0f;
+
     public final String FONT_ID;
     public final float LINE_HEIGHT;
     public final List<String> PARAGRAPHS;

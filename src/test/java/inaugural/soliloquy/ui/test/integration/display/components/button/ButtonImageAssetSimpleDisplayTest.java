@@ -52,7 +52,7 @@ public class ButtonImageAssetSimpleDisplayTest extends DisplayTest {
                         .withColorShifts(brightness(-0.1f, false)))
                 .withPressSound(PRESS_SOUND_ID)
                 .withReleaseSound(RELEASE_SOUND_ID)
-                .onPress(DisplayTest_onMousePress);
+                .onReleaseAfterPress(DisplayTest_onMousePress);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

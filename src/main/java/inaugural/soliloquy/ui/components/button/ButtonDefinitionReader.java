@@ -30,8 +30,7 @@ import java.util.function.Supplier;
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.*;
 import static inaugural.soliloquy.tools.collections.Collections.*;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_ORIGIN_PROVIDER;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
+import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.button.ButtonMethods.*;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockMethods.TEXT_BLOCK_HEIGHT;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
@@ -51,7 +50,6 @@ public class ButtonDefinitionReader
     // shouldn't be any discrepancy at all, but when it's this low, it feels VERY negligible
     private static final float TEXT_LINE_LENGTH_ROUNDING_ERROR = 1.0001f;
 
-    private final ProviderDefinitionReader PROVIDER_DEF_READER;
     private final RenderableDefinitionReader RENDERABLE_DEF_READER;
     private final TextBlockDefinitionReader TEXT_BLOCK_DEF_READER;
     private final TextMarkupParser MARKUP_PARSER;
@@ -69,7 +67,7 @@ public class ButtonDefinitionReader
                                   Function<String, Consumer> getConsumer,
                                   Function<String, Font> getFont,
                                   Supplier<Float> getWidthToHeightRatio) {
-        PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
+        super(providerDefReader);
         RENDERABLE_DEF_READER = Check.ifNull(renderableDefReader, "renderableDefReader");
         TEXT_BLOCK_DEF_READER = Check.ifNull(textBlockDefReader, "textBlockDefReader");
         MARKUP_PARSER = Check.ifNull(markupParser, "markupParser");
@@ -89,7 +87,9 @@ public class ButtonDefinitionReader
 
         var data = Collections.<String, Object>mapOf(
                 PRESS_CONSUMER,
-                definition.onPressId != null ? GET_CONSUMER.apply(definition.onPressId) : null,
+                defaultIfNullElseTransform(definition.onPressId, GET_CONSUMER, null),
+                RELEASE_CONSUMER,
+                defaultIfNullElseTransform(definition.onReleaseAfterPressId, GET_CONSUMER, null),
                 PRESS_SOUND_ID,
                 definition.pressSoundId,
                 MOUSE_OVER_SOUND_ID,
@@ -120,11 +120,11 @@ public class ButtonDefinitionReader
         KeyBindingDefinition[] bindings =
                 defaultIfNullElseTransform(
                         definition.keyCodepoints,
-                        k -> arrayOf(binding(
-                                Button_pressKey,
-                                Button_releaseKey,
-                                k
-                        )),
+                        k -> arrayOf(
+                                binding(k)
+                                        .onPress(Button_pressKey)
+                                        .onRelease(Button_releaseKey)
+                        ),
                         arrayOf()
                 );
 
@@ -148,7 +148,7 @@ public class ButtonDefinitionReader
                         definition.keyEventPriority,
                         bindings
                 )
-                .withPrerenderHook(Button_setDimensForComponentAndContent)
+                .withPrerenderHook(Button_setDimens)
                 .withData(data)
                 .withData(definition.DATA);
 
@@ -177,11 +177,12 @@ public class ButtonDefinitionReader
                         makeRectAdjDimensProvider(definition.UUID, timestamp) :
                         null;
         if (definition.rectDefaultDef != null) {
-            unadjDimensFromRectDef = supplyIfNull(
+            unadjDimensFromRectDef = providerOrReadDef(
                     definition.rectDefaultDef.dimensProvider,
-                    () -> PROVIDER_DEF_READER.read(definition.rectDefaultDef.dimensProviderDef,
-                            timestamp)
+                    definition.rectDefaultDef.dimensProviderDef,
+                    timestamp
             );
+
             rectDefault = makeRectAndReadRectDefs(
                     definition,
                     adjRectDimens,
@@ -254,12 +255,12 @@ public class ButtonDefinitionReader
                 ProviderAtTime<Vertex> textBlockUnadjUpperLeftProvider;
                 if (dynamicMaxLineLength &&
                         (definition.textBlockCenterProvider != null ||
-                        definition.textBlockCenterProviderDef != null)
+                                definition.textBlockCenterProviderDef != null)
                 ) {
-                    var textBlockUnadjCenterProvider = supplyIfNull(
+                    var textBlockUnadjCenterProvider = providerOrReadDef(
                             definition.textBlockCenterProvider,
-                            () -> PROVIDER_DEF_READER.read(definition.textBlockCenterProviderDef,
-                                    timestamp)
+                            definition.textBlockCenterProviderDef,
+                            timestamp
                     );
                     textBlockUnadjUpperLeftProvider = PROVIDER_DEF_READER.read(
                             functionalProvider(
@@ -472,10 +473,10 @@ public class ButtonDefinitionReader
         prepImageAssetDef(definition.imageAssetDefault);
         defaultOptions.imageAsset =
                 RENDERABLE_DEF_READER.read(null, definition.imageAssetDefault, timestamp);
-        defaultOptions.unadjImageAssetDimens = supplyIfNull(
+        defaultOptions.unadjImageAssetDimens = providerOrReadDef(
                 definition.imageAssetDefault.dimensProvider,
-                () -> PROVIDER_DEF_READER.read(definition.imageAssetDefault.dimensProviderDef,
-                        timestamp)
+                definition.imageAssetDefault.dimensProviderDef,
+                timestamp
         );
         defaultOptions.imageAsset.setRenderingDimensionsProvider(adjDimensProvider);
 
@@ -501,10 +502,10 @@ public class ButtonDefinitionReader
             prepImageAssetDef(definition.imageAssetPressed);
             pressedOptions.imageAsset =
                     RENDERABLE_DEF_READER.read(null, definition.imageAssetPressed, timestamp);
-            pressedOptions.unadjImageAssetDimens = supplyIfNull(
+            pressedOptions.unadjImageAssetDimens = providerOrReadDef(
                     definition.imageAssetPressed.dimensProvider,
-                    () -> PROVIDER_DEF_READER.read(definition.imageAssetPressed.dimensProviderDef,
-                            timestamp)
+                    definition.imageAssetPressed.dimensProviderDef,
+                    timestamp
             );
             pressedOptions.imageAsset.setRenderingDimensionsProvider(adjDimensProvider);
         }

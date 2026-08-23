@@ -17,6 +17,9 @@ import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinitionReader;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowMethods;
+import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinition;
+import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinitionReader;
+import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalMethods;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
 import inaugural.soliloquy.ui.components.textblock.TextBlockMethods;
@@ -31,8 +34,10 @@ import soliloquy.specs.io.graphics.Graphics;
 import soliloquy.specs.io.graphics.renderables.factories.*;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.io.graphics.renderables.providers.factories.*;
+import soliloquy.specs.io.graphics.rendering.FrameExecutor;
 import soliloquy.specs.io.graphics.rendering.WindowResolutionManager;
 import soliloquy.specs.io.graphics.rendering.renderers.TextLineRenderer;
+import soliloquy.specs.io.graphics.rendering.timing.GlobalClock;
 import soliloquy.specs.io.input.mouse.Mouse;
 import soliloquy.specs.ui.definitions.providers.*;
 
@@ -63,6 +68,7 @@ public class UIModule extends AbstractModule {
         andRegister(ioModule);
 
         var graphics = ioModule.provide(Graphics.class);
+        var frameExecutor = ioModule.provide(FrameExecutor.class);
         @SuppressWarnings("rawtypes") BiFunction<UUID, Object, ProviderAtTime>
                 staticProviderFactory = ioModule.provide(STATIC_PROVIDER_FACTORY);
         @SuppressWarnings("rawtypes") ProviderAtTime nullProvider = ioModule.provide(NULL_PROVIDER);
@@ -72,6 +78,8 @@ public class UIModule extends AbstractModule {
         TriConsumer<Integer, Mouse.EventType, Runnable> subscribeToNextMouseEvent =
                 ioModule.provide(SUBSCRIBE_TO_NEXT_MOUSE_EVENT);
         var timestampValidator = ioModule.provide(TimestampValidator.class);
+        var clock = ioModule.provide(GlobalClock.class);
+        var mouse = ioModule.provide(Mouse.class);
 
         // ==================
         // Definition Readers
@@ -140,6 +148,7 @@ public class UIModule extends AbstractModule {
 
         // >>> Renderable Definition Readers
 
+        RectangleRenderableDefinitionReader rectangleRenderableDefinitionReader;
         var defaultKeyBindingPriority =
                 (int) (getSetting.apply(DEFAULT_KEY_BINDING_PRIORITY_SETTING_ID).getValue());
         @SuppressWarnings("unchecked") var renderableDefinitionReader =
@@ -153,14 +162,15 @@ public class UIModule extends AbstractModule {
                                 ioModule.provide(AntialiasedLineSegmentRenderableFactory.class),
                                 providerDefinitionReader
                         ),
-                        new RectangleRenderableDefinitionReader(
-                                ioModule.provide(RectangleRenderableFactory.class),
-                                methods.CONSUMERS::get,
-                                providerDefinitionReader,
-                                imgRelLoc -> staticProviderFactory.apply(randomUUID(),
-                                        graphics.getImage(imgRelLoc).textureId()),
-                                nullProvider
-                        ),
+                        rectangleRenderableDefinitionReader =
+                                new RectangleRenderableDefinitionReader(
+                                        ioModule.provide(RectangleRenderableFactory.class),
+                                        methods.CONSUMERS::get,
+                                        providerDefinitionReader,
+                                        imgRelLoc -> staticProviderFactory.apply(randomUUID(),
+                                                graphics.getImage(imgRelLoc).textureId()),
+                                        nullProvider
+                                ),
                         new TriangleRenderableDefinitionReader(
                                 ioModule.provide(TriangleRenderableFactory.class),
                                 methods.CONSUMERS::get,
@@ -243,11 +253,13 @@ public class UIModule extends AbstractModule {
                 graphics::getFont,
                 resManager::windowWidthToHeightRatio
         );
+        ButtonMethods buttonMethods;
         //noinspection unchecked
-        customComponentMethods.add(new ButtonMethods(
+        customComponentMethods.add(buttonMethods = new ButtonMethods(
                 id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
                 subscribeToNextMouseEvent,
-                graphics::getComponent
+                graphics::getComponent,
+                frameExecutor::registerFrameBlockingEvent
         ));
         renderableDefinitionReader.addCustomComponentReader(
                 ButtonDefinition.class,
@@ -279,6 +291,27 @@ public class UIModule extends AbstractModule {
         renderableDefinitionReader.addCustomComponentReader(ContentRowDefinition.class,
                 (d, t) -> rowReader.read((ContentRowDefinition) d, t));
 
+        // Scrollbar Vertical
+        var scrollbarVerticalReader = new ScrollbarVerticalDefinitionReader(
+                buttonReader,
+                rectangleRenderableDefinitionReader,
+                providerDefinitionReader
+        );
+        customComponentMethods.add(
+                new ScrollbarVerticalMethods(
+                        graphics::getComponent,
+                        buttonMethods::Button_getUnadjDimens,
+                        providerDefinitionReader,
+                        mouse::mostRecentMouseLocation,
+                        subscribeToNextMouseEvent,
+                        buttonMethods::Button_pressMouse,
+                        clock
+                )
+        );
+        renderableDefinitionReader.addCustomComponentReader(ScrollbarVerticalDefinition.class,
+                (d, t) -> scrollbarVerticalReader.read((ScrollbarVerticalDefinition) d, t));
+
+        // Finally, read ALL the custom component methods
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));
     }
 }

@@ -432,11 +432,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 .withBindings(
                         overrides,
                         priority,
-                        binding(
-                                ON_PRESS_ID,
-                                ON_RELEASE_ID,
-                                key
-                        )
+                        binding(key)
+                                .onPress(ON_PRESS_ID)
+                                .onRelease(ON_RELEASE_ID)
                 )
                 .withDimensions(mockComponentDimensionsDef)
                 .withPrerenderHook(PRERENDER_HOOK_ID)
@@ -564,11 +562,9 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 .withBindings(
                         overrides,
                         priority,
-                        binding(
-                                ON_PRESS_ID,
-                                ON_RELEASE_ID,
-                                key
-                        )
+                        binding(key)
+                                .onPress(ON_PRESS_ID)
+                                .onRelease(ON_RELEASE_ID)
                 )
                 .withDimensions(mockComponentDimensionsDef)
                 .withAddHook(ADD_HOOK_ID)

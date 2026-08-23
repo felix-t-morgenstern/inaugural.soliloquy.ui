@@ -196,6 +196,8 @@ public class DisplayTest {
             [color=127,0,0]II. It is high time that Communists should openly, in the face of the *whole world*,[/color] publish their views, their aims, their tendencies, and meet this nursery tale of the Spectre of Communism with a manifesto of the party itself."""
     );
 
+    protected static boolean testIsRunning = false;
+
     public Component topLevelComponent;
 
     public void runTest(
@@ -338,7 +340,9 @@ public class DisplayTest {
 
     protected static void runThenClose(String testName, int ms) {
         System.out.println(testName + " display test started");
+        testIsRunning = true;
         sleep(ms);
+        testIsRunning = false;
         System.out.println(testName + " display test ended");
     }
 

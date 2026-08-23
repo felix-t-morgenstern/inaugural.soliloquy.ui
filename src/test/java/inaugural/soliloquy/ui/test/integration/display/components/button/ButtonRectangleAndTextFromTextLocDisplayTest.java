@@ -13,6 +13,7 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.TextMarkupParserMethods.coloredText;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.CENTER;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;

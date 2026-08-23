@@ -21,10 +21,8 @@ import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinit
 
 public class ContentColumnDefinitionReader
         extends AbstractCustomComponentDefinitionReader<ContentColumnDefinition> {
-    private final ProviderDefinitionReader PROVIDER_DEF_READER;
-
     public ContentColumnDefinitionReader(ProviderDefinitionReader providerDefReader) {
-        PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
+        super(providerDefReader);
     }
 
     public ComponentDefinition read(ContentColumnDefinition definition, long timestamp) {

@@ -10,7 +10,7 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.Constants.NO_MAX_LINE_LENGTH;
+import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.NO_MAX_LINE_LENGTH;
 import static inaugural.soliloquy.ui.Constants.WINDOW_CENTER;
 import static inaugural.soliloquy.ui.TextMarkupParserMethods.coloredText;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
@@ -75,7 +75,7 @@ public class ButtonAutomaticRectangleAroundTextDisplayTest extends DisplayTest {
                         .withColorShifts(brightness(-brightnessAdj, false)))
                 .withPressSound(PRESS_SOUND_ID)
                 .withReleaseSound(RELEASE_SOUND_ID)
-                .onPress(DisplayTest_onMousePress);
+                .onReleaseAfterPress(DisplayTest_onMousePress);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

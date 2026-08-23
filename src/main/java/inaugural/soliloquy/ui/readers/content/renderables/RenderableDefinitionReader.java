@@ -14,7 +14,6 @@ import soliloquy.specs.ui.definitions.content.*;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -141,8 +140,8 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                         bindingDefs -> Arrays.stream(bindingDefs)
                                 .map(bindingDef -> keyBinding(
                                         bindingDef.KEY_CODEPOINTS,
-                                        GET_CONSUMER.apply(bindingDef.PRESS_CONSUMER_ID),
-                                        GET_CONSUMER.apply(bindingDef.RELEASE_CONSUMER_ID)))
+                                        GET_CONSUMER.apply(bindingDef.pressConsumerId),
+                                        GET_CONSUMER.apply(bindingDef.releaseConsumerId)))
                                 .collect(Collectors.toSet()),
                         setOf()
                 ),

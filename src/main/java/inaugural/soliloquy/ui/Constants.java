@@ -43,8 +43,6 @@ public class Constants {
     public final static String SPACING_AFTER = "SPACING_AFTER";
     public final static String SPACING_UUID = "SPACING_UUID";
 
-    public final static float NO_MAX_LINE_LENGTH = 0f;
-
     public final static Vertex WINDOW_ORIGIN = vertexOf(0f, 0f);
     public final static Vertex WINDOW_CENTER = vertexOf(0.5f, 0.5f);
 

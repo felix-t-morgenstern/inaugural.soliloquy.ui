@@ -1,5 +1,7 @@
-package inaugural.soliloquy.ui.components.scrollbar.vertical;
+package inaugural.soliloquy.ui.components.scrollbar;
 
+import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.ui.Constants;
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -12,9 +14,8 @@ import java.util.UUID;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
-    public final static int INSTANT_ARROW_CLICK_MOVEMENT_SPEED = 0;
-
+public class ScrollbarDefinition extends AbstractContentDefinition {
+    public final Orientation ORIENTATION;
     public final AbstractProviderDefinition<Vertex> ORIGIN_PROVIDER_DEF;
     public final ProviderAtTime<Vertex> ORIGIN_PROVIDER;
     public final RectangleRenderableDefinition TRACK_DEF;
@@ -22,14 +23,15 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
     public final AbstractProviderDefinition<Float> THUMB_MOVE_AMOUNT_PROVIDER_DEF;
     public final int THUMB_INCREMENT_MOVE_DUR;
 
-    public ButtonDefinition topArrowDef;
-    public ButtonDefinition bottomArrowDef;
+    public ButtonDefinition originArrowDef;
+    public ButtonDefinition terminusArrowDef;
     public int arrowHoldStartThreshold;
     public int minDurBetweenMovesWhileArrowHeld;
     public float arrowHeldRepeatedTimeExponent;
     public float arrowHeldRepeatedTimeExponentFactor;
 
-    private ScrollbarVerticalDefinition(
+    private ScrollbarDefinition(
+            Orientation orientation,
             AbstractProviderDefinition<Vertex> originProviderDef,
             ProviderAtTime<Vertex> originProvider,
             RectangleRenderableDefinition trackDef,
@@ -40,12 +42,14 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
             UUID uuid
     ) {
         super(z, uuid);
-        TRACK_DEF = trackDef;
-        THUMB_DEF = thumbDef;
+        ORIENTATION = Check.ifNull(orientation, "orientation");
+        TRACK_DEF = Check.ifNull(trackDef, "trackDef");
+        THUMB_DEF = Check.ifNull(thumbDef, "thumbDef");
         ORIGIN_PROVIDER_DEF = originProviderDef;
         ORIGIN_PROVIDER = originProvider;
-        THUMB_MOVE_AMOUNT_PROVIDER_DEF = thumbMoveAmountProviderDef;
-        THUMB_INCREMENT_MOVE_DUR = thumbIncrementMoveDur;
+        THUMB_MOVE_AMOUNT_PROVIDER_DEF =
+                Check.ifNull(thumbMoveAmountProviderDef, "thumbMoveAmountProviderDef");
+        THUMB_INCREMENT_MOVE_DUR = Check.ifNull(thumbIncrementMoveDur, "thumbIncrementMoveDur");
     }
 
     /**
@@ -67,11 +71,13 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
      *                                   current location to the new target (calculated using
      *                                   arrowClickThumbMoveAmount). If you want the movement to be
      *                                   instantaneous, you can use any value less than or equal to
-     *                                   0; the constant {@link #INSTANT_ARROW_CLICK_MOVEMENT_SPEED}
-     *                                   will also provide this value, and may make for more legible
+     *                                   0; the constant
+     *                                   {@link Constants#INSTANT_ARROW_CLICK_MOVEMENT_SPEED} will
+     *                                   also provide this value, and may make for more legible
      *                                   code.
      */
-    public static ScrollbarVerticalDefinition scrollbarVertical(
+    public static ScrollbarDefinition scrollbar(
+            Orientation orientation,
             ProviderAtTime<Vertex> originProvider,
             RectangleRenderableDefinition track,
             ButtonDefinition thumb,
@@ -80,11 +86,12 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
             int z,
             UUID uuid
     ) {
-        return new ScrollbarVerticalDefinition(null, originProvider, track, thumb,
+        return new ScrollbarDefinition(orientation, null, originProvider, track, thumb,
                 thumbMoveAmountProviderDef, thumbIncrementMoveDur, z, uuid);
     }
 
-    public static ScrollbarVerticalDefinition scrollbarVertical(
+    public static ScrollbarDefinition scrollbar(
+            Orientation orientation,
             AbstractProviderDefinition<Vertex> originProviderDef,
             RectangleRenderableDefinition track,
             ButtonDefinition thumb,
@@ -93,11 +100,12 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
             int z,
             UUID uuid
     ) {
-        return new ScrollbarVerticalDefinition(originProviderDef, null, track, thumb,
+        return new ScrollbarDefinition(orientation, originProviderDef, null, track, thumb,
                 thumbMoveAmountProviderDef, thumbIncrementMoveDur, z, uuid);
     }
 
-    public static ScrollbarVerticalDefinition scrollbarVertical(
+    public static ScrollbarDefinition scrollbar(
+            Orientation orientation,
             Vertex origin,
             RectangleRenderableDefinition track,
             ButtonDefinition thumb,
@@ -106,40 +114,43 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
             int z,
             UUID uuid
     ) {
-        return new ScrollbarVerticalDefinition(staticVal(origin), null, track, thumb,
+        return new ScrollbarDefinition(orientation, staticVal(origin), null, track, thumb,
                 thumbMoveAmountProviderDef, thumbIncrementMoveDur, z, uuid);
     }
 
-    public static ScrollbarVerticalDefinition scrollbarVertical(
+    public static ScrollbarDefinition scrollbar(
+            Orientation orientation,
             ProviderAtTime<Vertex> originProvider,
             RectangleRenderableDefinition track,
             ButtonDefinition thumb,
             AbstractProviderDefinition<Float> thumbMoveAmountProviderDef,
             int thumbIncrementMoveDur
     ) {
-        return new ScrollbarVerticalDefinition(null, originProvider, track, thumb,
+        return new ScrollbarDefinition(orientation, null, originProvider, track, thumb,
                 thumbMoveAmountProviderDef, thumbIncrementMoveDur, 0, randomUUID());
     }
 
-    public static ScrollbarVerticalDefinition scrollbarVertical(
+    public static ScrollbarDefinition scrollbar(
+            Orientation orientation,
             AbstractProviderDefinition<Vertex> originProviderDef,
             RectangleRenderableDefinition track,
             ButtonDefinition thumb,
             AbstractProviderDefinition<Float> thumbMoveAmountProviderDef,
             int thumbIncrementMoveDur
     ) {
-        return new ScrollbarVerticalDefinition(originProviderDef, null, track, thumb,
+        return new ScrollbarDefinition(orientation, originProviderDef, null, track, thumb,
                 thumbMoveAmountProviderDef, thumbIncrementMoveDur, 0, randomUUID());
     }
 
-    public static ScrollbarVerticalDefinition scrollbarVertical(
+    public static ScrollbarDefinition scrollbar(
+            Orientation orientation,
             Vertex origin,
             RectangleRenderableDefinition track,
             ButtonDefinition thumb,
             AbstractProviderDefinition<Float> thumbMoveAmountProviderDef,
             int thumbIncrementMoveDur
     ) {
-        return new ScrollbarVerticalDefinition(staticVal(origin), null, track, thumb,
+        return new ScrollbarDefinition(orientation, staticVal(origin), null, track, thumb,
                 thumbMoveAmountProviderDef, thumbIncrementMoveDur, 0, randomUUID());
     }
 
@@ -148,10 +159,10 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
      * arrows into account when determining where you place the Component origin and how much space
      * you expect it to take up.
      *
-     * @param arrowTopDef                         The definition of the Button used to press "up" on
-     *                                            the Scrollbar
-     * @param arrowBottomDef                      The definition of the Button used to press "down"
-     *                                            on the Scrollbar
+     * @param originArrowDef                      The definition of the Button used to press "up" or
+     *                                            "left" on the Scrollbar
+     * @param terminusArrowDef                    The definition of the Button used to press "down"
+     *                                            or "right" on the Scrollbar
      * @param arrowHoldStartThreshold             The time in ms it takes when the arrow is first
      *                                            press and held down before repeated incremented
      *                                            movement of the thumb occurs
@@ -168,21 +179,26 @@ public class ScrollbarVerticalDefinition extends AbstractContentDefinition {
      *                                            acceleration, but is rather a flat multiplier in
      *                                            speed.
      */
-    public ScrollbarVerticalDefinition withArrowButtons(
-            ButtonDefinition arrowTopDef,
-            ButtonDefinition arrowBottomDef,
+    public ScrollbarDefinition withArrowButtons(
+            ButtonDefinition originArrowDef,
+            ButtonDefinition terminusArrowDef,
             int arrowHoldStartThreshold,
             int minDurBetweenMovesWhileArrowHeld,
             float arrowHeldRepeatedTimeExponent,
             float arrowHeldRepeatedTimeExponentFactor
     ) {
-        this.topArrowDef = arrowTopDef;
-        this.bottomArrowDef = arrowBottomDef;
+        this.originArrowDef = originArrowDef;
+        this.terminusArrowDef = terminusArrowDef;
         this.arrowHoldStartThreshold = arrowHoldStartThreshold;
         this.minDurBetweenMovesWhileArrowHeld = minDurBetweenMovesWhileArrowHeld;
         this.arrowHeldRepeatedTimeExponent = arrowHeldRepeatedTimeExponent;
         this.arrowHeldRepeatedTimeExponentFactor = arrowHeldRepeatedTimeExponentFactor;
 
         return this;
+    }
+
+    public enum Orientation {
+        HORIZONTAL,
+        VERTICAL
     }
 }

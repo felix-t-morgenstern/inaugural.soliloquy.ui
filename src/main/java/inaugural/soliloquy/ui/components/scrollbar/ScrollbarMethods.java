@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.components.scrollbar.vertical;
+package inaugural.soliloquy.ui.components.scrollbar;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.reflection.Reflection;
@@ -17,48 +17,55 @@ import soliloquy.specs.ui.EventInputs;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.*;
+import static inaugural.soliloquy.tools.Tools.constrain;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.exception.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.ui.Constants.*;
+import static inaugural.soliloquy.ui.Constants.COMPONENT_DIMENS;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.EventInputs.eventInputs;
 import static soliloquy.specs.ui.definitions.providers.FiniteSinusoidMovingProviderDefinition.finiteSinusoidMoving;
 
-public class ScrollbarVerticalMethods {
-    final static String TRACK_UNADJ_DIMENS_PROVIDER = "TRACK_UNADJ_DIMENS_PROVIDER";
+public class ScrollbarMethods {
+    public final static String TRACK_UNADJ_DIMENS_PROVIDER = "TRACK_UNADJ_DIMENS_PROVIDER";
     final static String TRACK_ADJ_DIMENS = "TRACK_ADJ_DIMENS";
-    final static String TOP_ARROW_UUID = "TOP_ARROW_UUID";
-    final static String TOP_ARROW_ORIGIN = "TOP_ARROW_ORIGIN";
-    final static String BOTTOM_ARROW_UUID = "BOTTOM_ARROW_UUID";
-    final static String BOTTOM_ARROW_ORIGIN = "BOTTOM_ARROW_ORIGIN";
+    public final static String ORIGIN_ARROW_UUID = "ORIGIN_ARROW_UUID";
+    final static String ORIGIN_ARROW_ORIGIN = "ORIGIN_ARROW_ORIGIN";
+    public final static String TERMINUS_ARROW_UUID = "TERMINUS_ARROW_UUID";
+    final static String TERMINUS_ARROW_ORIGIN = "TERMINUS_ARROW_ORIGIN";
+    final static String IS_VERTICAL = "IS_VERTICAL";
 
     public final static String THUMB_LOC_IN_SCROLLABLE_RANGE = "THUMB_LOC_IN_SCROLLABLE_RANGE";
 
     final static String LAST_TIMESTAMP_THUMB_ORIGIN = "LAST_TIMESTAMP_THUMB_ORIGIN";
     final static String THUMB_ORIGIN = "THUMB_ORIGIN";
-    final static String THUMB_UUID = "THUMB_UUID";
+    public final static String THUMB_UUID = "THUMB_UUID";
     final static String THUMB_MOVE_ORIGIN_IN_SCROLLABLE_RANGE =
             "THUMB_MOVE_ORIGIN_IN_SCROLLABLE_RANGE";
     final static String THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE =
             "THUMB_TARGET_LOC_IN_SCROLLABLE_RANGE";
-    final static String THUMB_MOVE_AMOUNT_PROVIDER = "THUMB_MOVE_AMOUNT_PROVIDER";
-    final static String THUMB_IS_PRESSED = "THUMB_IS_PRESSED";
-    final static String THUMB_INCREMENT_MOVE_DUR = "THUMB_INCREMENT_MOVE_DUR";
+    public final static String THUMB_MOVE_AMOUNT_PROVIDER = "THUMB_MOVE_AMOUNT_PROVIDER";
+    public final static String THUMB_IS_PRESSED = "THUMB_IS_PRESSED";
+    public final static String THUMB_INCREMENT_MOVE_DUR = "THUMB_INCREMENT_MOVE_DUR";
     final static String THUMB_MOVE_PROGRESS_PROVIDER = "THUMB_MOVE_PROGRESS_PROVIDER";
 
     final static String ARROW_BEING_HELD = "ARROW_BEING_HELD";
-    final static String ARROW_HOLD_START_THRESHOLD = "ARROW_HOLD_START_THRESHOLD";
-    final static String MIN_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD =
+    public final static String ARROW_HOLD_START_THRESHOLD = "ARROW_HOLD_START_THRESHOLD";
+    public final static String MIN_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD =
             "MIN_TIME_BETWEEN_THUMB_MOVEMENTS_WHILE_HELD";
-    final static String ARROW_HELD_REPEATED_TIME_EXPONENT = "ARROW_HELD_REPEATED_TIME_EXPONENT";
-    final static String ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR =
+    public final static String ARROW_HELD_REPEATED_TIME_EXPONENT =
+            "ARROW_HELD_REPEATED_TIME_EXPONENT";
+    public final static String ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR =
             "ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR";
 
     private final Function<UUID, Component> GET_COMPONENT;
@@ -69,13 +76,13 @@ public class ScrollbarVerticalMethods {
     private final Consumer<EventInputs> PRESS_BUTTON;
     private final GlobalClock CLOCK;
 
-    public ScrollbarVerticalMethods(Function<UUID, Component> getComponent,
-                                    BiFunction<Component, Long, FloatBox> getButtonUnadjDimens,
-                                    ProviderDefinitionReader providerDefReader,
-                                    Supplier<Vertex> getMostRecentMouseLoc,
-                                    TriConsumer<Integer, Mouse.EventType, Runnable> subscribeToNextMouseEvent,
-                                    Consumer<EventInputs> pressButton,
-                                    GlobalClock clock) {
+    public ScrollbarMethods(Function<UUID, Component> getComponent,
+                               BiFunction<Component, Long, FloatBox> getButtonUnadjDimens,
+                               ProviderDefinitionReader providerDefReader,
+                               Supplier<Vertex> getMostRecentMouseLoc,
+                               TriConsumer<Integer, Mouse.EventType, Runnable> subscribeToNextMouseEvent,
+                               Consumer<EventInputs> pressButton,
+                               GlobalClock clock) {
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
         GET_BUTTON_UNADJ_DIMENS = Check.ifNull(getButtonUnadjDimens, "getButtonUnadjDimens");
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
@@ -86,9 +93,9 @@ public class ScrollbarVerticalMethods {
         CLOCK = Check.ifNull(clock, "clock");
     }
 
-    public final static String ScrollbarVertical_getDimens = "ScrollbarVertical_getDimens";
+    public final static String Scrollbar_getDimens = "Scrollbar_getDimens";
 
-    public FloatBox ScrollbarVertical_getDimens(Component scrollbar, long timestamp) {
+    public FloatBox Scrollbar_getDimens(Component scrollbar, long timestamp) {
         Long lastTimestamp = getFromData(scrollbar, LAST_TIMESTAMP);
         if (timestamp == defaultIfNull(lastTimestamp, Long.MIN_VALUE)) {
             return getFromData(scrollbar, COMPONENT_DIMENS);
@@ -102,48 +109,92 @@ public class ScrollbarVerticalMethods {
                 getFromData(scrollbar, TRACK_UNADJ_DIMENS_PROVIDER);
         var trackUnadjDimens = trackUnadjDimensProvider.provide(timestamp);
 
-        UUID topArrowUuid = getFromData(scrollbar, TOP_ARROW_UUID);
+        UUID originArrowUuid = getFromData(scrollbar, ORIGIN_ARROW_UUID);
         // If there are arrows, the math gets more annoying
-        if (topArrowUuid != null) {
-            var topArrowUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(
-                    GET_COMPONENT.apply(topArrowUuid),
+        if (originArrowUuid != null) {
+            var originArrowUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(
+                    GET_COMPONENT.apply(originArrowUuid),
                     timestamp
             );
-            var topArrowHalfWidth = topArrowUnadjDimens.width() / 2f;
 
-            var bottomArrowUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(
-                    GET_COMPONENT.apply(getFromData(scrollbar, BOTTOM_ARROW_UUID)),
+            var terminusArrowUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(
+                    GET_COMPONENT.apply(getFromData(scrollbar, TERMINUS_ARROW_UUID)),
                     timestamp
             );
-            var bottomArrowHalfWidth = bottomArrowUnadjDimens.width() / 2f;
 
-            var scrollbarUnadjLeftX = minOf(
-                    trackUnadjDimens.LEFT_X,
-                    topArrowUnadjDimens.LEFT_X,
-                    bottomArrowUnadjDimens.LEFT_X
-            );
-            var scrollbarUnadjRightX = minOf(
-                    trackUnadjDimens.RIGHT_X,
-                    topArrowUnadjDimens.RIGHT_X,
-                    bottomArrowUnadjDimens.RIGHT_X
-            );
-            var scrollbarUnadjWidth = scrollbarUnadjRightX - scrollbarUnadjLeftX;
+            FloatBox scrollbarAdjDimens;
+            float trackAdjLeftX;
+            float trackAdjTopY;
+            float originArrowAdjLeftX;
+            float originArrowAdjTopY;
+            float terminusArrowAdjLeftX;
+            float terminusArrowAdjTopY;
+            if (getFromData(scrollbar, IS_VERTICAL)) {
+                var originArrowHalfWidth = originArrowUnadjDimens.width() / 2f;
 
-            var topArrowAdjTopY = scrollbarOrigin.Y;
-            var trackAdjTopY = topArrowAdjTopY + topArrowUnadjDimens.height();
-            var bottomArrowAdjTopY = trackAdjTopY + trackUnadjDimens.height();
+                var terminusArrowHalfWidth = terminusArrowUnadjDimens.width() / 2f;
 
-            var scrollbarAdjCenterX = scrollbarOrigin.X + (scrollbarUnadjWidth / 2f);
-            var trackAdjLeftX = scrollbarAdjCenterX - (trackUnadjDimens.width() / 2f);
-            var topArrowAdjLeftX = scrollbarAdjCenterX - topArrowHalfWidth;
-            var bottomArrowAdjLeftX = scrollbarAdjCenterX - bottomArrowHalfWidth;
+                var scrollbarUnadjLeftX = minOf(
+                        trackUnadjDimens.LEFT_X,
+                        originArrowUnadjDimens.LEFT_X,
+                        terminusArrowUnadjDimens.LEFT_X
+                );
+                var scrollbarUnadjRightX = minOf(
+                        trackUnadjDimens.RIGHT_X,
+                        originArrowUnadjDimens.RIGHT_X,
+                        terminusArrowUnadjDimens.RIGHT_X
+                );
+                var scrollbarUnadjWidth = scrollbarUnadjRightX - scrollbarUnadjLeftX;
 
-            var scrollbarAdjDimens = floatBoxOf(
-                    scrollbarOrigin,
-                    scrollbarUnadjWidth,
-                    topArrowUnadjDimens.height() + trackUnadjDimens.height() +
-                            bottomArrowUnadjDimens.height()
-            );
+                originArrowAdjTopY = scrollbarOrigin.Y;
+                trackAdjTopY = originArrowAdjTopY + originArrowUnadjDimens.height();
+                terminusArrowAdjTopY = trackAdjTopY + trackUnadjDimens.height();
+
+                var scrollbarAdjCenterX = scrollbarOrigin.X + (scrollbarUnadjWidth / 2f);
+                trackAdjLeftX = scrollbarAdjCenterX - (trackUnadjDimens.width() / 2f);
+                originArrowAdjLeftX = scrollbarAdjCenterX - originArrowHalfWidth;
+                terminusArrowAdjLeftX = scrollbarAdjCenterX - terminusArrowHalfWidth;
+
+                scrollbarAdjDimens = floatBoxOf(
+                        scrollbarOrigin,
+                        scrollbarUnadjWidth,
+                        originArrowUnadjDimens.height() + trackUnadjDimens.height() +
+                                terminusArrowUnadjDimens.height()
+                );
+            }
+            else {
+                var originArrowHalfHeight = originArrowUnadjDimens.height() / 2f;
+
+                var terminusArrowHalfHeight = terminusArrowUnadjDimens.height() / 2f;
+
+                var scrollbarUnadjTopY = minOf(
+                        trackUnadjDimens.TOP_Y,
+                        originArrowUnadjDimens.TOP_Y,
+                        terminusArrowUnadjDimens.TOP_Y
+                );
+                var scrollbarUnadjBottomY = minOf(
+                        trackUnadjDimens.BOTTOM_Y,
+                        originArrowUnadjDimens.BOTTOM_Y,
+                        terminusArrowUnadjDimens.BOTTOM_Y
+                );
+                var scrollbarUnadjHeight = scrollbarUnadjBottomY - scrollbarUnadjTopY;
+
+                originArrowAdjLeftX = scrollbarOrigin.X;
+                trackAdjLeftX = originArrowAdjLeftX + originArrowUnadjDimens.width();
+                terminusArrowAdjLeftX = trackAdjLeftX + trackUnadjDimens.width();
+
+                var scrollbarAdjCenterY = scrollbarOrigin.Y + (scrollbarUnadjHeight / 2f);
+                trackAdjTopY = scrollbarAdjCenterY - (trackUnadjDimens.height() / 2f);
+                originArrowAdjTopY = scrollbarAdjCenterY - originArrowHalfHeight;
+                terminusArrowAdjTopY = scrollbarAdjCenterY - terminusArrowHalfHeight;
+
+                scrollbarAdjDimens = floatBoxOf(
+                        scrollbarOrigin,
+                        originArrowUnadjDimens.width() + trackUnadjDimens.width() +
+                                terminusArrowUnadjDimens.width(),
+                        scrollbarUnadjHeight
+                );
+            }
             scrollbar.data().putAll(mapOf(
                     COMPONENT_DIMENS,
                     scrollbarAdjDimens,
@@ -153,10 +204,10 @@ public class ScrollbarVerticalMethods {
                             trackUnadjDimens.width(),
                             trackUnadjDimens.height()
                     ),
-                    TOP_ARROW_ORIGIN,
-                    vertexOf(topArrowAdjLeftX, topArrowAdjTopY),
-                    BOTTOM_ARROW_ORIGIN,
-                    vertexOf(bottomArrowAdjLeftX, bottomArrowAdjTopY)
+                    ORIGIN_ARROW_ORIGIN,
+                    vertexOf(originArrowAdjLeftX, originArrowAdjTopY),
+                    TERMINUS_ARROW_ORIGIN,
+                    vertexOf(terminusArrowAdjLeftX, terminusArrowAdjTopY)
             ));
 
             return scrollbarAdjDimens;
@@ -179,27 +230,26 @@ public class ScrollbarVerticalMethods {
         }
     }
 
-    public final static String ScrollbarVertical_provideAdjTrackDimens =
-            "ScrollbarVertical_provideAdjTrackDimens";
+    public final static String Scrollbar_provideAdjTrackDimens = "Scrollbar_provideAdjTrackDimens";
 
-    public FloatBox ScrollbarVertical_provideAdjTrackDimens(FunctionalProvider.Inputs inputs) {
+    public FloatBox Scrollbar_provideAdjTrackDimens(FunctionalProvider.Inputs inputs) {
         var scrollbar = getScrollbar(inputs);
-        ScrollbarVertical_getDimens(scrollbar, inputs.timestamp());
+        Scrollbar_getDimens(scrollbar, inputs.timestamp());
         return getInComponentData(inputs, TRACK_ADJ_DIMENS);
     }
 
-    public final static String ScrollbarVertical_provideAdjTopArrowOrigin =
-            "ScrollbarVertical_provideAdjTopArrowOrigin";
+    public final static String Scrollbar_provideAdjTopArrowOrigin =
+            "Scrollbar_provideAdjTopArrowOrigin";
 
-    public Vertex ScrollbarVertical_provideAdjTopArrowOrigin(FunctionalProvider.Inputs inputs) {
-        return getInComponentData(inputs, TOP_ARROW_ORIGIN);
+    public Vertex Scrollbar_provideAdjTopArrowOrigin(FunctionalProvider.Inputs inputs) {
+        return getInComponentData(inputs, ORIGIN_ARROW_ORIGIN);
     }
 
-    public final static String ScrollbarVertical_provideAdjBottomArrowOrigin =
-            "ScrollbarVertical_provideAdjBottomArrowOrigin";
+    public final static String Scrollbar_provideAdjBottomArrowOrigin =
+            "Scrollbar_provideAdjBottomArrowOrigin";
 
-    public Vertex ScrollbarVertical_provideAdjBottomArrowOrigin(FunctionalProvider.Inputs inputs) {
-        return getInComponentData(inputs, BOTTOM_ARROW_ORIGIN);
+    public Vertex Scrollbar_provideAdjBottomArrowOrigin(FunctionalProvider.Inputs inputs) {
+        return getInComponentData(inputs, TERMINUS_ARROW_ORIGIN);
     }
 
     private <T> T getInComponentData(FunctionalProvider.Inputs inputs, String key) {
@@ -208,9 +258,9 @@ public class ScrollbarVerticalMethods {
         return getFromData(scrollbar, key);
     }
 
-    public final static String ScrollbarVertical_thumbOrigin = "ScrollbarVertical_thumbOrigin";
+    public final static String Scrollbar_thumbOrigin = "Scrollbar_thumbOrigin";
 
-    public Vertex ScrollbarVertical_thumbOrigin(FunctionalProvider.Inputs inputs) {
+    public Vertex Scrollbar_thumbOrigin(FunctionalProvider.Inputs inputs) {
         var scrollbar = getScrollbar(inputs);
 
         Long lastTimestampThumbDimens = getFromData(scrollbar, LAST_TIMESTAMP_THUMB_ORIGIN);
@@ -222,35 +272,70 @@ public class ScrollbarVerticalMethods {
         var thumbUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(thumb, inputs.timestamp());
         // setDimens is the prerender hook, which is called prior to the rendering of contents
         FloatBox trackAdjDimens = getFromData(scrollbar, TRACK_ADJ_DIMENS);
-        var thumbAdjTopYMin = trackAdjDimens.TOP_Y;
-        var thumbAdjTopYMax = trackAdjDimens.BOTTOM_Y - thumbUnadjDimens.height();
-        var scrollableLengthOnScreen = thumbAdjTopYMax - thumbAdjTopYMin;
+
+        var isVertical = falseIfNull(getFromData(scrollbar, IS_VERTICAL));
 
         float thumbLocInScrollableRange;
         ProviderAtTime<Float> thumbMoveProgressProvider =
                 getFromData(scrollbar, THUMB_MOVE_PROGRESS_PROVIDER);
 
+        Float thumbAdjTopYMin = null;
+        float thumbAdjTopYMax;
+        Float thumbAdjLeftXMin = null;
+        float thumbAdjLeftXMax;
+        float scrollableLengthOnScreen;
+        if (isVertical) {
+            thumbAdjTopYMin = trackAdjDimens.TOP_Y;
+            thumbAdjTopYMax = trackAdjDimens.BOTTOM_Y - thumbUnadjDimens.height();
+            scrollableLengthOnScreen = thumbAdjTopYMax - thumbAdjTopYMin;
+        }
+        else {
+            thumbAdjLeftXMin = trackAdjDimens.LEFT_X;
+            thumbAdjLeftXMax = trackAdjDimens.RIGHT_X - thumbUnadjDimens.width();
+            scrollableLengthOnScreen = thumbAdjLeftXMax - thumbAdjLeftXMin;
+        }
+
+        var thumbHalfWidth = thumbUnadjDimens.width() / 2f;
+        var thumbHalfHeight = thumbUnadjDimens.height() / 2f;
+
         if (falseIfNull(getFromData(scrollbar, THUMB_IS_PRESSED))) {
             var mostRecentMouseLoc = GET_MOST_RECENT_MOUSE_LOC.get();
-            var thumbHalfHeight = thumbUnadjDimens.height() / 2f;
-            var scrollableRangeOnScreenTopY = trackAdjDimens.TOP_Y + thumbHalfHeight;
-            var scrollableRangeOnScreenBottomY = trackAdjDimens.BOTTOM_Y - thumbHalfHeight;
-            var mouseLocWithinScrollableRange = constrain(
-                    mostRecentMouseLoc.Y,
-                    scrollableRangeOnScreenTopY,
-                    scrollableRangeOnScreenBottomY
-            );
-            // "in scrollable range" means we get the "percent" scrolled, effectively
-            thumbLocInScrollableRange =
-                    (mouseLocWithinScrollableRange - scrollableRangeOnScreenTopY) /
-                            scrollableLengthOnScreen;
+
+            if (isVertical) {
+                var scrollableRangeOnScreenTopY = trackAdjDimens.TOP_Y + thumbHalfHeight;
+                var scrollableRangeOnScreenBottomY = trackAdjDimens.BOTTOM_Y - thumbHalfHeight;
+                var mouseLocWithinScrollableRange = constrain(
+                        mostRecentMouseLoc.Y,
+                        scrollableRangeOnScreenTopY,
+                        scrollableRangeOnScreenBottomY
+                );
+
+                thumbLocInScrollableRange =
+                        (mouseLocWithinScrollableRange - scrollableRangeOnScreenTopY) /
+                                scrollableLengthOnScreen;
+            }
+            else {
+                var scrollableRangeOnScreenLeftX = trackAdjDimens.LEFT_X + thumbHalfWidth;
+                var scrollableRangeOnScreenRightX = trackAdjDimens.RIGHT_X - thumbHalfWidth;
+                var mouseLocWithinScrollableRange = constrain(
+                        mostRecentMouseLoc.X,
+                        scrollableRangeOnScreenLeftX,
+                        scrollableRangeOnScreenRightX
+                );
+
+                thumbLocInScrollableRange =
+                        (mouseLocWithinScrollableRange - scrollableRangeOnScreenLeftX) /
+                                scrollableLengthOnScreen;
+            }
             scrollbar.data().put(THUMB_LOC_IN_SCROLLABLE_RANGE, thumbLocInScrollableRange);
         }
         else if (thumbMoveProgressProvider != null) {
             @SuppressWarnings("unchecked") Map<Long, Float> thumbMoveProviderVals =
                     (Map<Long, Float>) thumbMoveProgressProvider.representation();
-            @SuppressWarnings("OptionalGetWithoutIsPresent") long thumbMoveProviderLastTimestamp =
-                    thumbMoveProviderVals.keySet().stream().max(Comparator.naturalOrder()).get();
+            @SuppressWarnings("OptionalGetWithoutIsPresent") long
+                    thumbMoveProviderLastTimestamp =
+                    thumbMoveProviderVals.keySet().stream().max(Comparator.naturalOrder())
+                            .get();
 
             // if we've reached the end, we're at the target; drop the move provider, etc.
             if (inputs.timestamp() >= thumbMoveProviderLastTimestamp) {
@@ -277,12 +362,22 @@ public class ScrollbarVerticalMethods {
                     defaultIfNull(getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE), 0f);
         }
 
-        var trackAdjCenterX = (trackAdjDimens.LEFT_X + trackAdjDimens.RIGHT_X) / 2f;
-        var thumbAdjLeftX = trackAdjCenterX - (thumbUnadjDimens.width() / 2f);
+        float thumbAdjLeftX;
+        float thumbAdjTopY;
+        if (isVertical) {
+            var trackAdjCenterX = ave(trackAdjDimens.LEFT_X, trackAdjDimens.RIGHT_X);
+            thumbAdjLeftX = trackAdjCenterX - thumbHalfWidth;
 
-        var thumbAdjTopY =
-                thumbAdjTopYMin + (scrollableLengthOnScreen * thumbLocInScrollableRange);
+            thumbAdjTopY = thumbAdjTopYMin + (scrollableLengthOnScreen * thumbLocInScrollableRange);
+        }
+        else {
+            var trackAdjCenterY = ave(trackAdjDimens.TOP_Y, trackAdjDimens.BOTTOM_Y);
+            thumbAdjTopY = trackAdjCenterY - (thumbUnadjDimens.height() / 2f);
 
+            thumbAdjLeftX =
+                    thumbAdjLeftXMin + (scrollableLengthOnScreen * thumbLocInScrollableRange);
+
+        }
         var thumbOrigin = vertexOf(thumbAdjLeftX, thumbAdjTopY);
 
         scrollbar.data().put(THUMB_ORIGIN, thumbOrigin);
@@ -309,25 +404,40 @@ public class ScrollbarVerticalMethods {
     private Component getScrollbar(FunctionalProvider.Inputs inputs) {
         return GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
     }
+    
+    public final static String Scrollbar_trackPress = "Scrollbar_trackPress";
 
-    public final static String ScrollbarVertical_trackPress = "ScrollbarVertical_trackPress";
-
-    public void ScrollbarVertical_trackPress(EventInputs e) {
+    public void Scrollbar_trackPress(EventInputs e) {
         var track = (RectangleRenderable) e.renderable;
         var trackDimens = track.getRenderingDimensionsProvider().provide(e.TIMESTAMP);
 
         var scrollbar = track.getContainingComponent();
         Component thumb = GET_COMPONENT.apply(getFromData(scrollbar, THUMB_UUID));
         var thumbUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(thumb, e.TIMESTAMP);
-
-        var halfThumbHeight = thumbUnadjDimens.height() / 2f;
-        var scrollableRangeTop = trackDimens.TOP_Y + halfThumbHeight;
-        var scrollableRangeBottom = trackDimens.BOTTOM_Y - halfThumbHeight;
-        var relativeMouseLocWithinScrollableRange = constrain(
-                (e.mouseLoc.Y - scrollableRangeTop) / (scrollableRangeBottom - scrollableRangeTop),
-                0f,
-                1f
-        );
+        
+        float relativeMouseLocWithinScrollableRange;
+        if (falseIfNull(getFromData(scrollbar, IS_VERTICAL))) {
+            var halfThumbHeight = thumbUnadjDimens.height() / 2f;
+            var scrollableRangeTop = trackDimens.TOP_Y + halfThumbHeight;
+            var scrollableRangeBottom = trackDimens.BOTTOM_Y - halfThumbHeight;
+            relativeMouseLocWithinScrollableRange = constrain(
+                    (e.mouseLoc.Y - scrollableRangeTop) /
+                            (scrollableRangeBottom - scrollableRangeTop),
+                    0f,
+                    1f
+            );
+        }
+        else {
+            var halfThumbWidth = thumbUnadjDimens.width() / 2f;
+            var scrollableRangeLeft = trackDimens.LEFT_X + halfThumbWidth;
+            var scrollableRangeRight = trackDimens.RIGHT_X - halfThumbWidth;
+            relativeMouseLocWithinScrollableRange = constrain(
+                    (e.mouseLoc.Y - scrollableRangeLeft) /
+                            (scrollableRangeRight - scrollableRangeLeft),
+                    0f,
+                    1f
+            );
+        }
 
         scrollbar.data()
                 .put(THUMB_LOC_IN_SCROLLABLE_RANGE, relativeMouseLocWithinScrollableRange);
@@ -338,9 +448,9 @@ public class ScrollbarVerticalMethods {
         PRESS_BUTTON.accept(thumbPressEvent);
     }
 
-    public final static String ScrollbarVertical_thumbPress = "ScrollbarVertical_thumbPress";
+    public final static String Scrollbar_thumbPress = "Scrollbar_thumbPress";
 
-    public void ScrollbarVertical_thumbPress(EventInputs e) {
+    public void Scrollbar_thumbPress(EventInputs e) {
         var thumb = e.component;
         var scrollbar = thumb.getContainingComponent();
 
@@ -354,78 +464,67 @@ public class ScrollbarVerticalMethods {
         );
     }
 
-    public final static String ScrollbarVertical_topArrowPress = "ScrollbarVertical_topArrowPress";
+    public final static String Scrollbar_topArrowPress = "Scrollbar_topArrowPress";
 
-    public void ScrollbarVertical_topArrowPress(EventInputs e) {
+    public void Scrollbar_topArrowPress(EventInputs e) {
         pressArrow(e, true);
     }
 
-    public final static String ScrollbarVertical_bottomArrowPress = "ScrollbarVertical_bottomArrowPress";
+    public final static String Scrollbar_bottomArrowPress =
+            "Scrollbar_bottomArrowPress";
 
-    public void ScrollbarVertical_bottomArrowPress(EventInputs e) {
+    public void Scrollbar_bottomArrowPress(EventInputs e) {
         pressArrow(e, false);
     }
 
     private void pressArrow(EventInputs e, boolean moveUp) {
-        System.out.println(">> PRESS, moveUp = " + moveUp);
         var scrollbar = e.component.getContainingComponent();
-        System.out.println("scrollbar data...");
-        System.out.println(scrollbar.data());
         scrollbar.data().put(ARROW_BEING_HELD, true);
 
         final int startThreshold = getFromData(scrollbar, ARROW_HOLD_START_THRESHOLD);
-        System.out.println("startThreshold = " + startThreshold);
 
         new Thread(() -> {
             var timesRepeated = 0;
 
             sleep(startThreshold);
             while (falseIfNull(getFromData(scrollbar, ARROW_BEING_HELD))) {
-                System.out.println("[STILL HELD] initiating move");
                 var timestamp = CLOCK.globalTimestamp();
 
                 incrementMovement(scrollbar, timestamp, moveUp);
 
                 var timeUntilNextIncrement =
                         timeTilNextThumbMovementWhileArrowHeld(scrollbar, timesRepeated++);
-                System.out.println("timeUntilNextIncrement = " + timeUntilNextIncrement);
 
                 sleep(timeUntilNextIncrement);
             }
         }).start();
     }
 
-    public final static String ScrollbarVertical_topArrowReleaseAfterPress =
-            "ScrollbarVertical_topArrowReleaseAfterPress";
+    public final static String Scrollbar_topArrowReleaseAfterPress =
+            "Scrollbar_topArrowReleaseAfterPress";
 
-    public void ScrollbarVertical_topArrowReleaseAfterPress(EventInputs e) {
+    public void Scrollbar_topArrowReleaseAfterPress(EventInputs e) {
         releaseArrowAndIncrementMovement(e, true);
     }
 
-    public final static String ScrollbarVertical_bottomArrowReleaseAfterPress =
-            "ScrollbarVertical_bottomArrowReleaseAfterPress";
+    public final static String Scrollbar_bottomArrowReleaseAfterPress =
+            "Scrollbar_bottomArrowReleaseAfterPress";
 
-    public void ScrollbarVertical_bottomArrowReleaseAfterPress(EventInputs e) {
+    public void Scrollbar_bottomArrowReleaseAfterPress(EventInputs e) {
         releaseArrowAndIncrementMovement(e, false);
     }
 
     public void releaseArrowAndIncrementMovement(EventInputs e, boolean moveUp) {
-        System.out.println("::: in releaseArrowAndIncrementMovement");
         // The Renderable is a Rectangle within the Button, *within* the Scrollbar
         var scrollbar = e.renderable.getContainingComponent().getContainingComponent();
-        System.out.println("scrollbar data = " + scrollbar.data());
         scrollbar.data().put(ARROW_BEING_HELD, false);
-        System.out.println("scrollbar data AFTER change = " + scrollbar.data());
         incrementMovement(scrollbar, e.TIMESTAMP, moveUp);
     }
 
     @Reflection.DoNotReadMethod
     public void incrementMovement(Component scrollbar, long timestamp, boolean moveUp) {
-        System.out.println("...in incrementMovement");
-        System.out.println("moveUp = " + moveUp);
         var thumbLocInScrollableRangeFromData =
                 defaultIfNull(getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE), 0f);
-        System.out.println("thumbLocInScrollableRangeFromData = " + thumbLocInScrollableRangeFromData);
         ProviderAtTime<Float> thumbMoveAmountProvider =
                 getFromData(scrollbar, THUMB_MOVE_AMOUNT_PROVIDER);
         var thumbMoveAmount = thumbMoveAmountProvider.provide(timestamp);
@@ -438,7 +537,6 @@ public class ScrollbarVerticalMethods {
         else if (thumbLocInScrollableRangeFromData >= 1f) {
             return;
         }
-        System.out.println("thumb is not at edge of range!");
 
         var newThumbMoveProgressProvider = makeNewMoveProgressProvider(scrollbar, timestamp);
 
@@ -488,7 +586,7 @@ public class ScrollbarVerticalMethods {
         float exponent = getFromData(scrollbar, ARROW_HELD_REPEATED_TIME_EXPONENT);
         float exponentFactor = getFromData(scrollbar, ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR);
         var calculatedTimeBetween =
-                firstTimeBetween - (exponentFactor * Math.pow(2f, timesRepeatedThusFar));
+                firstTimeBetween - (exponentFactor * Math.pow(exponent, timesRepeatedThusFar));
         return (int) Math.max(calculatedTimeBetween, minTimeBetween);
     }
 }

@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.components.scrollbar.vertical;
+package inaugural.soliloquy.ui.components.scrollbar;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.collections.Collections;
@@ -17,38 +17,42 @@ import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.ui.Constants.COMPONENT_ORIGIN_PROVIDER;
 import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
-import static inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalMethods.*;
+import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.Orientation.VERTICAL;
+import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarMethods.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
-public class ScrollbarVerticalDefinitionReader extends
-        AbstractCustomComponentDefinitionReader<ScrollbarVerticalDefinition> {
+public class ScrollbarDefinitionReader extends
+        AbstractCustomComponentDefinitionReader<ScrollbarDefinition> {
     private final static int TRACK_AND_BUTTON_Z = 0;
     private final static int THUMB_Z = 1;
 
     private final ButtonDefinitionReader BUTTON_DEF_READER;
     private final RectangleRenderableDefinitionReader RECT_DEF_READER;
 
-    public ScrollbarVerticalDefinitionReader(ButtonDefinitionReader buttonDefReader,
-                                             RectangleRenderableDefinitionReader rectDefReader,
-                                             ProviderDefinitionReader providerDefReader) {
+    public ScrollbarDefinitionReader(ButtonDefinitionReader buttonDefReader,
+                                     RectangleRenderableDefinitionReader rectDefReader,
+                                     ProviderDefinitionReader providerDefReader) {
         super(providerDefReader);
         BUTTON_DEF_READER = Check.ifNull(buttonDefReader, "buttonDefReader");
         RECT_DEF_READER = Check.ifNull(rectDefReader, "rectDefReader");
     }
 
     @Override
-    public ComponentDefinition read(ScrollbarVerticalDefinition def, long timestamp) {
-        var scrollbarData = Collections.<String, Object>mapOf();
+    public ComponentDefinition read(ScrollbarDefinition def, long timestamp) {
+        var scrollbarData = Collections.<String, Object>mapOf(
+                IS_VERTICAL,
+                def.ORIENTATION == VERTICAL
+        );
 
         def.TRACK_DEF.z = TRACK_AND_BUTTON_Z;
-        def.TRACK_DEF.onPress(mapOf(LEFT_MOUSE_BUTTON, ScrollbarVertical_trackPress));
+        def.TRACK_DEF.onPress(mapOf(LEFT_MOUSE_BUTTON, Scrollbar_trackPress));
         var track = RECT_DEF_READER.read(null, def.TRACK_DEF, timestamp);
         var unadjTrackDimens = track.getRenderingDimensionsProvider();
         track.setRenderingDimensionsProvider(PROVIDER_DEF_READER.read(
                 functionalProvider(
-                        ScrollbarVertical_provideAdjTrackDimens,
+                        Scrollbar_provideAdjTrackDimens,
                         FloatBox.class
                 )
                         .withData(mapOf(COMPONENT_UUID, def.UUID)),
@@ -58,7 +62,7 @@ public class ScrollbarVerticalDefinitionReader extends
 
         var thumbOriginProvider = PROVIDER_DEF_READER.read(
                 functionalProvider(
-                        ScrollbarVertical_thumbOrigin,
+                        Scrollbar_thumbOrigin,
                         Vertex.class
                 )
                         .withData(mapOf(
@@ -69,7 +73,7 @@ public class ScrollbarVerticalDefinitionReader extends
         );
         def.THUMB_DEF.z = THUMB_Z;
         def.THUMB_DEF
-                .onPress(ScrollbarVertical_thumbPress)
+                .onPress(Scrollbar_thumbPress)
                 .withData(mapOf(
                         COMPONENT_ORIGIN_PROVIDER,
                         thumbOriginProvider
@@ -92,28 +96,28 @@ public class ScrollbarVerticalDefinitionReader extends
                         binding()
                 )
                 .withData(scrollbarData)
-                .withPrerenderHook(ScrollbarVertical_getDimens)
+                .withPrerenderHook(Scrollbar_getDimens)
                 .withContent(thumb)
                 .withPrereadContent(track);
 
-        if (def.topArrowDef != null) {
+        if (def.originArrowDef != null) {
             var thumbMoveAmountProvider =
                     PROVIDER_DEF_READER.read(def.THUMB_MOVE_AMOUNT_PROVIDER_DEF, timestamp);
             scrollbarComponentDef.withContent(
                     prepareArrowButton(
                             def.UUID,
-                            def.topArrowDef,
-                            ScrollbarVertical_topArrowPress,
-                            ScrollbarVertical_topArrowReleaseAfterPress,
-                            ScrollbarVertical_provideAdjTopArrowOrigin,
+                            def.originArrowDef,
+                            Scrollbar_topArrowPress,
+                            Scrollbar_topArrowReleaseAfterPress,
+                            Scrollbar_provideAdjTopArrowOrigin,
                             timestamp
                     ),
                     prepareArrowButton(
                             def.UUID,
-                            def.bottomArrowDef,
-                            ScrollbarVertical_bottomArrowPress,
-                            ScrollbarVertical_bottomArrowReleaseAfterPress,
-                            ScrollbarVertical_provideAdjBottomArrowOrigin,
+                            def.terminusArrowDef,
+                            Scrollbar_bottomArrowPress,
+                            Scrollbar_bottomArrowReleaseAfterPress,
+                            Scrollbar_provideAdjBottomArrowOrigin,
                             timestamp
                     )
             );
@@ -130,10 +134,10 @@ public class ScrollbarVerticalDefinitionReader extends
                     def.arrowHeldRepeatedTimeExponent,
                     ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR,
                     def.arrowHeldRepeatedTimeExponentFactor,
-                    TOP_ARROW_UUID,
-                    def.topArrowDef.UUID,
-                    BOTTOM_ARROW_UUID,
-                    def.bottomArrowDef.UUID
+                    ORIGIN_ARROW_UUID,
+                    def.originArrowDef.UUID,
+                    TERMINUS_ARROW_UUID,
+                    def.terminusArrowDef.UUID
             ));
         }
 

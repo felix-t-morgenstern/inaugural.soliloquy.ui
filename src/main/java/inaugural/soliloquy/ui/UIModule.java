@@ -17,9 +17,9 @@ import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinitionReader;
 import inaugural.soliloquy.ui.components.contentrow.ContentRowMethods;
-import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinition;
-import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinitionReader;
-import inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalMethods;
+import inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition;
+import inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinitionReader;
+import inaugural.soliloquy.ui.components.scrollbar.ScrollbarMethods;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinition;
 import inaugural.soliloquy.ui.components.textblock.TextBlockDefinitionReader;
 import inaugural.soliloquy.ui.components.textblock.TextBlockMethods;
@@ -292,13 +292,13 @@ public class UIModule extends AbstractModule {
                 (d, t) -> rowReader.read((ContentRowDefinition) d, t));
 
         // Scrollbar Vertical
-        var scrollbarVerticalReader = new ScrollbarVerticalDefinitionReader(
+        var scrollbarVerticalReader = new ScrollbarDefinitionReader(
                 buttonReader,
                 rectangleRenderableDefinitionReader,
                 providerDefinitionReader
         );
         customComponentMethods.add(
-                new ScrollbarVerticalMethods(
+                new ScrollbarMethods(
                         graphics::getComponent,
                         buttonMethods::Button_getUnadjDimens,
                         providerDefinitionReader,
@@ -308,8 +308,8 @@ public class UIModule extends AbstractModule {
                         clock
                 )
         );
-        renderableDefinitionReader.addCustomComponentReader(ScrollbarVerticalDefinition.class,
-                (d, t) -> scrollbarVerticalReader.read((ScrollbarVerticalDefinition) d, t));
+        renderableDefinitionReader.addCustomComponentReader(ScrollbarDefinition.class,
+                (d, t) -> scrollbarVerticalReader.read((ScrollbarDefinition) d, t));
 
         // Finally, read ALL the custom component methods
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));

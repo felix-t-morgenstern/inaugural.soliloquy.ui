@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.scrollbar.vertical;
+package inaugural.soliloquy.ui.test.integration.display.components.scrollbar;
 
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
@@ -16,21 +16,22 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.exception.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
-import static inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalDefinition.scrollbarVertical;
-import static inaugural.soliloquy.ui.components.scrollbar.vertical.ScrollbarVerticalMethods.THUMB_LOC_IN_SCROLLABLE_RANGE;
+import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.Orientation.VERTICAL;
+import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.scrollbar;
+import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarMethods.THUMB_LOC_IN_SCROLLABLE_RANGE;
 import static java.awt.Color.*;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ScrollbarVerticalDisplayTest extends DisplayTest {
+public class ScrollbarVerticalSimpleDisplayTest extends DisplayTest {
     public static final Vertex DEFAULT_RENDERING_LOC = vertexOf(0.25f, 0.25f);
     public static final float SCROLLBAR_WIDTH = 0.05f;
 
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Scrollbar vertical display test",
+                "Scrollbar vertical simple display test",
                 new AssetDefinitionsDTO(
                         arrayOf(),
                         arrayOf(),
@@ -42,20 +43,16 @@ public class ScrollbarVerticalDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Scrollbar vertical", 60000),
-                ScrollbarVerticalDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Scrollbar vertical simple", 60000),
+                ScrollbarVerticalSimpleDisplayTest::populateTopLevelComponent
         );
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var scrollMoveDur = 100;
-        var arrowHoldStartThreshold = 500;
-        var minDurBetweenMovesWhileArrowHeld = scrollMoveDur;
-        var arrowHeldRepeatedTimeExponent = 3f;
-        var arrowHeldRepeatedTimeExponentFactor = 100f;
-        var scrollbarDef = scrollbarVertical(
+        var scrollbarDef = scrollbar(
+                VERTICAL,
                 DEFAULT_RENDERING_LOC,
                 rectangle(floatBoxOf(SCROLLBAR_WIDTH, 0.4f), 0)
                         .withColor(BLUE),
@@ -76,35 +73,7 @@ public class ScrollbarVerticalDisplayTest extends DisplayTest {
                         .withReleaseSound(RELEASE_SOUND_ID),
                 staticVal(0.1f),
                 scrollMoveDur
-        )
-                .withArrowButtons(
-                        button(0)
-                                .withRectDefault(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
-                                                .withColor(GREEN)
-                                )
-                                .withRectPressed(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
-                                                .withColor(RED)
-                                )
-                                .withPressSound(PRESS_SOUND_ID)
-                                .withReleaseSound(RELEASE_SOUND_ID),
-                        button(0)
-                                .withRectDefault(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
-                                                .withColor(GREEN)
-                                )
-                                .withRectPressed(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
-                                                .withColor(RED)
-                                )
-                                .withPressSound(PRESS_SOUND_ID)
-                                .withReleaseSound(RELEASE_SOUND_ID),
-                        arrowHoldStartThreshold,
-                        minDurBetweenMovesWhileArrowHeld,
-                        arrowHeldRepeatedTimeExponent,
-                        arrowHeldRepeatedTimeExponentFactor
-                );
+        );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

@@ -46,6 +46,8 @@ public class Constants {
     public final static Vertex WINDOW_ORIGIN = vertexOf(0f, 0f);
     public final static Vertex WINDOW_CENTER = vertexOf(0.5f, 0.5f);
 
+    public final static int INSTANT_ARROW_CLICK_MOVEMENT_SPEED = 0;
+
     public final static String BLACK = "black";
     public final static String DARK_GREY = "darkgrey";
     public final static String GREY = "grey";

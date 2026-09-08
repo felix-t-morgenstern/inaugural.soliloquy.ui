@@ -13,6 +13,7 @@ import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 public class Constants {
     public final static String COMPONENT_UUID = "COMPONENT_UUID";
 
+    public final static String COMPONENT_UNADJ_DIMENS = "COMPONENT_UNADJ_DIMENS";
     public final static String COMPONENT_DIMENS = "COMPONENT_DIMENS";
     public final static String COMPONENT_WIDTH = "COMPONENT_WIDTH";
     public final static String COMPONENT_HEIGHT = "COMPONENT_HEIGHT";
@@ -22,6 +23,7 @@ public class Constants {
     public final static String CONTENT_UUID = "CONTENT_UUID";
     public final static String CONTAINING_COMPONENT_UUID = "CONTAINING_COMPONENT_UUID";
     public final static String LAST_TIMESTAMP = "LAST_TIMESTAMP";
+    public final static String LAST_UNADJ_TIMESTAMP = "LAST_UNADJ_TIMESTAMP";
     public final static String COMPONENT_ORIGIN = "COMPONENT_ORIGIN";
     public final static String COMPONENT_ORIGIN_PROVIDER = "COMPONENT_ORIGIN_PROVIDER";
     public final static String COMPONENT_ORIGIN_ADJUST = "COMPONENT_ORIGIN_ADJUST";
@@ -30,6 +32,7 @@ public class Constants {
     public final static String REGISTERED_CONTENTS = "REGISTERED_CONTENTS";
     public final static String CONTENT_SPECIFIC_ORIGINS = "CONTENT_SPECIFIC_ORIGINS";
 
+    public final static String CONTENT_ADJUSTMENTS = "CONTENT_ADJUSTMENTS";
     public final static String CONTENT_UNADJUSTED_DIMENS_PROVIDERS =
             "CONTENT_UNADJUSTED_DIMENS_PROVIDERS";
     public final static String CONTENT_UNADJUSTED_DIMENS = "CONTENT_UNADJUSTED_DIMENS";
@@ -38,8 +41,11 @@ public class Constants {
     public final static String CONTENT_UNADJUSTED_VERTICES = "CONTENT_UNADJUSTED_VERTICES";
     public final static String CONTENT_POLYGON_OFFSETS = "CONTENT_POLYGON_OFFSETS";
 
+    public final static String LENGTH = "LENGTH";
     public final static String INDENT = "INDENT";
     public final static String ALIGNMENT = "ALIGNMENT";
+    public final static String ORIENTATION = "ORIENTATION";
+    public final static String PADDING = "PADDING";
     public final static String SPACING_AFTER = "SPACING_AFTER";
     public final static String SPACING_UUID = "SPACING_UUID";
 

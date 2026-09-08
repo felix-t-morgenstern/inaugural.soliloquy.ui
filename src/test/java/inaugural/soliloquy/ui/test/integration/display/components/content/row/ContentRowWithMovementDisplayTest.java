@@ -1,33 +1,21 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentrow;
+package inaugural.soliloquy.ui.test.integration.display.components.content.row;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.SpriteDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
-import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
-import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.Component;
-import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
-import soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition;
-import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
-
-import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.itemOf;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.space;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.TOP;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.row;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.Item.itemOf;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.TOP;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.row;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
-import static inaugural.soliloquy.ui.test.integration.display.components.beveledbutton.BeveledButtonDisplayTest.makeBeveledButton;
-import static inaugural.soliloquy.ui.test.integration.display.components.button.ButtonFullSuiteDisplayTest.makeFullSuiteButton;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentrow.ContentRowTopAlignDisplayTest.makeRowTestRect;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentrow.ContentRowTopAlignDisplayTest.makeRowWithContents;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeRowTestRect;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeRowWithContents;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
@@ -35,8 +23,6 @@ import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefiniti
 import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
 import static soliloquy.specs.ui.definitions.providers.FiniteSinusoidMovingProviderDefinition.finiteSinusoidMoving;
-import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
-import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
 public class ContentRowWithMovementDisplayTest extends DisplayTest {
     public static void main(String[] args) {

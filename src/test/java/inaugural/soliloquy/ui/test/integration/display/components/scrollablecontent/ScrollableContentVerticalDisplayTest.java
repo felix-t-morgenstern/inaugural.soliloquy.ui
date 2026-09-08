@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentcolumn;
+package inaugural.soliloquy.ui.test.integration.display.components.scrollablecontent;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -11,18 +11,20 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentcolumn.ContentColumnLeftAlignDisplayTest.makeColumnWithContents;
-import static soliloquy.specs.common.valueobjects.Pair.pairOf;
+import static inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinition.scrollableContent;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.column.ContentColumnLeftAlignDisplayTest.makeColumnWithContents;
+import static inaugural.soliloquy.ui.test.integration.display.components.scrollbar.ScrollbarVerticalWithArrowButtonsDisplayTest.makeVerticalScrollbarDef;
+import static java.util.UUID.randomUUID;
+import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
-import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
-import static soliloquy.specs.ui.definitions.providers.FiniteLinearMovingProviderDefinition.finiteLinearMoving;
+import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ContentColumnScrollingThroughBoundariesDisplayTest extends DisplayTest {
+public class ScrollableContentVerticalDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column scrolling through boundaries display test",
+                "Scrollable content vertical display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -42,35 +44,37 @@ public class ContentColumnScrollingThroughBoundariesDisplayTest extends DisplayT
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column scrolling through boundaries", 16000),
-                ContentColumnScrollingThroughBoundariesDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Scrollable content vertical", 16000),
+                ScrollableContentVerticalDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var renderingLoc = finiteLinearMoving(
-                pairOf(0, vertexOf(0.25f, 1f)),
-                pairOf(16000, vertexOf(0.25f, -1f))
-        );
-
-        var colDef = makeColumnWithContents(renderingLoc, LEFT);
-
-        var componentWithBoundaries = component(
-                0,
-                clippingRenderingBoundaries
+        var colDef = makeColumnWithContents(null, LEFT);
+        var origin = staticVal(vertexOf(0.25f, 0.25f));
+        var indicatorRect = rectangle(
+                floatBoxOf(
+                        vertexOf(0.25f, 0.25f),
+                        0.5f, 0.5f
+                ),
+                0
         )
-                .withContent(
-                        rectangle(
-                                clippingRenderingBoundaries,
-                                -1
-                        )
-                                .withColor(Color.GRAY),
-                        colDef
-                );
+                .withColor(Color.GRAY);
+
+        var scrollableContent = scrollableContent(
+                origin,
+                colDef,
+                0.5f,
+                makeVerticalScrollbarDef(),
+                1,
+                randomUUID()
+        )
+                .withScrollbarPadding(0.01f);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, componentWithBoundaries, timestamp(uiModule));
+        reader.read(topLevelComponent, indicatorRect, timestamp(uiModule));
+        reader.read(topLevelComponent, scrollableContent, timestamp(uiModule));
     }
 }

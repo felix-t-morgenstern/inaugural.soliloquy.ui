@@ -11,12 +11,15 @@ import inaugural.soliloquy.ui.components.beveledbutton.BeveledButtonMethods;
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import inaugural.soliloquy.ui.components.button.ButtonDefinitionReader;
 import inaugural.soliloquy.ui.components.button.ButtonMethods;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinitionReader;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
-import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition;
-import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinitionReader;
-import inaugural.soliloquy.ui.components.contentrow.ContentRowMethods;
+import inaugural.soliloquy.ui.components.content.column.ContentColumnDefinition;
+import inaugural.soliloquy.ui.components.content.column.ContentColumnDefinitionReader;
+import inaugural.soliloquy.ui.components.content.column.ContentColumnMethods;
+import inaugural.soliloquy.ui.components.content.row.ContentRowDefinition;
+import inaugural.soliloquy.ui.components.content.row.ContentRowDefinitionReader;
+import inaugural.soliloquy.ui.components.content.row.ContentRowMethods;
+import inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinition;
+import inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinitionReader;
+import inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentMethods;
 import inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition;
 import inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinitionReader;
 import inaugural.soliloquy.ui.components.scrollbar.ScrollbarMethods;
@@ -277,28 +280,31 @@ public class UIModule extends AbstractModule {
 
         // Column
         var columnReader = new ContentColumnDefinitionReader(providerDefinitionReader);
+        ContentColumnMethods contentColumnMethods;
         customComponentMethods.add(
-                new ContentColumnMethods(graphics::getComponent,
+                contentColumnMethods = new ContentColumnMethods(graphics::getComponent,
                         functionalProviderDefReader::read));
         renderableDefinitionReader.addCustomComponentReader(ContentColumnDefinition.class,
                 (d, t) -> columnReader.read((ContentColumnDefinition) d, t));
 
         // Row
         var rowReader = new ContentRowDefinitionReader(providerDefinitionReader);
+        ContentRowMethods contentRowMethods;
         customComponentMethods.add(
-                new ContentRowMethods(graphics::getComponent, functionalProviderDefReader::read,
-                        textLineRenderer));
+                contentRowMethods = new ContentRowMethods(graphics::getComponent,
+                        functionalProviderDefReader::read, textLineRenderer));
         renderableDefinitionReader.addCustomComponentReader(ContentRowDefinition.class,
                 (d, t) -> rowReader.read((ContentRowDefinition) d, t));
 
         // Scrollbar Vertical
-        var scrollbarVerticalReader = new ScrollbarDefinitionReader(
+        var scrollbarReader = new ScrollbarDefinitionReader(
                 buttonReader,
                 rectangleRenderableDefinitionReader,
                 providerDefinitionReader
         );
+        ScrollbarMethods scrollbarMethods;
         customComponentMethods.add(
-                new ScrollbarMethods(
+                scrollbarMethods = new ScrollbarMethods(
                         graphics::getComponent,
                         buttonMethods::Button_getUnadjDimens,
                         providerDefinitionReader,
@@ -309,7 +315,23 @@ public class UIModule extends AbstractModule {
                 )
         );
         renderableDefinitionReader.addCustomComponentReader(ScrollbarDefinition.class,
-                (d, t) -> scrollbarVerticalReader.read((ScrollbarDefinition) d, t));
+                (d, t) -> scrollbarReader.read((ScrollbarDefinition) d, t));
+
+        var scrollableContentReader = new ScrollableContentDefinitionReader(
+                providerDefinitionReader,
+                columnReader,
+                rowReader
+        );
+        customComponentMethods.add(
+                new ScrollableContentMethods(
+                        graphics::getComponent,
+                        scrollbarMethods::incrementMovement,
+                        contentColumnMethods::ContentColumn_getUnadjDimens,
+                        contentRowMethods::ContentRow_getUnadjDimens
+                )
+        );
+        renderableDefinitionReader.addCustomComponentReader(ScrollableContentDefinition.class,
+                (d, t) -> scrollableContentReader.read((ScrollableContentDefinition) d, t));
 
         // Finally, read ALL the custom component methods
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));

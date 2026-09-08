@@ -1,8 +1,8 @@
 package inaugural.soliloquy.ui.test.unit.components.contentcolumn;
 
 import inaugural.soliloquy.ui.Constants;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinitionReader;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
+import inaugural.soliloquy.ui.components.content.column.ContentColumnDefinitionReader;
+import inaugural.soliloquy.ui.components.content.column.ContentColumnMethods;
 import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionReaderTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,10 @@ import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.itemOf;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.space;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.column;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.*;
+import static inaugural.soliloquy.ui.components.content.column.ContentColumnDefinition.Item.itemOf;
+import static inaugural.soliloquy.ui.components.content.column.ContentColumnDefinition.Item.space;
+import static inaugural.soliloquy.ui.components.content.column.ContentColumnDefinition.column;
+import static inaugural.soliloquy.ui.components.content.column.ContentColumnMethods.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;

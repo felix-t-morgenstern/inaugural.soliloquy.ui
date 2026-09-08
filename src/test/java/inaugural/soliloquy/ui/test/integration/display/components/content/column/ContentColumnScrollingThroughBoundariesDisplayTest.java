@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentcolumn;
+package inaugural.soliloquy.ui.test.integration.display.components.content.column;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -10,19 +10,19 @@ import soliloquy.specs.io.graphics.renderables.Component;
 
 import java.awt.*;
 
-        import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.TOP;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentrow.ContentRowTopAlignDisplayTest.makeRowWithContents;
+import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.column.ContentColumnLeftAlignDisplayTest.makeColumnWithContents;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.providers.FiniteLinearMovingProviderDefinition.finiteLinearMoving;
 
-public class ContentRowScrollingThroughBoundariesDisplayTest extends DisplayTest {
+public class ContentColumnScrollingThroughBoundariesDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content row scrolling through boundaries display test",
+                "Content column scrolling through boundaries display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -42,19 +42,19 @@ public class ContentRowScrollingThroughBoundariesDisplayTest extends DisplayTest
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content row scrolling through boundaries", 16000),
-                ContentRowScrollingThroughBoundariesDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content column scrolling through boundaries", 16000),
+                ContentColumnScrollingThroughBoundariesDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var renderingLoc = finiteLinearMoving(
-                pairOf(0, vertexOf(1f, 0.25f)),
-                pairOf(16000, vertexOf(-1f, 0.25f))
+                pairOf(0, vertexOf(0.25f, 1f)),
+                pairOf(16000, vertexOf(0.25f, -1f))
         );
 
-        var rowDef = makeRowWithContents(renderingLoc, TOP);
+        var colDef = makeColumnWithContents(renderingLoc, LEFT);
 
         var componentWithBoundaries = component(
                 0,
@@ -66,7 +66,7 @@ public class ContentRowScrollingThroughBoundariesDisplayTest extends DisplayTest
                                 -1
                         )
                                 .withColor(Color.GRAY),
-                        rowDef
+                        colDef
                 );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);

@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentcolumn;
+package inaugural.soliloquy.ui.test.integration.display.components.content.row;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -8,18 +8,21 @@ import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionRe
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
-import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentcolumn.ContentColumnLeftAlignDisplayTest.makeColumnWithContents;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentcolumn.ContentColumnLeftAlignDisplayTest.makeRectForCol;
+import java.awt.*;
+
+        import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.TOP;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeRowWithContents;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
-import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
-import static soliloquy.specs.ui.definitions.providers.FiniteSinusoidMovingProviderDefinition.finiteSinusoidMoving;
+import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
+import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
+import static soliloquy.specs.ui.definitions.providers.FiniteLinearMovingProviderDefinition.finiteLinearMoving;
 
-public class ContentColumnWithMovementDisplayTest extends DisplayTest {
+public class ContentRowScrollingThroughBoundariesDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column with movement display test",
+                "Content row scrolling through boundaries display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -39,25 +42,35 @@ public class ContentColumnWithMovementDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column with movement", 16000),
-                ContentColumnWithMovementDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content row scrolling through boundaries", 16000),
+                ContentRowScrollingThroughBoundariesDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var renderingLoc = finiteSinusoidMoving(
-                pairOf(1000, vertexOf(0.25f, 1f)),
-                pairOf(3000, vertexOf(0.25f, 0f))
+        var renderingLoc = finiteLinearMoving(
+                pairOf(0, vertexOf(1f, 0.25f)),
+                pairOf(16000, vertexOf(-1f, 0.25f))
         );
 
-        var rectDef = makeRectForCol();
+        var rowDef = makeRowWithContents(renderingLoc, TOP);
 
-        var colDef = makeColumnWithContents(renderingLoc, LEFT);
+        var componentWithBoundaries = component(
+                0,
+                clippingRenderingBoundaries
+        )
+                .withContent(
+                        rectangle(
+                                clippingRenderingBoundaries,
+                                -1
+                        )
+                                .withColor(Color.GRAY),
+                        rowDef
+                );
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, rectDef, timestamp(uiModule));
-        reader.read(topLevelComponent, colDef, timestamp(uiModule));
+        reader.read(topLevelComponent, componentWithBoundaries, timestamp(uiModule));
     }
 }

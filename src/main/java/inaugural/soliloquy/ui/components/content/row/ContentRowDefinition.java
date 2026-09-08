@@ -1,5 +1,6 @@
-package inaugural.soliloquy.ui.components.contentrow;
+package inaugural.soliloquy.ui.components.content.row;
 
+import inaugural.soliloquy.ui.components.content.AbstractContentSpanDefinition;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
@@ -9,22 +10,18 @@ import java.util.List;
 import java.util.UUID;
 
 import static inaugural.soliloquy.tools.collections.Collections.listOf;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.TOP;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.TOP;
 import static java.util.UUID.randomUUID;
 
 @SuppressWarnings("unused")
-public class ContentRowDefinition extends AbstractContentDefinition {
-    public final AbstractProviderDefinition<Vertex> RENDERING_LOC_DEF;
-    public final float HEIGHT;
+public class ContentRowDefinition extends AbstractContentSpanDefinition {
     public final List<Item> ITEMS;
 
     private ContentRowDefinition(AbstractProviderDefinition<Vertex> renderingLocDef,
                                  float height,
                                  int z,
                                  UUID uuid) {
-        super(z, uuid);
-        RENDERING_LOC_DEF = renderingLocDef;
-        HEIGHT = height;
+        super(renderingLocDef, height, z, uuid);
         ITEMS = listOf();
     }
 

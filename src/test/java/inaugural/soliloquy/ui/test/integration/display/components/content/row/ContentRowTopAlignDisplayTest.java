@@ -1,10 +1,10 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentcolumn;
+package inaugural.soliloquy.ui.test.integration.display.components.content.row;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
 import inaugural.soliloquy.io.api.dto.SpriteDefinitionDTO;
 import inaugural.soliloquy.ui.UIModule;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition;
+import inaugural.soliloquy.ui.components.content.row.ContentRowDefinition;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -16,30 +16,29 @@ import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
+import static inaugural.soliloquy.tools.collections.Collections.listOf;
 import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.itemOf;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.Item.space;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnDefinition.column;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.Item.itemOf;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.Item.space;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.TOP;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.row;
 import static inaugural.soliloquy.ui.components.textblock.TextBlockDefinition.textBlock;
 import static inaugural.soliloquy.ui.test.integration.display.components.beveledbutton.BeveledButtonDisplayTest.makeBeveledButton;
 import static inaugural.soliloquy.ui.test.integration.display.components.button.ButtonFullSuiteDisplayTest.makeFullSuiteButton;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
-import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.content.TextLineRenderableDefinition.textLine;
 import static soliloquy.specs.ui.definitions.content.TriangleRenderableDefinition.triangle;
 import static soliloquy.specs.ui.definitions.providers.LoopingLinearMovingProviderDefinition.loopingLinearMoving;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
-    public static final AbstractProviderDefinition<Vertex> DEFAULT_RENDERING_LOC_DEF =
-            staticVal(vertexOf(0.25f, 0f));
-
+public class ContentRowTopAlignDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column left align display test",
+                "Content row top align display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -60,41 +59,37 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column left align", 16000),
-                ContentColumnLeftAlignDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content row top align", 16000),
+                ContentRowTopAlignDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var rectDef = makeRectForCol();
-
-        var colDef = makeColumnWithContents(DEFAULT_RENDERING_LOC_DEF, LEFT);
+        var rect = makeRowTestRect();
+        var def = makeRowWithContents(staticVal(vertexOf(0f, 0.25f)), TOP);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, rectDef, timestamp(uiModule));
-        reader.read(topLevelComponent, colDef, timestamp(uiModule));
+        reader.read(topLevelComponent, def, timestamp(uiModule));
+        reader.read(topLevelComponent, rect, timestamp(uiModule));
     }
 
-    public static RectangleRenderableDefinition makeRectForCol() {
+    public static RectangleRenderableDefinition makeRowTestRect() {
         return rectangle(
-                floatBoxOf(0.25f, 0f, 0.75f, 1f),
+                floatBoxOf(0f, 0.25f, 1f, 0.75f),
                 -1
         )
                 .withColor(Color.GRAY);
     }
 
-    public static ContentColumnDefinition makeColumnWithContents(
+    public static ContentRowDefinition makeRowWithContents(
             AbstractProviderDefinition<Vertex> renderingLoc,
-            HorizontalAlignment align
+            VerticalAlignment align
     ) {
-        var colWidth = 0.5f;
-        var textBlockWidth = 0.4f;
-
-        return column(
+        return row(
                 renderingLoc,
-                colWidth,
+                0.5f,
                 0
         )
                 .withItems(
@@ -102,7 +97,7 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                 indent,
                                 textLine(
                                         MERRIWEATHER_ID,
-                                        "This is an indented text line!",
+                                        "Text line!",
                                         lineHeight * 1.5f,
                                         HorizontalAlignment.LEFT,
                                         0f,
@@ -116,14 +111,14 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                         loopingLinearMoving(
                                                 divCycle,
                                                 0,
-                                                pairOf(0, floatBoxOf(0f, divHeight)),
+                                                pairOf(0, floatBoxOf(divWidth, 0f)),
                                                 pairOf(
                                                         divCycle / 2,
-                                                        floatBoxOf(0.5f, divHeight)
+                                                        floatBoxOf(divWidth, 0.5f)
                                                 ),
                                                 pairOf(
                                                         divCycle,
-                                                        floatBoxOf(0f, divHeight)
+                                                        floatBoxOf(divWidth, 0f)
                                                 )
                                         ),
                                         0
@@ -138,12 +133,16 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                 textBlock(
                                         MERRIWEATHER_ID,
                                         lineHeight,
-                                        textBlockWidth,
-                                        paragraphs1
+                                        0.125f,
+                                        listOf("Lorem ipsum yada yada. This is a text block which" +
+                                                " takes up more than one line."),
+                                        1
                                 )
-                                        .withGlyphPadding(glyphPadding)
+                                        .withGlyphPadding(
+                                                glyphPadding)
                                         .withLineSpacing(lineSpacing)
-                                        .withParagraphSpacing(paragraphSpacing),
+                                        .withParagraphSpacing(paragraphSpacing)
+                                        .withHorizontalAlignment(HorizontalAlignment.LEFT),
                                 align,
                                 spacingAfter
                         ),
@@ -154,29 +153,16 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                                 spacingAfter
                         ),
                         itemOf(
-                                textBlock(
-                                        MERRIWEATHER_ID,
-                                        lineHeight,
-                                        textBlockWidth,
-                                        paragraphs2
-                                )
-                                        .withGlyphPadding(glyphPadding)
-                                        .withLineSpacing(lineSpacing)
-                                        .withParagraphSpacing(paragraphSpacing),
-                                align,
-                                spacingAfter
-                        ),
-                        itemOf(
                                 triangle(
                                         staticVal(vertexOf(0f, 0f)),
-                                        staticVal(vertexOf(0.5f, 0f)),
+                                        staticVal(vertexOf(0f, 0.5f)),
                                         loopingLinearMoving(
                                                 divCycle,
                                                 0,
-                                                pairOf(0, vertexOf(0.25f, divHeight)),
-                                                pairOf(divCycle / 4, vertexOf(0.5f, divHeight)),
-                                                pairOf(divCycle * 3 / 4, vertexOf(0f, divHeight)),
-                                                pairOf(divCycle, vertexOf(0.25f, divHeight))
+                                                pairOf(0, vertexOf(divWidth, 0.25f)),
+                                                pairOf(divCycle / 4, vertexOf(divWidth, 0.5f)),
+                                                pairOf(divCycle * 3 / 4, vertexOf(divWidth, 0f)),
+                                                pairOf(divCycle, vertexOf(divWidth, 0.25f))
                                         ),
                                         0
                                 ).withColor(

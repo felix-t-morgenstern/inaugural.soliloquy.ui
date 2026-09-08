@@ -34,7 +34,6 @@ import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.io.input.mouse.Mouse.EventType.RELEASE;
 
 public class ButtonMethods {
-    public final static String BUTTON_LAST_UNADJ_TIMESTAMP = "BUTTON_LAST_UNADJ_TIMESTAMP";
     public final static String BUTTON_DIMENS = "BUTTON_DIMENS";
     public final static String BUTTON_UNADJ_DIMENS = "BUTTON_UNADJ_DIMENS";
     public final static String RECT_UNADJ_DIMENS = "RECT_UNADJ_DIMENS";
@@ -131,7 +130,7 @@ public class ButtonMethods {
     
     @Reflection.DoNotReadMethod
     public FloatBox Button_getUnadjDimens(Component button, long timestamp) {
-        Long buttonLastUnadjTimestamp = getFromData(button, BUTTON_LAST_UNADJ_TIMESTAMP);
+        Long buttonLastUnadjTimestamp = getFromData(button, LAST_UNADJ_TIMESTAMP);
         if (buttonLastUnadjTimestamp != null && timestamp == buttonLastUnadjTimestamp) {
             return getFromData(button, BUTTON_UNADJ_DIMENS);
         }
@@ -175,6 +174,7 @@ public class ButtonMethods {
 
             button.data().put(BUTTON_UNADJ_DIMENS, unadjButtonDimens);
             button.data().put(RECT_UNADJ_DIMENS, unadjRectDimens);
+            button.data().put(LAST_UNADJ_TIMESTAMP, timestamp);
 
             return unadjButtonDimens;
         }

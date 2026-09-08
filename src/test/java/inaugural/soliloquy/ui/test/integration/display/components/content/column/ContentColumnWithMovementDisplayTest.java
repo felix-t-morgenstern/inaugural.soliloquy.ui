@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentrow;
+package inaugural.soliloquy.ui.test.integration.display.components.content.column;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -9,16 +9,17 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.BOTTOM;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentrow.ContentRowTopAlignDisplayTest.makeRowTestRect;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentrow.ContentRowTopAlignDisplayTest.makeRowWithContents;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.column.ContentColumnLeftAlignDisplayTest.makeColumnWithContents;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.column.ContentColumnLeftAlignDisplayTest.makeRectForCol;
+import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
-import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
+import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
+import static soliloquy.specs.ui.definitions.providers.FiniteSinusoidMovingProviderDefinition.finiteSinusoidMoving;
 
-public class ContentRowBottomAlignDisplayTest extends DisplayTest {
+public class ContentColumnWithMovementDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content row bottom align display test",
+                "Content column with movement display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -28,8 +29,7 @@ public class ContentRowBottomAlignDisplayTest extends DisplayTest {
                                 MERRIWEATHER_DEFINITION_DTO
                         ),
                         arrayOf(
-                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID,
-                                        RPG_WEAPONS_RELATIVE_LOCATION,
+                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
                                         266, 271, 313, 343)
                         ),
                         arrayOf(),
@@ -39,19 +39,25 @@ public class ContentRowBottomAlignDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content row bottom align", 16000),
-                ContentRowBottomAlignDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content column with movement", 16000),
+                ContentColumnWithMovementDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var rect = makeRowTestRect();
-        var def = makeRowWithContents(staticVal(vertexOf(0f, 0.25f)), BOTTOM);
+        var renderingLoc = finiteSinusoidMoving(
+                pairOf(1000, vertexOf(0.25f, 1f)),
+                pairOf(3000, vertexOf(0.25f, 0f))
+        );
+
+        var rectDef = makeRectForCol();
+
+        var colDef = makeColumnWithContents(renderingLoc, LEFT);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, def, timestamp(uiModule));
-        reader.read(topLevelComponent, rect, timestamp(uiModule));
+        reader.read(topLevelComponent, rectDef, timestamp(uiModule));
+        reader.read(topLevelComponent, colDef, timestamp(uiModule));
     }
 }

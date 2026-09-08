@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentcolumn;
+package inaugural.soliloquy.ui.test.integration.display.components.content.row;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -9,13 +9,16 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentcolumn.ContentColumnLeftAlignDisplayTest.*;
-import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.RIGHT;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.BOTTOM;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeRowTestRect;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeRowWithContents;
+import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ContentColumnRightAlignDisplayTest extends DisplayTest {
+public class ContentRowBottomAlignDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column right align display test",
+                "Content row bottom align display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -25,7 +28,8 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                                 MERRIWEATHER_DEFINITION_DTO
                         ),
                         arrayOf(
-                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID, RPG_WEAPONS_RELATIVE_LOCATION,
+                                new SpriteDefinitionDTO(SHIELD_SPRITE_ID,
+                                        RPG_WEAPONS_RELATIVE_LOCATION,
                                         266, 271, 313, 343)
                         ),
                         arrayOf(),
@@ -35,20 +39,19 @@ public class ContentColumnRightAlignDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column right align", 16000),
-                ContentColumnRightAlignDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content row bottom align", 16000),
+                ContentRowBottomAlignDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var rectDef = makeRectForCol();
-
-        var colDef = makeColumnWithContents(DEFAULT_RENDERING_LOC_DEF, RIGHT);
+        var rect = makeRowTestRect();
+        var def = makeRowWithContents(staticVal(vertexOf(0f, 0.25f)), BOTTOM);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
-        reader.read(topLevelComponent, rectDef, timestamp(uiModule));
-        reader.read(topLevelComponent, colDef, timestamp(uiModule));
+        reader.read(topLevelComponent, def, timestamp(uiModule));
+        reader.read(topLevelComponent, rect, timestamp(uiModule));
     }
 }

@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.components.contentcolumn;
+package inaugural.soliloquy.ui.components.content.row;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.Constants;
@@ -14,18 +14,18 @@ import java.util.Set;
 import static inaugural.soliloquy.tools.Tools.defaultIfNullElseTransform;
 import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.*;
-import static inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods.Content;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowMethods.*;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowMethods.Content;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
-public class ContentColumnDefinitionReader
-        extends AbstractCustomComponentDefinitionReader<ContentColumnDefinition> {
-    public ContentColumnDefinitionReader(ProviderDefinitionReader providerDefReader) {
+public class ContentRowDefinitionReader
+        extends AbstractCustomComponentDefinitionReader<ContentRowDefinition> {
+    public ContentRowDefinitionReader(ProviderDefinitionReader providerDefReader) {
         super(providerDefReader);
     }
 
-    public ComponentDefinition read(ContentColumnDefinition definition, long timestamp) {
+    public ComponentDefinition read(ContentRowDefinition definition, long timestamp) {
         Check.ifNull(definition, "definition");
 
         Set<AbstractContentDefinition> componentContents = setOf();
@@ -44,13 +44,16 @@ public class ContentColumnDefinitionReader
             ));
         });
 
+        var renderingLoc = PROVIDER_DEF_READER.read(
+                Check.ifNull(definition.renderingLocDef, "definition.renderingLocDef"), timestamp);
+
         return component(
                 definition.z,
                 componentContents,
                 definition.UUID
         )
                 .withDimensions(functionalProvider(
-                                ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider,
+                                ContentRow_setAndRetrieveDimensForComponentAndContentForProvider,
                                 FloatBox.class
                         )
                                 .withData(mapOf(
@@ -58,13 +61,13 @@ public class ContentColumnDefinitionReader
                                         definition.UUID
                                 ))
                 )
-                .withAddHook(ContentColumn_add)
-                .withPrerenderHook(ContentColumn_setDimensForComponentAndContent)
+                .withAddHook(ContentRow_add)
+                .withPrerenderHook(ContentRow_setDimensForComponentAndContent)
                 .withData(mapOf(
                         Constants.COMPONENT_ORIGIN_PROVIDER,
-                        PROVIDER_DEF_READER.read(definition.RENDERING_LOC_DEF, timestamp),
-                        COMPONENT_WIDTH,
-                        definition.WIDTH,
+                        renderingLoc,
+                        COMPONENT_HEIGHT,
+                        definition.LENGTH,
                         CONTENTS,
                         contentsForData
                 ));

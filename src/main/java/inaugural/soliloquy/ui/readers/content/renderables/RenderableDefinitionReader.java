@@ -156,9 +156,9 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                         )
                 ),
                 defaultIfNull(
-                        definition.RENDERING_BOUNDARIES_PROVIDER,
+                        definition.renderingBoundariesProvider,
                         defaultIfNullElseTransform(
-                                definition.RENDERING_BOUNDARIES_PROVIDER_DEF,
+                                definition.renderingBoundariesProviderDef,
                                 d -> PROVIDER_READER.read(d, timestamp),
                                 WHOLE_SCREEN_PROVIDER
                         )

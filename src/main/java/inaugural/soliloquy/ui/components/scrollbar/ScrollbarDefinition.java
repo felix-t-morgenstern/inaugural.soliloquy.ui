@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.scrollbar;
 
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.Constants;
+import inaugural.soliloquy.ui.components.Orientation;
 import inaugural.soliloquy.ui.components.button.ButtonDefinition;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
@@ -16,12 +17,13 @@ import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.
 
 public class ScrollbarDefinition extends AbstractContentDefinition {
     public final Orientation ORIENTATION;
-    public final AbstractProviderDefinition<Vertex> ORIGIN_PROVIDER_DEF;
-    public final ProviderAtTime<Vertex> ORIGIN_PROVIDER;
     public final RectangleRenderableDefinition TRACK_DEF;
     public final ButtonDefinition THUMB_DEF;
     public final AbstractProviderDefinition<Float> THUMB_MOVE_AMOUNT_PROVIDER_DEF;
     public final int THUMB_INCREMENT_MOVE_DUR;
+
+    public AbstractProviderDefinition<Vertex> originProviderDef;
+    public ProviderAtTime<Vertex> originProvider;
 
     public ButtonDefinition originArrowDef;
     public ButtonDefinition terminusArrowDef;
@@ -45,8 +47,8 @@ public class ScrollbarDefinition extends AbstractContentDefinition {
         ORIENTATION = Check.ifNull(orientation, "orientation");
         TRACK_DEF = Check.ifNull(trackDef, "trackDef");
         THUMB_DEF = Check.ifNull(thumbDef, "thumbDef");
-        ORIGIN_PROVIDER_DEF = originProviderDef;
-        ORIGIN_PROVIDER = originProvider;
+        this.originProviderDef = originProviderDef;
+        this.originProvider = originProvider;
         THUMB_MOVE_AMOUNT_PROVIDER_DEF =
                 Check.ifNull(thumbMoveAmountProviderDef, "thumbMoveAmountProviderDef");
         THUMB_INCREMENT_MOVE_DUR = Check.ifNull(thumbIncrementMoveDur, "thumbIncrementMoveDur");
@@ -155,6 +157,21 @@ public class ScrollbarDefinition extends AbstractContentDefinition {
     }
 
     /**
+     * This constructor primarily serves as a convenience mechanism for inserting Scrollbars into
+     * Component definitions which will overwrite its origin Vertex anyway
+     */
+    public static ScrollbarDefinition scrollbar(
+            Orientation orientation,
+            RectangleRenderableDefinition track,
+            ButtonDefinition thumb,
+            AbstractProviderDefinition<Float> thumbMoveAmountProviderDef,
+            int thumbIncrementMoveDur
+    ) {
+        return scrollbar(orientation, (AbstractProviderDefinition<Vertex>) null, track, thumb,
+                thumbMoveAmountProviderDef, thumbIncrementMoveDur);
+    }
+
+    /**
      * <i>Note that arrows change the net dimensions of the Scrollbar!</i> Take the size of the
      * arrows into account when determining where you place the Component origin and how much space
      * you expect it to take up.
@@ -195,10 +212,5 @@ public class ScrollbarDefinition extends AbstractContentDefinition {
         this.arrowHeldRepeatedTimeExponentFactor = arrowHeldRepeatedTimeExponentFactor;
 
         return this;
-    }
-
-    public enum Orientation {
-        HORIZONTAL,
-        VERTICAL
     }
 }

@@ -3,6 +3,7 @@ package inaugural.soliloquy.ui.test.integration.display.components.scrollbar;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.ui.UIModule;
+import inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.common.valueobjects.Vertex;
@@ -16,7 +17,7 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.exception.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
-import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.Orientation.HORIZONTAL;
+import static inaugural.soliloquy.ui.components.Orientation.HORIZONTAL;
 import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.scrollbar;
 import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarMethods.THUMB_LOC_IN_SCROLLABLE_RANGE;
 import static java.awt.Color.*;
@@ -48,15 +49,36 @@ public class ScrollbarHorizontalWithArrowsDisplayTest extends DisplayTest {
         );
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
+        var scrollbarDef = makeHorizontalScrollbarDef();
+
+        var reader = uiModule.provide(RenderableDefinitionReader.class);
+
+        reader.read(topLevelComponent, scrollbarDef, timestamp(uiModule));
+
+        Function<UUID, Component> getComponent =
+                uiModule.provide(IOModule.class).provide(Graphics.class)::getComponent;
+        var scrollbar = getComponent.apply(scrollbarDef.UUID);
+
+        new Thread(() -> {
+            while (testIsRunning) {
+                Float thumbLocInScrollableRange =
+                        getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE);
+                System.out.println("THUMB_LOC_IN_SCROLLABLE_RANGE = " + thumbLocInScrollableRange);
+                sleep(100);
+            }
+        }).start();
+    }
+
+    public static ScrollbarDefinition makeHorizontalScrollbarDef() {
         var scrollMoveDur = 100;
         var arrowHoldStartThreshold = 500;
         var minDurBetweenMovesWhileArrowHeld = scrollMoveDur;
         var arrowHeldRepeatedTimeExponent = 3f;
         var arrowHeldRepeatedTimeExponentFactor = 100f;
-        var scrollbarDef = scrollbar(
+
+        return scrollbar(
                 HORIZONTAL,
                 DEFAULT_RENDERING_LOC,
                 rectangle(floatBoxOf(0.4f, SCROLLBAR_HEIGHT), 0)
@@ -107,22 +129,5 @@ public class ScrollbarHorizontalWithArrowsDisplayTest extends DisplayTest {
                         arrowHeldRepeatedTimeExponent,
                         arrowHeldRepeatedTimeExponentFactor
                 );
-
-        var reader = uiModule.provide(RenderableDefinitionReader.class);
-
-        reader.read(topLevelComponent, scrollbarDef, timestamp(uiModule));
-
-        Function<UUID, Component> getComponent =
-                uiModule.provide(IOModule.class).provide(Graphics.class)::getComponent;
-        var scrollbar = getComponent.apply(scrollbarDef.UUID);
-
-        new Thread(() -> {
-            while (testIsRunning) {
-                Float thumbLocInScrollableRange =
-                        getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE);
-                System.out.println("THUMB_LOC_IN_SCROLLABLE_RANGE = " + thumbLocInScrollableRange);
-                sleep(100);
-            }
-        }).start();
     }
 }

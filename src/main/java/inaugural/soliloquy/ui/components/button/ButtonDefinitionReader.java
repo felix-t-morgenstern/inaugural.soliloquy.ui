@@ -143,7 +143,7 @@ public class ButtonDefinitionReader
                                         definition.UUID
                                 ))
                 )
-                .withBindings(
+                .withKeyBindings(
                         false,
                         definition.keyEventPriority,
                         bindings

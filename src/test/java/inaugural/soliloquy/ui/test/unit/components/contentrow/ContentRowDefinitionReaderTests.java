@@ -1,7 +1,8 @@
 package inaugural.soliloquy.ui.test.unit.components.contentrow;
 
 import inaugural.soliloquy.ui.Constants;
-import inaugural.soliloquy.ui.components.contentrow.ContentRowDefinitionReader;
+import inaugural.soliloquy.ui.components.content.row.ContentRowDefinitionReader;
+import inaugural.soliloquy.ui.components.content.row.ContentRowMethods;
 import inaugural.soliloquy.ui.test.unit.components.ComponentDefinitionReaderTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,12 +17,12 @@ import static inaugural.soliloquy.tools.collections.Collections.*;
 import static inaugural.soliloquy.tools.random.Random.*;
 import static inaugural.soliloquy.tools.testing.Assertions.once;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.itemOf;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.Item.space;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.VerticalAlignment.TOP;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowDefinition.row;
-import static inaugural.soliloquy.ui.components.contentrow.ContentRowMethods.*;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.Item.itemOf;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.Item.space;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.TOP;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.row;
+import static inaugural.soliloquy.ui.components.content.row.ContentRowMethods.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
@@ -117,7 +118,7 @@ public class ContentRowDefinitionReaderTests extends ComponentDefinitionReaderTe
                                 TOP,
                                 spacingAmt
                         ),
-                        new Content(
+                        new ContentRowMethods.Content(
                                 content2.UUID,
                                 item2Indent,
                                 item2Alignment,

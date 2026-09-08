@@ -1,5 +1,6 @@
-package inaugural.soliloquy.ui.components.contentcolumn;
+package inaugural.soliloquy.ui.components.content.column;
 
+import inaugural.soliloquy.ui.components.content.AbstractContentSpanDefinition;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
@@ -14,18 +15,14 @@ import static java.util.UUID.randomUUID;
 import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 
 @SuppressWarnings("unused")
-public class ContentColumnDefinition extends AbstractContentDefinition {
-    public final AbstractProviderDefinition<Vertex> RENDERING_LOC_DEF;
-    public final float WIDTH;
+public class ContentColumnDefinition extends AbstractContentSpanDefinition {
     public final List<Item> ITEMS;
 
     private ContentColumnDefinition(AbstractProviderDefinition<Vertex> renderingLocDef,
                                     float width,
                                     int z,
                                     UUID uuid) {
-        super(z, uuid);
-        RENDERING_LOC_DEF = renderingLocDef;
-        WIDTH = width;
+        super(renderingLocDef, width, z, uuid);
         ITEMS = listOf();
     }
 

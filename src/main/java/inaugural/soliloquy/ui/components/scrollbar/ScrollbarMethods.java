@@ -358,8 +358,7 @@ public class ScrollbarMethods {
             scrollbar.data().put(THUMB_LOC_IN_SCROLLABLE_RANGE, thumbLocInScrollableRange);
         }
         else {
-            thumbLocInScrollableRange =
-                    defaultIfNull(getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE), 0f);
+            thumbLocInScrollableRange = getFromData(scrollbar, THUMB_LOC_IN_SCROLLABLE_RANGE);
         }
 
         float thumbAdjLeftX;

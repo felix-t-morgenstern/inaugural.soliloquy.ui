@@ -429,7 +429,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         var data = Collections.<String, Object>mapOf(dataKey, dataVal);
         var definition = component(Z, mockComponentRenderingBoundariesDef)
                 .withContent(mockRasterizedLineDefinition)
-                .withBindings(
+                .withKeyBindings(
                         overrides,
                         priority,
                         binding(key)
@@ -559,7 +559,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         var data = Collections.<String, Object>mapOf(dataKey, dataVal);
         var componentDef = component(Z, mockComponentRenderingBoundariesDef)
                 .withContent(mockRasterizedLineDefinition)
-                .withBindings(
+                .withKeyBindings(
                         overrides,
                         priority,
                         binding(key)

@@ -2,7 +2,7 @@ package inaugural.soliloquy.ui.test.unit.components.contentcolumn;
 
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.Constants;
-import inaugural.soliloquy.ui.components.contentcolumn.ContentColumnMethods;
+import inaugural.soliloquy.ui.components.content.column.ContentColumnMethods;
 import inaugural.soliloquy.ui.test.unit.components.FunctionalProviderDefMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

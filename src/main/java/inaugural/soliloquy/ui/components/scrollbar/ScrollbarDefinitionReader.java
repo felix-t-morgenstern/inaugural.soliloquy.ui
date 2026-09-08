@@ -17,7 +17,7 @@ import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.ui.Constants.COMPONENT_ORIGIN_PROVIDER;
 import static inaugural.soliloquy.ui.Constants.COMPONENT_UUID;
-import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.Orientation.VERTICAL;
+import static inaugural.soliloquy.ui.components.Orientation.VERTICAL;
 import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarMethods.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
@@ -42,6 +42,8 @@ public class ScrollbarDefinitionReader extends
     @Override
     public ComponentDefinition read(ScrollbarDefinition def, long timestamp) {
         var scrollbarData = Collections.<String, Object>mapOf(
+                THUMB_LOC_IN_SCROLLABLE_RANGE,
+                0f,
                 IS_VERTICAL,
                 def.ORIENTATION == VERTICAL
         );
@@ -82,7 +84,7 @@ public class ScrollbarDefinitionReader extends
 
         scrollbarData.putAll(mapOf(
                 COMPONENT_ORIGIN_PROVIDER,
-                providerOrReadDef(def.ORIGIN_PROVIDER, def.ORIGIN_PROVIDER_DEF, timestamp),
+                providerOrReadDef(def.originProvider, def.originProviderDef, timestamp),
                 THUMB_UUID,
                 def.THUMB_DEF.UUID,
                 THUMB_IS_PRESSED,
@@ -90,7 +92,7 @@ public class ScrollbarDefinitionReader extends
         ));
 
         var scrollbarComponentDef = component(def.z, def.UUID)
-                .withBindings(
+                .withKeyBindings(
                         false,
                         0,
                         binding()

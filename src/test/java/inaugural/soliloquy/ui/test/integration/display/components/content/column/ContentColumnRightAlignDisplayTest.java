@@ -1,4 +1,4 @@
-package inaugural.soliloquy.ui.test.integration.display.components.contentcolumn;
+package inaugural.soliloquy.ui.test.integration.display.components.content.column;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
@@ -9,13 +9,13 @@ import inaugural.soliloquy.ui.test.integration.display.DisplayTest;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.test.integration.display.components.contentcolumn.ContentColumnLeftAlignDisplayTest.*;
-import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.CENTER;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.column.ContentColumnLeftAlignDisplayTest.*;
+import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.RIGHT;
 
-public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
+public class ContentColumnRightAlignDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Content column center align display test",
+                "Content column right align display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -35,8 +35,8 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Content column center align", 16000),
-                ContentColumnCenterAlignDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Content column right align", 16000),
+                ContentColumnRightAlignDisplayTest::populateTopLevelComponent
         );
     }
 
@@ -44,7 +44,7 @@ public class ContentColumnCenterAlignDisplayTest extends DisplayTest {
                                                     Component topLevelComponent) {
         var rectDef = makeRectForCol();
 
-        var colDef = makeColumnWithContents(DEFAULT_RENDERING_LOC_DEF, CENTER);
+        var colDef = makeColumnWithContents(DEFAULT_RENDERING_LOC_DEF, RIGHT);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

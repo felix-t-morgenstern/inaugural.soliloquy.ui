@@ -16,7 +16,7 @@ import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.exception.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.ui.components.button.ButtonDefinition.button;
-import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.Orientation.VERTICAL;
+import static inaugural.soliloquy.ui.components.Orientation.VERTICAL;
 import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarDefinition.scrollbar;
 import static inaugural.soliloquy.ui.components.scrollbar.ScrollbarMethods.THUMB_LOC_IN_SCROLLABLE_RANGE;
 import static java.awt.Color.*;

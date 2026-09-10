@@ -259,7 +259,8 @@ public class UIModule extends AbstractModule {
         ButtonMethods buttonMethods;
         //noinspection unchecked
         customComponentMethods.add(buttonMethods = new ButtonMethods(
-                id -> methods.FUNCTIONS.get(PLAY_SOUND_METHOD_NAME).apply(id),
+                id -> methods.BICONSUMERS.get(PLAY_SOUND_METHOD_NAME)
+                        .accept(id, staticProviderFactory.apply(randomUUID(), 1f)),
                 subscribeToNextMouseEvent,
                 graphics::getComponent,
                 frameExecutor::registerFrameBlockingEvent

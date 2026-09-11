@@ -336,5 +336,10 @@ public class UIModule extends AbstractModule {
 
         // Finally, read ALL the custom component methods
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));
+
+        // Denormalization
+        methods.concatenate(readMethods(new Denormalization()));
+        Denormalization.ProviderDefReader = providerDefinitionReader;
+        Denormalization.GetWidthToHeightRatio = resManager::windowWidthToHeightRatio;
     }
 }

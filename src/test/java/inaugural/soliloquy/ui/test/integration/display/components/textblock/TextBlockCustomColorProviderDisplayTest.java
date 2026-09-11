@@ -98,7 +98,7 @@ public class TextBlockCustomColorProviderDisplayTest extends DisplayTest {
                                 loopingColor(
                                         rainbowPeriod,
                                         0,
-                                        listOf(true, true),
+                                        listOf(true, true, true),
                                         pairOf(0, Color.RED),
                                         pairOf(rainbowPeriod/2, Color.CYAN),
                                         pairOf(rainbowPeriod, Color.RED)

@@ -11,9 +11,9 @@ import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.EventInputs;
 
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static inaugural.soliloquy.tools.Tools.falseIfNull;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.valueobjects.FloatBox.encompassing;
 import static inaugural.soliloquy.tools.valueobjects.Vertex.translateVertex;
@@ -30,20 +30,15 @@ public class ScrollableContentMethods {
     final static String SPAN_LENGTH = "SPAN_LENGTH";
     final static String SCROLLABLE_WINDOW_LENGTH_PROVIDER = "SCROLLABLE_WINDOW_LENGTH_PROVIDER";
     final static String SCROLLBAR_PADDING = "SCROLLBAR_PADDING";
+    final static String HIDES_SCROLLBAR_WHEN_CONTENT_FITS = "HIDES_SCROLLBAR_WHEN_CONTENT_FITS";
 
     private final Function<UUID, Component> GET_COMPONENT;
     private final TriConsumer<Component, Long, Boolean> INCREMENT_MOVEMENT;
-    private final BiFunction<Component, Long, FloatBox> GET_COL_UNADJ_DIMENS;
-    private final BiFunction<Component, Long, FloatBox> GET_ROW_UNADJ_DIMENS;
 
     public ScrollableContentMethods(Function<UUID, Component> getComponent,
-                                    TriConsumer<Component, Long, Boolean> incrementMovement,
-                                    BiFunction<Component, Long, FloatBox> getColUnadjDimens,
-                                    BiFunction<Component, Long, FloatBox> getRowUnadjDimens) {
+                                    TriConsumer<Component, Long, Boolean> incrementMovement) {
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
         INCREMENT_MOVEMENT = Check.ifNull(incrementMovement, "incrementMovement");
-        GET_COL_UNADJ_DIMENS = Check.ifNull(getColUnadjDimens, "getColUnadjDimens");
-        GET_ROW_UNADJ_DIMENS = Check.ifNull(getRowUnadjDimens, "getRowUnadjDimens");
     }
 
     public static String ScrollableContent_spanOrigin = "ScrollableContent_spanOrigin";
@@ -62,17 +57,18 @@ public class ScrollableContentMethods {
         }
 
         var span = GET_COMPONENT.apply(getFromData(scrollableContent, SPAN_UUID));
+        var spanUnadjDimensProvider = span.unadjustedDimensionsProvider();
+        var spanUnadjDimens = spanUnadjDimensProvider.provide(inputs.timestamp());
         ProviderAtTime<Float> scrollableWindowLengthProvider =
                 getFromData(scrollableContent, SCROLLABLE_WINDOW_LENGTH_PROVIDER);
         var scrollableWindowLength = scrollableWindowLengthProvider.provide(inputs.timestamp());
         Orientation orientation = getFromData(scrollableContent, ORIENTATION);
         if (orientation == VERTICAL) {
-            var colUnadjDimens = GET_COL_UNADJ_DIMENS.apply(span, inputs.timestamp());
-            if (colUnadjDimens.height() <= scrollableWindowLength) {
+            if (spanUnadjDimens.height() <= scrollableWindowLength) {
                 return scrollableContentOrigin;
             }
             else {
-                var maxScrollingDisplacement = colUnadjDimens.height() - scrollableWindowLength;
+                var maxScrollingDisplacement = spanUnadjDimens.height() - scrollableWindowLength;
                 var scrollingDisplacement = maxScrollingDisplacement * thumbLocInScrollableRange;
                 return vertexOf(
                         scrollableContentOrigin.X,
@@ -81,12 +77,11 @@ public class ScrollableContentMethods {
             }
         }
         else {
-            var rowUnadjDimens = GET_ROW_UNADJ_DIMENS.apply(span, inputs.timestamp());
-            if (rowUnadjDimens.width() <= scrollableWindowLength) {
+            if (spanUnadjDimens.width() <= scrollableWindowLength) {
                 return scrollableContentOrigin;
             }
             else {
-                var maxScrollingDisplacement = rowUnadjDimens.width() - scrollableWindowLength;
+                var maxScrollingDisplacement = spanUnadjDimens.width() - scrollableWindowLength;
                 var scrollingDisplacement = maxScrollingDisplacement * thumbLocInScrollableRange;
                 return vertexOf(
                         scrollableContentOrigin.X - scrollingDisplacement,
@@ -132,11 +127,30 @@ public class ScrollableContentMethods {
 
     public Vertex ScrollableContent_scrollbarOrigin(FunctionalProvider.Inputs inputs) {
         var scrollableContent = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
-        ProviderAtTime<Vertex> componentOriginProvider = getFromData(scrollableContent, COMPONENT_ORIGIN_PROVIDER);
+        ProviderAtTime<Vertex> componentOriginProvider =
+                getFromData(scrollableContent, COMPONENT_ORIGIN_PROVIDER);
         var componentOrigin = componentOriginProvider.provide(inputs.timestamp());
         Orientation orientation = getFromData(scrollableContent, ORIENTATION);
         var span = GET_COMPONENT.apply(getFromData(scrollableContent, SPAN_UUID));
         float scrollbarPadding = getFromData(scrollableContent, SCROLLBAR_PADDING);
+
+        if (falseIfNull(getFromData(scrollableContent, HIDES_SCROLLBAR_WHEN_CONTENT_FITS))) {
+            ProviderAtTime<Float> scrollableWindowLengthProvider =
+                    getFromData(scrollableContent, SCROLLABLE_WINDOW_LENGTH_PROVIDER);
+            var scrollableWindowLength = scrollableWindowLengthProvider.provide(inputs.timestamp());
+            var spanUnadjDimensProvider = span.unadjustedDimensionsProvider();
+            var spanUnadjDimens = spanUnadjDimensProvider.provide(inputs.timestamp());
+            float spanContentLength;
+            if (orientation == VERTICAL) {
+                spanContentLength = spanUnadjDimens.height();
+            }
+            else {
+                spanContentLength = spanUnadjDimens.width();
+            }
+            if (spanContentLength <= scrollableWindowLength) {
+                return HIDDEN;
+            }
+        }
 
         if (orientation == VERTICAL) {
             float spanLength = getFromData(span, COMPONENT_WIDTH);
@@ -158,6 +172,35 @@ public class ScrollableContentMethods {
         }
     }
 
+    public final static String ScrollableContent_getUnadjDimens =
+            "ScrollableContent_getUnadjDimens";
+
+    public FloatBox ScrollableContent_getUnadjDimens(FunctionalProvider.Inputs inputs) {
+        var scrollableContent = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        var span = GET_COMPONENT.apply(getFromData(scrollableContent, SPAN_UUID));
+        var scrollbar = GET_COMPONENT.apply(getFromData(scrollableContent, SCROLLBAR_UUID));
+
+        var scrollbarUnadjDimens =
+                scrollbar.unadjustedDimensionsProvider().provide(inputs.timestamp());
+        var spanUnadjDimens = span.unadjustedDimensionsProvider().provide(inputs.timestamp());
+
+        Orientation orientation = getFromData(scrollableContent, ORIENTATION);
+        float scrollbarPadding = getFromData(scrollableContent, SCROLLBAR_PADDING);
+
+        if (orientation == VERTICAL) {
+            return floatBoxOf(
+                    spanUnadjDimens.width() + scrollbarPadding + scrollbarUnadjDimens.width(),
+                    Math.max(spanUnadjDimens.height(), scrollbarUnadjDimens.height())
+            );
+        }
+        else {
+            return floatBoxOf(
+                    Math.max(spanUnadjDimens.width(), scrollbarUnadjDimens.width()),
+                    spanUnadjDimens.height() + scrollbarPadding + scrollbarUnadjDimens.height()
+            );
+        }
+    }
+
     public final static String ScrollableContent_encompassingDimens =
             "ScrollableContent_encompassingDimens";
 
@@ -165,8 +208,8 @@ public class ScrollableContentMethods {
         var span = GET_COMPONENT.apply(getFromData(inputs, SPAN_UUID));
         var scrollbar = GET_COMPONENT.apply(getFromData(inputs, SCROLLBAR_UUID));
 
-        var scrollbarDimens = scrollbar.getDimensionsProvider().provide(inputs.timestamp());
-        var spanDimens = span.getDimensionsProvider().provide(inputs.timestamp());
+        var scrollbarDimens = scrollbar.dimensionsProvider().provide(inputs.timestamp());
+        var spanDimens = span.dimensionsProvider().provide(inputs.timestamp());
 
         return encompassing(scrollbarDimens, spanDimens);
     }

@@ -1,6 +1,5 @@
 package inaugural.soliloquy.ui;
 
-import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.tools.reflection.Reflection;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
@@ -25,9 +24,9 @@ public class Denormalization {
 
     static final String NORMALIZED_PROVIDER = "NORMALIZED_PROVIDER";
 
-    static final String provideDenormalized = "provideDenormalized";
+    static final String provideWithDenormalizedHeight = "provideWithDenormalizedHeight";
 
-    public FloatBox provideDenormalized(FunctionalProvider.Inputs inputs) {
+    public FloatBox provideWithDenormalizedHeight(FunctionalProvider.Inputs inputs) {
         ProviderAtTime<FloatBox> normalizedProvider = getFromData(inputs, NORMALIZED_PROVIDER);
         var normalized = normalizedProvider.provide(inputs.timestamp());
         var widthToHeightRatio = GetWidthToHeightRatio.get();
@@ -45,12 +44,12 @@ public class Denormalization {
      * treated as the same on-screen distance as the equivalent width.
      */
     @Reflection.DoNotReadMethod
-    public static AbstractProviderDefinition<FloatBox> denorm(
+    public static AbstractProviderDefinition<FloatBox> denormHeightDef(
             AbstractProviderDefinition<FloatBox> normalizedProviderDef,
             long timestamp
     ) {
         var normalizedProvider = ProviderDefReader.read(normalizedProviderDef, timestamp);
-        return denorm(normalizedProvider);
+        return denormHeightDef(normalizedProvider);
     }
 
     /**
@@ -58,11 +57,11 @@ public class Denormalization {
      * treated as the same on-screen distance as the equivalent width.
      */
     @Reflection.DoNotReadMethod
-    public static AbstractProviderDefinition<FloatBox> denorm(
+    public static AbstractProviderDefinition<FloatBox> denormHeightDef(
             ProviderAtTime<FloatBox> normalizedProvider
     ) {
         return functionalProvider(
-                provideDenormalized,
+                provideWithDenormalizedHeight,
                 FloatBox.class
         )
                 .withData(mapOf(
@@ -76,13 +75,76 @@ public class Denormalization {
      * distance as the equivalent width.
      */
     @Reflection.DoNotReadMethod
-    public static AbstractProviderDefinition<FloatBox> denorm(FloatBox normalizedDimens) {
-        return staticVal(
-                floatBoxOf(
-                        normalizedDimens.topLeft(),
-                        normalizedDimens.width(),
-                        normalizedDimens.height() * GetWidthToHeightRatio.get()
-                )
+    public static AbstractProviderDefinition<FloatBox> denormHeightDef(FloatBox normalizedDimens) {
+        return staticVal(denormHeight(normalizedDimens));
+    }
+
+    @Reflection.DoNotReadMethod
+    public static FloatBox denormHeight(FloatBox normalizedDimens) {
+        return floatBoxOf(
+                normalizedDimens.topLeft(),
+                normalizedDimens.width(),
+                normalizedDimens.height() * GetWidthToHeightRatio.get()
+        );
+    }
+
+    static final String provideWithDenormalizedWidth = "provideWithDenormalizedWidth";
+
+    public FloatBox provideWithDenormalizedWidth(FunctionalProvider.Inputs inputs) {
+        ProviderAtTime<FloatBox> normalizedProvider = getFromData(inputs, NORMALIZED_PROVIDER);
+        var normalized = normalizedProvider.provide(inputs.timestamp());
+        var widthToHeightRatio = GetWidthToHeightRatio.get();
+        var denormalizedWidth = normalized.width() / widthToHeightRatio;
+
+        return floatBoxOf(
+                normalized.topLeft(),
+                denormalizedWidth,
+                normalized.width()
+        );
+    }
+
+    @Reflection.DoNotReadMethod
+    public static AbstractProviderDefinition<FloatBox> denormWidthDef(
+            AbstractProviderDefinition<FloatBox> normalizedProviderDef,
+            long timestamp
+    ) {
+        var normalizedProvider = ProviderDefReader.read(normalizedProviderDef, timestamp);
+        return denormWidthDef(normalizedProvider);
+    }
+
+    /**
+     * The dimensions provided by normalizedProvider will be transformed so that the height is
+     * treated as the same on-screen distance as the equivalent width.
+     */
+    @Reflection.DoNotReadMethod
+    public static AbstractProviderDefinition<FloatBox> denormWidthDef(
+            ProviderAtTime<FloatBox> normalizedProvider
+    ) {
+        return functionalProvider(
+                provideWithDenormalizedWidth,
+                FloatBox.class
+        )
+                .withData(mapOf(
+                        NORMALIZED_PROVIDER,
+                        normalizedProvider
+                ));
+    }
+
+    /**
+     * The normalizedDimens will be transformed so that the height is treated as the same on-screen
+     * distance as the equivalent width.
+     */
+    @Reflection.DoNotReadMethod
+    public static AbstractProviderDefinition<FloatBox> denormWidthDef(FloatBox normalizedDimens) {
+        return staticVal(denormWidth(normalizedDimens));
+    }
+
+    @Reflection.DoNotReadMethod
+    public static FloatBox denormWidth(FloatBox normalizedDimens) {
+        return floatBoxOf(
+                normalizedDimens.topLeft(),
+                normalizedDimens.width() / GetWidthToHeightRatio.get(),
+                normalizedDimens.height()
         );
     }
 }

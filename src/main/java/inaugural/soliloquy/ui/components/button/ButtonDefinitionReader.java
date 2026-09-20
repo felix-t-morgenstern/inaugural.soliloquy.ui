@@ -88,7 +88,7 @@ public class ButtonDefinitionReader
         var data = Collections.<String, Object>mapOf(
                 PRESS_CONSUMER,
                 defaultIfNullElseTransform(definition.onPressId, GET_CONSUMER, null),
-                RELEASE_CONSUMER,
+                RELEASE_AFTER_PRESS_CONSUMER,
                 defaultIfNullElseTransform(definition.onReleaseAfterPressId, GET_CONSUMER, null),
                 PRESS_SOUND_ID,
                 definition.pressSoundId,
@@ -128,20 +128,20 @@ public class ButtonDefinitionReader
                         arrayOf()
                 );
 
+        var innerData = Collections.<String, Object>mapOf(COMPONENT_UUID, definition.UUID);
+
         var buttonDef = component(
                 definition.z,
                 definition.UUID,
                 prereadContent
         )
                 .withDimensions(
-                        functionalProvider(
-                                Button_getDimens,
-                                FloatBox.class
-                        )
-                                .withData(mapOf(
-                                        COMPONENT_UUID,
-                                        definition.UUID
-                                ))
+                        functionalProvider(Button_getDimens, FloatBox.class)
+                                .withData(innerData)
+                )
+                .withUnadjDimensions(
+                        functionalProvider(Button_provideUnadjDimens, FloatBox.class)
+                                .withData(innerData)
                 )
                 .withKeyBindings(
                         false,

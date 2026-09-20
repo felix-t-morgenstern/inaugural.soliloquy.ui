@@ -1,6 +1,7 @@
 package inaugural.soliloquy.ui.components.content.column;
 
 import inaugural.soliloquy.tools.Check;
+import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.components.AbstractCustomComponentDefinitionReader;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.valueobjects.FloatBox;
@@ -43,22 +44,29 @@ public class ContentColumnDefinitionReader
             ));
         });
 
-        var renderingLoc = PROVIDER_DEF_READER.read(
-                Check.ifNull(definition.renderingLocDef, "definition.renderingLocDef"), timestamp);
+        var renderingLoc = providerOrReadDef(
+                definition.renderingLocProvider,
+                definition.renderingLocProviderDef,
+                timestamp
+        );
+
+        var innerData = Collections.<String, Object>mapOf(COMPONENT_UUID, definition.UUID);
 
         return component(
                 definition.z,
                 componentContents,
                 definition.UUID
         )
-                .withDimensions(functionalProvider(
+                .withDimensions(
+                        functionalProvider(
                                 ContentColumn_setAndRetrieveDimensForComponentAndContentForProvider,
                                 FloatBox.class
                         )
-                                .withData(mapOf(
-                                        COMPONENT_UUID,
-                                        definition.UUID
-                                ))
+                                .withData(innerData)
+                )
+                .withUnadjDimensions(
+                        functionalProvider(ContentColumn_provideUnadjDimens, FloatBox.class)
+                                .withData(innerData)
                 )
                 .withAddHook(ContentColumn_add)
                 .withPrerenderHook(ContentColumn_setDimensForComponentAndContent)

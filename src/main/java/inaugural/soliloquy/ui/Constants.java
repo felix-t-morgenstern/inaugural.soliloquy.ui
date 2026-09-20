@@ -51,6 +51,7 @@ public class Constants {
 
     public final static Vertex WINDOW_ORIGIN = vertexOf(0f, 0f);
     public final static Vertex WINDOW_CENTER = vertexOf(0.5f, 0.5f);
+    public final static Vertex HIDDEN = vertexOf(100f, 100f);
 
     public final static int INSTANT_ARROW_CLICK_MOVEMENT_SPEED = 0;
 

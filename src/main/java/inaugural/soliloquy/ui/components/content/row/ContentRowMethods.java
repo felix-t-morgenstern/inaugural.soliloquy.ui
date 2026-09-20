@@ -51,13 +51,11 @@ public class ContentRowMethods {
         TEXT_LINE_RENDERER = Check.ifNull(textLineRenderer, "textLineRenderer");
     }
 
-    public final static String ContentRow_getUnadjDimens = "ContentRow_getUnadjDimens";
-
     public FloatBox ContentRow_getUnadjDimens(Component row, long timestamp) {
         Long lastTimestamp = getFromData(row, LAST_UNADJ_TIMESTAMP);
 
         if (lastTimestamp != null && timestamp == lastTimestamp) {
-            return getFromData(row, COMPONENT_DIMENS);
+            return getFromData(row, COMPONENT_UNADJ_DIMENS);
         }
 
         Map<UUID, ProviderAtTime<FloatBox>> unadjContentDimensProviders =
@@ -102,21 +100,22 @@ public class ContentRowMethods {
 
             switch (contentFromUuid) {
                 case Component c -> {
-                    var contentUnadjDimens = c.getDimensionsProvider().provide(timestamp);
+                    var contentUnadjDimens = c.dimensionsProvider().provide(timestamp);
 
                     if (!registeredContentsInData.contains(c.uuid())) {
-                        c.data().put(COMPONENT_ORIGIN_PROVIDER, FUNCTIONAL_PROVIDER_DEF_READER.apply(
-                                functionalProvider(
-                                        Component_innerContentSpecificRenderingLoc,
-                                        Vertex.class
-                                )
-                                        .withData(mapOf(
-                                                CONTENT_UUID,
-                                                c.uuid(),
-                                                CONTAINING_COMPONENT_UUID,
-                                                row.uuid()
-                                        ))
-                        ));
+                        c.data().put(COMPONENT_ORIGIN_PROVIDER,
+                                FUNCTIONAL_PROVIDER_DEF_READER.apply(
+                                        functionalProvider(
+                                                Component_innerContentSpecificRenderingLoc,
+                                                Vertex.class
+                                        )
+                                                .withData(mapOf(
+                                                        CONTENT_UUID,
+                                                        c.uuid(),
+                                                        CONTAINING_COMPONENT_UUID,
+                                                        row.uuid()
+                                                ))
+                                ));
                         registeredContentsInData.add(c.uuid());
                     }
 
@@ -193,10 +192,10 @@ public class ContentRowMethods {
                     widthThusFar += origEncompassingDimens.width();
                 }
                 case null -> {
-                    // null is expected for spacing, c.f. ContentColumnDefinition.Item::space
+                    // null is expected for spacing, c.f. ContentRowDefinition.Item::space
                 }
                 default -> throw new IllegalStateException(
-                        "ContentColumnMethods#ContentRow_setDimensForComponentAndContent: " +
+                        "ContentRowMethods#ContentRow_setDimensForComponentAndContent: " +
                                 "contentsFromComponent has unsupported type (" +
                                 contentFromUuid.getClass().getCanonicalName() + ")");
             }
@@ -214,6 +213,14 @@ public class ContentRowMethods {
         row.data().put(LAST_UNADJ_TIMESTAMP, timestamp);
 
         return componentUnadjDimens;
+    }
+
+    public final static String ContentRow_provideUnadjDimens = "ContentRow_provideUnadjDimens";
+
+    public FloatBox ContentRow_provideUnadjDimens(FunctionalProvider.Inputs inputs) {
+        var row = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+
+        return ContentRow_getUnadjDimens(row, inputs.timestamp());
     }
 
     public final static String ContentRow_setDimensForComponentAndContent =
@@ -275,21 +282,22 @@ public class ContentRowMethods {
 
             switch (contentFromUuid) {
                 case Component c -> {
-                    var origDimens = c.getDimensionsProvider().provide(timestamp);
+                    var origDimens = c.dimensionsProvider().provide(timestamp);
 
                     if (!registeredContentsInData.contains(c.uuid())) {
-                        c.data().put(COMPONENT_ORIGIN_PROVIDER, FUNCTIONAL_PROVIDER_DEF_READER.apply(
-                                functionalProvider(
-                                        Component_innerContentSpecificRenderingLoc,
-                                        Vertex.class
-                                )
-                                        .withData(mapOf(
-                                                CONTENT_UUID,
-                                                c.uuid(),
-                                                CONTAINING_COMPONENT_UUID,
-                                                row.uuid()
-                                        ))
-                        ));
+                        c.data().put(COMPONENT_ORIGIN_PROVIDER,
+                                FUNCTIONAL_PROVIDER_DEF_READER.apply(
+                                        functionalProvider(
+                                                Component_innerContentSpecificRenderingLoc,
+                                                Vertex.class
+                                        )
+                                                .withData(mapOf(
+                                                        CONTENT_UUID,
+                                                        c.uuid(),
+                                                        CONTAINING_COMPONENT_UUID,
+                                                        row.uuid()
+                                                ))
+                                ));
                         registeredContentsInData.add(c.uuid());
                     }
 
@@ -421,10 +429,10 @@ public class ContentRowMethods {
                     widthThusFar += origEncompassingDimens.width();
                 }
                 case null -> {
-                    // null is expected for spacing, c.f. ContentColumnDefinition.Item::space
+                    // null is expected for spacing, c.f. ContentRowDefinition.Item::space
                 }
                 default -> throw new IllegalStateException(
-                        "ContentColumnMethods#ContentRow_setDimensForComponentAndContent: " +
+                        "ContentRowMethods#ContentRow_setDimensForComponentAndContent: " +
                                 "contentsFromComponent has unsupported type (" +
                                 contentFromUuid.getClass().getCanonicalName() + ")");
             }

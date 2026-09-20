@@ -381,7 +381,7 @@ public class ButtonDefinitionReaderTests extends ComponentDefinitionReaderTest {
         var expectedData = Collections.<String, Object>mapOf(
                 PRESS_CONSUMER,
                 MOCK_ON_PRESS,
-                RELEASE_CONSUMER,
+                RELEASE_AFTER_PRESS_CONSUMER,
                 MOCK_ON_RELEASE,
                 PRESS_SOUND_ID,
                 TEST_PRESS_SOUND_ID,

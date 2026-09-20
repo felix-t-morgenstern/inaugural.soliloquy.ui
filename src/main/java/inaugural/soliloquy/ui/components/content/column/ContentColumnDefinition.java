@@ -3,6 +3,7 @@ package inaugural.soliloquy.ui.components.content.column;
 import inaugural.soliloquy.ui.components.content.AbstractContentSpanDefinition;
 import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.io.graphics.renderables.HorizontalAlignment;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
@@ -18,27 +19,47 @@ import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 public class ContentColumnDefinition extends AbstractContentSpanDefinition {
     public final List<Item> ITEMS;
 
-    private ContentColumnDefinition(AbstractProviderDefinition<Vertex> renderingLocDef,
+    private ContentColumnDefinition(ProviderAtTime<Vertex> renderingLocProvider,
+                                    AbstractProviderDefinition<Vertex> renderingLocProviderDef,
                                     float width,
                                     int z,
                                     UUID uuid) {
-        super(renderingLocDef, width, z, uuid);
+        super(renderingLocProvider, renderingLocProviderDef, width, z, uuid);
         ITEMS = listOf();
     }
 
     public static ContentColumnDefinition column(
-            AbstractProviderDefinition<Vertex> renderingLocDef,
+            ProviderAtTime<Vertex> renderingLocProvider,
             float width,
             int z,
             UUID uuid) {
-        return new ContentColumnDefinition(renderingLocDef, width, z, uuid);
+        return new ContentColumnDefinition(renderingLocProvider, null, width, z, uuid);
     }
 
     public static ContentColumnDefinition column(
-            AbstractProviderDefinition<Vertex> renderingLocDef,
+            ProviderAtTime<Vertex> renderingLocProvider,
             float width,
             int z) {
-        return column(renderingLocDef, width, z, randomUUID());
+        return column(renderingLocProvider, width, z, randomUUID());
+    }
+
+    public static ContentColumnDefinition column(
+            AbstractProviderDefinition<Vertex> renderingLocProviderDef,
+            float width,
+            int z,
+            UUID uuid) {
+        return new ContentColumnDefinition(null, renderingLocProviderDef, width, z, uuid);
+    }
+
+    public static ContentColumnDefinition column(
+            AbstractProviderDefinition<Vertex> renderingLocProviderDef,
+            float width,
+            int z) {
+        return column(renderingLocProviderDef, width, z, randomUUID());
+    }
+
+    public static ContentColumnDefinition column(float width) {
+        return column((ProviderAtTime<Vertex>) null, width, 0, randomUUID());
     }
 
     public ContentColumnDefinition withItem(Item item) {

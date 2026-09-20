@@ -235,7 +235,7 @@ public class DisplayTest {
         //noinspection unchecked
         topLevelComponent =
                 componentFactory.make(randomUUID(), 0, setOf(), false, 0, wholeScreenProvider,
-                        wholeScreenProvider, null,  null, null, mapOf());
+                        wholeScreenProvider, wholeScreenProvider, null, null, null, mapOf());
         frameExecutor.setTopLevelComponent(topLevelComponent);
 
         coreLoop.startup(() -> {
@@ -264,8 +264,6 @@ public class DisplayTest {
                 generateMockSetting(1),
                 FRAME_TIMER_POLLING_INTERVAL_ID,
                 generateMockSetting(-1),
-                FRAME_EXECUTOR_SEMAPHORE_PERMISSIONS_ID,
-                generateMockSetting(3),
                 SHADER_FILENAME_PREFIX_ID,
                 generateMockSetting(SHADER_FILENAME_PREFIX),
                 MESH_VERTICES_ID,

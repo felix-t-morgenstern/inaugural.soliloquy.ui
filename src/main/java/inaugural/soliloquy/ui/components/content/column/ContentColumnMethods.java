@@ -45,8 +45,6 @@ public class ContentColumnMethods {
                 Check.ifNull(functionalProviderDefReader, "functionalProviderDefReader");
     }
 
-    public final static String ContentColumn_getUnadjDimens = "ContentColumn_getUnadjDimens";
-
     public FloatBox ContentColumn_getUnadjDimens(
             Component column,
             long timestamp
@@ -54,7 +52,13 @@ public class ContentColumnMethods {
         Long lastTimestamp = getFromData(column, LAST_UNADJ_TIMESTAMP);
 
         if (lastTimestamp != null && timestamp == lastTimestamp) {
-            return getFromData(column, COMPONENT_DIMENS);
+            FloatBox fromLastTimestamp = getFromData(column, COMPONENT_UNADJ_DIMENS);
+            if (fromLastTimestamp == null) {
+                throw new IllegalStateException(
+                        "ContentColumnMethods#ContentColumn_getUnadjDimens: fromLastTimestamp is " +
+                                "null");
+            }
+            return fromLastTimestamp;
         }
 
         Map<UUID, ProviderAtTime<FloatBox>> unadjContentDimensProviders =
@@ -99,7 +103,7 @@ public class ContentColumnMethods {
 
             switch (contentFromUuid) {
                 case Component c -> {
-                    var contentUnadjDimens = c.getDimensionsProvider().provide(timestamp);
+                    var contentUnadjDimens = c.dimensionsProvider().provide(timestamp);
 
                     if (!registeredContentsInData.contains(c.uuid())) {
                         c.data().put(COMPONENT_ORIGIN_PROVIDER,
@@ -210,6 +214,15 @@ public class ContentColumnMethods {
         return componentUnadjDimens;
     }
 
+    public final static String ContentColumn_provideUnadjDimens =
+            "ContentColumn_provideUnadjDimens";
+
+    public FloatBox ContentColumn_provideUnadjDimens(FunctionalProvider.Inputs inputs) {
+        var column = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+
+        return ContentColumn_getUnadjDimens(column, inputs.timestamp());
+    }
+
     public final static String ContentColumn_setDimensForComponentAndContent =
             "ContentColumn_setDimensForComponentAndContent";
 
@@ -252,7 +265,7 @@ public class ContentColumnMethods {
 
             switch (contentFromUuid) {
                 case Component c -> {
-                    var contentUnadjDimens = c.getDimensionsProvider().provide(timestamp);
+                    var contentUnadjDimens = c.dimensionsProvider().provide(timestamp);
 
                     newContentSpecificOrigins.put(
                             c.uuid(),

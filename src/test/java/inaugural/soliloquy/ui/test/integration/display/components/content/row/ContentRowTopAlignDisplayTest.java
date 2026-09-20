@@ -177,4 +177,70 @@ public class ContentRowTopAlignDisplayTest extends DisplayTest {
                         )
                 );
     }
+
+    public static ContentRowDefinition makeSmallRowWithContents(
+            AbstractProviderDefinition<Vertex> renderingLoc,
+            VerticalAlignment align
+    ) {
+        return row(
+                renderingLoc,
+                0.5f,
+                0
+        )
+                .withItems(
+                        itemOf(
+                                indent,
+                                textLine(
+                                        MERRIWEATHER_ID,
+                                        "Text line!",
+                                        lineHeight * 1.5f,
+                                        HorizontalAlignment.LEFT,
+                                        0f,
+                                        0
+                                ),
+                                align,
+                                spacingAfter
+                        ),
+                        itemOf(
+                                rectangle(
+                                        loopingLinearMoving(
+                                                divCycle,
+                                                0,
+                                                pairOf(0, floatBoxOf(divWidth, 0f)),
+                                                pairOf(
+                                                        divCycle / 2,
+                                                        floatBoxOf(divWidth, 0.5f)
+                                                ),
+                                                pairOf(
+                                                        divCycle,
+                                                        floatBoxOf(divWidth, 0f)
+                                                )
+                                        ),
+                                        0
+                                ).withColor(
+                                        randomHighSaturationColor()
+                                ),
+                                align,
+                                spacingAfter
+                        ),
+                        space(spacingAfter),
+                        itemOf(
+                                textBlock(
+                                        MERRIWEATHER_ID,
+                                        lineHeight,
+                                        0.125f,
+                                        listOf("Lorem ipsum yada yada. This is a text block which" +
+                                                " takes up more than one line."),
+                                        1
+                                )
+                                        .withGlyphPadding(
+                                                glyphPadding)
+                                        .withLineSpacing(lineSpacing)
+                                        .withParagraphSpacing(paragraphSpacing)
+                                        .withHorizontalAlignment(HorizontalAlignment.LEFT),
+                                align,
+                                spacingAfter
+                        )
+                );
+    }
 }

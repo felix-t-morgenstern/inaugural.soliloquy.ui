@@ -17,19 +17,16 @@ import soliloquy.specs.ui.EventInputs;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static inaugural.soliloquy.io.api.Constants.LEFT_MOUSE_BUTTON;
 import static inaugural.soliloquy.tools.Tools.*;
-import static inaugural.soliloquy.tools.Tools.constrain;
 import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.tools.exception.CheckedExceptionWrapper.sleep;
 import static inaugural.soliloquy.ui.Constants.*;
-import static inaugural.soliloquy.ui.Constants.COMPONENT_DIMENS;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Pair.pairOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
@@ -69,7 +66,6 @@ public class ScrollbarMethods {
             "ARROW_HELD_REPEATED_TIME_EXPONENT_FACTOR";
 
     private final Function<UUID, Component> GET_COMPONENT;
-    private final BiFunction<Component, Long, FloatBox> GET_BUTTON_UNADJ_DIMENS;
     private final ProviderDefinitionReader PROVIDER_DEF_READER;
     private final Supplier<Vertex> GET_MOST_RECENT_MOUSE_LOC;
     private final TriConsumer<Integer, Mouse.EventType, Runnable> SUBSCRIBE_TO_NEXT_MOUSE_EVENT;
@@ -77,14 +73,12 @@ public class ScrollbarMethods {
     private final GlobalClock CLOCK;
 
     public ScrollbarMethods(Function<UUID, Component> getComponent,
-                               BiFunction<Component, Long, FloatBox> getButtonUnadjDimens,
-                               ProviderDefinitionReader providerDefReader,
-                               Supplier<Vertex> getMostRecentMouseLoc,
-                               TriConsumer<Integer, Mouse.EventType, Runnable> subscribeToNextMouseEvent,
-                               Consumer<EventInputs> pressButton,
-                               GlobalClock clock) {
+                            ProviderDefinitionReader providerDefReader,
+                            Supplier<Vertex> getMostRecentMouseLoc,
+                            TriConsumer<Integer, Mouse.EventType, Runnable> subscribeToNextMouseEvent,
+                            Consumer<EventInputs> pressButton,
+                            GlobalClock clock) {
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
-        GET_BUTTON_UNADJ_DIMENS = Check.ifNull(getButtonUnadjDimens, "getButtonUnadjDimens");
         PROVIDER_DEF_READER = Check.ifNull(providerDefReader, "providerDefReader");
         GET_MOST_RECENT_MOUSE_LOC = Check.ifNull(getMostRecentMouseLoc, "getMostRecentMouseLoc");
         SUBSCRIBE_TO_NEXT_MOUSE_EVENT =
@@ -95,7 +89,15 @@ public class ScrollbarMethods {
 
     public final static String Scrollbar_getDimens = "Scrollbar_getDimens";
 
-    public FloatBox Scrollbar_getDimens(Component scrollbar, long timestamp) {
+    public FloatBox Scrollbar_getDimens(FunctionalProvider.Inputs inputs) {
+        var scrollbar = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+
+        return Scrollbar_getDimensPrerender(scrollbar, inputs.timestamp());
+    }
+
+    public final static String Scrollbar_getDimensPrerender = "Scrollbar_getDimensPrerender";
+
+    public FloatBox Scrollbar_getDimensPrerender(Component scrollbar, long timestamp) {
         Long lastTimestamp = getFromData(scrollbar, LAST_TIMESTAMP);
         if (timestamp == defaultIfNull(lastTimestamp, Long.MIN_VALUE)) {
             return getFromData(scrollbar, COMPONENT_DIMENS);
@@ -112,15 +114,13 @@ public class ScrollbarMethods {
         UUID originArrowUuid = getFromData(scrollbar, ORIGIN_ARROW_UUID);
         // If there are arrows, the math gets more annoying
         if (originArrowUuid != null) {
-            var originArrowUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(
-                    GET_COMPONENT.apply(originArrowUuid),
-                    timestamp
-            );
+            var originArrowUnadjDimens =
+                    GET_COMPONENT.apply(originArrowUuid).unadjustedDimensionsProvider()
+                            .provide(timestamp);
 
-            var terminusArrowUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(
-                    GET_COMPONENT.apply(getFromData(scrollbar, TERMINUS_ARROW_UUID)),
-                    timestamp
-            );
+            var terminusArrowUnadjDimens =
+                    GET_COMPONENT.apply(getFromData(scrollbar, TERMINUS_ARROW_UUID))
+                            .unadjustedDimensionsProvider().provide(timestamp);
 
             FloatBox scrollbarAdjDimens;
             float trackAdjLeftX;
@@ -230,23 +230,77 @@ public class ScrollbarMethods {
         }
     }
 
-    public final static String Scrollbar_provideAdjTrackDimens = "Scrollbar_provideAdjTrackDimens";
+    final static String Scrollbar_provideUnadjDimens = "Scrollbar_provideUnadjDimens";
+
+    public FloatBox Scrollbar_provideUnadjDimens(FunctionalProvider.Inputs inputs) {
+        var scrollbar = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+
+        Long lastUnadjTimestamp = getFromData(scrollbar, LAST_UNADJ_TIMESTAMP);
+        if (inputs.timestamp() == defaultIfNull(lastUnadjTimestamp, Long.MIN_VALUE)) {
+            return getFromData(scrollbar, COMPONENT_UNADJ_DIMENS);
+        }
+
+        ProviderAtTime<FloatBox> trackUnadjDimensProvider =
+                getFromData(scrollbar, TRACK_UNADJ_DIMENS_PROVIDER);
+        var trackUnadjDimens = trackUnadjDimensProvider.provide(inputs.timestamp());
+
+        UUID originArrowUuid = getFromData(scrollbar, ORIGIN_ARROW_UUID);
+
+        if (originArrowUuid != null) {
+            var originArrowUnadjDimens =
+                    GET_COMPONENT.apply(originArrowUuid).unadjustedDimensionsProvider()
+                            .provide(inputs.timestamp());
+            var terminusArrowUnadjDimens =
+                    GET_COMPONENT.apply(getFromData(scrollbar, TERMINUS_ARROW_UUID))
+                            .unadjustedDimensionsProvider().provide(inputs.timestamp());
+            if (getFromData(scrollbar, IS_VERTICAL)) {
+                return floatBoxOf(
+                        maxOf(
+                                originArrowUnadjDimens.width(),
+                                trackUnadjDimens.width(),
+                                terminusArrowUnadjDimens.width()
+                        ),
+                        (
+                                originArrowUnadjDimens.height() +
+                                        trackUnadjDimens.height() +
+                                        terminusArrowUnadjDimens.height()
+                        )
+                );
+            }
+            else {
+                return floatBoxOf(
+                        (
+                                originArrowUnadjDimens.width() +
+                                        trackUnadjDimens.width() +
+                                        terminusArrowUnadjDimens.width()
+                        ),
+                        maxOf(
+                                originArrowUnadjDimens.height(),
+                                trackUnadjDimens.height(),
+                                terminusArrowUnadjDimens.height()
+                        )
+                );
+            }
+        }
+        else {
+            return trackUnadjDimens;
+        }
+    }
+
+    final static String Scrollbar_provideAdjTrackDimens = "Scrollbar_provideAdjTrackDimens";
 
     public FloatBox Scrollbar_provideAdjTrackDimens(FunctionalProvider.Inputs inputs) {
-        var scrollbar = getScrollbar(inputs);
-        Scrollbar_getDimens(scrollbar, inputs.timestamp());
+        Scrollbar_getDimens(inputs);
         return getInComponentData(inputs, TRACK_ADJ_DIMENS);
     }
 
-    public final static String Scrollbar_provideAdjTopArrowOrigin =
-            "Scrollbar_provideAdjTopArrowOrigin";
+    final static String Scrollbar_provideAdjTopArrowOrigin = "Scrollbar_provideAdjTopArrowOrigin";
 
     public Vertex Scrollbar_provideAdjTopArrowOrigin(FunctionalProvider.Inputs inputs) {
         return getInComponentData(inputs, ORIGIN_ARROW_ORIGIN);
     }
 
-    public final static String Scrollbar_provideAdjBottomArrowOrigin =
-            "Scrollbar_provideAdjBottomArrowOrigin";
+    final static String Scrollbar_provideAdjBottomArrowOrigin = "Scrollbar_provideAdjBottomArrowOrigin";
 
     public Vertex Scrollbar_provideAdjBottomArrowOrigin(FunctionalProvider.Inputs inputs) {
         return getInComponentData(inputs, TERMINUS_ARROW_ORIGIN);
@@ -258,7 +312,7 @@ public class ScrollbarMethods {
         return getFromData(scrollbar, key);
     }
 
-    public final static String Scrollbar_thumbOrigin = "Scrollbar_thumbOrigin";
+    final static String Scrollbar_thumbOrigin = "Scrollbar_thumbOrigin";
 
     public Vertex Scrollbar_thumbOrigin(FunctionalProvider.Inputs inputs) {
         var scrollbar = getScrollbar(inputs);
@@ -269,7 +323,8 @@ public class ScrollbarMethods {
         }
 
         var thumb = GET_COMPONENT.apply(getFromData(scrollbar, THUMB_UUID));
-        var thumbUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(thumb, inputs.timestamp());
+        var thumbUnadjDimensProvider = thumb.unadjustedDimensionsProvider();
+        var thumbUnadjDimens = thumbUnadjDimensProvider.provide(inputs.timestamp());
         // setDimens is the prerender hook, which is called prior to the rendering of contents
         FloatBox trackAdjDimens = getFromData(scrollbar, TRACK_ADJ_DIMENS);
 
@@ -403,17 +458,18 @@ public class ScrollbarMethods {
     private Component getScrollbar(FunctionalProvider.Inputs inputs) {
         return GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
     }
-    
-    public final static String Scrollbar_trackPress = "Scrollbar_trackPress";
+
+    final static String Scrollbar_trackPress = "Scrollbar_trackPress";
 
     public void Scrollbar_trackPress(EventInputs e) {
         var track = (RectangleRenderable) e.renderable;
         var trackDimens = track.getRenderingDimensionsProvider().provide(e.TIMESTAMP);
 
         var scrollbar = track.getContainingComponent();
-        Component thumb = GET_COMPONENT.apply(getFromData(scrollbar, THUMB_UUID));
-        var thumbUnadjDimens = GET_BUTTON_UNADJ_DIMENS.apply(thumb, e.TIMESTAMP);
-        
+        var thumb = GET_COMPONENT.apply(getFromData(scrollbar, THUMB_UUID));
+        var thumbUnadjDimensProvider = thumb.unadjustedDimensionsProvider();
+        var thumbUnadjDimens = thumbUnadjDimensProvider.provide(e.TIMESTAMP);
+
         float relativeMouseLocWithinScrollableRange;
         if (falseIfNull(getFromData(scrollbar, IS_VERTICAL))) {
             var halfThumbHeight = thumbUnadjDimens.height() / 2f;
@@ -447,7 +503,7 @@ public class ScrollbarMethods {
         PRESS_BUTTON.accept(thumbPressEvent);
     }
 
-    public final static String Scrollbar_thumbPress = "Scrollbar_thumbPress";
+    final static String Scrollbar_thumbPress = "Scrollbar_thumbPress";
 
     public void Scrollbar_thumbPress(EventInputs e) {
         var thumb = e.component;
@@ -463,14 +519,13 @@ public class ScrollbarMethods {
         );
     }
 
-    public final static String Scrollbar_topArrowPress = "Scrollbar_topArrowPress";
+    final static String Scrollbar_topArrowPress = "Scrollbar_topArrowPress";
 
     public void Scrollbar_topArrowPress(EventInputs e) {
         pressArrow(e, true);
     }
 
-    public final static String Scrollbar_bottomArrowPress =
-            "Scrollbar_bottomArrowPress";
+    final static String Scrollbar_bottomArrowPress = "Scrollbar_bottomArrowPress";
 
     public void Scrollbar_bottomArrowPress(EventInputs e) {
         pressArrow(e, false);
@@ -499,14 +554,14 @@ public class ScrollbarMethods {
         }).start();
     }
 
-    public final static String Scrollbar_topArrowReleaseAfterPress =
+    final static String Scrollbar_topArrowReleaseAfterPress =
             "Scrollbar_topArrowReleaseAfterPress";
 
     public void Scrollbar_topArrowReleaseAfterPress(EventInputs e) {
         releaseArrowAndIncrementMovement(e, true);
     }
 
-    public final static String Scrollbar_bottomArrowReleaseAfterPress =
+    final static String Scrollbar_bottomArrowReleaseAfterPress =
             "Scrollbar_bottomArrowReleaseAfterPress";
 
     public void Scrollbar_bottomArrowReleaseAfterPress(EventInputs e) {

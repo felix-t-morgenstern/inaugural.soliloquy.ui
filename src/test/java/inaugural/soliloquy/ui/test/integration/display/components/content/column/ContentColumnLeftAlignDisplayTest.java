@@ -191,4 +191,69 @@ public class ContentColumnLeftAlignDisplayTest extends DisplayTest {
                         )
                 );
     }
+
+    public static ContentColumnDefinition makeSmallColumnWithContents(
+            AbstractProviderDefinition<Vertex> renderingLoc,
+            HorizontalAlignment align
+    ) {
+        var colWidth = 0.5f;
+        var textBlockWidth = 0.4f;
+
+        return column(
+                renderingLoc,
+                colWidth,
+                0
+        )
+                .withItems(
+                        itemOf(
+                                indent,
+                                textLine(
+                                        MERRIWEATHER_ID,
+                                        "This is an indented text line!",
+                                        lineHeight * 1.5f,
+                                        HorizontalAlignment.LEFT,
+                                        0f,
+                                        0
+                                ),
+                                align,
+                                spacingAfter
+                        ),
+                        itemOf(
+                                rectangle(
+                                        loopingLinearMoving(
+                                                divCycle,
+                                                0,
+                                                pairOf(0, floatBoxOf(0f, divHeight)),
+                                                pairOf(
+                                                        divCycle / 2,
+                                                        floatBoxOf(0.5f, divHeight)
+                                                ),
+                                                pairOf(
+                                                        divCycle,
+                                                        floatBoxOf(0f, divHeight)
+                                                )
+                                        ),
+                                        0
+                                ).withColor(
+                                        randomHighSaturationColor()
+                                ),
+                                align,
+                                spacingAfter
+                        ),
+                        space(spacingAfter),
+                        itemOf(
+                                textBlock(
+                                        MERRIWEATHER_ID,
+                                        lineHeight,
+                                        textBlockWidth,
+                                        paragraphs1
+                                )
+                                        .withGlyphPadding(glyphPadding)
+                                        .withLineSpacing(lineSpacing)
+                                        .withParagraphSpacing(paragraphSpacing),
+                                align,
+                                spacingAfter
+                        )
+                );
+    }
 }

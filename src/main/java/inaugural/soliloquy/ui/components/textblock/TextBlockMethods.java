@@ -52,6 +52,16 @@ public class TextBlockMethods {
         );
     }
 
+    public final static String TextBlock_getUnadjDimens = "TextBlock_getUnadjDimens";
+
+    public FloatBox TextBlock_getUnadjDimens(FunctionalProvider.Inputs inputs) {
+        var component = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        return floatBoxOf(
+                getFromData(component, TEXT_BLOCK_WIDTH),
+                getFromData(component, TEXT_BLOCK_HEIGHT)
+        );
+    }
+
     private Vertex TextBlock_getBlockUpperLeft(Component textBlock,
                                                long timestamp) {
         Long lastTimestamp = getFromData(textBlock, LAST_TIMESTAMP);

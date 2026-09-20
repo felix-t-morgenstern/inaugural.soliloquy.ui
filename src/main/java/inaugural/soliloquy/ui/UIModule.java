@@ -17,6 +17,9 @@ import inaugural.soliloquy.ui.components.content.column.ContentColumnMethods;
 import inaugural.soliloquy.ui.components.content.row.ContentRowDefinition;
 import inaugural.soliloquy.ui.components.content.row.ContentRowDefinitionReader;
 import inaugural.soliloquy.ui.components.content.row.ContentRowMethods;
+import inaugural.soliloquy.ui.components.dialogbox.DialogBoxDefinition;
+import inaugural.soliloquy.ui.components.dialogbox.DialogBoxDefinitionReader;
+import inaugural.soliloquy.ui.components.dialogbox.DialogBoxMethods;
 import inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinition;
 import inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinitionReader;
 import inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentMethods;
@@ -281,19 +284,16 @@ public class UIModule extends AbstractModule {
 
         // Column
         var columnReader = new ContentColumnDefinitionReader(providerDefinitionReader);
-        ContentColumnMethods contentColumnMethods;
-        customComponentMethods.add(
-                contentColumnMethods = new ContentColumnMethods(graphics::getComponent,
-                        functionalProviderDefReader::read));
+        customComponentMethods.add(new ContentColumnMethods(graphics::getComponent,
+                functionalProviderDefReader::read));
         renderableDefinitionReader.addCustomComponentReader(ContentColumnDefinition.class,
                 (d, t) -> columnReader.read((ContentColumnDefinition) d, t));
 
         // Row
         var rowReader = new ContentRowDefinitionReader(providerDefinitionReader);
-        ContentRowMethods contentRowMethods;
         customComponentMethods.add(
-                contentRowMethods = new ContentRowMethods(graphics::getComponent,
-                        functionalProviderDefReader::read, textLineRenderer));
+                new ContentRowMethods(graphics::getComponent, functionalProviderDefReader::read,
+                        textLineRenderer));
         renderableDefinitionReader.addCustomComponentReader(ContentRowDefinition.class,
                 (d, t) -> rowReader.read((ContentRowDefinition) d, t));
 
@@ -307,7 +307,6 @@ public class UIModule extends AbstractModule {
         customComponentMethods.add(
                 scrollbarMethods = new ScrollbarMethods(
                         graphics::getComponent,
-                        buttonMethods::Button_getUnadjDimens,
                         providerDefinitionReader,
                         mouse::mostRecentMouseLocation,
                         subscribeToNextMouseEvent,
@@ -318,6 +317,7 @@ public class UIModule extends AbstractModule {
         renderableDefinitionReader.addCustomComponentReader(ScrollbarDefinition.class,
                 (d, t) -> scrollbarReader.read((ScrollbarDefinition) d, t));
 
+        // Scrollable content
         var scrollableContentReader = new ScrollableContentDefinitionReader(
                 providerDefinitionReader,
                 columnReader,
@@ -326,13 +326,22 @@ public class UIModule extends AbstractModule {
         customComponentMethods.add(
                 new ScrollableContentMethods(
                         graphics::getComponent,
-                        scrollbarMethods::incrementMovement,
-                        contentColumnMethods::ContentColumn_getUnadjDimens,
-                        contentRowMethods::ContentRow_getUnadjDimens
+                        scrollbarMethods::incrementMovement
                 )
         );
         renderableDefinitionReader.addCustomComponentReader(ScrollableContentDefinition.class,
                 (d, t) -> scrollableContentReader.read((ScrollableContentDefinition) d, t));
+
+        // Dialog box
+        var dialogBoxReader = new DialogBoxDefinitionReader(providerDefinitionReader);
+        customComponentMethods.add(
+                new DialogBoxMethods(
+                        graphics::getComponent,
+                        methods.CONSUMERS::get
+                )
+        );
+        renderableDefinitionReader.addCustomComponentReader(DialogBoxDefinition.class,
+                (d, t) -> dialogBoxReader.read((DialogBoxDefinition) d, t));
 
         // Finally, read ALL the custom component methods
         customComponentMethods.forEach(m -> methods.concatenate(readMethods(m)));

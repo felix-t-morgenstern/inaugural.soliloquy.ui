@@ -11,6 +11,7 @@ import soliloquy.specs.io.graphics.renderables.Renderable;
 import soliloquy.specs.io.graphics.renderables.factories.ComponentFactory;
 import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.*;
+import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -147,21 +148,20 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
                 ),
                 falseIfNull(definition.blocksLowerBindings),
                 defaultIfNull(definition.keyBindingPriority, DEFAULT_KEY_EVENT_PRIORITY),
-                defaultIfNull(
+                getProviderReadFromDefOrWholeScreen(
                         definition.dimensionsProvider,
-                        defaultIfNullElseTransform(
-                                definition.dimensionsProviderDef,
-                                d -> PROVIDER_READER.read(d, timestamp),
-                                WHOLE_SCREEN_PROVIDER
-                        )
+                        definition.dimensionsProviderDef,
+                        timestamp
                 ),
-                defaultIfNull(
+                getProviderReadFromDefOrWholeScreen(
+                        definition.unadjDimensionsProvider,
+                        definition.unadjDimensionsProviderDef,
+                        timestamp
+                ),
+                getProviderReadFromDefOrWholeScreen(
                         definition.renderingBoundariesProvider,
-                        defaultIfNullElseTransform(
-                                definition.renderingBoundariesProviderDef,
-                                d -> PROVIDER_READER.read(d, timestamp),
-                                WHOLE_SCREEN_PROVIDER
-                        )
+                        definition.renderingBoundariesProviderDef,
+                        timestamp
                 ),
                 definition.prerenderHookId,
                 definition.addHookId,
@@ -205,6 +205,21 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         // TODO: TEST AND IMPLEMENT ADDING PREREAD CONTENT TO A COMPONENT
         //noinspection unchecked
         return (T) readComponent;
+    }
+
+    private ProviderAtTime<FloatBox> getProviderReadFromDefOrWholeScreen(
+            ProviderAtTime<FloatBox> provider,
+            AbstractProviderDefinition<FloatBox> providerDef,
+            long timestamp
+    ) {
+        return defaultIfNull(
+                provider,
+                defaultIfNullElseTransform(
+                        providerDef,
+                        d -> PROVIDER_READER.read(d, timestamp),
+                        WHOLE_SCREEN_PROVIDER
+                )
+        );
     }
 
     public <T extends AbstractContentDefinition> void addCustomComponentReader(

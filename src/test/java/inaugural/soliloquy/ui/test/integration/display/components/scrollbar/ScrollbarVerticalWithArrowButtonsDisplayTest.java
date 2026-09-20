@@ -51,7 +51,7 @@ public class ScrollbarVerticalWithArrowButtonsDisplayTest extends DisplayTest {
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var scrollbarDef = makeVerticalScrollbarDef();
+        var scrollbarDef = makeVerticalScrollbarDef(0.4f, SCROLLBAR_WIDTH, SCROLLBAR_WIDTH);
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 
@@ -71,7 +71,11 @@ public class ScrollbarVerticalWithArrowButtonsDisplayTest extends DisplayTest {
         }).start();
     }
 
-    public static ScrollbarDefinition makeVerticalScrollbarDef() {
+    public static ScrollbarDefinition makeVerticalScrollbarDef(
+            float trackHeight,
+            float buttonHeight,
+            float scrollbarWidth
+    ) {
         var scrollMoveDur = 100;
         var arrowHoldStartThreshold = 500;
         var arrowHeldRepeatedTimeExponent = 3f;
@@ -80,18 +84,18 @@ public class ScrollbarVerticalWithArrowButtonsDisplayTest extends DisplayTest {
         return scrollbar(
                 VERTICAL,
                 DEFAULT_RENDERING_LOC,
-                rectangle(floatBoxOf(SCROLLBAR_WIDTH, 0.4f), 0)
+                rectangle(floatBoxOf(scrollbarWidth, trackHeight), 0)
                         .withColor(BLUE),
                 button()
                         .withRectDefault(
                                 rectangle(
-                                        floatBoxOf(SCROLLBAR_WIDTH * 1.2f, SCROLLBAR_WIDTH * 1.25f),
+                                        floatBoxOf(scrollbarWidth * 1.2f, scrollbarWidth * 1.25f),
                                         0)
                                         .withColor(YELLOW)
                         )
                         .withRectDefault(
                                 rectangle(
-                                        floatBoxOf(SCROLLBAR_WIDTH * 1.2f, SCROLLBAR_WIDTH * 1.25f),
+                                        floatBoxOf(scrollbarWidth * 1.2f, scrollbarWidth * 1.25f),
                                         0)
                                         .withColor(ORANGE)
                         )
@@ -103,22 +107,22 @@ public class ScrollbarVerticalWithArrowButtonsDisplayTest extends DisplayTest {
                 .withArrowButtons(
                         button(0)
                                 .withRectDefault(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
+                                        rectangle(floatBoxOf(scrollbarWidth, buttonHeight), 0)
                                                 .withColor(GREEN)
                                 )
                                 .withRectPressed(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
+                                        rectangle(floatBoxOf(scrollbarWidth, buttonHeight), 0)
                                                 .withColor(RED)
                                 )
                                 .withPressSound(PRESS_SOUND_ID)
                                 .withReleaseSound(RELEASE_SOUND_ID),
                         button(0)
                                 .withRectDefault(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
+                                        rectangle(floatBoxOf(scrollbarWidth, buttonHeight), 0)
                                                 .withColor(GREEN)
                                 )
                                 .withRectPressed(
-                                        rectangle(floatBoxOf(SCROLLBAR_WIDTH, SCROLLBAR_WIDTH), 0)
+                                        rectangle(floatBoxOf(scrollbarWidth, buttonHeight), 0)
                                                 .withColor(RED)
                                 )
                                 .withPressSound(PRESS_SOUND_ID)

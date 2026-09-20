@@ -42,4 +42,10 @@ public class BeveledButtonDefinition extends ButtonDefinition {
         return new BeveledButtonDefinition(z, rectDefault, bevelDimensPercent, bevelIntensity,
                 randomUUID());
     }
+
+    public static BeveledButtonDefinition beveledButton(RectangleRenderableDefinition rectDefault,
+                                                        float bevelDimensPercent,
+                                                        float bevelIntensity) {
+        return beveledButton(0, rectDefault, bevelDimensPercent, bevelIntensity);
+    }
 }

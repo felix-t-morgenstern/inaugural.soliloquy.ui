@@ -46,7 +46,7 @@ public class ButtonMethods {
     final static String SPRITE_HOVER_STATE = "SPRITE_HOVER_STATE";
 
     final static String PRESS_CONSUMER = "PRESS_CONSUMER";
-    final static String RELEASE_CONSUMER = "RELEASE_CONSUMER";
+    final static String RELEASE_AFTER_PRESS_CONSUMER = "RELEASE_AFTER_PRESS_CONSUMER";
     final static String PRESS_SOUND_ID = "PRESS_SOUND_ID";
     final static String MOUSE_OVER_SOUND_ID = "MOUSE_OVER_SOUND_ID";
     final static String MOUSE_LEAVE_SOUND_ID = "MOUSE_LEAVE_SOUND_ID";
@@ -72,7 +72,8 @@ public class ButtonMethods {
         PLAY_SOUND = Check.ifNull(playSound, "playSound");
         SUBSCRIBE_TO_MOUSE_EVENTS = Check.ifNull(subscribeToMouseEvents, "subscribeToMouseEvents");
         GET_COMPONENT = Check.ifNull(getComponent, "getComponent");
-        REGISTER_FRAME_BLOCKING_EVENT = Check.ifNull(registerFrameBlockingEvent, "registerFrameBlockingEvent");
+        REGISTER_FRAME_BLOCKING_EVENT =
+                Check.ifNull(registerFrameBlockingEvent, "registerFrameBlockingEvent");
     }
 
     public final static String Button_setDimens = "Button_setDimens";
@@ -127,8 +128,7 @@ public class ButtonMethods {
             return buttonAdjDimens;
         }
     }
-    
-    @Reflection.DoNotReadMethod
+
     public FloatBox Button_getUnadjDimens(Component button, long timestamp) {
         Long buttonLastUnadjTimestamp = getFromData(button, LAST_UNADJ_TIMESTAMP);
         if (buttonLastUnadjTimestamp != null && timestamp == buttonLastUnadjTimestamp) {
@@ -178,6 +178,14 @@ public class ButtonMethods {
 
             return unadjButtonDimens;
         }
+    }
+
+    final static String Button_provideUnadjDimens = "Button_provideUnadjDimens";
+
+    public FloatBox Button_provideUnadjDimens(FunctionalProvider.Inputs inputs) {
+        var button = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+
+        return Button_getUnadjDimens(button, inputs.timestamp());
     }
 
     public final static String Button_getDimens = "Button_getDimens";
@@ -306,7 +314,7 @@ public class ButtonMethods {
                 PLAY_SOUND.accept(releaseSoundIdStr);
             }
 
-            Consumer<EventInputs> releaseConsumer = getFromData(data, RELEASE_CONSUMER);
+            Consumer<EventInputs> releaseConsumer = getFromData(data, RELEASE_AFTER_PRESS_CONSUMER);
             if (releaseConsumer != null) {
                 REGISTER_FRAME_BLOCKING_EVENT.accept(_ -> releaseConsumer.accept(e));
             }

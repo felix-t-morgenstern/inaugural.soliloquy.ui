@@ -14,7 +14,6 @@ import soliloquy.specs.common.valueobjects.Vertex;
 import soliloquy.specs.ui.definitions.content.ComponentDefinition;
 
 import static inaugural.soliloquy.tools.Tools.supplyIfNull;
-import static inaugural.soliloquy.tools.collections.Collections.getFromData;
 import static inaugural.soliloquy.tools.collections.Collections.mapOf;
 import static inaugural.soliloquy.ui.Constants.*;
 import static inaugural.soliloquy.ui.components.Orientation.HORIZONTAL;
@@ -22,7 +21,6 @@ import static inaugural.soliloquy.ui.components.Orientation.VERTICAL;
 import static inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentMethods.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
-import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
@@ -44,8 +42,11 @@ public class ScrollableContentDefinitionReader extends
     }
 
     public ComponentDefinition read(ScrollableContentDefinition def, long timestamp) {
-        var scrollableContentOriginProvider = supplyIfNull(def.ORIGIN_PROVIDER,
-                () -> PROVIDER_DEF_READER.read(def.ORIGIN_PROVIDER_DEF, timestamp));
+        var scrollableContentOriginProvider = providerOrReadDef(
+                def.SPAN.renderingLocProvider,
+                def.SPAN.renderingLocProviderDef,
+                timestamp
+        );
 
         def.SPAN.z = SPAN_Z;
         ComponentDefinition spanComponentDef;
@@ -53,8 +54,11 @@ public class ScrollableContentDefinitionReader extends
 
         var innerProviderData = Collections.<String, Object>mapOf(COMPONENT_UUID, def.UUID);
 
-        def.SPAN.renderingLocDef = functionalProvider(ScrollableContent_spanOrigin, Vertex.class)
-                .withData(innerProviderData);
+        def.SPAN.renderingLocProvider = PROVIDER_DEF_READER.read(
+                functionalProvider(ScrollableContent_spanOrigin, Vertex.class)
+                        .withData(innerProviderData),
+                timestamp
+        );
         if (def.SPAN instanceof ContentColumnDefinition colDef) {
             spanComponentDef = COL_DEF_READER.read(colDef, timestamp);
             spanOrientation = VERTICAL;
@@ -102,6 +106,13 @@ public class ScrollableContentDefinitionReader extends
                                         def.SCROLLBAR.UUID
                                 ))
                 )
+                .withUnadjDimensions(
+                        functionalProvider(ScrollableContent_getUnadjDimens, FloatBox.class)
+                                .withData(mapOf(
+                                        COMPONENT_UUID,
+                                        def.UUID
+                                ))
+                )
                 .withContent(
                         spanComponentDef,
                         def.SCROLLBAR
@@ -120,7 +131,9 @@ public class ScrollableContentDefinitionReader extends
                         ORIENTATION,
                         spanOrientation,
                         SCROLLBAR_PADDING,
-                        def.scrollbarPadding
+                        def.scrollbarPadding,
+                        HIDES_SCROLLBAR_WHEN_CONTENT_FITS,
+                        def.hideScrollbarWhenContentFits
                 ))
                 .withKeyBindings(
                         false,

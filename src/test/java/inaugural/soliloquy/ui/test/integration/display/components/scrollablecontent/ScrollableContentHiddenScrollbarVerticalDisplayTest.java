@@ -11,20 +11,21 @@ import soliloquy.specs.io.graphics.renderables.Component;
 import java.awt.*;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
-import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.TOP;
 import static inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinition.scrollableContent;
-import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeRowWithContents;
-import static inaugural.soliloquy.ui.test.integration.display.components.scrollbar.ScrollbarHorizontalWithArrowsDisplayTest.makeHorizontalScrollbarDef;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.column.ContentColumnLeftAlignDisplayTest.makeSmallColumnWithContents;
+import static inaugural.soliloquy.ui.test.integration.display.components.scrollbar.ScrollbarVerticalWithArrowButtonsDisplayTest.SCROLLBAR_WIDTH;
+import static inaugural.soliloquy.ui.test.integration.display.components.scrollbar.ScrollbarVerticalWithArrowButtonsDisplayTest.makeVerticalScrollbarDef;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
+import static soliloquy.specs.io.graphics.renderables.HorizontalAlignment.LEFT;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ScrollableContentHorizontalDisplayTest extends DisplayTest {
+public class ScrollableContentHiddenScrollbarVerticalDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
-                "Scrollable content horizontal display test",
+                "Scrollable content hidden scrollbar vertical display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
                                 new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
@@ -44,15 +45,15 @@ public class ScrollableContentHorizontalDisplayTest extends DisplayTest {
                         arrayOf(),
                         arrayOf()
                 ),
-                () -> DisplayTest.runThenClose("Scrollable content horizontal", 16000),
-                ScrollableContentHorizontalDisplayTest::populateTopLevelComponent
+                () -> DisplayTest.runThenClose("Scrollable content hidden scrollbar vertical", 16000),
+                ScrollableContentHiddenScrollbarVerticalDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var origin = staticVal(vertexOf(0.25f, 0.25f));
-        var rowDef = makeRowWithContents(origin, TOP);
+        var colDef = makeSmallColumnWithContents(origin, LEFT);
         var indicatorRect = rectangle(
                 floatBoxOf(
                         vertexOf(0.25f, 0.25f),
@@ -63,13 +64,14 @@ public class ScrollableContentHorizontalDisplayTest extends DisplayTest {
                 .withColor(Color.GRAY);
 
         var scrollableContent = scrollableContent(
-                rowDef,
+                colDef,
                 0.5f,
-                makeHorizontalScrollbarDef(),
+                makeVerticalScrollbarDef(0.4f, SCROLLBAR_WIDTH, SCROLLBAR_WIDTH),
                 1,
                 randomUUID()
         )
-                .withScrollbarPadding(0.01f);
+                .withScrollbarPadding(0.01f)
+                .hidesScrollbarWhenContentFits();
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

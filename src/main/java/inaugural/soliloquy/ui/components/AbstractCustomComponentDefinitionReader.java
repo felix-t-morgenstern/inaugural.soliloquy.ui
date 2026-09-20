@@ -23,6 +23,7 @@ public abstract class AbstractCustomComponentDefinitionReader<TDef extends Abstr
             AbstractProviderDefinition<T> providerDef,
             long timestamp
     ) {
+        Check.ifAllNull(provider, providerDef);
         return supplyIfNull(
                 provider,
                 () -> PROVIDER_DEF_READER.read(providerDef, timestamp)

@@ -2,6 +2,7 @@ package inaugural.soliloquy.ui.components.content.row;
 
 import inaugural.soliloquy.ui.components.content.AbstractContentSpanDefinition;
 import soliloquy.specs.common.valueobjects.Vertex;
+import soliloquy.specs.io.graphics.renderables.providers.ProviderAtTime;
 import soliloquy.specs.ui.definitions.content.AbstractContentDefinition;
 import soliloquy.specs.ui.definitions.providers.AbstractProviderDefinition;
 
@@ -17,12 +18,28 @@ import static java.util.UUID.randomUUID;
 public class ContentRowDefinition extends AbstractContentSpanDefinition {
     public final List<Item> ITEMS;
 
-    private ContentRowDefinition(AbstractProviderDefinition<Vertex> renderingLocDef,
+    private ContentRowDefinition(ProviderAtTime<Vertex> renderingLoc,
+                                 AbstractProviderDefinition<Vertex> renderingLocDef,
                                  float height,
                                  int z,
                                  UUID uuid) {
-        super(renderingLocDef, height, z, uuid);
+        super(renderingLoc, renderingLocDef, height, z, uuid);
         ITEMS = listOf();
+    }
+
+    public static ContentRowDefinition row(
+            ProviderAtTime<Vertex> renderingLoc,
+            float height,
+            int z,
+            UUID uuid) {
+        return new ContentRowDefinition(renderingLoc, null, height, z, uuid);
+    }
+
+    public static ContentRowDefinition row(
+            ProviderAtTime<Vertex> renderingLoc,
+            float height,
+            int z) {
+        return row(renderingLoc, height, z, randomUUID());
     }
 
     public static ContentRowDefinition row(
@@ -30,7 +47,7 @@ public class ContentRowDefinition extends AbstractContentSpanDefinition {
             float height,
             int z,
             UUID uuid) {
-        return new ContentRowDefinition(renderingLocDef, height, z, uuid);
+        return new ContentRowDefinition(null, renderingLocDef, height, z, uuid);
     }
 
     public static ContentRowDefinition row(

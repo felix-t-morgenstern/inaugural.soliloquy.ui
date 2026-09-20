@@ -91,6 +91,8 @@ public class ScrollbarDefinitionReader extends
                 false
         ));
 
+        var innerData = Collections.<String, Object>mapOf(COMPONENT_UUID, def.UUID);
+
         var scrollbarComponentDef = component(def.z, def.UUID)
                 .withKeyBindings(
                         false,
@@ -98,7 +100,14 @@ public class ScrollbarDefinitionReader extends
                         binding()
                 )
                 .withData(scrollbarData)
-                .withPrerenderHook(Scrollbar_getDimens)
+                .withDimensions(functionalProvider(Scrollbar_getDimens, FloatBox.class)
+                        .withData(innerData)
+                )
+                .withUnadjDimensions(
+                        functionalProvider(Scrollbar_provideUnadjDimens, FloatBox.class)
+                                .withData(innerData)
+                )
+                .withPrerenderHook(Scrollbar_getDimensPrerender)
                 .withContent(thumb)
                 .withPrereadContent(track);
 

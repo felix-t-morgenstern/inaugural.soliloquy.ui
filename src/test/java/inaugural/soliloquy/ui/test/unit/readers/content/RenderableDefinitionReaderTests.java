@@ -75,9 +75,11 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     @Mock private ProviderAtTime<FloatBox> mockWholeScreenProvider;
 
     @Mock private AbstractProviderDefinition<FloatBox> mockComponentDimensionsDef;
+    @Mock private AbstractProviderDefinition<FloatBox> mockComponentUnadjDimensionsDef;
     @Mock private AbstractProviderDefinition<FloatBox> mockComponentRenderingBoundariesDef;
     @Mock private ProviderDefinitionReader mockProviderReader;
     @Mock private ProviderAtTime<FloatBox> mockComponentDimensions;
+    @Mock private ProviderAtTime<FloatBox> mockComponentUnadjDimensions;
     @Mock private ProviderAtTime<FloatBox> mockComponentRenderingBoundaries;
 
     @Mock private Component mockContainingComponent;
@@ -105,10 +107,12 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
 
         lenient().when(
                 mockComponentFactory.make(any(), anyInt(), any(), anyBoolean(), anyInt(), any(),
-                        any(), any(), any(), any(), anyMap())).thenReturn(mockComponent);
+                        any(), any(), any(), any(), any(), anyMap())).thenReturn(mockComponent);
 
         lenient().when(mockProviderReader.read(same(mockComponentDimensionsDef), anyLong()))
                 .thenReturn(mockComponentDimensions);
+        lenient().when(mockProviderReader.read(same(mockComponentUnadjDimensionsDef), anyLong()))
+                .thenReturn(mockComponentUnadjDimensions);
         lenient().when(
                         mockProviderReader.read(same(mockComponentRenderingBoundariesDef),
                                 anyLong()))
@@ -437,6 +441,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                                 .onRelease(ON_RELEASE_ID)
                 )
                 .withDimensions(mockComponentDimensionsDef)
+                .withUnadjDimensions(mockComponentUnadjDimensionsDef)
                 .withPrerenderHook(PRERENDER_HOOK_ID)
                 .withAddHook(ADD_HOOK_ID)
                 .withData(data);
@@ -453,6 +458,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 eq(overrides),
                 eq(priority),
                 same(mockComponentDimensions),
+                same(mockComponentUnadjDimensions),
                 same(mockComponentRenderingBoundaries),
                 eq(PRERENDER_HOOK_ID),
                 eq(ADD_HOOK_ID),
@@ -494,6 +500,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 eq(false),
                 eq(DEFAULT_KEY_BINDING_PRIORITY),
                 same(mockWholeScreenProvider),
+                same(mockWholeScreenProvider),
                 same(mockComponentRenderingBoundaries),
                 isNull(),
                 isNull(),
@@ -519,6 +526,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 eq(false),
                 eq(DEFAULT_KEY_BINDING_PRIORITY),
                 same(mockWholeScreenProvider),
+                same(mockWholeScreenProvider),
                 same(mockComponentRenderingBoundaries),
                 isNull(),
                 isNull(),
@@ -540,6 +548,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 any(),
                 anyBoolean(),
                 anyInt(),
+                same(mockWholeScreenProvider),
                 same(mockWholeScreenProvider),
                 any(),
                 any(),
@@ -567,6 +576,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                                 .onRelease(ON_RELEASE_ID)
                 )
                 .withDimensions(mockComponentDimensionsDef)
+                .withUnadjDimensions(mockComponentUnadjDimensionsDef)
                 .withAddHook(ADD_HOOK_ID)
                 .withPrerenderHook(PRERENDER_HOOK_ID)
                 .withData(data);
@@ -585,6 +595,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 eq(overrides),
                 eq(priority),
                 same(mockComponentDimensions),
+                same(mockComponentUnadjDimensions),
                 same(mockComponentRenderingBoundaries),
                 eq(PRERENDER_HOOK_ID),
                 eq(ADD_HOOK_ID),

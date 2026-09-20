@@ -13,6 +13,7 @@ import java.awt.*;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinition.scrollableContent;
 import static inaugural.soliloquy.ui.test.integration.display.components.content.column.ContentColumnLeftAlignDisplayTest.makeColumnWithContents;
+import static inaugural.soliloquy.ui.test.integration.display.components.scrollbar.ScrollbarVerticalWithArrowButtonsDisplayTest.SCROLLBAR_WIDTH;
 import static inaugural.soliloquy.ui.test.integration.display.components.scrollbar.ScrollbarVerticalWithArrowButtonsDisplayTest.makeVerticalScrollbarDef;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
@@ -51,8 +52,8 @@ public class ScrollableContentVerticalDisplayTest extends DisplayTest {
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
-        var colDef = makeColumnWithContents(null, LEFT);
         var origin = staticVal(vertexOf(0.25f, 0.25f));
+        var colDef = makeColumnWithContents(origin, LEFT);
         var indicatorRect = rectangle(
                 floatBoxOf(
                         vertexOf(0.25f, 0.25f),
@@ -63,10 +64,9 @@ public class ScrollableContentVerticalDisplayTest extends DisplayTest {
                 .withColor(Color.GRAY);
 
         var scrollableContent = scrollableContent(
-                origin,
                 colDef,
                 0.5f,
-                makeVerticalScrollbarDef(),
+                makeVerticalScrollbarDef(0.4f, SCROLLBAR_WIDTH, SCROLLBAR_WIDTH),
                 1,
                 randomUUID()
         )

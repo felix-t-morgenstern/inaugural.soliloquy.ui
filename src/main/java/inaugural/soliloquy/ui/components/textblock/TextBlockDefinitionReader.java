@@ -51,16 +51,15 @@ public class TextBlockDefinitionReader
         // TODO: Test default alignment assignment
         definition.horizontalAlignment = defaultIfNull(definition.horizontalAlignment, LEFT);
 
+        var innerData = Collections.<String, Object>mapOf(COMPONENT_UUID, definition.UUID);
+
         var componentDef = component(definition.z, definition.UUID)
                 .withDimensions(
-                        functionalProvider(
-                                TextBlock_getDimens,
-                                FloatBox.class
-                        )
-                                .withData(mapOf(
-                                        COMPONENT_UUID,
-                                        definition.UUID
-                                ))
+                        functionalProvider(TextBlock_getDimens, FloatBox.class).withData(innerData)
+                )
+                .withUnadjDimensions(
+                        functionalProvider(TextBlock_getUnadjDimens, FloatBox.class)
+                                .withData(innerData)
                 );
 
         var font = GET_FONT.apply(definition.FONT_ID);

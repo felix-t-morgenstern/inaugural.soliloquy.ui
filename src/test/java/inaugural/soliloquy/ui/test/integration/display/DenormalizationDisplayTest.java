@@ -2,13 +2,13 @@ package inaugural.soliloquy.ui.test.integration.display;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
+import inaugural.soliloquy.ui.Denormalization;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import soliloquy.specs.io.graphics.renderables.Component;
 
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.tools.random.Random.randomHighSaturationColor;
-import static inaugural.soliloquy.ui.Denormalization.denorm;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
 import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
@@ -39,7 +39,7 @@ public class DenormalizationDisplayTest  extends DisplayTest {
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var rectDef = rectangle(
-                denorm(floatBoxOf(vertexOf(0.25f, 0.25f), 0.25f, 0.25f)),
+                Denormalization.denormHeightDef(floatBoxOf(vertexOf(0.25f, 0.25f), 0.25f, 0.25f)),
                 0
         )
                 .withColors(

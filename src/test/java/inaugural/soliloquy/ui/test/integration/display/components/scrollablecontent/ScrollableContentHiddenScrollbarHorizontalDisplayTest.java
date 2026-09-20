@@ -13,7 +13,7 @@ import java.awt.*;
 import static inaugural.soliloquy.tools.collections.Collections.arrayOf;
 import static inaugural.soliloquy.ui.components.content.row.ContentRowDefinition.VerticalAlignment.TOP;
 import static inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentDefinition.scrollableContent;
-import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeRowWithContents;
+import static inaugural.soliloquy.ui.test.integration.display.components.content.row.ContentRowTopAlignDisplayTest.makeSmallRowWithContents;
 import static inaugural.soliloquy.ui.test.integration.display.components.scrollbar.ScrollbarHorizontalWithArrowsDisplayTest.makeHorizontalScrollbarDef;
 import static java.util.UUID.randomUUID;
 import static soliloquy.specs.common.valueobjects.FloatBox.floatBoxOf;
@@ -21,7 +21,7 @@ import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class ScrollableContentHorizontalDisplayTest extends DisplayTest {
+public class ScrollableContentHiddenScrollbarHorizontalDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
                 "Scrollable content horizontal display test",
@@ -45,14 +45,14 @@ public class ScrollableContentHorizontalDisplayTest extends DisplayTest {
                         arrayOf()
                 ),
                 () -> DisplayTest.runThenClose("Scrollable content horizontal", 16000),
-                ScrollableContentHorizontalDisplayTest::populateTopLevelComponent
+                ScrollableContentHiddenScrollbarHorizontalDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var origin = staticVal(vertexOf(0.25f, 0.25f));
-        var rowDef = makeRowWithContents(origin, TOP);
+        var rowDef = makeSmallRowWithContents(origin, TOP);
         var indicatorRect = rectangle(
                 floatBoxOf(
                         vertexOf(0.25f, 0.25f),
@@ -69,7 +69,8 @@ public class ScrollableContentHorizontalDisplayTest extends DisplayTest {
                 1,
                 randomUUID()
         )
-                .withScrollbarPadding(0.01f);
+                .withScrollbarPadding(0.01f)
+                .hidesScrollbarWhenContentFits();
 
         var reader = uiModule.provide(RenderableDefinitionReader.class);
 

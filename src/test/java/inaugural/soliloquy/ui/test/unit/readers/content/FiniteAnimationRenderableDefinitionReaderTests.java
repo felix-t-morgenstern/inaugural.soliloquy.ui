@@ -48,6 +48,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 any(), any(), any(), any(),
                 any(),
                 any(),
+                any(),
                 anyInt(),
                 any(),
                 any(),
@@ -94,6 +95,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 .withColorShifts(mockShiftDefinition)
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
+                .onWheelScroll(ON_WHEEL_SCROLL_ID)
                 .onMouseOver(ON_MOUSE_OVER_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ID)
                 .withStartTimestampOffset(startTimestampOffset);
@@ -103,6 +105,8 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
         var startTimestamp = TIMESTAMP + startTimestampOffset;
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
+        verify(mockRenderable, once()).setCapturesMouseButtonEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseWheelEvents(true);
         verify(MOCK_GET_ANIMATION, once()).apply(ANIMATION_ID);
         verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
                 eq(TIMESTAMP));
@@ -122,6 +126,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 same(mockBorderThickness), same(mockBorderColor),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
+                same(MOCK_ON_WHEEL_SCROLL),
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 eq(listOf(mockShift)),
@@ -146,6 +151,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 any(), any(),
                 anyMap(),
                 anyMap(),
+                any(),
                 any(),
                 any(),
                 eq(listOf(mockShift)),
@@ -174,6 +180,7 @@ public class FiniteAnimationRenderableDefinitionReaderTests extends AbstractCont
                 same(mockNullProvider), same(mockNullProvider),
                 eq(mapOf()),
                 eq(mapOf()),
+                isNull(),
                 isNull(),
                 isNull(),
                 eq(listOf()),

@@ -47,7 +47,8 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
 
         lenient().when(
                         mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
-                                any(), any(), any(), any(), any(), any(), anyInt(), any(), any()))
+                                any(), any(), any(), any(), any(), any(), any(), anyInt(), any(),
+                                any()))
                 .thenReturn(mockRenderable);
 
         reader = new RectangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
@@ -115,6 +116,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 )
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
+                .onWheelScroll(ON_WHEEL_SCROLL_ID)
                 .onMouseOver(ON_MOUSE_OVER_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ID);
 
@@ -122,7 +124,8 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockRenderable, once()).setCapturesMouseEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseButtonEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseWheelEvents(true);
         verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(topLeftColorDefinition),
@@ -139,7 +142,6 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(mockTextureHeightProviderDefinition),
                 eq(TIMESTAMP));
-        verify(mockRenderable, once()).setCapturesMouseEvents(true);
         verify(MOCK_GET_CONSUMER, once()).apply(ON_PRESS_ID);
         verify(MOCK_GET_CONSUMER, once()).apply(ON_RELEASE_ID);
         verify(MOCK_GET_CONSUMER, once()).apply(ON_MOUSE_OVER_ID);
@@ -155,6 +157,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 same(mockTextureYOffsetProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
+                same(MOCK_ON_WHEEL_SCROLL),
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 same(mockAreaProvider),
@@ -173,7 +176,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         assertSame(mockRenderable, renderable);
         verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
                 eq(TIMESTAMP));
-        verify(mockRenderable, never()).setCapturesMouseEvents(anyBoolean());
+        verify(mockRenderable, never()).setCapturesMouseButtonEvents(anyBoolean());
         //noinspection unchecked
         verify(mockFactory, once()).make(
                 same(mockNullProvider),
@@ -187,6 +190,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 isNull(),
                 eq(mapOf()),
                 eq(mapOf()),
+                isNull(),
                 isNull(),
                 isNull(),
                 same(mockAreaProvider),
@@ -206,8 +210,9 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
         assertSame(mockRenderable, renderable);
         verify(mockProviderDefinitionReader, never()).read(same(mockAreaProviderDefinition),
                 anyLong());
-        verify(mockRenderable, never()).setCapturesMouseEvents(anyBoolean());
+        verify(mockRenderable, never()).setCapturesMouseButtonEvents(anyBoolean());
         verify(mockFactory, once()).make(
+                any(),
                 any(),
                 any(),
                 any(),
@@ -249,6 +254,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 any(),
                 eq(mapOf()),
                 eq(mapOf()),
+                isNull(),
                 isNull(),
                 isNull(),
                 same(mockAreaProvider),
@@ -294,7 +300,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 same(mockTexHeightProvider),
                 same(mockTexYOffsetProvider),
                 eq(mapOf()), eq(mapOf()),
-                isNull(), isNull(),
+                isNull(), isNull(), isNull(),
                 same(mockAreaProvider),
                 eq(Z),
                 isNotNull(),
@@ -327,6 +333,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 anyMap(),
                 isNull(),
                 isNull(),
+                isNull(),
                 any(),
                 anyInt(),
                 isNotNull(),
@@ -348,6 +355,7 @@ public class RectangleRenderableDefinitionReaderTests extends AbstractContentDef
                 any(),
                 any(),
                 same(mockTexIdFromRelLocProvider),
+                any(),
                 any(),
                 any(),
                 any(),

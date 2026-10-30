@@ -21,6 +21,7 @@ import static inaugural.soliloquy.ui.components.Orientation.VERTICAL;
 import static inaugural.soliloquy.ui.components.scrollablecontent.ScrollableContentMethods.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static soliloquy.specs.ui.definitions.content.ComponentDefinition.component;
+import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.keyboard.KeyBindingDefinition.binding;
 import static soliloquy.specs.ui.definitions.providers.FunctionalProviderDefinition.functionalProvider;
 
@@ -80,32 +81,24 @@ public class ScrollableContentDefinitionReader extends
                 timestamp
         );
 
-        // TODO: Leave this be until scroll wheel capture has been implemented in IO
-//        var scrollWheelCapture = rectangle(
-//                functionalProvider(ScrollableContent_scrollWheelCaptureDimens, FloatBox.class)
-//                        .withData(mapOf(
-//                                SCROLLBAR_UUID,
-//                                def.SCROLLBAR.UUID,
-//                                SPAN_UUID,
-//                                spanComponentDef.UUID
-//                        )),
-//                SCROLL_WHEEL_CAPTURE_Z
-//        );
+        var encompassingDimensProvider = PROVIDER_DEF_READER.read(
+                functionalProvider(ScrollableContent_encompassingDimens, FloatBox.class)
+                .withData(innerProviderData),
+                timestamp
+        );
+
+        var scrollWheelCapture = rectangle(
+                encompassingDimensProvider,
+                SCROLL_WHEEL_CAPTURE_Z
+        )
+                .onWheelScroll(ScrollableContent_wheelScroll);
 
         var scrollableWindowLengthProvider = supplyIfNull(def.SCROLLABLE_WINDOW_LENGTH_PROVIDER,
                 () -> PROVIDER_DEF_READER.read(def.SCROLLABLE_WINDOW_LENGTH_PROVIDER_DEF,
                         timestamp));
 
-        var scrollableContentComponentDef = component(def.z, def.UUID)
-                .withDimensions(
-                        functionalProvider(ScrollableContent_encompassingDimens, FloatBox.class)
-                                .withData(mapOf(
-                                        SPAN_UUID,
-                                        def.SPAN.UUID,
-                                        SCROLLBAR_UUID,
-                                        def.SCROLLBAR.UUID
-                                ))
-                )
+        return component(def.z, def.UUID)
+                .withDimensions(encompassingDimensProvider)
                 .withUnadjDimensions(
                         functionalProvider(ScrollableContent_getUnadjDimens, FloatBox.class)
                                 .withData(mapOf(
@@ -115,7 +108,8 @@ public class ScrollableContentDefinitionReader extends
                 )
                 .withContent(
                         spanComponentDef,
-                        def.SCROLLBAR
+                        def.SCROLLBAR,
+                        scrollWheelCapture
                 )
                 .withData(mapOf(
                         COMPONENT_ORIGIN_PROVIDER,
@@ -141,7 +135,5 @@ public class ScrollableContentDefinitionReader extends
                         binding(GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT)
                                 .onRelease(ScrollableContent_pressArrowKey)
                 );
-
-        return scrollableContentComponentDef;
     }
 }

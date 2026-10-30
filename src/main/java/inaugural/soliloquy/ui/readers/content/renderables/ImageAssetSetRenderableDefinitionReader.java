@@ -63,11 +63,17 @@ public class ImageAssetSetRenderableDefinitionReader extends AbstractImageAssetD
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onWheelScroll = getConsumer(definition.onWheelScrollId);
         var onMouseOver = getConsumer(definition.onMouseOverId);
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
-        return FACTORY.make(imageAssetSet, data, borderThickness, borderColor, onPress, onRelease,
-                onMouseOver, onMouseLeave, colorShifts, dimensions, definition.z, UUID.randomUUID(),
-                component);
+        var renderable =
+                FACTORY.make(imageAssetSet, data, borderThickness, borderColor, onPress, onRelease,
+                        onWheelScroll, onMouseOver, onMouseLeave, colorShifts, dimensions,
+                        definition.z, UUID.randomUUID(), component);
+
+        setCaptures(definition, renderable);
+
+        return renderable;
     }
 }

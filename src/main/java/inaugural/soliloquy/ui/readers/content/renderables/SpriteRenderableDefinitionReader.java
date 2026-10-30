@@ -64,21 +64,17 @@ public class SpriteRenderableDefinitionReader extends AbstractImageAssetDefiniti
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onWheelScroll = getConsumer(definition.onWheelScrollId);
         var onMouseOver = getConsumer(definition.onMouseOverId);
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         var renderable =
-                FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease, onMouseOver,
-                        onMouseLeave, colorShifts, dimensions, definition.z, UUID.randomUUID(),
-                        component);
-        if (
-                (definition.onPressIds != null && !definition.onPressIds.isEmpty()) ||
-                        (definition.onReleaseIds != null && !definition.onReleaseIds.isEmpty()) ||
-                        !Strings.isNullOrEmpty(definition.onMouseOverId) ||
-                        !Strings.isNullOrEmpty(definition.onMouseLeaveId)
-        ) {
-            renderable.setCapturesMouseEvents(true);
-        }
+                FACTORY.make(sprite, borderThickness, borderColor, onPress, onRelease,
+                        onWheelScroll, onMouseOver, onMouseLeave, colorShifts, dimensions,
+                        definition.z, UUID.randomUUID(), component);
+
+        setCaptures(definition, renderable);
+
         return renderable;
     }
 }

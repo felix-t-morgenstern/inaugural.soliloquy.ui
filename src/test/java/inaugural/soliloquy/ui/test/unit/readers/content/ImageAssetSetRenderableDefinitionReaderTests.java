@@ -54,7 +54,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 any(),
                 any(),
                 any(), any(),
-                any(), any(), any(), any(),
+                any(), any(), any(), any(), any(),
                 any(),
                 any(),
                 anyInt(),
@@ -101,6 +101,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 .withColorShifts(mockShiftDefinition)
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
+                .onWheelScroll(ON_WHEEL_SCROLL_ID)
                 .onMouseOver(ON_MOUSE_OVER_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ID);
 
@@ -108,6 +109,8 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
+        verify(mockRenderable, once()).setCapturesMouseButtonEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseWheelEvents(true);
         verify(MOCK_GET_IMAGE_ASSET_SET, once()).apply(IMAGE_ASSET_SET_ID);
         verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
                 eq(TIMESTAMP));
@@ -128,6 +131,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 same(mockBorderThickness), same(mockBorderColor),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
+                same(MOCK_ON_WHEEL_SCROLL),
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 eq(listOf(mockShift)),
@@ -152,6 +156,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 any(), any(),
                 anyMap(),
                 anyMap(),
+                any(),
                 any(),
                 any(),
                 eq(listOf(mockShift)),
@@ -180,6 +185,7 @@ public class ImageAssetSetRenderableDefinitionReaderTests extends AbstractConten
                 same(mockNullProvider), same(mockNullProvider),
                 eq(mapOf()),
                 eq(mapOf()),
+                isNull(),
                 isNull(),
                 isNull(),
                 eq(listOf()),

@@ -86,6 +86,7 @@ public class RectangleRenderableDefinitionReader
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onWheelScroll = getConsumer(definition.onWheelScrollId);
         var onMouseOver = getConsumer(definition.onMouseOverId);
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
@@ -101,6 +102,7 @@ public class RectangleRenderableDefinitionReader
                 textureYOffset,
                 onPress,
                 onRelease,
+                onWheelScroll,
                 onMouseOver,
                 onMouseLeave,
                 dimens,
@@ -109,13 +111,7 @@ public class RectangleRenderableDefinitionReader
                 component
         );
 
-        if (definition.onPressIds != null ||
-                definition.onReleaseIds != null ||
-                definition.onMouseOverId != null ||
-                definition.onMouseLeaveId != null
-        ) {
-            renderable.setCapturesMouseEvents(true);
-        }
+        setCaptures(definition, renderable);
 
         return renderable;
     }

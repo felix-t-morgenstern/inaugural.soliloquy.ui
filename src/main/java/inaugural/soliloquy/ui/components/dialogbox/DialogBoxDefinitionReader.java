@@ -32,6 +32,7 @@ public class DialogBoxDefinitionReader extends
     private final static int BOX_Z = 0;
     private final static int CONTENT_Z = 1;
     private final static int BUTTONS_Z = 2;
+    private final static int WHEEL_CAPTURE_Z = 3;
 
     public DialogBoxDefinitionReader(ProviderDefinitionReader providerDefReader) {
         super(providerDefReader);

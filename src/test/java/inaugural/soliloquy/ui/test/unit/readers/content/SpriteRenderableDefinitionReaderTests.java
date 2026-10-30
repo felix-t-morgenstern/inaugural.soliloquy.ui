@@ -46,7 +46,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
         lenient().when(mockFactory.make(
                 any(),
                 any(), any(),
-                any(), any(), any(), any(),
+                any(), any(), any(), any(), any(),
                 any(),
                 any(),
                 anyInt(),
@@ -90,6 +90,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 .withColorShifts(mockShiftDefinition)
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
+                .onWheelScroll(ON_WHEEL_SCROLL_ID)
                 .onMouseOver(ON_MOUSE_OVER_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ID);
 
@@ -97,6 +98,8 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
+        verify(mockRenderable, once()).setCapturesMouseButtonEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseWheelEvents(true);
         verify(MOCK_GET_SPRITE, once()).apply(SPRITE_ID);
         verify(mockProviderDefinitionReader, once()).read(same(mockAreaProviderDefinition),
                 eq(TIMESTAMP));
@@ -116,6 +119,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 same(mockBorderThickness), same(mockBorderColor),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
+                same(MOCK_ON_WHEEL_SCROLL),
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 eq(listOf(mockShift)),
@@ -124,7 +128,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 isNotNull(),
                 same(mockComponent)
         );
-        verify(mockRenderable, once()).setCapturesMouseEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseButtonEvents(true);
     }
 
     @Test
@@ -141,6 +145,7 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 any(), any(),
                 anyMap(),
                 anyMap(),
+                any(),
                 any(),
                 any(),
                 eq(listOf(mockShift)),
@@ -170,12 +175,13 @@ public class SpriteRenderableDefinitionReaderTests extends AbstractContentDefini
                 eq(mapOf()),
                 isNull(),
                 isNull(),
+                isNull(),
                 eq(listOf()),
                 same(mockAreaProvider),
                 eq(Z),
                 isNotNull(),
                 same(mockComponent)
         );
-        verify(mockRenderable, never()).setCapturesMouseEvents(anyBoolean());
+        verify(mockRenderable, never()).setCapturesMouseButtonEvents(anyBoolean());
     }
 }

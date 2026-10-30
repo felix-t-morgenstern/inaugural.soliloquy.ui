@@ -28,6 +28,7 @@ public class ScrollableContentMethods {
     final static String SCROLLBAR_UUID = "SCROLLBAR_UUID";
     final static String SPAN_UUID = "SPAN_UUID";
     final static String SPAN_LENGTH = "SPAN_LENGTH";
+    final static String SPAN_DIMENS_PROVIDER = "SPAN_DIMENS_PROVIDER";
     final static String SCROLLABLE_WINDOW_LENGTH_PROVIDER = "SCROLLABLE_WINDOW_LENGTH_PROVIDER";
     final static String SCROLLBAR_PADDING = "SCROLLBAR_PADDING";
     final static String HIDES_SCROLLBAR_WHEN_CONTENT_FITS = "HIDES_SCROLLBAR_WHEN_CONTENT_FITS";
@@ -205,13 +206,49 @@ public class ScrollableContentMethods {
             "ScrollableContent_encompassingDimens";
 
     public FloatBox ScrollableContent_encompassingDimens(FunctionalProvider.Inputs inputs) {
-        var span = GET_COMPONENT.apply(getFromData(inputs, SPAN_UUID));
-        var scrollbar = GET_COMPONENT.apply(getFromData(inputs, SCROLLBAR_UUID));
+        var scrollableContent = GET_COMPONENT.apply(getFromData(inputs, COMPONENT_UUID));
+        ProviderAtTime<Vertex> scrollableContentOriginProvider =
+                getFromData(scrollableContent, COMPONENT_ORIGIN_PROVIDER);
+        var scrollableContentOrigin = scrollableContentOriginProvider.provide(inputs.timestamp());
+        ProviderAtTime<Float> scrollableWindowLengthProvider =
+                getFromData(scrollableContent, SCROLLABLE_WINDOW_LENGTH_PROVIDER);
+        var scrollableWindowLength = scrollableWindowLengthProvider.provide(inputs.timestamp());
 
+        FloatBox spanDimens;
+        Orientation orientation = getFromData(scrollableContent, ORIENTATION);
+        var span = GET_COMPONENT.apply(getFromData(scrollableContent, SPAN_UUID));
+        if (orientation == VERTICAL) {
+            spanDimens = floatBoxOf(
+                    scrollableContentOrigin,
+                    getFromData(span, COMPONENT_WIDTH),
+                    scrollableWindowLength
+            );
+        }
+        else {
+            spanDimens = floatBoxOf(
+                    scrollableContentOrigin,
+                    scrollableWindowLength,
+                    getFromData(span, COMPONENT_HEIGHT)
+            );
+        }
+
+        var scrollbar = GET_COMPONENT.apply(getFromData(scrollableContent, SCROLLBAR_UUID));
         var scrollbarDimens = scrollbar.dimensionsProvider().provide(inputs.timestamp());
-        var spanDimens = span.dimensionsProvider().provide(inputs.timestamp());
 
-        return encompassing(scrollbarDimens, spanDimens);
+        return encompassing(spanDimens, scrollbarDimens);
+    }
+
+    public final static String ScrollableContent_wheelScroll = "ScrollableContent_wheelScroll";
+
+    public void ScrollableContent_wheelScroll(EventInputs e) {
+        var scrollableContent = e.component;
+        var scrollbar = GET_COMPONENT.apply(getFromData(scrollableContent, SCROLLBAR_UUID));
+        if (e.scrollWheelOffset > 0) {
+            INCREMENT_MOVEMENT.accept(scrollbar, e.TIMESTAMP, true);
+        }
+        else {
+            INCREMENT_MOVEMENT.accept(scrollbar, e.TIMESTAMP, false);
+        }
     }
 
     public final static String ScrollableContent_pressArrowKey = "ScrollableContent_pressArrowKey";

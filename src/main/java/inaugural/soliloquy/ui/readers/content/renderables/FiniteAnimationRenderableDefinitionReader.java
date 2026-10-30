@@ -60,17 +60,19 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onWheelScroll = getConsumer(definition.onWheelScrollId);
         var onMouseOver = getConsumer(definition.onMouseOverId);
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
         var startTimestamp = timestamp + definition.startTimestampOffset;
 
-        return FACTORY.make(
+        var renderable = FACTORY.make(
                 animation,
                 borderThickness,
                 borderColor,
                 onPress,
                 onRelease,
+                onWheelScroll,
                 onMouseOver,
                 onMouseLeave,
                 colorShifts,
@@ -81,5 +83,9 @@ public class FiniteAnimationRenderableDefinitionReader extends AbstractImageAsse
                 startTimestamp,
                 null
         );
+
+        setCaptures(definition, renderable);
+
+        return renderable;
     }
 }

@@ -1,5 +1,6 @@
 package inaugural.soliloquy.ui.readers.content.renderables;
 
+import com.google.common.base.Strings;
 import inaugural.soliloquy.tools.Check;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
 import soliloquy.specs.common.entities.Consumer;
@@ -65,6 +66,7 @@ public class TriangleRenderableDefinitionReader
 
         var onPress = getConsumerPerButton(definition.onPressIds);
         var onRelease = getConsumerPerButton(definition.onReleaseIds);
+        var onWheelScroll = getConsumer(definition.onWheelScrollId);
         var onMouseOver = getConsumer(definition.onMouseOverId);
         var onMouseLeave = getConsumer(definition.onMouseLeaveId);
 
@@ -83,6 +85,7 @@ public class TriangleRenderableDefinitionReader
                         textureYOffset,
                         onPress,
                         onRelease,
+                        onWheelScroll,
                         onMouseOver,
                         onMouseLeave,
                         definition.z,
@@ -90,13 +93,7 @@ public class TriangleRenderableDefinitionReader
                         component
                 );
 
-        if (definition.onPressIds != null ||
-                definition.onReleaseIds != null ||
-                definition.onMouseOverId != null ||
-                definition.onMouseLeaveId != null
-        ) {
-            renderable.setCapturesMouseEvents(true);
-        }
+        setCaptures(definition, renderable);
 
         return renderable;
     }

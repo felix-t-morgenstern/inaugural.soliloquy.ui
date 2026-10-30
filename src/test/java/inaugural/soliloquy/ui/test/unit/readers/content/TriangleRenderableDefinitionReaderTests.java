@@ -65,8 +65,8 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
         lenient().when(
                         mockFactory.make(any(), any(), any(), any(), any(), any(), any(), any(),
-                                any(), any(), any(), any(), any(), any(), any(), anyInt(), any(),
-                                any()))
+                                any(), any(), any(), any(), any(), any(), any(), any(), anyInt(),
+                                any(), any()))
                 .thenReturn(mockRenderable);
 
         reader = new TriangleRenderableDefinitionReader(mockFactory, MOCK_GET_CONSUMER,
@@ -121,6 +121,7 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 )
                 .onPress(mapOf(pairOf(ON_PRESS_BUTTON, ON_PRESS_ID)))
                 .onRelease(mapOf(pairOf(ON_RELEASE_BUTTON, ON_RELEASE_ID)))
+                .onWheelScroll(ON_WHEEL_SCROLL_ID)
                 .onMouseOver(ON_MOUSE_OVER_ID)
                 .onMouseLeave(ON_MOUSE_LEAVE_ID);
 
@@ -128,7 +129,8 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
 
         assertNotNull(renderable);
         assertSame(mockRenderable, renderable);
-        verify(mockRenderable, once()).setCapturesMouseEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseButtonEvents(true);
+        verify(mockRenderable, once()).setCapturesMouseWheelEvents(true);
         verify(mockProviderDefinitionReader, once()).read(same(mockVector1Definition),
                 eq(TIMESTAMP));
         verify(mockProviderDefinitionReader, once()).read(same(vector1ColorDefinition),
@@ -163,6 +165,7 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockTextureYOffsetProvider),
                 eq(mapOf(pairOf(ON_PRESS_BUTTON, MOCK_ON_PRESS))),
                 eq(mapOf(pairOf(ON_RELEASE_BUTTON, MOCK_ON_RELEASE))),
+                same(MOCK_ON_WHEEL_SCROLL),
                 same(MOCK_ON_MOUSE_OVER),
                 same(MOCK_ON_MOUSE_LEAVE),
                 eq(Z),
@@ -202,6 +205,7 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 isNull(),
                 eq(mapOf()),
                 eq(mapOf()),
+                isNull(),
                 isNull(),
                 isNull(),
                 eq(Z),
@@ -250,6 +254,7 @@ public class TriangleRenderableDefinitionReaderTests extends AbstractContentDefi
                 same(mockTextureYOffsetProvider),
                 eq(mapOf()),
                 eq(mapOf()),
+                isNull(),
                 isNull(),
                 isNull(),
                 eq(Z),

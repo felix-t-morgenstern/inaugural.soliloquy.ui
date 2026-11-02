@@ -2,7 +2,7 @@ package inaugural.soliloquy.ui.test.integration.display;
 
 import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
 import inaugural.soliloquy.io.api.dto.ImageDefinitionDTO;
-import inaugural.soliloquy.ui.Denormalization;
+import inaugural.soliloquy.ui.Normalization;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.content.renderables.RenderableDefinitionReader;
 import soliloquy.specs.io.graphics.renderables.Component;
@@ -14,7 +14,7 @@ import static soliloquy.specs.common.valueobjects.Vertex.vertexOf;
 import static soliloquy.specs.ui.definitions.content.RectangleRenderableDefinition.rectangle;
 import static soliloquy.specs.ui.definitions.providers.StaticProviderDefinition.staticVal;
 
-public class DenormalizationDisplayTest  extends DisplayTest {
+public class NormalizationDisplayTest extends DisplayTest {
     public static void main(String[] args) {
         new DisplayTest().runTest(
                 "Denormalization display test",
@@ -32,14 +32,14 @@ public class DenormalizationDisplayTest  extends DisplayTest {
                         arrayOf()
                 ),
                 () -> DisplayTest.runThenClose("Denormalization", 4000),
-                DenormalizationDisplayTest::populateTopLevelComponent
+                NormalizationDisplayTest::populateTopLevelComponent
         );
     }
 
     protected static void populateTopLevelComponent(UIModule uiModule,
                                                     Component topLevelComponent) {
         var rectDef = rectangle(
-                Denormalization.denormHeightDef(floatBoxOf(vertexOf(0.25f, 0.25f), 0.25f, 0.25f)),
+                Normalization.normalizeHeightDef(floatBoxOf(vertexOf(0.25f, 0.25f), 0.25f, 0.25f)),
                 0
         )
                 .withColors(

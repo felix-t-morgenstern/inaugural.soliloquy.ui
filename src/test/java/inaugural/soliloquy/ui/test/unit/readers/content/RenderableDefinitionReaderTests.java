@@ -43,6 +43,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     @Mock private RectangleRenderableDefinition mockRectangleDefinition;
     @Mock private TriangleRenderableDefinition mockTriangleDefinition;
     @Mock private SpriteRenderableDefinition mockSpriteDefinition;
+    @Mock private GlobalLoopingAnimationRenderableDefinition mockGlobalLoopingAnimationDefinition;
     @Mock private ImageAssetSetRenderableDefinition mockImageAssetSetDefinition;
     @Mock private FiniteAnimationRenderableDefinition mockFiniteAnimationDefinition;
     @Mock private TextLineRenderableDefinition mockTextLineDefinition;
@@ -52,6 +53,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     @Mock private RectangleRenderableDefinitionReader mockRectangleReader;
     @Mock private TriangleRenderableDefinitionReader mockTriangleReader;
     @Mock private SpriteRenderableDefinitionReader mockSpriteReader;
+    @Mock private GlobalLoopingAnimationRenderableDefinitionReader mockGlobalLoopingAnimationReader;
     @Mock private ImageAssetSetRenderableDefinitionReader mockImageAssetSetReader;
     @Mock private FiniteAnimationRenderableDefinitionReader mockFiniteAnimationReader;
     @Mock private TextLineRenderableDefinitionReader mockTextLineReader;
@@ -62,6 +64,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
     @Mock private RectangleRenderable mockRectangleRenderable;
     @Mock private TriangleRenderable mockTriangleRenderable;
     @Mock private SpriteRenderable mockSpriteRenderable;
+    @Mock private GlobalLoopingAnimationRenderable mockGlobalLoopingAnimationRenderable;
     @Mock private ImageAssetSetRenderable mockImageAssetSetRenderable;
     @Mock private FiniteAnimationRenderable mockFiniteAnimationRenderable;
     @Mock private TextLineRenderable mockTextLineRenderable;
@@ -98,6 +101,8 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 .thenReturn(mockTriangleRenderable);
         lenient().when(mockSpriteReader.read(any(), any(), anyLong()))
                 .thenReturn(mockSpriteRenderable);
+        lenient().when(mockGlobalLoopingAnimationReader.read(any(), any(), anyLong()))
+                .thenReturn(mockGlobalLoopingAnimationRenderable);
         lenient().when(mockImageAssetSetReader.read(any(), any(), anyLong()))
                 .thenReturn(mockImageAssetSetRenderable);
         lenient().when(mockFiniteAnimationReader.read(any(), any(), anyLong()))
@@ -124,6 +129,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -143,6 +149,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -158,6 +165,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -173,6 +181,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 null,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -188,6 +197,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 null,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -203,6 +213,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 null,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -219,6 +230,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockTriangleReader,
                 mockSpriteReader,
                 null,
+                mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
                 mockComponentFactory,
@@ -233,6 +245,23 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
+                null,
+                mockFiniteAnimationReader,
+                mockTextLineReader,
+                mockComponentFactory,
+                mockProviderReader,
+                MOCK_GET_CONSUMER,
+                mockWholeScreenProvider,
+                DEFAULT_KEY_BINDING_PRIORITY
+        ));
+        assertThrows(IllegalArgumentException.class, () -> new RenderableDefinitionReader(
+                mockRasterizedLineReader,
+                mockAntialiasedLineReader,
+                mockRectangleReader,
+                mockTriangleReader,
+                mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 null,
                 mockTextLineReader,
@@ -248,6 +277,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 null,
@@ -263,6 +293,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -278,6 +309,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -293,6 +325,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -308,6 +341,7 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
                 mockRectangleReader,
                 mockTriangleReader,
                 mockSpriteReader,
+                mockGlobalLoopingAnimationReader,
                 mockImageAssetSetReader,
                 mockFiniteAnimationReader,
                 mockTextLineReader,
@@ -379,6 +413,20 @@ public class RenderableDefinitionReaderTests extends AbstractContentDefinitionTe
         verify(mockSpriteReader, once()).read(
                 same(mockContainingComponent),
                 same(mockSpriteDefinition),
+                eq(TIMESTAMP)
+        );
+        verify(mockContainingComponent, once()).add(mockSpriteRenderable);
+    }
+
+    @Test
+    public void testReadGlobalLoopingAnimationDefinition() {
+        var output = reader.read(mockContainingComponent, mockGlobalLoopingAnimationDefinition,
+                TIMESTAMP);
+
+        assertSame(mockGlobalLoopingAnimationRenderable, output);
+        verify(mockGlobalLoopingAnimationReader, once()).read(
+                same(mockContainingComponent),
+                same(mockGlobalLoopingAnimationDefinition),
                 eq(TIMESTAMP)
         );
         verify(mockContainingComponent, once()).add(mockSpriteRenderable);

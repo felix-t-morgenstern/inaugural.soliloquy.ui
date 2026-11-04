@@ -3,10 +3,7 @@ package inaugural.soliloquy.ui.test.integration.display;
 import inaugural.soliloquy.common.CommonModule;
 import inaugural.soliloquy.io.IOModule;
 import inaugural.soliloquy.io.api.WindowResolution;
-import inaugural.soliloquy.io.api.dto.AssetDefinitionsDTO;
-import inaugural.soliloquy.io.api.dto.FontDefinitionDTO;
-import inaugural.soliloquy.io.api.dto.FontStyleDefinitionDTO;
-import inaugural.soliloquy.io.api.dto.FontStyleDefinitionGlyphPropertyDTO;
+import inaugural.soliloquy.io.api.dto.*;
 import inaugural.soliloquy.tools.collections.Collections;
 import inaugural.soliloquy.ui.UIModule;
 import inaugural.soliloquy.ui.readers.providers.ProviderDefinitionReader;
@@ -32,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.stream.IntStream;
 
 import static inaugural.soliloquy.io.api.Constants.*;
 import static inaugural.soliloquy.io.api.Settings.*;
@@ -67,6 +65,23 @@ public class DisplayTest {
     protected final static String SHIELD_SPRITE_ID = "shieldSpriteId";
     protected final static String RPG_WEAPONS_RELATIVE_LOCATION =
             "./src/test/resources/images/items/RPG_Weapons.png";
+
+    protected final static String FIRE_PARTICLE_EFFECT_REL_LOC =
+            "./src/test/resources/images/effects/fire_02.png";
+    protected final static int FIRE_PARTICLE_EFFECT_MS_PER_FRAME = 1000 / 64;
+    protected final static AnimationFrameDefinitionDTO[] FIRE_PARTICLE_EFFECT_FRAMES =
+            IntStream.range(0,64).mapToObj(i -> new AnimationFrameDefinitionDTO(
+                    FIRE_PARTICLE_EFFECT_REL_LOC,
+                    i * FIRE_PARTICLE_EFFECT_MS_PER_FRAME,
+                    (i % 8) * 128,
+                    (i / 8) * 128,
+                    ((i % 8) + 1) * 128,
+                    ((i / 8) + 1) * 128,
+                    0,
+                    0
+            )).toArray(AnimationFrameDefinitionDTO[]::new);
+    protected final static String FLAME_PARTICLE_EFFECT_ID = "FLAME_PARTICLE_EFFECT_ID";
+    protected final static String LOOPING_FLAME_PARTICLE_EFFECT_ID = "LOOPING_FLAME_PARTICLE_EFFECT_ID";
 
     protected final static String CINZEL_ID = "cinzel";
     protected final static String RELATIVE_LOCATION_CINZEL =

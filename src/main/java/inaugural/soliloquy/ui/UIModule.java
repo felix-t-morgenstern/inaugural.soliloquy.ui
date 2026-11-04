@@ -191,6 +191,14 @@ public class UIModule extends AbstractModule {
                                 shiftDefinitionReader,
                                 nullProvider
                         ),
+                        new GlobalLoopingAnimationRenderableDefinitionReader(
+                                ioModule.provide(GlobalLoopingAnimationRenderableFactory.class),
+                                graphics::getGlobalLoopingAnimation,
+                                methods.CONSUMERS::get,
+                                providerDefinitionReader,
+                                shiftDefinitionReader,
+                                nullProvider
+                        ),
                         new ImageAssetSetRenderableDefinitionReader(
                                 ioModule.provide(ImageAssetSetRenderableFactory.class),
                                 graphics::getImageAssetSet,

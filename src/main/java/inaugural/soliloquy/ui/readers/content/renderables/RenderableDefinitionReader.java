@@ -30,6 +30,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
     private final RectangleRenderableDefinitionReader RECTANGLE_READER;
     private final TriangleRenderableDefinitionReader TRIANGLE_READER;
     private final SpriteRenderableDefinitionReader SPRITE_READER;
+    private final GlobalLoopingAnimationRenderableDefinitionReader GLOBAL_LOOPING_ANIMATION_READER;
     private final ImageAssetSetRenderableDefinitionReader IMAGE_ASSET_SET_READER;
     private final FiniteAnimationRenderableDefinitionReader FINITE_ANIMATION_READER;
     private final TextLineRenderableDefinitionReader TEXT_LINE_READER;
@@ -49,6 +50,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
             RectangleRenderableDefinitionReader rectangleReader,
             TriangleRenderableDefinitionReader triangleReader,
             SpriteRenderableDefinitionReader spriteReader,
+            GlobalLoopingAnimationRenderableDefinitionReader globalLoopingAnimationReader,
             ImageAssetSetRenderableDefinitionReader imageAssetSetReader,
             FiniteAnimationRenderableDefinitionReader finiteAnimationReader,
             TextLineRenderableDefinitionReader textLineReader,
@@ -62,6 +64,8 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         RECTANGLE_READER = Check.ifNull(rectangleReader, "rectangleReader");
         TRIANGLE_READER = Check.ifNull(triangleReader, "triangleReader");
         SPRITE_READER = Check.ifNull(spriteReader, "spriteReader");
+        GLOBAL_LOOPING_ANIMATION_READER =
+                Check.ifNull(globalLoopingAnimationReader, "globalLoopingAnimationReader");
         IMAGE_ASSET_SET_READER = Check.ifNull(imageAssetSetReader, "imageAssetSetReader");
         FINITE_ANIMATION_READER = Check.ifNull(finiteAnimationReader, "finiteAnimationReader");
         TEXT_LINE_READER = Check.ifNull(textLineReader, "textLineReader");
@@ -72,6 +76,7 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         DEFAULT_KEY_EVENT_PRIORITY = defaultKeyEventPriority;
     }
 
+    @SuppressWarnings("unchecked")
     public <TDef extends AbstractContentDefinition, TRend extends Renderable> TRend read(
             Component containingComponent,
             TDef definition,
@@ -80,31 +85,26 @@ public class RenderableDefinitionReader extends AbstractContentDefinitionReader 
         Check.ifNull(definition, "definition");
         TRend renderable = switch (definition) {
             case RasterizedLineSegmentRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) RASTERIZED_LINE_READER.read(containingComponent, d, timestamp);
             case AntialiasedLineSegmentRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) ANTIALIASED_LINE_READER.read(containingComponent, d, timestamp);
             case RectangleRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) RECTANGLE_READER.read(containingComponent, d, timestamp);
             case TriangleRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) TRIANGLE_READER.read(containingComponent, d, timestamp);
             case SpriteRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) SPRITE_READER.read(containingComponent, d, timestamp);
+            case GlobalLoopingAnimationRenderableDefinition d ->
+                    (TRend) GLOBAL_LOOPING_ANIMATION_READER.read(containingComponent, d, timestamp);
             case ImageAssetSetRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) IMAGE_ASSET_SET_READER.read(containingComponent, d, timestamp);
             case FiniteAnimationRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) FINITE_ANIMATION_READER.read(containingComponent, d, timestamp);
             case TextLineRenderableDefinition d ->
-                //noinspection unchecked
                     (TRend) TEXT_LINE_READER.read(containingComponent, d, timestamp);
-            case ComponentDefinition d -> readComponentDef(d, containingComponent, timestamp);
-            default -> //noinspection unchecked
+            case ComponentDefinition d ->
+                    readComponentDef(d, containingComponent, timestamp);
+            default ->
                     (TRend) readCustomDef(definition, containingComponent, timestamp);
         };
         if (containingComponent != null) {

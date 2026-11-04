@@ -23,7 +23,6 @@ public class SpriteRenderableDefinitionReaderDisplayTest extends DisplayTest {
                 "Sprite renderable definition reader display test",
                 new AssetDefinitionsDTO(
                         arrayOf(
-                                //new ImageDefinitionDTO(BACKGROUND_TEXTURE_RELATIVE_LOCATION, false),
                                 new ImageDefinitionDTO(RPG_WEAPONS_RELATIVE_LOCATION, true)
                         ),
                         arrayOf(),
